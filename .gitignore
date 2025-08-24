@@ -1,0 +1,100 @@
+# ---------------------------------------------------------------------------
+# macOS & System Files
+# ---------------------------------------------------------------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.fseventsd
+.Spotlight-V100
+.Trashes
+.VolumeIcon.icns
+Icon
+
+# ---------------------------------------------------------------------------
+# Xcode
+#
+# Tuist, SPM 등을 사용해 프로젝트 파일을 동적으로 생성하는 경우,
+# .xcworkspace와 .xcodeproj를 .gitignore에 추가합니다.
+# ---------------------------------------------------------------------------
+# Project files
+*.xcodeproj
+*.xcworkspace
+
+# User-specific settings
+*.xcuserdatad
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+
+# Build artifacts
+build/
+DerivedData/
+
+# Test results and coverage
+*.gcda
+*.gcno
+*.xctestrun
+*.plist
+TestPlans/
+
+# Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+# ---------------------------------------------------------------------------
+# Build Products & Archives
+# ---------------------------------------------------------------------------
+*.ipa
+*.dSYM
+*.dSYM.zip
+
+# ---------------------------------------------------------------------------
+# Dependency Managers
+#
+# Podfile.lock과 Package.resolved는 팀원 간의 의존성 버전을
+# 통일하기 위해 반드시 Git에 포함(commit)해야 합니다.
+# ---------------------------------------------------------------------------
+# CocoaPods
+Pods/
+
+# Carthage
+Carthage/Build/
+Carthage/Checkouts/
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# ---------------------------------------------------------------------------
+# Tools
+# ---------------------------------------------------------------------------
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/
+
+# Tuist
+Tuist/
+Derived/
+Tuist/.build
+graph.dot
+.tuist-version
+
+# Visual Studio Code
+.vscode/
+
+# ---------------------------------------------------------------------------
+# Environment & Secrets
+#
+# API 키 등 민감한 정보가 담긴 파일은 Git에 올리지 않습니다.
+# 단, xcconfig 파일은 빌드 설정을 포함하므로 대부분 Git에 포함시켜야 합니다.
+# ---------------------------------------------------------------------------
+# Environment variables
+*.env
+
+# Config files with secrets (예시: Secrets.xcconfig)
+# 모든 .xcconfig를 무시하지 않도록 주의하세요.
+Secrets.xcconfig
+
