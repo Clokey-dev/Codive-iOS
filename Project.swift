@@ -16,19 +16,15 @@ let project = Project(
                     ],
                 ]
             ),
-            sources: ["Clokey/Sources/**"],
+            sources: [
+                "Clokey/Application/**",
+                "Clokey/Core/**",
+                "Clokey/Data/**",
+                "Clokey/Domain/**",
+                "Clokey/Presentation/**"
+            ],
             resources: ["Clokey/Resources/**"],
             dependencies: []
-        ),
-        .target(
-            name: "ClokeyTests",
-            destinations: .iOS,
-            product: .unitTests,
-            bundleId: "io.tuist.ClokeyTests",
-            infoPlist: .default,
-            sources: ["Clokey/Tests/**"],
-            resources: [],
-            dependencies: [.target(name: "Clokey")]
         ),
     ]
 )
