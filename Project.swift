@@ -1,5 +1,23 @@
 import ProjectDescription
 
+// MARK: - Projects
+
+// SwiftLint 스크립트 정의
+let lintScript = TargetScript.pre(
+    script: """
+    if test -d "/opt/homebrew/bin/"; then
+        PATH="/opt/homebrew/bin/:${PATH}"
+    fi
+
+    if which swiftlint > /dev/null; then
+        swiftlint
+    else
+        echo "warning: SwiftLint not installed, skipping..."
+    fi
+    """,
+    name: "SwiftLint"
+)
+
 let project = Project(
     name: "Clokey",
     targets: [
@@ -8,6 +26,7 @@ let project = Project(
             destinations: .iOS,
             product: .app,
             bundleId: "io.tuist.Clokey",
+            deploymentTargets: .iOS("15.0"),
             infoPlist: .extendingDefault(
                 with: [
                     "UILaunchScreen": [
@@ -24,6 +43,7 @@ let project = Project(
                 "Clokey/Presentation/**"
             ],
             resources: ["Clokey/Resources/**"],
+            scripts: [lintScript],
             dependencies: []
         ),
     ]
