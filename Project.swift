@@ -91,12 +91,21 @@ let project = Project(
             resources: ["Codive/Resources/**"],
             scripts: [lintScript],
             dependencies: [],
-            settings: .settings(base: [
-                "PRODUCT_BUNDLE_IDENTIFIER": "com.codive.app$(BUNDLE_ID_SUFFIX)"
-            ], configurations: [
-                .debug(name: "Debug", settings: ["BUNDLE_ID_SUFFIX": ".dev"]),
-                .release(name: "Release", settings: ["BUNDLE_ID_SUFFIX": ""])
-            ])
+            settings: .settings(
+                base: [
+                    "DEVELOPMENT_TEAM": "BBVZV8T99P",
+                    "CODE_SIGN_STYLE": "Manual",
+                    "PROVISIONING_PROFILE_SPECIFIER": "match Development com.codive.app",
+                    "CODE_SIGN_IDENTITY": "Apple Development"
+                ],
+                configurations: [
+                    .debug(name: "Debug", settings: [:]),
+                    .release(name: "Release", settings: [
+                        "PROVISIONING_PROFILE_SPECIFIER": "match AppStore com.codive.app",
+                        "CODE_SIGN_IDENTITY": "Apple Distribution"
+                    ])
+                ]
+            )
         ),
     ]
 )
