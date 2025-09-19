@@ -1,0 +1,16 @@
+default_platform(:ios)
+
+platform :ios do
+  desc "새로운 팀원이 개발 환경을 설정할 때 사용하는 lane입니다."
+  lane :setup_development do
+    
+    # 1. '공용 금고'에서 개발용 인증서/프로파일을 읽어옵니다.
+    # readonly: true 옵션으로 새 인증서를 만들지 않도록 합니다.
+    match(type: "development", readonly: true)
+
+    # 2. Tuist 프로젝트를 생성합니다.
+    sh "tuist generate"
+
+    UI.success("🎉 프로젝트 설정 완료! .xcworkspace 파일을 열어주세요.")
+  end
+end

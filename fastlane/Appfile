@@ -1,0 +1,8 @@
+# 앱의 Bundle Identifier
+app_identifier("com.codive.app")
+
+# Apple Developer 계정 이메일
+apple_id("dbrdldh11@naver.com")
+
+# 본인의 개인 개발팀 ID
+team_id("BBVZV8T99P")
