@@ -25,7 +25,7 @@ let configurations: [Configuration] = [
     .debug(
         name: "Debug",
         settings: [
-            "PRODUCT_NAME": "Clokey (Dev)",
+            "PRODUCT_NAME": "Codive (Dev)",
             "SWIFT_ACTIVE_COMPILATION_CONDITIONS": ["DEBUG"],
             "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon-Dev",
             "BASE_URL": "https://dev-api.clokey.com"
@@ -35,7 +35,7 @@ let configurations: [Configuration] = [
     .release(
         name: "Release",
         settings: [
-            "PRODUCT_NAME": "Clokey",
+            "PRODUCT_NAME": "Codive",
             "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
             "BASE_URL": "https://api.clokey.com"
         ],
@@ -54,14 +54,14 @@ let projectSettings = Settings.settings(
 // MARK: - Project
 
 let project = Project(
-    name: "Clokey",
+    name: "Codive",
     settings: projectSettings,
     targets: [
         .target(
-            name: "Clokey",
+            name: "Codive",
             destinations: .iOS,
             product: .app,
-            bundleId: "com.clokey.app",
+            bundleId: "com.codive.app",
             deploymentTargets: .iOS("15.0"),
             infoPlist: .extendingDefault(
                 with: [
@@ -82,17 +82,17 @@ let project = Project(
                 ]
             ),
             sources: [
-                "Clokey/Application/**",
-                "Clokey/Core/**",
-                "Clokey/Data/**",
-                "Clokey/Domain/**",
-                "Clokey/Presentation/**"
+                "Codive/Application/**",
+                "Codive/Core/**",
+                "Codive/Data/**",
+                "Codive/Domain/**",
+                "Codive/Presentation/**"
             ],
-            resources: ["Clokey/Resources/**"],
+            resources: ["Codive/Resources/**"],
             scripts: [lintScript],
             dependencies: [],
             settings: .settings(base: [
-                "PRODUCT_BUNDLE_IDENTIFIER": "com.clokey.app$(BUNDLE_ID_SUFFIX)"
+                "PRODUCT_BUNDLE_IDENTIFIER": "com.codive.app$(BUNDLE_ID_SUFFIX)"
             ], configurations: [
                 .debug(name: "Debug", settings: ["BUNDLE_ID_SUFFIX": ".dev"]),
                 .release(name: "Release", settings: ["BUNDLE_ID_SUFFIX": ""])
