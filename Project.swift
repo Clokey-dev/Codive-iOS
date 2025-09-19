@@ -15,7 +15,8 @@ let lintScript = TargetScript.pre(
         echo "warning: SwiftLint not installed, skipping..."
     fi
     """,
-    name: "SwiftLint"
+    name: "SwiftLint",
+    basedOnDependencyAnalysis: false
 )
 
 // MARK: - Configurations
@@ -94,12 +95,13 @@ let project = Project(
             settings: .settings(
                 base: [
                     "DEVELOPMENT_TEAM": "BBVZV8T99P",
-                    "CODE_SIGN_STYLE": "Manual",
-                    "PROVISIONING_PROFILE_SPECIFIER": "match Development com.codive.app",
-                    "CODE_SIGN_IDENTITY": "Apple Development"
+                    "CODE_SIGN_STYLE": "Manual"
                 ],
                 configurations: [
-                    .debug(name: "Debug", settings: [:]),
+                    .debug(name: "Debug", settings: [
+                        "PROVISIONING_PROFILE_SPECIFIER": "match Development com.codive.app",
+                        "CODE_SIGN_IDENTITY": "Apple Development"
+                    ]),
                     .release(name: "Release", settings: [
                         "PROVISIONING_PROFILE_SPECIFIER": "match AppStore com.codive.app",
                         "CODE_SIGN_IDENTITY": "Apple Distribution"
