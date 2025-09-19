@@ -3,11 +3,14 @@ default_platform(:ios)
 platform :ios do
   desc "개발 환경 세팅"
   lane :setup_development do
-    
     match(type: "development", readonly: true)
-
     sh "tuist generate"
+    UI.success("🎉 개발 환경 설정 완료! .xcworkspace 파일을 열어주세요.")
+  end
 
-    UI.success("🎉 프로젝트 설정 완료! .xcworkspace 파일을 열어주세요.")
+  desc "App Store 배포 환경 세팅"
+  lane :setup_appstore do
+    match(type: "appstore", readonly: true)
+    UI.success("🚀 App Store 배포 환경 설정 완료!")
   end
 end
