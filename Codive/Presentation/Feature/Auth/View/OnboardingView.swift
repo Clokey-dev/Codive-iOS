@@ -42,33 +42,42 @@ struct OnboardingView: View {
 
             // 로그인 버튼
             VStack(spacing: 16) {
-                Button(
-                    action: {
-                        viewModel.loginButtonTapped()
-                    },
-                    label: {
-                        Image("kakao_login")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
+                // 카카오 로그인
+                Button {
+                    Task {
+                        await viewModel.kakaoLoginButtonTapped()
                     }
-                )
-
-                Button(
-                    action: {
-                        // TODO: 애플 로그인 액션 구현
-                    },
-                    label: {
-                        Image("apple_login")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
+                } label: {
+                    Image("kakao_login")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                }
+                .disabled(viewModel.isLoading)
+                
+                // 애플 로그인
+                Button {
+                    Task {
+                        await viewModel.appleLoginButtonTapped()
                     }
-                )
+                } label: {
+                    Image("apple_login")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                }
+                .disabled(viewModel.isLoading)
             }
             .padding(.horizontal, 20)
             .padding(.bottom, 30)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.white.ignoresSafeArea())
+        .alert("로그인 오류", isPresented: .constant(viewModel.errorMessage != nil)) {
+            Button("확인") {
+                viewModel.clearError()
+            }
+        } message: {
+            Text(viewModel.errorMessage ?? "")
+        }
     }
 }
 

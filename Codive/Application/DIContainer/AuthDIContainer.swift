@@ -14,6 +14,9 @@ final class AuthDIContainer {
     private let appRouter: AppRouter
     lazy var viewFactory = ViewFactory(authDIContainer: self)
     
+    // MARK: - Services
+    lazy var socialAuthService: SocialAuthServiceProtocol = SocialAuthService()
+    
     // MARK: - Routers
     lazy var navigationRouter = NavigationRouter()
     
@@ -26,7 +29,8 @@ final class AuthDIContainer {
     func makeOnboardingViewModel() -> OnboardingViewModel {
         return OnboardingViewModel(
             appRouter: appRouter,
-            navigationRouter: navigationRouter
+            navigationRouter: navigationRouter,
+            socialAuthService: socialAuthService
         )
     }
     
