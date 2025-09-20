@@ -8,7 +8,6 @@
 import Foundation
 
 enum Destination: Hashable {
-    
     case login
     case signup
     case main

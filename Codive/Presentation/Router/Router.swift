@@ -10,7 +10,6 @@ import Combine
 
 @MainActor
 final class Router: ObservableObject {
-    
     // MARK: - Navigation Path
     @Published var path = NavigationPath()
     

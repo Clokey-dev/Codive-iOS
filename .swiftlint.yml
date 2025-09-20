@@ -21,6 +21,7 @@ excluded:
 disabled_rules:
   - trailing_whitespace # 후행 공백: Xcode에서 자동으로 제거해주는 경우가 많아 제외합니다.
   - identifier_name # 이름 규칙: 변수/함수 이름 길이나 형식 규칙이며, 좀 더 세부적인 논의가 필요할 수 있어 일단 제외합니다.
+  - todo # TODO 주석 필요
 
 # 기본적으로는 비활성화되어 있지만, 유용해서 추가로 활성화할 규칙들을 지정합니다.
 opt_in_rules:
@@ -64,3 +65,7 @@ file_length:
 cyclomatic_complexity:
   warning: 15
   error: 25
+
+nesting:
+  type_level: 2      # 타입 중첩 2단계까지 허용
+  function_level: 3  # 함수 중첩 3단계까지 허용

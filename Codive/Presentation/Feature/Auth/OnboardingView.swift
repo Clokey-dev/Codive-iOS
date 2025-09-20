@@ -35,20 +35,22 @@ struct OnboardingView: View {
                 // Kakao Login Button
                 Button(action: {
                     // TODO: 카카오 로그인 액션 구현
-                }) {
+                },
+                label: {
                     Image("kakao_login")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                }
-                
+                })
+
                 // Apple Login Button
                 Button(action: {
                     // TODO: 애플 로그인 액션 구현
-                }) {
+                },
+                label: {
                     Image("apple_login")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                }
+                })
             }
             .padding(.horizontal, 20)
             .padding(.bottom, 30)
