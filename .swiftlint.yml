@@ -35,7 +35,7 @@ opt_in_rules:
   - explicit_init # 'SomeType.init()' 대신 축약형인 'SomeType()'을 사용하도록 권장합니다.
   - file_header # 모든 소스 파일 상단에 일관된 형식의 주석(e.g., 생성자, 날짜)이 있는지 검사합니다.
   - vertical_whitespace_closing_braces # 닫는 중괄호 '}' 바로 앞에 불필요한 빈 줄이 들어가는 것을 방지합니다.
-  - vertical_whitespace_opening_braces # 여는 중괄호 '{' 바로 앞에 불필요한 빈 줄이 들어가는 것을 방지합니다.
+#  - vertical_whitespace_opening_braces # 여는 중괄호 '{' 바로 앞에 불필요한 빈 줄이 들어가는 것을 방지합니다.
   - trailing_closure # 클로저가 함수의 마지막 인자일 때, 후행 클로저 문법을 사용하도록 강제합니다. (SwiftUI 스타일에 필수)
   - empty_parentheses_with_trailing_closure # 후행 클로저를 사용할 때 불필요한 빈 괄호 '()'를 제거하여 코드를 간결하게 만듭니다.
   - unneeded_parentheses_in_closure_argument # 클로저의 인자를 감싸는 불필요한 괄호를 제거합니다. (e.g., '| (number) |' -> '| number |')
@@ -69,3 +69,6 @@ cyclomatic_complexity:
 nesting:
   type_level: 2      # 타입 중첩 2단계까지 허용
   function_level: 3  # 함수 중첩 3단계까지 허용
+
+vertical_whitespace:
+  max_empty_lines: 1

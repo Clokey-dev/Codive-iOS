@@ -1,5 +1,5 @@
 //
-//  Router.swift
+//  NavigationRouter.swift
 //  Codive
 //
 //  Created by 황상환 on 9/20/25.
@@ -9,7 +9,8 @@ import SwiftUI
 import Combine
 
 @MainActor
-final class Router: ObservableObject {
+final class NavigationRouter: ObservableObject {
+    
     // MARK: - Navigation Path
     @Published var path = NavigationPath()
     
