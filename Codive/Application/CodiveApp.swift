@@ -1,7 +1,14 @@
+//
+//  CodiveApp.swift
+//  Codive
+//
+//  Created by 황상환 on 9/20/25.
+//
+
 import SwiftUI
 
 @main
-struct ClokeyApp: App {
+struct CodiveApp: App {
 
     let appDIContainer = AppDIContainer()
 

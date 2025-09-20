@@ -1,6 +1,6 @@
 //
 //  Color+Extension.swift
-//  Clokey
+//  Codive
 //
 //  Created by 황상환 on 9/4/25.
 //
@@ -8,7 +8,7 @@
 import SwiftUI
 
 extension Color {
-    enum CloKey {
+    enum Codive {
         // Grayscale
         static var grayscale1: Color { Color("Grayscale1") }
         static var grayscale2: Color { Color("Grayscale2") }

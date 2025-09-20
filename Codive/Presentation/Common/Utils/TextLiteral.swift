@@ -13,7 +13,7 @@ enum TextLiteral {
         // Onboarding (온보딩 화면)
         enum Onboarding {
             static let mainTitle = """
-                                   Clokey와 함께
+                                   Codive와 함께
                                    스마트한 옷장 관리를
                                    시작해보세요!
                                    """
