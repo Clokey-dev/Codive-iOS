@@ -28,19 +28,17 @@ let configurations: [Configuration] = [
         settings: [
             "PRODUCT_NAME": "Codive (Dev)",
             "SWIFT_ACTIVE_COMPILATION_CONDITIONS": ["DEBUG"],
-            "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon-Dev",
-            "BASE_URL": "https://dev-api.clokey.com"
+            "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon-Dev"
         ],
-        xcconfig: nil
+        xcconfig: "Codive/Resources/Secrets/Debug.xcconfig"
     ),
     .release(
         name: "Release",
         settings: [
             "PRODUCT_NAME": "Codive",
-            "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
-            "BASE_URL": "https://api.clokey.com"
+            "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon"
         ],
-        xcconfig: nil
+        xcconfig: "Codive/Resources/Secrets/Release.xcconfig"
     )
 ]
 
