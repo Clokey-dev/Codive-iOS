@@ -108,7 +108,10 @@ let project = Project(
                 // 카카오 SDK
                 .external(name: "KakaoSDKCommon"),
                 .external(name: "KakaoSDKAuth"),
-                .external(name: "KakaoSDKUser")
+                .external(name: "KakaoSDKUser"),
+                
+                // 네트워킹
+                .external(name: "Moya")
             ],
             settings: .settings(
                 base: [
