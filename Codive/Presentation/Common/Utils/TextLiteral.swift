@@ -8,10 +8,8 @@
 import Foundation
 
 enum TextLiteral {
-    
     // MARK: - Auth (인증)
     enum Auth {
-        
         // Onboarding (온보딩 화면)
         enum Onboarding {
             static let mainTitle = """
