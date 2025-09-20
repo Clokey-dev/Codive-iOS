@@ -2,21 +2,34 @@ import SwiftUI
 
 @main
 struct ClokeyApp: App {
+
+    let appDIContainer = AppDIContainer()
+
     var body: some Scene {
         WindowGroup {
-            Text("Title 1 (Semibold 20)")
-            .font(.clokey_title1)
-            .foregroundColor(.CloKey.grayscale1)
-            
-            Text("Title 1 (Semibold 20)")
-            .font(.system(size: 20, weight: .semibold))
-            .foregroundColor(.CloKey.grayscale1)
-            
-            Text("Body 1 (Medium 16)")
-            .font(.clokey_body1_medium)
-            
-            Text("Body 2 (Regular 14)")
-            .font(.clokey_body2_regular)
+            AppRootView(appDIContainer: appDIContainer)
+        }
+    }
+}
+
+/// 앱의 최상위 RootView
+struct AppRootView: View {
+    
+    @StateObject var appRouter: AppRouter
+    private let authDIContainer: AuthDIContainer
+    
+    init(appDIContainer: AppDIContainer) {
+        self._appRouter = StateObject(wrappedValue: appDIContainer.appRouter)
+        self.authDIContainer = appDIContainer.makeAuthDIContainer()
+    }
+    
+    var body: some View {
+        switch appRouter.currentAppState {
+        case .auth:
+            authDIContainer.makeAuthView()
+        case .main:
+            // TODO: Main 플로우를 위한 View 연결
+            Text("로그인 성공! 메인 화면입니다.")
         }
     }
 }

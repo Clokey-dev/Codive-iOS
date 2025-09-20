@@ -17,9 +17,8 @@ enum AppState {
 // 상태 전환 라우터
 @MainActor
 final class AppRouter: ObservableObject {
-    @Published var currentAppState: AppState = .auth // 앱 시작 시 기본값은 인증(.auth)
+    @Published var currentAppState: AppState = .auth
     
-    // 상태를 메인(.main)으로 변경하는 함수
     func navigateToMain() {
         currentAppState = .main
     }
