@@ -79,7 +79,22 @@ let project = Project(
                         "Pretendard-Thin.otf"
                     ],
                     "CFBundleDisplayName": "$(PRODUCT_NAME)",
-                    "BASE_URL": "$(BASE_URL)"
+                    "BASE_URL": "$(BASE_URL)",
+                    
+                    // 카카오 SDK 설정
+                    "KAKAO_APP_KEY": "$(KAKAO_APP_KEY)",
+                    "CFBundleURLTypes": [
+                        [
+                            "CFBundleURLName": "KAKAO",
+                            "CFBundleURLSchemes": ["kakao$(KAKAO_APP_KEY)"]
+                        ]
+                    ],
+                    "LSApplicationQueriesSchemes": [
+                        "kakaokompassauth",
+                        "storykompassauth",
+                        "kakaolink",
+                        "kakaotalk-5.9.7"
+                    ]
                 ]
             ),
             sources: [
@@ -91,7 +106,12 @@ let project = Project(
             ],
             resources: ["Codive/Resources/**"],
             scripts: [lintScript],
-            dependencies: [],
+            dependencies: [
+                // 카카오 SDK
+                .external(name: "KakaoSDKCommon"),
+                .external(name: "KakaoSDKAuth"),
+                .external(name: "KakaoSDKUser")
+            ],
             settings: .settings(
                 base: [
                     "DEVELOPMENT_TEAM": "BBVZV8T99P",
