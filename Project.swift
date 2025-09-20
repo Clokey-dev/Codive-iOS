@@ -63,7 +63,7 @@ let project = Project(
             destinations: .iOS,
             product: .app,
             bundleId: "com.codive.app",
-            deploymentTargets: .iOS("15.0"),
+            deploymentTargets: .iOS("16.0"),
             infoPlist: .extendingDefault(
                 with: [
                     "UILaunchScreen": [:],
