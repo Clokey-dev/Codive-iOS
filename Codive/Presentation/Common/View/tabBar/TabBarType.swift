@@ -10,10 +10,11 @@ import Foundation
 enum TabBarType: String, CaseIterable {
     case home = "home"
     case closet = "clo"
-    case add = "add"
+    case add = "plus"
     case feed = "feed"
     case profile = "profile"
     
+    // MARK: - Computed Properties
     var title: String {
         switch self {
         case .home:

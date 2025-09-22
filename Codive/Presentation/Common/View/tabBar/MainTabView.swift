@@ -1,37 +1,57 @@
-//
-//  MainTabView.swift
-//  Codive
-//
-//  Created by 황상환 on 9/22/25.
-//
-
 import SwiftUI
 
 struct MainTabView: View {
-    @State private var selectedTab: TabBarType = .home
     
+    // MARK: - Properties
+    @StateObject private var viewModel = MainTabViewModel()
+    
+    // MARK: - Body
     var body: some View {
-        ZStack(alignment: .bottom) {
-            // 메인 컨텐츠 영역
-            Group {
-                switch selectedTab {
-                case .home:
-                    HomeView()
-                case .closet:
-                    ClosetView()
-                case .add:
-                    AddView()
-                case .feed:
-                    FeedView()
-                case .profile:
-                    ProfileView()
-                }
+        VStack(spacing: 0) {
+            if shouldShowTopBar {
+                TopNavigationBar(
+                    showSearchButton: showSearchButton,
+                    showNotificationButton: showNotificationButton,
+                    onSearchTap: viewModel.handleSearchTap,
+                    onNotificationTap: viewModel.handleNotificationTap
+                )
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
             
-            // 커스텀 탭바
-            CustomTabBar(selectedTab: $selectedTab)
+            // MARK: - Main Content Area
+            ZStack(alignment: .bottom) {
+                Group {
+                    switch viewModel.selectedTab {
+                    case .home:
+                        HomeView()
+                    case .closet:
+                        ClosetView()
+                    case .add:
+                        AddView()
+                    case .feed:
+                        FeedView()
+                    case .profile:
+                        ProfileView()
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                
+                // Custom Tab Bar
+                CustomTabBar(selectedTab: $viewModel.selectedTab)
+            }
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
+    }
+    
+    // MARK: - Computed Properties
+    private var shouldShowTopBar: Bool {
+        viewModel.selectedTab != .add
+    }
+    
+    private var showSearchButton: Bool {
+        true
+    }
+    
+    private var showNotificationButton: Bool {
+        true
     }
 }

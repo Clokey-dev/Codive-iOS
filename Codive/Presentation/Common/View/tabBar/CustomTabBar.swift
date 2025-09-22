@@ -7,49 +7,15 @@
 
 import SwiftUI
 
-struct PlusButton: View {
-    let isSelected: Bool
-    let onTap: () -> Void
-    @State private var isPressed = false
-    
-    var body: some View {
-        Button(action: onTap) {
-            ZStack {
-                Circle()
-                    .fill(backgroundColor)
-                    .frame(width: 42, height: 42)
-                
-                Image(systemName: "plus")
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundColor(iconColor)
-            }
-        }
-        .scaleEffect(isPressed ? 0.95 : 1.0)
-    }
-    
-    private var backgroundColor: Color {
-        if isPressed {
-            return isSelected ? Color.Codive.main6 : Color.Codive.main0
-        } else {
-            return isSelected ? Color.Codive.main0 : Color.Codive.main6
-        }
-    }
-    
-    private var iconColor: Color {
-        if isPressed {
-            return isSelected ? Color.Codive.main0 : Color.Codive.main6
-        } else {
-            return isSelected ? Color.Codive.main6 : Color.Codive.main0
-        }
-    }
-}
-
 struct CustomTabBar: View {
+    
+    // MARK: - Properties
     @Binding var selectedTab: TabBarType
     
+    // MARK: - Body
     var body: some View {
         HStack(spacing: 0) {
-            // home 탭
+            // MARK: - Home Tab
             TabBarItem(
                 icon: TabBarType.home.iconName,
                 title: TabBarType.home.title,
@@ -59,7 +25,7 @@ struct CustomTabBar: View {
             }
             .frame(maxWidth: .infinity)
             
-            // Closet 탭
+            // MARK: - Closet Tab
             TabBarItem(
                 icon: TabBarType.closet.iconName,
                 title: TabBarType.closet.title,
@@ -69,17 +35,18 @@ struct CustomTabBar: View {
             }
             .frame(maxWidth: .infinity)
             
-            // Add 탭
-            PlusButton(
+            // MARK: - Add Tab
+            TabBarItem(
+                icon: TabBarType.add.iconName,
+                title: TabBarType.add.title,
                 isSelected: selectedTab == .add
             ) {
                 selectedTab = .add
             }
             .frame(maxWidth: .infinity)
-            .shadow(color: .clear, radius: 0)
-            .buttonStyle(PlainButtonStyle())
+            .padding(.bottom, -12)
             
-            // feed 탭
+            // MARK: - Feed Tab
             TabBarItem(
                 icon: TabBarType.feed.iconName,
                 title: TabBarType.feed.title,
@@ -89,7 +56,7 @@ struct CustomTabBar: View {
             }
             .frame(maxWidth: .infinity)
             
-            // profile 탭
+            // MARK: - Profile Tab
             TabBarItem(
                 icon: TabBarType.profile.iconName,
                 title: TabBarType.profile.title,
@@ -102,6 +69,9 @@ struct CustomTabBar: View {
         .padding(.horizontal, 20)
         .padding(.top, 12)
         .background(Color.white)
-        .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: -1)
-    }
+        .background(
+            Rectangle()
+                .fill(Color.white)
+                .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: -1)
+        )    }
 }
