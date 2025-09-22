@@ -10,6 +10,7 @@ import Foundation
 enum TabBarType: String, CaseIterable {
     case home = "home"
     case closet = "clo"
+    case add = "add"
     case feed = "feed"
     case profile = "profile"
     
@@ -19,6 +20,8 @@ enum TabBarType: String, CaseIterable {
             return "홈"
         case .closet:
             return "옷장"
+        case .add:
+            return ""
         case .feed:
             return "피드"
         case .profile:

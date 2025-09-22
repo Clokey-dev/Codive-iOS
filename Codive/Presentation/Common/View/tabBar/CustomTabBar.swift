@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct PlusButton: View {
+    let isSelected: Bool
     let onTap: () -> Void
     @State private var isPressed = false
     
@@ -15,94 +16,92 @@ struct PlusButton: View {
         Button(action: onTap) {
             ZStack {
                 Circle()
-                    .fill(isPressed ? Color.Codive.main0 : Color.Codive.main6)
+                    .fill(backgroundColor)
                     .frame(width: 42, height: 42)
                 
                 Image(systemName: "plus")
                     .font(.system(size: 20, weight: .semibold))
-                    .foregroundColor(isPressed ? Color.Codive.main6 : Color.Codive.main0)
+                    .foregroundColor(iconColor)
             }
         }
         .scaleEffect(isPressed ? 0.95 : 1.0)
-        .onLongPressGesture(minimumDuration: 0, maximumDistance: .infinity, pressing: { pressing in
-            withAnimation(.easeInOut(duration: 0.1)) {
-                isPressed = pressing
-            }
-        }, perform: {})
+    }
+    
+    private var backgroundColor: Color {
+        if isPressed {
+            return isSelected ? Color.Codive.main6 : Color.Codive.main0
+        } else {
+            return isSelected ? Color.Codive.main0 : Color.Codive.main6
+        }
+    }
+    
+    private var iconColor: Color {
+        if isPressed {
+            return isSelected ? Color.Codive.main0 : Color.Codive.main6
+        } else {
+            return isSelected ? Color.Codive.main6 : Color.Codive.main0
+        }
     }
 }
 
 struct CustomTabBar: View {
     @Binding var selectedTab: TabBarType
-    let onPlusButtonTapped: () -> Void
     
     var body: some View {
         HStack(spacing: 0) {
-            // 첫 번째 탭 (홈)
+            // home 탭
             TabBarItem(
                 icon: TabBarType.home.iconName,
                 title: TabBarType.home.title,
-                isSelected: selectedTab == .home,
-                action: {
-                    selectedTab = .home
-                }
-            )
+                isSelected: selectedTab == .home
+            ) {
+                selectedTab = .home
+            }
             .frame(maxWidth: .infinity)
             
-            // 두 번째 탭 (옷장)
+            // Closet 탭
             TabBarItem(
                 icon: TabBarType.closet.iconName,
                 title: TabBarType.closet.title,
-                isSelected: selectedTab == .closet,
-                action: {
-                    selectedTab = .closet
-                }
-            )
+                isSelected: selectedTab == .closet
+            ) {
+                selectedTab = .closet
+            }
             .frame(maxWidth: .infinity)
             
-            // 가운데 플러스 버튼
-            PlusButton(onTap: onPlusButtonTapped)
-                .frame(maxWidth: .infinity)
+            // Add 탭
+            PlusButton(
+                isSelected: selectedTab == .add
+            ) {
+                selectedTab = .add
+            }
+            .frame(maxWidth: .infinity)
+            .shadow(color: .clear, radius: 0)
+            .buttonStyle(PlainButtonStyle())
             
-            // 세 번째 탭 (피드)
+            // feed 탭
             TabBarItem(
                 icon: TabBarType.feed.iconName,
                 title: TabBarType.feed.title,
-                isSelected: selectedTab == .feed,
-                action: {
-                    selectedTab = .feed
-                }
-            )
+                isSelected: selectedTab == .feed
+            ) {
+                selectedTab = .feed
+            }
             .frame(maxWidth: .infinity)
             
-            // 네 번째 탭 (프로필)
+            // profile 탭
             TabBarItem(
                 icon: TabBarType.profile.iconName,
                 title: TabBarType.profile.title,
-                isSelected: selectedTab == .profile,
-                action: {
-                    selectedTab = .profile
-                }
-            )
+                isSelected: selectedTab == .profile
+            ) {
+                selectedTab = .profile
+            }
             .frame(maxWidth: .infinity)
         }
         .padding(.horizontal, 20)
         .padding(.top, 12)
         .background(Color.white)
-        .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: -2)
+        .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: -1)
     }
-}
-
-#Preview {
-    VStack {
-        Spacer()
-        
-        CustomTabBar(
-            selectedTab: .constant(.home),
-            onPlusButtonTapped: {
-                print("Plus button tapped!")
-            }
-        )
-    }
-    .background(Color.gray.opacity(0.1))
 }

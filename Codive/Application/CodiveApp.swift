@@ -45,8 +45,7 @@ struct AppRootView: View {
         case .auth:
             authDIContainer.makeAuthView()
         case .main:
-            // TODO: Main 플로우를 위한 View 연결
-            Text("로그인 성공! 메인 화면입니다.")
+            MainTabView()
         }
     }
 }

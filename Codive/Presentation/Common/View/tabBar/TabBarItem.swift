@@ -35,17 +35,15 @@ struct TabBarItem: View {
         TabBarItem(
             icon: "home",
             title: "홈",
-            isSelected: true,
-            action: {}
-        )
+            isSelected: true
+        ) {}
         
         // Unselected state
         TabBarItem(
             icon: "home",
             title: "홈",
-            isSelected: false,
-            action: {}
-        )
+            isSelected: false
+        ) {}
     }
     .padding()
 }
