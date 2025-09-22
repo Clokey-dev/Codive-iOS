@@ -103,6 +103,7 @@ let project = Project(
                 "Codive/Presentation/**"
             ],
             resources: ["Codive/Resources/**"],
+            entitlements: .file(path: "Codive/Codive.entitlements"),
             scripts: [lintScript],
             dependencies: [
                 // 카카오 SDK
