@@ -17,7 +17,16 @@ enum AppState {
 // 상태 전환 라우터
 @MainActor
 final class AppRouter: ObservableObject {
-    @Published var currentAppState: AppState = .auth
+    
+    // MARK: - 임시 자동로그인 플래그 (나중에 삭제 예정)
+    private let isAutoLoginEnabled = true
+    
+    @Published var currentAppState: AppState
+    
+    init() {
+        // 임시: 자동로그인이 활성화되어 있으면 바로 메인으로
+        self.currentAppState = isAutoLoginEnabled ? .main : .auth
+    }
     
     func navigateToMain() {
         currentAppState = .main
