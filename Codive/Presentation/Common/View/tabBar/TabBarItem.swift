@@ -26,7 +26,7 @@ struct TabBarItem: View {
                 
                 // Title
                 Text(title)
-                    .font(.codive_body4_regular)
+                    .font(.codive_body3_medium)
                     .foregroundColor(isSelected ? Color.Codive.main0 : Color.Codive.grayscale4)
             }
         }
