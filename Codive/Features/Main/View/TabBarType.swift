@@ -18,15 +18,15 @@ enum TabBarType: String, CaseIterable {
     var title: String {
         switch self {
         case .home:
-            return "홈"
+            return TextLiteral.TabBar.home
         case .closet:
-            return "옷장"
+            return TextLiteral.TabBar.closet
         case .add:
             return ""
         case .feed:
-            return "피드"
+            return TextLiteral.TabBar.feed
         case .profile:
-            return "마이페이지"
+            return TextLiteral.TabBar.profile
         }
     }
     

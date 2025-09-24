@@ -35,8 +35,8 @@ struct MainTabView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
-                // Custom Tab Bar
-                CustomTabBar(selectedTab: $viewModel.selectedTab)
+                // Tab Bar
+                TabBar(selectedTab: $viewModel.selectedTab)
             }
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)

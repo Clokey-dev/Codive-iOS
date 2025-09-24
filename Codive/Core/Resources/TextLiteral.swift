@@ -35,4 +35,20 @@ enum TextLiteral {
             static let signUpCompleteButtonTitle = "가입 완료"
         }
     }
+    
+    // MARK: - TabBar (탭바)
+    enum TabBar {
+        static let home = "홈"
+        static let closet = "옷장"
+        static let add = ""
+        static let feed = "피드"
+        static let profile = "마이페이지"
+    }
+    
+    // MARK: - Navigation (상단 네비게이션)
+    enum Navigation {
+        static let logoPlaceholder = "Logo"
+        static let searchButtonAccessibilityLabel = "검색"
+        static let notificationButtonAccessibilityLabel = "알림"
+    }
 }

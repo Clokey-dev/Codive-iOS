@@ -1,5 +1,5 @@
 //
-//  CustomTabBar.swift
+//  TabBar.swift
 //  Codive
 //
 //  Created by 황상환 on 9/22/25.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct CustomTabBar: View {
+struct TabBar: View {
     
     // MARK: - Properties
     @Binding var selectedTab: TabBarType
