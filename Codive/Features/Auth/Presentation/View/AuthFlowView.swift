@@ -1,5 +1,5 @@
 //
-//  AuthView.swift
+//  AuthFlowView.swift
 //  Codive
 //
 //  Created by 황상환 on 9/20/25.
@@ -10,15 +10,15 @@ import SwiftUI
 struct AuthFlowView: View {
     
     @StateObject var navigationRouter: NavigationRouter
-    private let viewFactory: ViewFactory
+    private let authViewFactory: AuthViewFactory
     private let authDIContainer: AuthDIContainer
     
     init(
         authDIContainer: AuthDIContainer,
-        viewFactory: ViewFactory
+        authViewFactory: AuthViewFactory
     ) {
         self._navigationRouter = StateObject(wrappedValue: authDIContainer.navigationRouter)
-        self.viewFactory = viewFactory
+        self.authViewFactory = authViewFactory
         self.authDIContainer = authDIContainer
     }
     
@@ -26,7 +26,7 @@ struct AuthFlowView: View {
         NavigationStack(path: $navigationRouter.path) {
             authDIContainer.makeOnboardingView()
                 .navigationDestination(for: AppDestination.self) { destination in
-                    viewFactory.makeView(for: destination)
+                    authViewFactory.makeView(for: destination)
                 }
         }
     }

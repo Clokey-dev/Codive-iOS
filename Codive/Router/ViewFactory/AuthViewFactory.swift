@@ -1,14 +1,14 @@
 //
-//  ViewFactory.swift
+//  AuthViewFactory.swift
 //  Codive
 //
-//  Created by 황상환 on 9/20/25.
+//  Created by 황상환 on 9/24/25.
 //
 
 import SwiftUI
 
 @MainActor
-final class ViewFactory {
+final class AuthViewFactory {
     
     // MARK: - Properties
     private let authDIContainer: AuthDIContainer
@@ -23,10 +23,13 @@ final class ViewFactory {
     func makeView(for destination: AppDestination) -> some View {
         switch destination {
         case .login:
-            EmptyView()
+            // LoginView(viewModel: authDIContainer.makeLoginViewModel())
+            Text("로그인 화면") // 임시
         case .signup:
-            Text("회원가입 화면")
+            // SignUpView(viewModel: authDIContainer.makeSignUpViewModel())
+            Text("회원가입 화면") // 임시
         case .main:
+            // Main Feature에서 사용될 예정
             EmptyView()
         }
     }

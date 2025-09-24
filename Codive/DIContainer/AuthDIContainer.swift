@@ -12,7 +12,7 @@ final class AuthDIContainer {
     
     // MARK: - Properties
     private let appRouter: AppRouter
-    lazy var viewFactory = ViewFactory(authDIContainer: self)
+    lazy var authViewFactory = AuthViewFactory(authDIContainer: self)
     
     // MARK: - Services
     lazy var socialAuthService: SocialAuthServiceProtocol = SocialAuthService()
@@ -42,7 +42,7 @@ final class AuthDIContainer {
     func makeAuthFlowView() -> AuthFlowView {
         return AuthFlowView(
             authDIContainer: self,
-            viewFactory: viewFactory
+            authViewFactory: authViewFactory
         )
     }
 }
