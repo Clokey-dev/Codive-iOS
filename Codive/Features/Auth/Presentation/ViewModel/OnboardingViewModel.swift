@@ -13,7 +13,7 @@ final class OnboardingViewModel: ObservableObject {
     // MARK: - Properties
     private let appRouter: AppRouter
     private let navigationRouter: NavigationRouter
-    private let socialAuthService: SocialAuthServiceProtocol
+    private let authRepository: AuthRepository
     
     // MARK: - Published Properties
     @Published var isLoading = false
@@ -23,11 +23,11 @@ final class OnboardingViewModel: ObservableObject {
     init(
         appRouter: AppRouter,
         navigationRouter: NavigationRouter,
-        socialAuthService: SocialAuthServiceProtocol
+        authRepository: AuthRepository
     ) {
         self.appRouter = appRouter
         self.navigationRouter = navigationRouter
-        self.socialAuthService = socialAuthService
+        self.authRepository = authRepository
     }
     
     // MARK: - Actions
@@ -35,7 +35,7 @@ final class OnboardingViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
         
-        let result = await socialAuthService.kakaoLogin()
+        let result = await authRepository.socialLogin(provider: .kakao)  // Repository 사용
         
         isLoading = false
         
@@ -66,7 +66,7 @@ final class OnboardingViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
         
-        let result = await socialAuthService.appleLogin()
+        let result = await authRepository.socialLogin(provider: .apple)  // Repository 사용
         
         isLoading = false
         
@@ -84,6 +84,15 @@ final class OnboardingViewModel: ObservableObject {
                 errorMessage = error.localizedDescription
             }
         }
+    }
+    
+    // MARK: - Navigation Actions
+    func navigateToLogin() {
+        navigationRouter.navigate(to: .login)
+    }
+    
+    func navigateToSignup() {
+        navigationRouter.navigate(to: .signup)
     }
     
     // MARK: - Legacy Method (기존 호환성 유지)
