@@ -98,9 +98,10 @@ let project = Project(
             sources: [
                 "Codive/Application/**",
                 "Codive/Core/**",
-                "Codive/Data/**",
-                "Codive/Domain/**",
-                "Codive/Presentation/**"
+                "Codive/DIContainer/**",
+                "Codive/Features/**",
+                "Codive/Router/**",
+                "Codive/Shared/**",
             ],
             resources: ["Codive/Resources/**"],
             entitlements: .file(path: "Codive/Codive.entitlements"),
