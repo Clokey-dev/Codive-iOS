@@ -85,7 +85,6 @@ graph.dot
 # Visual Studio Code
 .vscode/
 
-# ---------------------------------------------------------------------------
 # Environment & Secrets
 #
 # API 키 등 민감한 정보가 담긴 파일은 Git에 올리지 않습니다.
@@ -93,8 +92,12 @@ graph.dot
 # ---------------------------------------------------------------------------
 # Environment variables
 *.env
-
 # Config files with secrets (예시: Secrets.xcconfig)
 # 모든 .xcconfig를 무시하지 않도록 주의하세요.
 Secrets.xcconfig
+
+# Secrets 폴더 전체 무시
+Codive/Resources/Secrets/
+Codive/Resources/Secrets/*.xcconfig
+
 

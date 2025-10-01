@@ -28,19 +28,17 @@ let configurations: [Configuration] = [
         settings: [
             "PRODUCT_NAME": "Codive (Dev)",
             "SWIFT_ACTIVE_COMPILATION_CONDITIONS": ["DEBUG"],
-            "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon-Dev",
-            "BASE_URL": "https://dev-api.clokey.com"
+            "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon-Dev"
         ],
-        xcconfig: nil
+        xcconfig: "Codive/Resources/Secrets/Debug.xcconfig"
     ),
     .release(
         name: "Release",
         settings: [
             "PRODUCT_NAME": "Codive",
-            "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
-            "BASE_URL": "https://api.clokey.com"
+            "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon"
         ],
-        xcconfig: nil
+        xcconfig: "Codive/Resources/Secrets/Release.xcconfig"
     )
 ]
 
@@ -63,7 +61,7 @@ let project = Project(
             destinations: .iOS,
             product: .app,
             bundleId: "com.codive.app",
-            deploymentTargets: .iOS("15.0"),
+            deploymentTargets: .iOS("16.0"),
             infoPlist: .extendingDefault(
                 with: [
                     "UILaunchScreen": [:],
@@ -79,19 +77,44 @@ let project = Project(
                         "Pretendard-Thin.otf"
                     ],
                     "CFBundleDisplayName": "$(PRODUCT_NAME)",
-                    "BASE_URL": "$(BASE_URL)"
+                    "BASE_URL": "$(BASE_URL)",
+                    
+                    // 카카오 SDK 설정
+                    "KAKAO_APP_KEY": "$(KAKAO_APP_KEY)",
+                    "CFBundleURLTypes": [
+                        [
+                            "CFBundleURLName": "KAKAO",
+                            "CFBundleURLSchemes": ["kakao$(KAKAO_APP_KEY)"]
+                        ]
+                    ],
+                    "LSApplicationQueriesSchemes": [
+                        "kakaokompassauth",
+                        "storykompassauth",
+                        "kakaolink",
+                        "kakaotalk-5.9.7"
+                    ]
                 ]
             ),
             sources: [
                 "Codive/Application/**",
                 "Codive/Core/**",
-                "Codive/Data/**",
-                "Codive/Domain/**",
-                "Codive/Presentation/**"
+                "Codive/DIContainer/**",
+                "Codive/Features/**",
+                "Codive/Router/**",
+                "Codive/Shared/**",
             ],
             resources: ["Codive/Resources/**"],
+            entitlements: .file(path: "Codive/Codive.entitlements"),
             scripts: [lintScript],
-            dependencies: [],
+            dependencies: [
+                // 카카오 SDK
+                .external(name: "KakaoSDKCommon"),
+                .external(name: "KakaoSDKAuth"),
+                .external(name: "KakaoSDKUser"),
+                
+                // 네트워킹
+                .external(name: "Moya")
+            ],
             settings: .settings(
                 base: [
                     "DEVELOPMENT_TEAM": "BBVZV8T99P",

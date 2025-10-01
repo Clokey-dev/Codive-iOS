@@ -1,6 +1,6 @@
 //
 //  Font+Extensions.swift
-//  Clokey
+//  Codive
 //
 //  Created by 황상환 on 8/29/25.
 //
@@ -11,36 +11,36 @@ public extension Font {
     // MARK: - Title
 
     /// semibold 20
-    static let clokey_title1 = customPretendard(size: 20, weight: .semiBold)
+    static let codive_title1 = customPretendard(size: 20, weight: .semiBold)
     
     /// semibold 18
-    static let clokey_title2 = customPretendard(size: 18, weight: .semiBold)
+    static let codive_title2 = customPretendard(size: 18, weight: .semiBold)
     
     /// medium 18
-    static let clokey_title3 = customPretendard(size: 18, weight: .medium)
+    static let codive_title3 = customPretendard(size: 18, weight: .medium)
 
     // MARK: - Body
     
     /// medium 16
-    static let clokey_body1_medium = customPretendard(size: 16, weight: .medium)
+    static let codive_body1_medium = customPretendard(size: 16, weight: .medium)
     
     /// regular 16
-    static let clokey_body1_regular = customPretendard(size: 16, weight: .regular)
+    static let codive_body1_regular = customPretendard(size: 16, weight: .regular)
     
     /// medium 14
-    static let clokey_body2_medium = customPretendard(size: 14, weight: .medium)
+    static let codive_body2_medium = customPretendard(size: 14, weight: .medium)
     
     /// regular 14
-    static let clokey_body2_regular = customPretendard(size: 14, weight: .regular)
+    static let codive_body2_regular = customPretendard(size: 14, weight: .regular)
     
     /// medium 12
-    static let clokey_body3_medium = customPretendard(size: 12, weight: .medium)
+    static let codive_body3_medium = customPretendard(size: 12, weight: .medium)
     
     /// regular 12
-    static let clokey_body3_regular = customPretendard(size: 12, weight: .regular)
+    static let codive_body3_regular = customPretendard(size: 12, weight: .regular)
     
     /// regular 10
-    static let clokey_body4_regular = customPretendard(size: 10, weight: .regular)
+    static let codive_body4_regular = customPretendard(size: 10, weight: .regular)
     
     /// Pretendard 폰트를 쉽게 사용하기 위한 private 함수
     private static func customPretendard(size: CGFloat, weight: PretendardWeight) -> Font {
