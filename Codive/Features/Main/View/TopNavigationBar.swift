@@ -31,11 +31,11 @@ struct TopNavigationBar: View {
     // MARK: - Body
     var body: some View {
         HStack {
-            // TODO: 로고 수정 예정
-            Text("Logo")
-                .font(.title2)
-                .fontWeight(.bold)
-                .foregroundColor(.black)
+            // Logo Image
+            Image("codive_logo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 70, height: 25)
             
             Spacer()
                         
