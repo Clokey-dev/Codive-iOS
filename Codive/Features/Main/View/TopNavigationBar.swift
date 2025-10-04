@@ -70,7 +70,6 @@ struct TopNavigationBar: View {
         .padding(.horizontal, 20)
         .padding(.vertical, 12)
         .background(Color.white)
-        .shadow(color: Color.black.opacity(0.05), radius: 1, x: 0, y: 1)
     }
 }
 
