@@ -1,5 +1,5 @@
 //
-//  CustomTextField.swift
+//  CustomTextField1.swift
 //  Codive
 //
 //  Created by 황상환 on 10/2/25.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct CustomTextField: View {
+struct CustomTextField1: View {
     
     // MARK: - Properties
     let title: String
@@ -53,19 +53,19 @@ struct CustomTextField: View {
 // MARK: - Preview
 #Preview {
     VStack(spacing: 24) {
-        CustomTextField(
+        CustomTextField1(
             title: "계절",
             placeholder: "봄",
             text: .constant("")
         )
         
-        CustomTextField(
+        CustomTextField1(
             title: "옷 이름",
             placeholder: "옷 이름을 입력해주세요.",
             text: .constant("")
         )
         
-        CustomTextField(
+        CustomTextField1(
             title: "브랜드",
             placeholder: "브랜드를 입력해주세요.",
             text: .constant("나이키")
