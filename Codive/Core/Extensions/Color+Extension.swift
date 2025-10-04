@@ -31,5 +31,6 @@ extension Color {
         static var point1: Color { Color("point1") }
         static var point2: Color { Color("point2") }
         static var point3: Color { Color("point3") }
+        static var point4: Color { Color("point4") }
     }
 }
