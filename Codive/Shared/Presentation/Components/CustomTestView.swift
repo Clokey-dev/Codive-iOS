@@ -13,26 +13,46 @@ struct CustomTestView: View {
     
     var body: some View {
         ScrollView {
-            VStack(spacing: 40) {
-                CustomMultiSelectButton(
-                    title: "오늘의 스타일을 선택해보세요",
-                    options: ["걸리시", "러블리", "미니멀", "빈티지", "스포티", "스트릿", "시크", "오피스룩", "캐주얼", "클래식", "하이틴"],
-                    selectedOptions: $selectedStyles,
-                    maxSelection: 3,
-                    showRequiredMark: true
-                )
-                
-                CustomMultiSelectButton(
-                    title: "어떤 상황에 주로 입으시나요?",
-                    options: ["데이트", "데일리", "여행", "운동", "축제", "출근복", "파티"],
-                    selectedOptions: $selectedSituations,
-                    showRequiredMark: true
-                )
-            }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 20)
+            CustomAIRecommendationView(
+                items: [
+                    ClothingItem(
+                        imageName: "sample_clothes1",
+                        category: "상의",
+                        subcategory: "블라우스",
+                        season: "봄",
+                        name: "핑크 블라우스",
+                        brand: "",
+                        purchaseUrl: ""
+                    ),
+                    ClothingItem(
+                        imageName: "sample_clothes2",
+                        category: "상의",
+                        subcategory: "반팔티",
+                        season: "봄, 여름, 가을",
+                        name: "블랙 티셔츠",
+                        brand: "",
+                        purchaseUrl: ""
+                    ),
+                    ClothingItem(
+                        imageName: "sample_clothes3",
+                        category: "아우터",
+                        subcategory: "점퍼/바람막이",
+                        season: "봄, 가을",
+                        name: "민트 셔츠 재킷",
+                        brand: "",
+                        purchaseUrl: ""
+                    )
+                ],
+                selectedItemIndex: .constant(0),
+                onCategoryTap: {
+                    print("카테고리 선택")
+                },
+                onSeasonTap: {
+                    print("계절 선택")
+                }
+            )
+            .background(Color.white)
         }
-        .background(Color.white)
     }
 }
 
