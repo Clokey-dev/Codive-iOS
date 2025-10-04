@@ -72,9 +72,9 @@ struct CustomAIRecommendationView: View {
                         .cornerRadius(10)
                     
                     // Edit Button
-                    Button(action: {
-                        // 이미지 편집 액션
-                    }) {
+                    Button {
+                        // action
+                    } label: {
                         Image(systemName: "pencil")
                             .font(.system(size: 16))
                             .foregroundColor(Color.Codive.grayscale2)
@@ -90,11 +90,11 @@ struct CustomAIRecommendationView: View {
                 if items.count > 1 {
                     HStack(spacing: 8) {
                         ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
-                            Button(action: {
+                            Button {
                                 withAnimation {
                                     selectedItemIndex = index
                                 }
-                            }) {
+                            } label: {
                                 Image(item.imageName)
                                     .resizable()
                                     .aspectRatio(contentMode: .fill)
