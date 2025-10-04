@@ -4,7 +4,6 @@
 //
 //  Created by 황상환 on 10/5/25.
 //
-//  타이틀 + 텍스트필드 + 버튼 + 안내문구 형태
 
 import SwiftUI
 
