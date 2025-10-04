@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct CustomTestView: View {
-    @State private var selectedStyles: Set<String> = []
-    @State private var selectedSituations: Set<String> = []
+    @State private var selectedItemIndex: Int = 0
     
     var body: some View {
         ScrollView {
@@ -43,7 +42,7 @@ struct CustomTestView: View {
                         purchaseUrl: ""
                     )
                 ],
-                selectedItemIndex: .constant(0),
+                selectedItemIndex: $selectedItemIndex,
                 onCategoryTap: {
                     print("카테고리 선택")
                 },
