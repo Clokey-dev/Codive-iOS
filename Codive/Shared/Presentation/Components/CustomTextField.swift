@@ -8,11 +8,69 @@
 import SwiftUI
 
 struct CustomTextField: View {
+    
+    // MARK: - Properties
+    let title: String
+    let placeholder: String
+    @Binding var text: String
+    
+    // MARK: - Initializer
+    init(
+        title: String,
+        placeholder: String = "",
+        text: Binding<String>
+    ) {
+        self.title = title
+        self.placeholder = placeholder
+        self._text = text
+    }
+    
+    // MARK: - Body
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        VStack(alignment: .leading, spacing: 8) {
+            // Title
+            Text(title)
+                .font(.codive_title2)
+                .foregroundColor(Color.Codive.grayscale1)
+            
+            // TextField
+            TextField(placeholder, text: $text)
+                .font(.codive_body1_regular)
+                .foregroundColor(Color.Codive.grayscale1)
+                .padding(.horizontal, 16)
+                .frame(height: 54)
+                .background(Color.white)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.Codive.grayscale5, lineWidth: 1)
+                )
+                .cornerRadius(10)
+                .accentColor(Color.Codive.main1)
+        }
     }
 }
 
+// MARK: - Preview
 #Preview {
-    CustomTextField()
+    VStack(spacing: 24) {
+        CustomTextField(
+            title: "계절",
+            placeholder: "봄",
+            text: .constant("")
+        )
+        
+        CustomTextField(
+            title: "옷 이름",
+            placeholder: "옷 이름을 입력해주세요.",
+            text: .constant("")
+        )
+        
+        CustomTextField(
+            title: "브랜드",
+            placeholder: "브랜드를 입력해주세요.",
+            text: .constant("나이키")
+        )
+    }
+    .padding(.horizontal, 20)
+    .background(Color.Codive.grayscale7)
 }

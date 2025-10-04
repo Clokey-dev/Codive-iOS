@@ -19,7 +19,7 @@ enum AppState {
 final class AppRouter: ObservableObject {
     
     // MARK: - 임시 자동로그인 플래그 (나중에 삭제 예정)
-    private let isAutoLoginEnabled = false
+    private let isAutoLoginEnabled = true
     
     @Published var currentAppState: AppState
     
