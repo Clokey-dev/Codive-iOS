@@ -4,6 +4,7 @@
 //
 //  Created by 황상환 on 10/5/25.
 //
+//  타이틀 + 텍스트필드 + 버튼 + 안내문구 형태
 
 import SwiftUI
 
@@ -44,7 +45,7 @@ struct CustomTextField2: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Title
-            HStack(spacing: 4) {
+            HStack(alignment: .top, spacing: 4) {
                 Text(title)
                     .font(.codive_title3)
                     .foregroundColor(Color.Codive.grayscale1)
@@ -53,6 +54,7 @@ struct CustomTextField2: View {
                     Text("*")
                         .font(.codive_title3)
                         .foregroundColor(Color.Codive.point1)
+                        .offset(x: -4, y: -4)
                 }
             }
             .padding(.bottom, 8)
@@ -77,6 +79,7 @@ struct CustomTextField2: View {
                                     .stroke(Color.Codive.grayscale4, lineWidth: 1)
                             )
                     }
+                    .padding(.bottom, 5)
                 }
             }
             .padding(.bottom, 2)
