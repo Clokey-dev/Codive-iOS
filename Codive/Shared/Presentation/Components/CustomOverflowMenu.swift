@@ -1,5 +1,5 @@
 //
-//  CustomToggle.swift
+//  CustomOverflowMenu.swift
 //  Codive
 //
 //  Created by 한금준 on 10/5/25.
@@ -13,6 +13,38 @@ enum MenuType {
     case closet
     case feed
     case report
+    
+    var items: [MenuItem] {
+        switch self {
+        case .coordination:
+            return [
+                .init(icon: "system:pencil", text: "코디 수정"),
+                .init(icon: "system:plus", text: "룩북에 추가"),
+                .init(icon: "ic_share", text: "코디 공유"),
+                .init(icon: "ic_download", text: "이미지 저장")
+            ]
+        case .lookbook:
+            return [
+                .init(icon: "system:plus.circle.fill", text: "룩북 만들기"),
+                .init(icon: "system:trash", text: "삭제하기")
+            ]
+        case .closet:
+            return [
+                .init(icon: "ic_edit", text: "수정하기"),
+                .init(icon: "system:trash", text: "삭제하기")
+            ]
+        case .feed:
+            return [
+                .init(icon: "system:plus.circle.fill", text: "코디 추가하기"),
+                .init(icon: "ic_edit", text: "편집하기")
+            ]
+        case .report:
+            return [
+                .init(icon: "system:exclamationmark.circle", text: "신고하기"),
+                .init(icon: "ic_block", text: "차단하기")
+            ]
+        }
+    }
 }
 
 struct MenuItem {
@@ -26,169 +58,162 @@ struct CustomOverflowMenu: View {
     
     @State private var isExpanded = false
     
-    var menuItems: [MenuItem] {
-        switch menuType {
-        case .coordination:
-            return [
-                MenuItem(icon: "pencil", text: "코디 수정"),
-                MenuItem(icon: "plus", text: "룩북에 추가"),
-                MenuItem(icon: "square.and.arrow.up", text: "코디 공유"),
-                MenuItem(icon: "arrow.down.circle", text: "이미지 저장")
-            ]
-        case .lookbook:
-            return [
-                MenuItem(icon: "plus", text: "룩북 만들기"),
-                MenuItem(icon: "trash", text: "삭제하기")
-            ]
-        case .closet:
-            return [
-                MenuItem(icon: "square.and.pencil", text: "수정하기"),
-                MenuItem(icon: "trash", text: "삭제하기")
-            ]
-        case .feed:
-            return [
-                MenuItem(icon: "plus", text: "코디 추가하기"),
-                MenuItem(icon: "square.and.pencil", text: "편집하기")
-            ]
-        case .report:
-            return [
-                MenuItem(icon: "exclamationmark.circle", text: "신고하기"),
-                MenuItem(icon: "nosign", text: "차단하기")
-            ]
-        }
+    private var menuItems: [MenuItem] {
+        menuType.items
     }
     
     var body: some View {
-        Button(
-            action: {
-                withAnimation {
-                    isExpanded.toggle()
-                }
-            },
-            label: {
-                Image(systemName: "ellipsis")
-                    .rotationEffect(.degrees(90))
-                    .font(.title2)
-                    .foregroundColor(Color.Codive.grayscale1)
-                    .padding()
-            }
-        )
+        Button(action: toggleMenu) {
+            Image(systemName: "ellipsis")
+                .rotationEffect(.degrees(90))
+                .font(.title2)
+                .foregroundColor(.Codive.grayscale1)
+                .padding()
+        }
         .overlay(alignment: .topTrailing) {
             if isExpanded {
-                // 전체 화면을 덮는 ZStack
-                ZStack(alignment: .topTrailing) {
-                    
-                    // 1. 전체 화면을 덮고 탭 감지 역할을 하는 투명한 배경
-                    Color.clear
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            withAnimation {
-                                isExpanded = false
-                            }
-                        }
-                    
-                    // 2. 메뉴 리스트 (VStack)
-                    VStack(spacing: 0) {
-                        ForEach(Array(menuItems.enumerated()), id: \.offset) { index, item in
-                            Button(
-                                action: {
-                                    if index < menuActions.count {
-                                        menuActions[index]()
-                                    }
-                                    withAnimation {
-                                        isExpanded = false
-                                    }
-                                },
-                                label: {
-                                    menuItem(icon: item.icon, text: item.text)
-                                }
-                            )
-                            if index < menuItems.count - 1 {
-                                Divider()
-                            }
-                        }
-                    }
-                    .background(Color.white)
-                    .cornerRadius(10)
-                    .shadow(color: Color.black.opacity(0.15), radius: 5, x: 0, y: 2)
-                    
-                    .offset(x: -20, y: 50)
-                    .frame(width: 129) // 메뉴 너비 고정
-                    .zIndex(1)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .transition(.scale(scale: 0.8, anchor: .topTrailing).combined(with: .opacity))
-                .zIndex(10)
+                expandedMenu
             }
         }
         .animation(.spring(), value: isExpanded)
         .zIndex(1)
     }
-    
-    private func menuItem(icon: String, text: String) -> some View {
-        HStack(alignment: .center, spacing: 8) {
-            Image(systemName: icon)
-                .foregroundColor(Color.Codive.main1)
-                .frame(width: 24, height: 24)
-            Text(text)
-                .foregroundColor(Color.Codive.grayscale1)
+}
+
+// MARK: - Subviews
+private extension CustomOverflowMenu {
+    var expandedMenu: some View {
+        ZStack(alignment: .topTrailing) {
+            
+            Color.clear
+                .contentShape(Rectangle())
+                .onTapGesture(perform: closeMenu)
+            
+            VStack(spacing: 0) {
+                ForEach(Array(menuItems.enumerated()), id: \.offset) { index, item in
+                    Button(
+                        action: {
+                            performAction(at: index)
+                        },
+                        label: {
+                            menuItemView(item)
+                        }
+                    )
+
+                    if index < menuItems.count - 1 {
+                        Divider()
+                    }
+                }
+            }
+            .background(Color.white)
+            .cornerRadius(10)
+            .shadow(color: .gray.opacity(0.2), radius: 10, x: 0, y: 2)
+            .fixedSize(horizontal: true, vertical: false)
+            .offset(x: -20, y: 50)
+            .transition(.scale(scale: 0.8, anchor: .topTrailing).combined(with: .opacity))
         }
-        
-        .font(Font.codive_body2_medium)
-        .padding(.horizontal, 16)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .zIndex(10)
+    }
+    
+    func menuItemView(_ item: MenuItem) -> some View {
+        HStack(spacing: 8) {
+            Group {
+                if item.icon.hasPrefix("system:") {
+                    let systemName = item.icon.replacingOccurrences(of: "system:", with: "")
+                    Image(systemName: systemName)
+                        .renderingMode(.template)
+                        .resizable()
+                        .scaledToFit()
+                        .aspectRatio(1, contentMode: .fit)
+                        .frame(width: 20, height: 20)
+                } else {
+                    Image(item.icon)
+                        .resizable()
+                        .scaledToFit()
+                        .aspectRatio(1, contentMode: .fit)
+                        .frame(width: 18, height: 18)
+                        .padding(1)
+                }
+            }
+            .foregroundColor(.Codive.main1)
+
+            Text(item.text)
+                .foregroundColor(.Codive.grayscale1)
+        }
+        .font(.codive_body2_medium)
+        .padding(.horizontal, 20)
         .padding(.vertical, 8)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
-// --- Preview 코드 ---
+private extension CustomOverflowMenu {
+    func toggleMenu() {
+        withAnimation { isExpanded.toggle() }
+    }
+    
+    func closeMenu() {
+        withAnimation { isExpanded = false }
+    }
+    
+    func performAction(at index: Int) {
+        guard index < menuActions.count else { return }
+        menuActions[index]()
+        closeMenu()
+    }
+}
 
 #Preview {
-    VStack(spacing: 20) {
-        CustomOverflowMenu(
-            menuType: .coordination,
-            menuActions: [
-                { print("코디 수정 tapped") },
-                { print("룩북에 추가 tapped") },
-                { print("코디 공유 tapped") },
-                { print("이미지 저장 tapped") }
-            ]
-        )
-        
-        Spacer()
-            
-        
-        CustomOverflowMenu(
-            menuType: .lookbook,
-            menuActions: [
-                { print("룩북 만들기 tapped") },
-                { print("삭제하기 tapped") }
-            ]
-        )
-        Spacer()
-        CustomOverflowMenu(
-            menuType: .closet,
-            menuActions: [
-                { print("수정하기 tapped") },
-                { print("삭제하기 tapped") }
-            ]
-        )
-        Spacer()
-        CustomOverflowMenu(
-            menuType: .feed,
-            menuActions: [
-                { print("코디 추가하기 tapped") },
-                { print("편집하기 tapped") }
-            ]
-        )
-        Spacer()
-        CustomOverflowMenu(
-            menuType: .report,
-            menuActions: [
-                { print("신고하기 tapped") },
-                { print("차단하기 tapped") }
-            ]
-        )
-        Spacer()
-    }
+    CustomOverflowMenu(
+        menuType: .coordination,
+        menuActions: [
+            { print("코디 수정 tapped") },
+            { print("룩북에 추가 tapped") },
+            { print("코디 공유 tapped") },
+            { print("이미지 저장 tapped") }
+        ]
+    )
+    
+    Spacer()
+    
+    CustomOverflowMenu(
+        menuType: .lookbook,
+        menuActions: [
+            { print("룩북 만들기 tapped") },
+            { print("삭제하기 tapped") }
+        ]
+    )
+    
+    Spacer()
+    
+    CustomOverflowMenu(
+        menuType: .closet,
+        menuActions: [
+            { print("수정하기 tapped") },
+            { print("삭제하기 tapped") }
+        ]
+    )
+    
+    Spacer()
+    
+    CustomOverflowMenu(
+        menuType: .feed,
+        menuActions: [
+            { print("코디 추가하기 tapped") },
+            { print("편집하기 tapped") }
+        ]
+    )
+    
+    Spacer()
+    
+    CustomOverflowMenu(
+        menuType: .report,
+        menuActions: [
+            { print("신고하기 tapped") },
+            { print("차단하기 tapped") }
+        ]
+    )
+    
+    Spacer()
 }
