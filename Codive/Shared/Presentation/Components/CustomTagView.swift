@@ -47,9 +47,8 @@ private struct BasicTagView: View {
                 .lineLimit(2)
         }
         .frame(width: 120, height: 70, alignment: .leading)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 10)
-        .background(Color.Codive.main6.opacity(0.1))
+        .padding(.horizontal, 8)
+        .background(Color.Codive.main6.opacity(0.9))
         .cornerRadius(8)
     }
 }
@@ -82,9 +81,8 @@ private struct ClosableTagView: View {
                 .lineLimit(2)
         }
         .frame(width: 120, height: 70, alignment: .leading)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 10)
-        .background(Color.Codive.main6.opacity(0.1))
+        .padding(.horizontal, 8)
+        .background(Color.Codive.main6.opacity(0.9))
         .cornerRadius(8)
     }
 }
@@ -116,9 +114,8 @@ private struct NavigableTagView: View {
                     .foregroundColor(Color.Codive.main0)
             }
             .frame(width: 156, height: 70, alignment: .leading)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 10)
-            .background(Color.Codive.main6.opacity(0.1))
+            .padding(.horizontal, 8)
+            .background(Color.Codive.main6.opacity(0.9))
             .cornerRadius(8)
         }
         .buttonStyle(PlainButtonStyle())

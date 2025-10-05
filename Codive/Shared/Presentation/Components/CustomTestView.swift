@@ -61,6 +61,72 @@ struct CustomTestView: View {
                 Divider()
                     .padding(.horizontal, 20)
                 
+                // MARK: - CustomTagView Examples
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("CustomTagView 예제")
+                        .font(.codive_title1)
+                        .foregroundColor(Color.white)
+                        .padding(.horizontal, 20)
+                    
+                    VStack(spacing: 16) {
+                        // Basic Tags
+                        HStack(spacing: 12) {
+                            CustomTagView(type: .basic(
+                                title: "brand",
+                                content: "texttexttexttexttexttext..."
+                            ))
+                            
+                            CustomTagView(type: .basic(
+                                title: "색상",
+                                content: "블랙, 화이트"
+                            ))
+                        }
+                        
+                        // Closable Tags
+                        HStack(spacing: 12) {
+                            CustomTagView(type: .closable(
+                                title: "Typeservice",
+                                content: "Layered Henry Neck Long Slee...",
+                                onClose: {
+                                    print("Close 버튼 탭")
+                                }
+                            ))
+                            
+                            CustomTagView(type: .closable(
+                                title: "카테고리",
+                                content: "상의 > 반팔티",
+                                onClose: {
+                                    print("카테고리 닫기")
+                                }
+                            ))
+                        }
+                        
+                        // Navigable Tags
+                        VStack(spacing: 12) {
+                            CustomTagView(type: .navigable(
+                                title: "Typeservice",
+                                content: "Layered Henry Neck Long Slee...",
+                                onTap: {
+                                    print("Navigate 탭")
+                                }
+                            ))
+                            
+                            CustomTagView(type: .navigable(
+                                title: "구매처",
+                                content: "www.example.com/product",
+                                onTap: {
+                                    print("구매처 이동")
+                                }
+                            ))
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                }
+                .background(Color.Codive.grayscale1)
+                
+                Divider()
+                    .padding(.horizontal, 20)
+                
                 // MARK: - CustomTextField1 Examples
                 VStack(alignment: .leading, spacing: 16) {
                     Text("CustomTextField1 예제")
