@@ -85,7 +85,7 @@ struct CustomTextField2: View {
             
             // Bottom Line
             Rectangle()
-                .fill(Color.black)
+                .fill(Color.Codive.grayscale1)
                 .frame(height: 1)
             
             // Helper Text
