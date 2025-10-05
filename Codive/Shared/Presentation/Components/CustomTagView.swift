@@ -135,20 +135,18 @@ struct CustomTagView_Previews: PreviewProvider {
             // Closable Tag
             CustomTagView(type: .closable(
                 title: "Typeservice",
-                content: "Layered Henry Neck Long Slee...",
-                onClose: {
-                    print("Close tapped")
-                }
-            ))
-            
+                content: "Layered Henry Neck Long Slee..."
+            ) {
+                print("Close tapped")
+            })
+
             // Navigable Tag
             CustomTagView(type: .navigable(
                 title: "Typeservice",
-                content: "Layered Henry Neck Long Slee...",
-                onTap: {
-                    print("Navigate tapped")
-                }
-            ))
+                content: "Layered Henry Neck Long Slee..."
+            ) {
+                print("Navigate tapped")
+            })
         }
         .padding()
         .previewLayout(.sizeThatFits)

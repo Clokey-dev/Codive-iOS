@@ -86,38 +86,34 @@ struct CustomTestView: View {
                         HStack(spacing: 12) {
                             CustomTagView(type: .closable(
                                 title: "Typeservice",
-                                content: "Layered Henry Neck Long Slee...",
-                                onClose: {
-                                    print("Close 버튼 탭")
-                                }
-                            ))
+                                content: "Layered Henry Neck Long Slee..."
+                            ) {
+                                print("Close 버튼 탭")
+                            })
                             
                             CustomTagView(type: .closable(
                                 title: "카테고리",
-                                content: "상의 > 반팔티",
-                                onClose: {
-                                    print("카테고리 닫기")
-                                }
-                            ))
+                                content: "상의 > 반팔티"
+                            ) {
+                                print("카테고리 닫기")
+                            })
                         }
-                        
+
                         // Navigable Tags
                         VStack(spacing: 12) {
                             CustomTagView(type: .navigable(
                                 title: "Typeservice",
-                                content: "Layered Henry Neck Long Slee...",
-                                onTap: {
-                                    print("Navigate 탭")
-                                }
-                            ))
+                                content: "Layered Henry Neck Long Slee..."
+                            ) {
+                                print("Navigate 탭")
+                            })
                             
                             CustomTagView(type: .navigable(
                                 title: "구매처",
-                                content: "www.example.com/product",
-                                onTap: {
-                                    print("구매처 이동")
-                                }
-                            ))
+                                content: "www.example.com/product"
+                            ) {
+                                print("구매처 이동")
+                            })
                         }
                     }
                     .padding(.horizontal, 20)
