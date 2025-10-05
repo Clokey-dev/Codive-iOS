@@ -15,6 +15,11 @@ struct CustomTestView: View {
     @State private var textField2WithButton: String = "dksdbs12"
     @State private var textField2Error: String = "집에가고싶어요"
     
+    // MultiSelect State
+    @State private var selectedSeasons: Set<String> = ["봄", "여름"]
+    @State private var selectedStyles: Set<String> = ["캐주얼"]
+    @State private var selectedColors: Set<String> = []
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 40) {
@@ -57,6 +62,46 @@ struct CustomTestView: View {
                         print("계절 선택")
                     }
                 )
+                
+                Divider()
+                    .padding(.horizontal, 20)
+                
+                // MARK: - CustomMultiSelectButton Examples
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("CustomMultiSelectButton 예제")
+                        .font(.codive_title1)
+                        .foregroundColor(Color.Codive.grayscale1)
+                        .padding(.horizontal, 20)
+                    
+                    VStack(spacing: 24) {
+                        // 계절 선택 (최대 4개)
+                        CustomMultiSelectButton(
+                            title: "계절",
+                            options: ["봄", "여름", "가을", "겨울"],
+                            selectedOptions: $selectedSeasons,
+                            maxSelection: 4,
+                            showRequiredMark: true
+                        )
+                        
+                        // 스타일 선택 (최대 3개)
+                        CustomMultiSelectButton(
+                            title: "스타일",
+                            options: ["캐주얼", "포멀", "스트릿", "빈티지", "미니멀", "스포츠"],
+                            selectedOptions: $selectedStyles,
+                            maxSelection: 3,
+                            showRequiredMark: true
+                        )
+                        
+                        // 색상 선택 (제한 없음)
+                        CustomMultiSelectButton(
+                            title: "색상",
+                            options: ["블랙", "화이트", "그레이", "베이지", "네이비", "브라운", "레드", "블루"],
+                            selectedOptions: $selectedColors,
+                            showRequiredMark: false
+                        )
+                    }
+                    .padding(.horizontal, 20)
+                }
                 
                 Divider()
                     .padding(.horizontal, 20)
