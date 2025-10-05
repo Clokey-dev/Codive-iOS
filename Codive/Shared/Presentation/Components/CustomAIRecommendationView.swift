@@ -46,6 +46,7 @@ struct CustomAIRecommendationView: View {
         self.onSeasonTap = onSeasonTap
     }
     
+    // 안전한 currentItem 접근
     private var currentItem: ClothingItem? {
         guard !items.isEmpty, items.indices.contains(selectedItemIndex) else {
             return nil
@@ -78,29 +79,32 @@ struct CustomAIRecommendationView: View {
             // Image Box
             VStack(spacing: 16) {
                 // Main Image
-                ZStack(alignment: .topTrailing) {
-                    Image(item.imageName)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: UIScreen.main.bounds.width - 40)
-                        .background(Color.Codive.grayscale6)
-                        .cornerRadius(10)
-                    
-                    // Edit Button
-                    Button {
-                        // action
-                    } label: {
-                        Image(systemName: "pencil")
-                            .font(.system(size: 16))
-                            .foregroundColor(Color.Codive.grayscale2)
-                            .frame(width: 32, height: 32)
-                            .background(Color.white)
-                            .clipShape(Circle())
-                            .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+                GeometryReader { geometry in
+                    ZStack(alignment: .topTrailing) {
+                        Image(item.imageName)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: geometry.size.width)
+                            .background(Color.Codive.grayscale6)
+                            .cornerRadius(10)
+                        
+                        // Edit Button
+                        Button {
+                            // action
+                        } label: {
+                            Image(systemName: "pencil")
+                                .font(.system(size: 16))
+                                .foregroundColor(Color.Codive.grayscale2)
+                                .frame(width: 32, height: 32)
+                                .background(Color.white)
+                                .clipShape(Circle())
+                                .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+                        }
+                        .padding(12)
                     }
-                    .padding(12)
                 }
+                .aspectRatio(1, contentMode: .fit)
                 
                 // Thumbnail Images (if multiple items)
                 if items.count > 1 {
