@@ -28,9 +28,7 @@ struct CustomAIRecommendationView: View {
     @Binding var selectedItemIndex: Int
     let onCategoryTap: () -> Void
     let onSeasonTap: () -> Void
-    
-    @State private var selectedImageIndex: Int = 0
-    
+        
     // MARK: - Initializer
     init(
         title: String = "AI가 옷 정보를 불러왔어요",
