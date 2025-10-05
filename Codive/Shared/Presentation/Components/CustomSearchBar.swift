@@ -24,6 +24,7 @@ struct CustomSearchBar: View {
                     onBack?()
                 }, label: {
                     Image(systemName: "chevron.backward")
+                        .font(.system(size: 20, weight: .bold))
                         .foregroundColor(Color.Codive.main1)
                 })
             }
@@ -60,6 +61,15 @@ struct StatefulPreviewWrapper<Value>: View {
     VStack(spacing: 16) {
         StatefulPreviewWrapper("") { CustomSearchBar(text: $0, type: .normal) }
         StatefulPreviewWrapper("") { CustomSearchBar(text: $0, type: .withBackButton) }
+        StatefulPreviewWrapper("") {
+            CustomSearchBar(
+                text: $0,
+                type: .withBackButton,
+                onBack: {
+                    print("back button tapped")
+                }
+            )
+        }
     }
     .padding(.horizontal, 20)
 }
