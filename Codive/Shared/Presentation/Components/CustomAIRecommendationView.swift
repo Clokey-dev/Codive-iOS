@@ -46,8 +46,11 @@ struct CustomAIRecommendationView: View {
         self.onSeasonTap = onSeasonTap
     }
     
-    private var currentItem: ClothingItem {
-        items[selectedItemIndex]
+    private var currentItem: ClothingItem? {
+        guard !items.isEmpty, items.indices.contains(selectedItemIndex) else {
+            return nil
+        }
+        return items[selectedItemIndex]
     }
     
     // MARK: - Body
@@ -59,11 +62,24 @@ struct CustomAIRecommendationView: View {
                 .foregroundColor(Color.Codive.grayscale1)
                 .padding(.horizontal, 20)
             
+            // items가 비어있으면 빈 상태 표시
+            if let item = currentItem {
+                contentView(for: item)
+            } else {
+                emptyStateView
+            }
+        }
+    }
+    
+    // MARK: - Content View
+    @ViewBuilder
+    private func contentView(for item: ClothingItem) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
             // Image Box
             VStack(spacing: 16) {
                 // Main Image
                 ZStack(alignment: .topTrailing) {
-                    Image(currentItem.imageName)
+                    Image(item.imageName)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(maxWidth: .infinity)
@@ -122,7 +138,7 @@ struct CustomAIRecommendationView: View {
                 // Category Button (TextField 스타일)
                 CustomTextFieldButton(
                     title: "카테고리",
-                    value: "\(currentItem.category) > \(currentItem.subcategory)",
+                    value: "\(item.category) > \(item.subcategory)",
                     showRequiredMark: true,
                     action: onCategoryTap
                 )
@@ -130,7 +146,7 @@ struct CustomAIRecommendationView: View {
                 // Season Button (TextField 스타일)
                 CustomTextFieldButton(
                     title: "계절",
-                    value: currentItem.season,
+                    value: item.season,
                     showRequiredMark: true,
                     action: onSeasonTap
                 )
@@ -139,26 +155,42 @@ struct CustomAIRecommendationView: View {
                 CustomTextField1(
                     title: "옷 이름",
                     placeholder: "옷 이름을 입력해주세요.",
-                    text: .constant(currentItem.name)
+                    text: .constant(item.name)
                 )
                 
                 // Brand TextField
                 CustomTextField1(
                     title: "브랜드",
                     placeholder: "브랜드를 입력해주세요.",
-                    text: .constant(currentItem.brand)
+                    text: .constant(item.brand)
                 )
                 
                 // Purchase URL TextField
                 CustomTextField1(
                     title: "구매 url",
                     placeholder: "구매 url을 입력해주세요.",
-                    text: .constant(currentItem.purchaseUrl)
+                    text: .constant(item.purchaseUrl)
                 )
             }
             .padding(.horizontal, 20)
             .padding(.top, 16)
         }
+    }
+    
+    // MARK: - Empty State View
+    private var emptyStateView: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "tshirt")
+                .font(.system(size: 60))
+                .foregroundColor(Color.Codive.grayscale4)
+            
+            Text("옷 정보가 없습니다")
+                .font(.codive_body1_regular)
+                .foregroundColor(Color.Codive.grayscale3)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 300)
+        .padding(.top, 20)
     }
 }
 
