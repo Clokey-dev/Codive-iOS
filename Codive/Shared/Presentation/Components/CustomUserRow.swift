@@ -8,11 +8,53 @@
 import SwiftUI
 
 struct CustomUserRow: View {
+    let buttonTitle: String
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+            HStack{
+                Image("CustomProfile")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 40, height: 40)
+                    .clipShape(Circle())
+                
+                VStack(alignment : .leading){
+                    Text("닉네임")
+                        .font(.codive_body1_medium)
+                        .fontWeight(.medium)
+                        .foregroundColor(Color("Grayscale1"))
+                    Text("아이디")
+                        .font(.codive_body3_medium)
+                        .fontWeight(.medium)
+                        .foregroundColor(Color("Grayscale3"))
+                }
+                .padding(.leading, 8)
+                
+                Spacer()
+                
+                Button {
+                    // action
+                } label: {
+                    Text(buttonTitle)
+                        .font(.codive_body2_medium)
+                        .foregroundColor(.white)
+                        .frame(minWidth: 76, minHeight: 32)
+                        .background(Color("main0"))
+                        .cornerRadius(8)
+                        .multilineTextAlignment(.center)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, 20)
+            
     }
 }
 
 #Preview {
-    CustomUserRow()
+    CustomUserRow(
+        buttonTitle: "팔로우"
+    )
+    .padding(.bottom, 24)
+    CustomUserRow(
+        buttonTitle: "차단해제"
+    )
 }
