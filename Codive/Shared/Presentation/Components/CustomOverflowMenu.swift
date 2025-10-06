@@ -13,45 +13,49 @@ enum MenuType {
     case closet
     case feed
     case report
-    
+
     var items: [MenuItem] {
         switch self {
         case .coordination:
             return [
-                .init(icon: "system:pencil", text: "코디 수정"),
-                .init(icon: "system:plus", text: "룩북에 추가"),
-                .init(icon: "ic_share", text: "코디 공유"),
-                .init(icon: "ic_download", text: "이미지 저장")
+                .init(icon: .system(name: "pencil"), text: "코디 수정"),
+                .init(icon: .system(name: "plus"), text: "룩북에 추가"),
+                .init(icon: .asset(name: "ic_share"), text: "코디 공유"),
+                .init(icon: .asset(name: "ic_download"), text: "이미지 저장")
             ]
         case .lookbook:
             return [
-                .init(icon: "system:plus.circle.fill", text: "룩북 만들기"),
-                .init(icon: "system:trash", text: "삭제하기")
+                .init(icon: .system(name: "plus.circle.fill"), text: "룩북 만들기"),
+                .init(icon: .system(name: "trash"), text: "삭제하기")
             ]
         case .closet:
             return [
-                .init(icon: "ic_edit", text: "수정하기"),
-                .init(icon: "system:trash", text: "삭제하기")
+                .init(icon: .asset(name: "ic_edit"), text: "수정하기"),
+                .init(icon: .system(name: "trash"), text: "삭제하기")
             ]
         case .feed:
             return [
-                .init(icon: "system:plus.circle.fill", text: "코디 추가하기"),
-                .init(icon: "ic_edit", text: "편집하기")
+                .init(icon: .system(name: "plus.circle.fill"), text: "코디 추가하기"),
+                .init(icon: .asset(name: "ic_edit"), text: "편집하기")
             ]
         case .report:
             return [
-                .init(icon: "system:exclamationmark.circle", text: "신고하기"),
-                .init(icon: "ic_block", text: "차단하기")
+                .init(icon: .system(name: "exclamationmark.circle"), text: "신고하기"),
+                .init(icon: .asset(name: "ic_block"), text: "차단하기")
             ]
         }
     }
 }
 
-struct MenuItem {
-    let icon: String
-    let text: String
+enum Icon {
+    case system(name: String)
+    case asset(name: String)
 }
 
+struct MenuItem {
+    let icon: Icon
+    let text: String
+}
 struct CustomOverflowMenu: View {
     let menuType: MenuType
     let menuActions: [() -> Void]
@@ -64,7 +68,7 @@ struct CustomOverflowMenu: View {
         
         assert(
             menuType.items.count == menuActions.count,
-            "❌ \(menuType) 메뉴의 항목 개수와 연결된 액션 개수가 일치해야 합니다."
+            "\(menuType) 메뉴의 항목 개수와 연결된 액션 개수가 일치해야 합니다."
         )
     }
     
@@ -129,16 +133,17 @@ private extension CustomOverflowMenu {
     func menuItemView(_ item: MenuItem) -> some View {
         HStack(spacing: 8) {
             Group {
-                if item.icon.hasPrefix("system:") {
-                    let systemName = item.icon.replacingOccurrences(of: "system:", with: "")
-                    Image(systemName: systemName)
+                switch item.icon {
+                case .system(let name):
+                    Image(systemName: name)
                         .renderingMode(.template)
                         .resizable()
                         .scaledToFit()
                         .aspectRatio(1, contentMode: .fit)
                         .frame(width: 20, height: 20)
-                } else {
-                    Image(item.icon)
+
+                case .asset(let name):
+                    Image(name)
                         .resizable()
                         .scaledToFit()
                         .aspectRatio(1, contentMode: .fit)
