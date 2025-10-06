@@ -58,6 +58,16 @@ struct CustomOverflowMenu: View {
     
     @State private var isExpanded = false
     
+    init(menuType: MenuType, menuActions: [() -> Void]) {
+        self.menuType = menuType
+        self.menuActions = menuActions
+        
+        assert(
+            menuType.items.count == menuActions.count,
+            "❌ \(menuType) 메뉴의 항목 개수와 연결된 액션 개수가 일치해야 합니다."
+        )
+    }
+    
     private var menuItems: [MenuItem] {
         menuType.items
     }
