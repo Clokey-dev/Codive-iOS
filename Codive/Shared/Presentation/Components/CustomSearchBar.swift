@@ -9,25 +9,26 @@ import SwiftUI
 
 enum SearchBarType {
     case normal
-    case withBackButton
+    case withBackButton(onBack: () -> Void)
 }
 
 struct CustomSearchBar: View {
     @Binding var text: String
     var type: SearchBarType = .normal
-    var onBack: (() -> Void)?
     
     var body: some View {
         HStack {
-            if type == .withBackButton {
-                Button(action: {
-                    onBack?()
-                }, label: {
+            switch type {
+            case .withBackButton(let onBack):
+                Button(action: onBack) {
                     Image(systemName: "chevron.backward")
                         .font(.system(size: 20, weight: .bold))
                         .foregroundColor(Color.Codive.main1)
-                })
+                }
+            case .normal:
+                EmptyView()
             }
+
             HStack {
                 TextField("찾고싶은 옷이나 브랜드를 검색해보세요", text: $text)
                     .font(Font.codive_body2_medium)
@@ -59,17 +60,20 @@ struct StatefulPreviewWrapper<Value>: View {
 
 #Preview {
     VStack(spacing: 16) {
-        StatefulPreviewWrapper("") { CustomSearchBar(text: $0, type: .normal) }
-        StatefulPreviewWrapper("") { CustomSearchBar(text: $0, type: .withBackButton) }
+        // 일반 타입
         StatefulPreviewWrapper("") {
+            CustomSearchBar(text: $0, type: .normal)
+        }
+
+        // 뒤로가기 버튼 타입
+        StatefulPreviewWrapper("", content: {
             CustomSearchBar(
                 text: $0,
-                type: .withBackButton,
-                onBack: {
-                    print("back button tapped")
-                }
+                type: .withBackButton(onBack: {
+                    print("뒤로가기 버튼 눌림")
+                })
             )
-        }
+        })
     }
     .padding(.horizontal, 20)
 }
