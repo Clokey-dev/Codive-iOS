@@ -83,10 +83,9 @@ struct CustomNavigationBar: View {
 #Preview {
     VStack(spacing: 0) {
         // 1. 버튼 없는 기본 네비게이션
-        CustomNavigationBar(
-            title: "옷 추가",
-            onBack: { print("뒤로가기") }
-        )
+        CustomNavigationBar(title: "옷 추가") {
+            print("뒤로가기")
+        }
         
         Divider()
         
@@ -96,9 +95,10 @@ struct CustomNavigationBar: View {
             onBack: { print("뒤로가기") },
             rightButton: .menu(
                 systemName: "ellipsis",
-                isEnabled: true,
-                action: { print("메뉴 버튼") }
-            )
+                isEnabled: true
+            ) {
+                print("메뉴 버튼")
+            }
         )
         
         Divider()
@@ -109,9 +109,10 @@ struct CustomNavigationBar: View {
             onBack: { print("뒤로가기") },
             rightButton: .text(
                 title: "완료",
-                isEnabled: false,
-                action: { print("완료 버튼") }
-            )
+                isEnabled: false
+            ) {
+                print("완료 버튼")
+            }
         )
         
         Divider()
@@ -122,9 +123,10 @@ struct CustomNavigationBar: View {
             onBack: { print("뒤로가기") },
             rightButton: .text(
                 title: "완료",
-                isEnabled: true,
-                action: { print("완료 버튼") }
-            )
+                isEnabled: true
+            ) {
+                print("완료 버튼")
+            }
         )
         
         Divider()
@@ -135,9 +137,10 @@ struct CustomNavigationBar: View {
             onBack: { print("뒤로가기") },
             rightButton: .text(
                 title: "삭제",
-                isEnabled: true,
-                action: { print("삭제 버튼") }
-            )
+                isEnabled: true
+            ) {
+                print("삭제 버튼")
+            }
         )
         
         Spacer()
