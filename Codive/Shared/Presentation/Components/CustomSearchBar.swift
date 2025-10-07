@@ -66,14 +66,14 @@ struct StatefulPreviewWrapper<Value>: View {
         }
 
         // 뒤로가기 버튼 타입
-        StatefulPreviewWrapper("", content: {
+        StatefulPreviewWrapper("") {
             CustomSearchBar(
                 text: $0,
-                type: .withBackButton(onBack: {
+                type: .withBackButton {
                     print("뒤로가기 버튼 눌림")
-                })
+                }
             )
-        })
+        }
     }
     .padding(.horizontal, 20)
 }
