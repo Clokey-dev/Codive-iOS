@@ -46,7 +46,7 @@ struct WidthModifier: ViewModifier {
                 .padding(.horizontal, 16)
         case .half:
             content
-                .frame(width: UIScreen.main.bounds.width / 2 - 20)
+                .frame(maxWidth: .infinity)
         }
     }
 }
@@ -55,12 +55,12 @@ struct WidthModifier: ViewModifier {
     VStack(spacing: 20) {
         /// 1. 6.  화면 전체 너비 버튼
         CustomButton(text: "이 코디로 결정하기", widthType: .fixed) {
-            print("Fixed Button tapped!")
+            print("이 코디 결정 tapped!")
         }
         
         /// 5. 고정크기 버튼
         CustomButton(text: "피드 작성하러 가기", widthType: .dynamic) {
-            print("Dynamic Button tapped!")
+            print("피드작성 tapped!")
         }
     }
     .padding()
@@ -74,20 +74,16 @@ struct WidthModifier: ViewModifier {
             print("등록하기 tapped")
         }
     }
-    .padding()
-    
-    CustomButton(text: "Half 버튼", widthType: .half) {
-        print("Half Button tapped!")
-    }
+    .padding(.horizontal, 20)
     
     /// 2. 서로 다른 너비
     HStack(spacing: 16) {
         CustomButton(text: "코디보드", widthType: .dynamic) {
-            print("이전으로 tapped")
+            print("코디보드 tapped")
         }
         
         CustomButton(text: "이 코디로 결정하기", widthType: .dynamic) {
-            print("등록하기 tapped")
+            print("이 코디 결정 tapped")
         }
     }
     .padding()
