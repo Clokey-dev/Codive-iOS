@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-import SwiftUI
-
 struct CustomClothCard: View {
     let imageName: String
     let brand: String
@@ -21,7 +19,7 @@ struct CustomClothCard: View {
                 // 상품 이미지
                 Image(imageName)
                     .resizable()
-                    .scaledToFill()
+                    .aspectRatio(contentMode: .fill)
                     .frame(maxWidth: .infinity)
                     .aspectRatio(1, contentMode: .fit) // 정사각형 썸네일
                     .clipped()
