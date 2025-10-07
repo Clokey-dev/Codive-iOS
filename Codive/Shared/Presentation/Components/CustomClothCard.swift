@@ -11,17 +11,17 @@ struct CustomClothCard: View {
     let imageName: String
     let brand: String
     let title: String
-    var action: (() -> Void)? = nil
+    var action: () -> Void = {}   
 
     var body: some View {
-        Button(action: { action?() }) {
+        Button(action: { action() }, label: {
             VStack(alignment: .leading, spacing: 6) {
                 // 상품 이미지
                 Image(imageName)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(maxWidth: .infinity)
-                    .aspectRatio(1, contentMode: .fit) // 정사각형 썸네일
+                    .aspectRatio(1, contentMode: .fit)
                     .clipped()
 
                 // 브랜드
@@ -36,26 +36,26 @@ struct CustomClothCard: View {
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
             }
-        }
+        })
         .buttonStyle(.plain)
     }
 }
 
-//예시로 보여주기 위해 대충 만든 View
 struct ClothGridView: View {
     let items = Array(repeating: 0, count: 9)
-
     let columns = Array(repeating: GridItem(.flexible()), count: 3)
 
     var body: some View {
         ScrollView {
             LazyVGrid(columns: columns) {
-                ForEach(items.indices, id: \.self) { _ in
+                ForEach(items.indices, id: \.self) { idx in
                     CustomClothCard(
                         imageName: "sampleCloth",
                         brand: "나이키",
                         title: "Cable knit cardigan navy blue"
-                    )
+                    ) {
+                        print("탭된 아이템: \(idx)")
+                    }
                 }
             }
             .padding(.top, 12)

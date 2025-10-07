@@ -21,9 +21,6 @@ struct CustomBottomSheet: View {
                 .frame(width: 69, height: 4)
                 .padding(.bottom, 33)
                 .padding(.top, 11)
-            
-            
-
             // Row 1
             HStack(spacing: 16) {
                 Image(iconName1)
@@ -64,7 +61,6 @@ struct CustomBottomSheet: View {
         .clipShape(RoundedCorner(radius: 24, corners: [.topLeft, .topRight]))
     }
 }
-
 
 #Preview {
     CustomBottomSheet(

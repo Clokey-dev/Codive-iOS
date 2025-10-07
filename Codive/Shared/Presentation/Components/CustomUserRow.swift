@@ -10,14 +10,14 @@ import SwiftUI
 struct CustomUserRow: View {
     let buttonTitle: String
     var body: some View {
-            HStack{
+            HStack {
                 Image("CustomProfile")
                     .resizable()
                     .scaledToFill()
                     .frame(width: 40, height: 40)
                     .clipShape(Circle())
                 
-                VStack(alignment : .leading){
+                VStack(alignment: .leading) {
                     Text("닉네임")
                         .font(.codive_body1_medium)
                         .foregroundColor(Color("Grayscale1"))
@@ -43,7 +43,6 @@ struct CustomUserRow: View {
                 .buttonStyle(.plain)
             }
             .padding(.horizontal, 20)
-            
     }
 }
 
