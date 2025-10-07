@@ -40,7 +40,7 @@ struct CustomSeasonSheet: View {
 
             // 항목 리스트
             VStack(spacing: 0) {
-                ForEach(Array(Season.allCases.enumerated()), id: \.element.id) { index, season in
+                ForEach(Season.allCases) { season in
                     let isSelected = selected.contains(season)
 
                     Divider()
@@ -54,12 +54,14 @@ struct CustomSeasonSheet: View {
 
                             // 체크마크
                             HStack {
+                                
                                 Image(systemName: "checkmark")
                                     .foregroundStyle(isSelected ? Color("main0") : Color("main4"))
                                     .frame(width: 20, height: 20)
+                                
+                                Spacer()
                             }
-                            .padding(.trailing, 164)
-
+                            .padding(.leading, 100)
                             // 중앙 텍스트
                             Text(season.rawValue)
                                 .font(.codive_title3)
