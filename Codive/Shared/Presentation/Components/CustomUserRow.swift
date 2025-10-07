@@ -20,11 +20,9 @@ struct CustomUserRow: View {
                 VStack(alignment : .leading){
                     Text("닉네임")
                         .font(.codive_body1_medium)
-                        .fontWeight(.medium)
                         .foregroundColor(Color("Grayscale1"))
                     Text("아이디")
                         .font(.codive_body3_medium)
-                        .fontWeight(.medium)
                         .foregroundColor(Color("Grayscale3"))
                 }
                 .padding(.leading, 8)
