@@ -18,10 +18,9 @@ struct CustomBottomSheet: View {
             // Handle
             Capsule()
                 .foregroundStyle(Color("Grayscale5"))
-                .frame(minWidth: 69, maxHeight: 4)
+                .frame(width: 69, height: 4)
                 .padding(.bottom, 33)
                 .padding(.top, 11)
-                .padding(.horizontal, 152)
             
             
 
@@ -66,20 +65,6 @@ struct CustomBottomSheet: View {
     }
 }
 
-
-struct RoundedCorner: Shape {
-    var radius: CGFloat = 24
-    var corners: UIRectCorner = [.topLeft, .topRight]
-
-    func path(in rect: CGRect) -> Path {
-        let path = UIBezierPath(
-            roundedRect: rect,
-            byRoundingCorners: corners,
-            cornerRadii: CGSize(width: radius, height: radius)
-        )
-        return Path(path.cgPath)
-    }
-}
 
 #Preview {
     CustomBottomSheet(

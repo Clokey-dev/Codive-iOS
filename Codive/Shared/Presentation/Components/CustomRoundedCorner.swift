@@ -1,5 +1,5 @@
 //
-//  SwiftUIView.swift
+//  RoundedCorner.swift
 //  Codive
 //
 //  Created by 한태빈 on 10/7/25.
@@ -19,8 +19,4 @@ struct RoundedCorner: Shape {
         )
         return Path(path.cgPath)
     }
-}
-
-#Preview {
-    SwiftUIView()
 }
