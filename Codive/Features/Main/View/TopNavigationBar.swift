@@ -47,7 +47,7 @@ struct TopNavigationBar: View {
                     } label: {
                         Image("search")
                             .renderingMode(.template)
-                            .foregroundColor(Color.Codive.grayscale1)
+                            .foregroundStyle(Color.Codive.grayscale1)
                             .frame(width: 24, height: 24)
                     }
                 }
@@ -60,7 +60,7 @@ struct TopNavigationBar: View {
                         ZStack(alignment: .topTrailing) {
                             Image("alert_off")
                                 .renderingMode(.template)
-                                .foregroundColor(Color.Codive.grayscale1)
+                                .foregroundStyle(Color.Codive.grayscale1)
                                 .frame(width: 24, height: 24)
                         }
                     }

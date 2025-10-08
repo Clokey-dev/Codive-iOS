@@ -70,7 +70,7 @@ struct CustomTestView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     Text("CustomMultiSelectButton 예제")
                         .font(.codive_title1)
-                        .foregroundColor(Color.Codive.grayscale1)
+                        .foregroundStyle(Color.Codive.grayscale1)
                         .padding(.horizontal, 20)
                     
                     VStack(spacing: 24) {
@@ -110,7 +110,7 @@ struct CustomTestView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     Text("CustomTagView 예제")
                         .font(.codive_title1)
-                        .foregroundColor(Color.white)
+                        .foregroundStyle(Color.white)
                         .padding(.horizontal, 20)
                     
                     VStack(spacing: 16) {
@@ -172,7 +172,7 @@ struct CustomTestView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     Text("CustomTextField1 예제")
                         .font(.codive_title1)
-                        .foregroundColor(Color.Codive.grayscale1)
+                        .foregroundStyle(Color.Codive.grayscale1)
                         .padding(.horizontal, 20)
                     
                     VStack(spacing: 24) {
@@ -204,7 +204,7 @@ struct CustomTestView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     Text("CustomTextField2 예제")
                         .font(.codive_title1)
-                        .foregroundColor(Color.Codive.grayscale1)
+                        .foregroundStyle(Color.Codive.grayscale1)
                         .padding(.horizontal, 20)
                     
                     VStack(spacing: 32) {

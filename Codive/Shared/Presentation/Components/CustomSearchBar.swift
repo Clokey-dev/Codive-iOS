@@ -23,7 +23,7 @@ struct CustomSearchBar: View {
                 Button(action: onBack) {
                     Image(systemName: "chevron.backward")
                         .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(Color.Codive.main1)
+                        .foregroundStyle(Color.Codive.main1)
                 }
             case .normal:
                 EmptyView()
@@ -32,9 +32,9 @@ struct CustomSearchBar: View {
             HStack {
                 TextField("찾고싶은 옷이나 브랜드를 검색해보세요", text: $text)
                     .font(Font.codive_body2_medium)
-                    .foregroundColor(Color.Codive.grayscale3)
+                    .foregroundStyle(Color.Codive.grayscale3)
                 Image(systemName: "magnifyingglass")
-                    .foregroundColor(Color.Codive.main1)
+                    .foregroundStyle(Color.Codive.main1)
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 12)

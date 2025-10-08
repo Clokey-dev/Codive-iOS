@@ -39,17 +39,17 @@ struct CustomMultiSelectButton: View {
                 if let maxSelection = maxSelection {
                     Text("\(title) (\(selectedOptions.count)/\(maxSelection))")
                         .font(.codive_title2)
-                        .foregroundColor(Color.Codive.grayscale1)
+                        .foregroundStyle(Color.Codive.grayscale1)
                 } else {
                     Text(title)
                         .font(.codive_title2)
-                        .foregroundColor(Color.Codive.grayscale1)
+                        .foregroundStyle(Color.Codive.grayscale1)
                 }
                 
                 if showRequiredMark {
                     Text("*")
                         .font(.codive_title2)
-                        .foregroundColor(Color.Codive.point1)
+                        .foregroundStyle(Color.Codive.point1)
                         .offset(x: -4, y: -4)
                 }
             }
@@ -91,7 +91,7 @@ private struct SelectionButton: View {
         Button(action: action) {
             Text(title)
                 .font(.codive_body2_medium)
-                .foregroundColor(isSelected ? Color.Codive.point1 : Color.Codive.grayscale1)
+                .foregroundStyle(isSelected ? Color.Codive.point1 : Color.Codive.grayscale1)
                 .padding(.horizontal, 20)
                 .padding(.vertical, 10)
                 .background(isSelected ? Color.Codive.point4 : Color.white)

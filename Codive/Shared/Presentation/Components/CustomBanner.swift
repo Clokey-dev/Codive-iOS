@@ -15,13 +15,13 @@ struct CustomBanner: View {
         HStack {
             Text(text)
                 .font(Font.codive_body2_medium)
-                .foregroundColor(Color.Codive.grayscale1)
+                .foregroundStyle(Color.Codive.grayscale1)
             
             Spacer()
             
             Button(action: onIconTap) {
                 Image(systemName: "chevron.right")
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
                     .font(.system(size: 12, weight: .bold))
                     .frame(width: 24, height: 24)
                     .background(Color.Codive.main1)

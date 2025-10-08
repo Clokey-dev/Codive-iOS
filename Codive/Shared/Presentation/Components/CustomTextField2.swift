@@ -47,12 +47,12 @@ struct CustomTextField2: View {
             HStack(alignment: .top, spacing: 4) {
                 Text(title)
                     .font(.codive_title3)
-                    .foregroundColor(Color.Codive.grayscale1)
+                    .foregroundStyle(Color.Codive.grayscale1)
                 
                 if showRequiredMark {
                     Text("*")
                         .font(.codive_title3)
-                        .foregroundColor(Color.Codive.point1)
+                        .foregroundStyle(Color.Codive.point1)
                         .offset(x: -4, y: -4)
                 }
             }
@@ -62,7 +62,7 @@ struct CustomTextField2: View {
             HStack(spacing: 8) {
                 TextField(placeholder, text: $text)
                     .font(.codive_body2_regular)
-                    .foregroundColor(Color.Codive.grayscale1)
+                    .foregroundStyle(Color.Codive.grayscale1)
                     .frame(height: 28)
                 
                 if let buttonTitle = buttonTitle {
@@ -71,7 +71,7 @@ struct CustomTextField2: View {
                     } label: {
                         Text(buttonTitle)
                             .font(.codive_body2_medium)
-                            .foregroundColor(Color.Codive.grayscale1)
+                            .foregroundStyle(Color.Codive.grayscale1)
                             .frame(width: 72, height: 32)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 100)
@@ -92,7 +92,7 @@ struct CustomTextField2: View {
             if let helperText = helperText {
                 Text(helperText)
                     .font(.codive_body2_regular)
-                    .foregroundColor(helperTextColor)
+                    .foregroundStyle(helperTextColor)
                     .padding(.top, 4)
             }
         }

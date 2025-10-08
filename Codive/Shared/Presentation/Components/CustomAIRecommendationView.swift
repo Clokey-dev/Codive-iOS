@@ -58,7 +58,7 @@ struct CustomAIRecommendationView: View {
             // Title
             Text(title)
                 .font(.codive_title1)
-                .foregroundColor(Color.Codive.grayscale1)
+                .foregroundStyle(Color.Codive.grayscale1)
                 .padding(.horizontal, 20)
             
             // items가 비어있으면 빈 상태 표시
@@ -116,7 +116,7 @@ struct CustomAIRecommendationView: View {
         } label: {
             Image(systemName: "pencil")
                 .font(.system(size: 16))
-                .foregroundColor(Color.Codive.grayscale2)
+                .foregroundStyle(Color.Codive.grayscale2)
                 .frame(width: 32, height: 32)
                 .background(Color.white)
                 .clipShape(Circle())
@@ -201,11 +201,11 @@ struct CustomAIRecommendationView: View {
         VStack(spacing: 16) {
             Image(systemName: "tshirt")
                 .font(.system(size: 60))
-                .foregroundColor(Color.Codive.grayscale4)
+                .foregroundStyle(Color.Codive.grayscale4)
             
             Text("옷 정보가 없습니다")
                 .font(.codive_body1_regular)
-                .foregroundColor(Color.Codive.grayscale3)
+                .foregroundStyle(Color.Codive.grayscale3)
         }
         .frame(maxWidth: .infinity)
         .frame(height: 300)
@@ -226,12 +226,12 @@ struct CustomTextFieldButton: View {
             HStack(alignment: .top, spacing: 4) {
                 Text(title)
                     .font(.codive_title2)
-                    .foregroundColor(Color.Codive.grayscale1)
+                    .foregroundStyle(Color.Codive.grayscale1)
                 
                 if showRequiredMark {
                     Text("*")
                         .font(.codive_title2)
-                        .foregroundColor(Color.Codive.point1)
+                        .foregroundStyle(Color.Codive.point1)
                         .offset(x: -4, y: -4)
                 }
             }
@@ -241,13 +241,13 @@ struct CustomTextFieldButton: View {
                 HStack {
                     Text(value)
                         .font(.codive_body1_regular)
-                        .foregroundColor(Color.Codive.grayscale1)
+                        .foregroundStyle(Color.Codive.grayscale1)
                     
                     Spacer()
                     
                     Image(systemName: "chevron.right")
                         .font(.system(size: 14))
-                        .foregroundColor(Color.Codive.grayscale3)
+                        .foregroundStyle(Color.Codive.grayscale3)
                 }
                 .padding(.horizontal, 16)
                 .frame(height: 54)

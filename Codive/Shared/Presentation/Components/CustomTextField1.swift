@@ -31,12 +31,12 @@ struct CustomTextField1: View {
             // Title
             Text(title)
                 .font(.codive_title2)
-                .foregroundColor(Color.Codive.grayscale1)
+                .foregroundStyle(Color.Codive.grayscale1)
             
             // TextField
             TextField(placeholder, text: $text)
                 .font(.codive_body1_regular)
-                .foregroundColor(Color.Codive.grayscale1)
+                .foregroundStyle(Color.Codive.grayscale1)
                 .padding(.horizontal, 16)
                 .frame(height: 54)
                 .background(Color.white)

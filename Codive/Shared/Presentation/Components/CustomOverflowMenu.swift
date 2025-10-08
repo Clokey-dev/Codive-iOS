@@ -81,7 +81,7 @@ struct CustomOverflowMenu: View {
             Image(systemName: "ellipsis")
                 .rotationEffect(.degrees(90))
                 .font(.title2)
-                .foregroundColor(.Codive.grayscale1)
+                .foregroundStyle(Color.Codive.grayscale1)
                 .padding()
         }
         .overlay(alignment: .topTrailing) {
@@ -151,10 +151,10 @@ private extension CustomOverflowMenu {
                         .padding(1)
                 }
             }
-            .foregroundColor(.Codive.main1)
+            .foregroundStyle(Color.Codive.main1)
 
             Text(item.text)
-                .foregroundColor(.Codive.grayscale1)
+                .foregroundStyle(Color.Codive.grayscale1)
         }
         .font(.codive_body2_medium)
         .padding(.horizontal, 20)

@@ -23,7 +23,7 @@ struct CustomButton: View {
             Text(text)
                 .font(Font.codive_title2)
                 .padding()
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
         }
         .modifier(WidthModifier(type: widthType))
         .frame(height: 48)

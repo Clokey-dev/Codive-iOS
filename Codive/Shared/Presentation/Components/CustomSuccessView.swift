@@ -13,11 +13,11 @@ struct CustomSuccessView: View {
     var body: some View {
         VStack(spacing: 0) {
             Image(systemName: "checkmark.circle.fill")
-                .foregroundColor(Color.Codive.main1)
+                .foregroundStyle(Color.Codive.main1)
                 .font(.system(size: 50, weight: .bold))
             Text(message)
                 .font(Font.codive_title1)
-                .foregroundColor(Color.Codive.grayscale1)
+                .foregroundStyle(Color.Codive.grayscale1)
                 .padding(.top, 16)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

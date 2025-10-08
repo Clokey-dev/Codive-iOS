@@ -39,11 +39,11 @@ private struct BasicTagView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(.codive_body3_medium)
-                .foregroundColor(Color.Codive.main3)
+                .foregroundStyle(Color.Codive.main3)
             
             Text(content)
                 .font(.codive_body2_medium)
-                .foregroundColor(Color.Codive.grayscale1)
+                .foregroundStyle(Color.Codive.grayscale1)
                 .lineLimit(2)
         }
         .frame(width: 120, height: 70, alignment: .leading)
@@ -64,20 +64,20 @@ private struct ClosableTagView: View {
             HStack(spacing: 4) {
                 Text(title)
                     .font(.codive_body3_medium)
-                    .foregroundColor(Color.Codive.main3)
+                    .foregroundStyle(Color.Codive.main3)
                 
                 Spacer()
                 
                 Button(action: onClose) {
                     Image(systemName: "xmark")
                         .font(.system(size: 10, weight: .medium))
-                        .foregroundColor(Color.Codive.main0)
+                        .foregroundStyle(Color.Codive.main0)
                 }
             }
             
             Text(content)
                 .font(.codive_body2_medium)
-                .foregroundColor(Color.Codive.grayscale1)
+                .foregroundStyle(Color.Codive.grayscale1)
                 .lineLimit(2)
         }
         .frame(width: 120, height: 70, alignment: .leading)
@@ -99,11 +99,11 @@ private struct NavigableTagView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text(title)
                         .font(.codive_body3_medium)
-                        .foregroundColor(Color.Codive.main3)
+                        .foregroundStyle(Color.Codive.main3)
                     
                     Text(content)
                         .font(.codive_body2_medium)
-                        .foregroundColor(Color.Codive.grayscale1)
+                        .foregroundStyle(Color.Codive.grayscale1)
                         .lineLimit(2)
                 }
                 
@@ -111,7 +111,7 @@ private struct NavigableTagView: View {
                 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(Color.Codive.main0)
+                    .foregroundStyle(Color.Codive.main0)
             }
             .frame(width: 156, height: 70, alignment: .leading)
             .padding(.horizontal, 8)

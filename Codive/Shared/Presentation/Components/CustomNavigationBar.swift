@@ -25,7 +25,7 @@ struct CustomNavigationBar: View {
             Button(action: onBack) {
                 Image(systemName: "chevron.backward")
                     .font(.system(size: 20, weight: .bold))
-                    .foregroundColor(Color.Codive.grayscale3)
+                    .foregroundStyle(Color.Codive.grayscale3)
             }
             .frame(width: 44, height: 44)
             
@@ -34,7 +34,7 @@ struct CustomNavigationBar: View {
             // 가운데 타이틀
             Text(title)
                 .font(Font.codive_title1)
-                .foregroundColor(Color.Codive.grayscale1)
+                .foregroundStyle(Color.Codive.grayscale1)
             
             Spacer()
             
@@ -57,7 +57,7 @@ struct CustomNavigationBar: View {
             Button(action: action) {
                 Text(title)
                     .font(Font.codive_body2_medium)
-                    .foregroundColor(isEnabled ? Color.Codive.point1 : Color.Codive.grayscale5)
+                    .foregroundStyle(isEnabled ? Color.Codive.point1 : Color.Codive.grayscale5)
             }
             .disabled(!isEnabled)
             
@@ -65,7 +65,7 @@ struct CustomNavigationBar: View {
             Button(action: action) {
                 Image(systemName: systemName)
                     .font(.system(size: 20, weight: .medium))
-                    .foregroundColor(isEnabled ? Color.Codive.grayscale3 : Color.Codive.grayscale5)
+                    .foregroundStyle(isEnabled ? Color.Codive.grayscale3 : Color.Codive.grayscale5)
             }
             .disabled(!isEnabled)
             
@@ -73,7 +73,7 @@ struct CustomNavigationBar: View {
             Button(action: action) {
                 Image(systemName: systemName)
                     .font(.system(size: 20, weight: .medium))
-                    .foregroundColor(isEnabled ? Color.Codive.grayscale3 : Color.Codive.grayscale5)
+                    .foregroundStyle(isEnabled ? Color.Codive.grayscale3 : Color.Codive.grayscale5)
             }
             .disabled(!isEnabled)
         }
