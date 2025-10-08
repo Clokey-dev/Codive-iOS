@@ -49,7 +49,7 @@ private struct BasicTagView: View {
         .frame(width: 120, height: 70, alignment: .leading)
         .padding(.horizontal, 8)
         .background(Color.Codive.main6.opacity(0.9))
-        .cornerRadius(8)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }
 
@@ -83,7 +83,7 @@ private struct ClosableTagView: View {
         .frame(width: 120, height: 70, alignment: .leading)
         .padding(.horizontal, 8)
         .background(Color.Codive.main6.opacity(0.9))
-        .cornerRadius(8)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }
 
@@ -116,7 +116,7 @@ private struct NavigableTagView: View {
             .frame(width: 156, height: 70, alignment: .leading)
             .padding(.horizontal, 8)
             .background(Color.Codive.main6.opacity(0.9))
-            .cornerRadius(8)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(PlainButtonStyle())
     }

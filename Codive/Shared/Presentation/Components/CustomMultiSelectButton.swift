@@ -99,7 +99,7 @@ private struct SelectionButton: View {
                     RoundedRectangle(cornerRadius: 100)
                         .stroke(isSelected ? Color.Codive.point2 : Color.Codive.grayscale5, lineWidth: isSelected ? 2 : 1)
                 )
-                .cornerRadius(100)
+                .clipShape(RoundedRectangle(cornerRadius: 100))
         }
     }
 }

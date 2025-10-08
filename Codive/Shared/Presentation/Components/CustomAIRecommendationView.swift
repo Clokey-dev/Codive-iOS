@@ -103,8 +103,7 @@ struct CustomAIRecommendationView: View {
                     .frame(maxWidth: .infinity)
                     .frame(height: geometry.size.width)
                     .background(Color.Codive.grayscale6)
-                    .cornerRadius(10)
-                
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
                 editButton
             }
         }
@@ -146,7 +145,7 @@ struct CustomAIRecommendationView: View {
                 .aspectRatio(contentMode: .fill)
                 .frame(width: 65, height: 65)
                 .background(Color.Codive.grayscale6)
-                .cornerRadius(5)
+                .clipShape(RoundedRectangle(cornerRadius: 5))
                 .overlay(
                     RoundedRectangle(cornerRadius: 5)
                         .stroke(
@@ -257,7 +256,7 @@ struct CustomTextFieldButton: View {
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(Color.Codive.grayscale5, lineWidth: 1)
                 )
-                .cornerRadius(10)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
             }
         }
     }

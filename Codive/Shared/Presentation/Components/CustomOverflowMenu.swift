@@ -120,7 +120,7 @@ private extension CustomOverflowMenu {
                 }
             }
             .background(Color.white)
-            .cornerRadius(10)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
             .shadow(color: .gray.opacity(0.2), radius: 10, x: 0, y: 2)
             .fixedSize(horizontal: true, vertical: false)
             .offset(x: -20, y: 50)

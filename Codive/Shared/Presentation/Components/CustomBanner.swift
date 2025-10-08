@@ -31,7 +31,7 @@ struct CustomBanner: View {
         .padding(.horizontal, 20)
         .padding(.vertical, 24)
         .background(Color.Codive.main6)
-        .cornerRadius(10)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }
 

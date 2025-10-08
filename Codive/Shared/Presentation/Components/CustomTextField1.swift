@@ -44,7 +44,7 @@ struct CustomTextField1: View {
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(Color.Codive.grayscale5, lineWidth: 1)
                 )
-                .cornerRadius(10)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
                 .accentColor(Color.Codive.main1)
         }
     }
