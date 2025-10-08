@@ -32,7 +32,8 @@ struct CustomCategoryBottomSheet: View {
                 .padding(.bottom, 22)
 
             Divider() // 상단 구분선
-
+                .foregroundStyle(Color("Grayscale5"))
+            
             // 2) 좌·우 컬럼
             HStack(spacing: 0) {
 
@@ -50,7 +51,7 @@ struct CustomCategoryBottomSheet: View {
                                 .padding(.vertical, 12)
                                 .background(
                                     selectedCategory == category
-                                    ? Color("Grayscale5")
+                                    ? Color("Grayscale6")
                                     : Color("Grayscale7")
                                 )
                         }
@@ -60,10 +61,11 @@ struct CustomCategoryBottomSheet: View {
                 .frame(width: 100)
                 .background(Color("Grayscale7"))
 
-                // 가운데 세로 Divider (좌우 사이 흰 배경 제거)
-                Divider() // HStack 안에서는 세로 Divider로 렌더링됨
-                    .frame(width: 1) // 얇게 고정(선택사항)
-
+                // 가운데 세로 Divider
+                Divider()
+                    .frame(width: 1)
+                    .foregroundStyle(Color("Grayscale5"))
+                
                 // 오른쪽(소분류, 스크롤)
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 0) {
@@ -78,7 +80,7 @@ struct CustomCategoryBottomSheet: View {
                                     .padding(.vertical, 12)
                                     .background(
                                         selectedSubcategory == sub
-                                        ? Color("Grayscale5")
+                                        ? Color("Grayscale6")
                                         : Color("Grayscale7")
                                     )
                             }

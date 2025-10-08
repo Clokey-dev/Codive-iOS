@@ -27,12 +27,12 @@ struct CustomClothCard: View {
                 // 브랜드
                 Text(brand)
                     .font(.codive_body3_regular)
-                    .foregroundColor(Color("Grayscale4"))
+                    .foregroundStyle(Color("Grayscale4"))
 
                 // 상품명
                 Text(title)
                     .font(.codive_body2_medium)
-                    .foregroundColor(Color("Grayscale2"))
+                    .foregroundStyle(Color("Grayscale2"))
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
             }
