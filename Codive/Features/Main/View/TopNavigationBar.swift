@@ -31,11 +31,11 @@ struct TopNavigationBar: View {
     // MARK: - Body
     var body: some View {
         HStack {
-            // TODO: 로고 수정 예정
-            Text("Logo")
-                .font(.title2)
-                .fontWeight(.bold)
-                .foregroundColor(.black)
+            // Logo Image
+            Image("codive_logo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 70, height: 25)
             
             Spacer()
                         
@@ -47,7 +47,7 @@ struct TopNavigationBar: View {
                     } label: {
                         Image("search")
                             .renderingMode(.template)
-                            .foregroundColor(Color.Codive.grayscale1)
+                            .foregroundStyle(Color.Codive.grayscale1)
                             .frame(width: 24, height: 24)
                     }
                 }
@@ -60,7 +60,7 @@ struct TopNavigationBar: View {
                         ZStack(alignment: .topTrailing) {
                             Image("alert_off")
                                 .renderingMode(.template)
-                                .foregroundColor(Color.Codive.grayscale1)
+                                .foregroundStyle(Color.Codive.grayscale1)
                                 .frame(width: 24, height: 24)
                         }
                     }
@@ -70,7 +70,6 @@ struct TopNavigationBar: View {
         .padding(.horizontal, 20)
         .padding(.vertical, 12)
         .background(Color.white)
-        .shadow(color: Color.black.opacity(0.05), radius: 1, x: 0, y: 1)
     }
 }
 

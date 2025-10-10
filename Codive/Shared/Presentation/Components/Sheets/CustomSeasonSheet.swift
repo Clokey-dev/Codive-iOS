@@ -85,7 +85,7 @@ struct CustomSeasonSheet: View {
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity, minHeight: 48)
                     .background(enabled ? Color("main0") : Color("main4"))
-                    .cornerRadius(10)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
             }
             .buttonStyle(.plain)
             .disabled(!enabled)

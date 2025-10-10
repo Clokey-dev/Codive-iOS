@@ -37,7 +37,7 @@ struct CustomUserRow: View {
                         .foregroundStyle(.white)
                         .frame(minWidth: 76, minHeight: 32)
                         .background(Color("main0"))
-                        .cornerRadius(8)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
                         .multilineTextAlignment(.center)
                 }
                 .buttonStyle(.plain)

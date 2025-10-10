@@ -23,12 +23,12 @@ struct CustomButton: View {
             Text(text)
                 .font(Font.codive_title2)
                 .padding()
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
         }
         .modifier(WidthModifier(type: widthType))
         .frame(height: 48)
         .background(Color.Codive.main0)
-        .cornerRadius(10)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }
 
