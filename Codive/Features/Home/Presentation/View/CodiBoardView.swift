@@ -19,9 +19,26 @@ struct CodiBoardView: View {
                     .foregroundStyle(Color.Codive.grayscale1)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(EdgeInsets(top: 24, leading: 20, bottom: 24, trailing: 20))
+                
+                RoundedRectangle(cornerRadius: 15)
+                    .fill(Color.Codive.grayscale7)
+                    .frame(width: UIScreen.main.bounds.width - 40, height: UIScreen.main.bounds.width - 40)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 15)
+                            .stroke(Color.Codive.grayscale5, lineWidth: 1)
+                    )
+                    .shadow(color: .black.opacity(0.1), radius: 5, y: 2)
+                    .padding(.horizontal, 20)
+                
+                
+                CustomButton(text: "이 코디로 결정하기", widthType: .half) {
+                    print("이 코디로 결정하기 tapped")
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 205)
             }
         }
-        Spacer()
+        
     }
 }
 
