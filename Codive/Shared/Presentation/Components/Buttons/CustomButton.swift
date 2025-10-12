@@ -11,6 +11,7 @@ enum ButtonType {
     case fixed
     case dynamic
     case half
+    case outlinedHalf
 }
 
 struct CustomButton: View {
@@ -23,12 +24,55 @@ struct CustomButton: View {
             Text(text)
                 .font(Font.codive_title2)
                 .padding()
-                .foregroundStyle(.white)
+                .foregroundColor(textColor)
+                .frame(height: 48)
+                .frame(maxWidth: widthType == .dynamic ? nil : .infinity)
         }
-        .modifier(WidthModifier(type: widthType))
-        .frame(height: 48)
-        .background(Color.Codive.main0)
+        .background(backgroundColor)
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(borderColor, lineWidth: borderWidth)
+        )
         .clipShape(RoundedRectangle(cornerRadius: 10))
+        .modifier(WidthModifier(type: widthType))
+    }
+}
+
+private extension CustomButton {
+    var backgroundColor: Color {
+        switch widthType {
+        case .outlinedHalf:
+            return .white
+        default:
+            return Color.Codive.main0
+        }
+    }
+    
+    var textColor: Color {
+        switch widthType {
+        case .outlinedHalf:
+            return .black
+        default:
+            return .white
+        }
+    }
+    
+    var borderColor: Color {
+        switch widthType {
+        case .outlinedHalf:
+            return .brown
+        default:
+            return .clear
+        }
+    }
+    
+    var borderWidth: CGFloat {
+        switch widthType {
+        case .outlinedHalf:
+            return 1
+        default:
+            return 0
+        }
     }
 }
 
@@ -40,11 +84,10 @@ struct WidthModifier: ViewModifier {
         case .fixed:
             content
                 .frame(maxWidth: .infinity)
-                .padding(.horizontal, 20)
         case .dynamic:
             content
                 .padding(.horizontal, 16)
-        case .half:
+        case .half, .outlinedHalf:
             content
                 .frame(maxWidth: .infinity)
         }
@@ -76,15 +119,13 @@ struct WidthModifier: ViewModifier {
     }
     .padding(.horizontal, 20)
     
-    /// 2. 서로 다른 너비
-    HStack(spacing: 16) {
-        CustomButton(text: "코디보드", widthType: .dynamic) {
-            print("코디보드 tapped")
+    HStack(spacing: 9) {
+        CustomButton(text: "취소", widthType: .outlinedHalf) {
+            print("취소 tapped")
         }
-        
-        CustomButton(text: "이 코디로 결정하기", widthType: .dynamic) {
-            print("이 코디 결정 tapped")
+        CustomButton(text: "확인", widthType: .half) {
+            print("확인 tapped")
         }
     }
-    .padding()
+    .padding(.horizontal, 20)
 }
