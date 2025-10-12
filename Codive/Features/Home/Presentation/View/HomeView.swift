@@ -37,8 +37,25 @@ struct HomeView: View {
                     }
                     .padding(.horizontal, 20)
                     .frame(maxWidth: .infinity, alignment: .leading)
-
+                    .padding(.bottom, 16)
+                    
+                    CodiClothView()
+                        .padding(.horizontal, 20)
+                    CodiClothView()
+                        .padding(.horizontal, 20)
+                    CodiClothView()
+                        .padding(.horizontal, 20)
+                    
                     Spacer()
+                    HStack(spacing: 16) {
+                        CustomButton(text: "코디보드", widthType: .dynamic) {
+                            print("코디보드 tapped")
+                        }
+                        
+                        CustomButton(text: "이 코디로 결정하기", widthType: .dynamic) {
+                            print("이 코디 결정 tapped")
+                        }
+                    }
                 }
             }
         }
