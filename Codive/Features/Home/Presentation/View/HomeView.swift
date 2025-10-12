@@ -29,8 +29,14 @@ struct HomeView: View {
                         .font(Font.codive_title1)
                         .foregroundStyle(Color.Codive.grayscale1)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 20)
-                        .padding(.top, 24)
+                        .padding(EdgeInsets(top: 24, leading: 20, bottom: 16, trailing: 20))
+                    
+                    HStack(spacing: 8) {
+                        CodiButton(iconName: "plus", title: "카테고리 편집") { }
+                        CodiButton(iconName: "shuffle", title: "랜덤 코디") { }
+                    }
+                    .padding(.horizontal, 20)
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
                     Spacer()
                 }
