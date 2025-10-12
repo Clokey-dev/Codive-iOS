@@ -19,7 +19,7 @@ struct CategoryCounterView: View {
     var body: some View {
         HStack {
             Text(title)
-                .font(.system(size: 16, weight: .medium))
+                .font(Font.codive_body1_medium)
                 .foregroundColor(.black)
             
             Spacer()
@@ -30,18 +30,18 @@ struct CategoryCounterView: View {
                 }
             } label: {
                 Circle()
-                    .fill(Color(white: 0.93))
+                    .fill(Color.Codive.main5)
                     .frame(width: 28, height: 28)
                     .overlay(
                         Image(systemName: "minus")
                             .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(count > range.lowerBound ? .brown : .gray)
+                            .foregroundColor(count > range.lowerBound ? Color.Codive.main1 : Color.Codive.main1)
                     )
             }
             .disabled(count <= range.lowerBound)
             
             Text("\(count)")
-                .font(.system(size: 17, weight: .medium))
+                .font(Font.codive_body1_medium)
                 .foregroundColor(.black)
                 .frame(width: 24)
             
@@ -53,12 +53,12 @@ struct CategoryCounterView: View {
                 let isMaxed = totalCount >= maxLimit
                 
                 Circle()
-                    .fill(Color(white: 0.93))
+                    .fill(Color.Codive.main5)
                     .frame(width: 28, height: 28)
                     .overlay(
                         Image(systemName: "plus")
                             .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(isMaxed ? .gray : .brown)
+                            .foregroundColor(isMaxed ? Color.Codive.main1 : Color.Codive.main1)
                     )
             }
             .disabled(totalCount >= maxLimit)
@@ -66,8 +66,8 @@ struct CategoryCounterView: View {
         .padding(.horizontal, 20)
         .padding(.vertical, 12)
         .background(
-            RoundedRectangle(cornerRadius: 24)
-                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 999)
+                .stroke(Color.Codive.grayscale5)
         )
     }
 }

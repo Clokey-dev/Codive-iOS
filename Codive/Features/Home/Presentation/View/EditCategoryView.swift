@@ -33,8 +33,7 @@ struct EditCategoryView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(EdgeInsets(top: 24, leading: 20, bottom: 24, trailing: 20))
                 
-                VStack(spacing: 60) {   // ← 두 그룹 사이 간격 60 지정
-                    // 카테고리 카운터 리스트
+                VStack(spacing: 60) {
                     VStack(spacing: 24) {
                         CategoryCounterView(title: "상의", count: $topCount, totalCount: totalCount)
                         CategoryCounterView(title: "바지", count: $bottomCount, totalCount: totalCount)
@@ -45,7 +44,6 @@ struct EditCategoryView: View {
                         CategoryCounterView(title: "패션 소품", count: $accessoryCount, totalCount: totalCount)
                     }
                     
-                    // 버튼 영역
                     HStack(spacing: 9) {
                         CustomButton(text: "초기화", widthType: .outlinedHalf) {
                             print("취소 tapped")
