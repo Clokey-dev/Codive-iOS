@@ -56,6 +56,8 @@ struct PhotoGridCell: View {
                     .padding(8)
             }
         }
+        .frame(width: size.width, height: size.height)
+        .contentShape(Rectangle()) 
         .task {
             await loadImage()
         }
