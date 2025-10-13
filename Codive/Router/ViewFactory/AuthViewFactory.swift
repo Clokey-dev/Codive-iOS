@@ -28,13 +28,7 @@ final class AuthViewFactory {
         case .signup:
             // SignUpView(viewModel: authDIContainer.makeSignUpViewModel())
             Text("회원가입 화면") // 임시
-        case .main:
-            // Main Feature에서 사용될 예정
-            EmptyView()
-        case .recordAdd:
-            // Add Feature에서 처리되므로 여기서는 사용 안 함
-            EmptyView()
-        case .photoEdit(photos: let photos):
+        default:
             EmptyView()
         }
     }
