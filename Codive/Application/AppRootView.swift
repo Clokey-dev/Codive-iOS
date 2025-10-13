@@ -23,8 +23,7 @@ struct AppRootView: View {
         case .auth:
             authDIContainer.makeAuthFlowView()
         case .main:
-//            MainTabView()
-            EditCategoryView()
+            MainTabView()
         }
     }
 }

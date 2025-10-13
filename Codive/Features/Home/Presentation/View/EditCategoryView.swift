@@ -12,6 +12,11 @@ struct EditCategoryView: View {
     
     var body: some View {
         VStack(spacing: 0) {
+            /// 네비게이션 바
+            CustomNavigationBar(title: "카테고리 편집") {
+                print("뒤로가기")
+            }
+            
             ScrollView {
                 VStack {
                     /// 현재 카테고리 개수 표시

@@ -12,6 +12,11 @@ struct CodiBoardView: View {
     
     var body: some View {
         VStack(spacing: 0) {
+            /// 네비게이션 바
+            CustomNavigationBar(title: "코디 보드") {
+                print("뒤로가기")
+            }
+            
             ScrollView {
                 VStack {
                     Text("옷을 자유롭게 배치해 스타일을 살펴보세요.")
@@ -33,15 +38,18 @@ struct CodiBoardView: View {
                         )
                         .shadow(color: .black.opacity(0.1), radius: 5, y: 2)
                         .padding(.horizontal, 20)
-                    
-                    CustomButton(
-                        text: "이 코디로 결정하기",
-                        widthType: .half,
-                        action: viewModel.handleConfirmCodi
-                    )
-                    .padding(.horizontal, 20)
-                    .padding(.top, 205)
+                        .padding(.bottom, 20)
                 }
+            }
+            .safeAreaInset(edge: .bottom) {
+                CustomButton(
+                    text: "이 코디로 결정하기",
+                    widthType: .half,
+                    action: viewModel.handleConfirmCodi
+                )
+                .padding(.horizontal, 20)
+                .padding(.vertical, 16)
+                .background(Color.white)
             }
         }
         .background(Color.white)
