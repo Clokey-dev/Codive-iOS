@@ -97,7 +97,7 @@ struct RecordAddView: View {
         }
         .fullScreenCover(isPresented: $viewModel.isCameraPresented) {
             CameraView { image in
-                viewModel.handleCameraCapture()
+                viewModel.handleCameraCapture(image: image)
             }
             .ignoresSafeArea()
         }

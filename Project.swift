@@ -65,6 +65,8 @@ let project = Project(
             infoPlist: .extendingDefault(
                 with: [
                     "UILaunchScreen": [:],
+                    "CFBundleDevelopmentRegion": "ko",
+                    "CFBundleLocalizations": ["ko", "en"],
                     "UIAppFonts": [
                         "Pretendard-Black.otf",
                         "Pretendard-Bold.otf",
