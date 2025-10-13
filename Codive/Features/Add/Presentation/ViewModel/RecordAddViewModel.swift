@@ -158,6 +158,14 @@ final class RecordAddViewModel: ObservableObject {
         }
     }
     
+    func resetSelection() {
+        selectedPhotos.removeAll()
+        for index in photos.indices {
+            photos[index].isSelected = false
+            photos[index].selectionOrder = nil
+        }
+    }
+    
     func dismissView() {
         navigationRouter.navigateBack()
     }

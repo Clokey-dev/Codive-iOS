@@ -104,6 +104,9 @@ struct RecordAddView: View {
         .task {
             await viewModel.requestAuthorization()
         }
+        .onAppear {
+            viewModel.resetSelection()
+        }
     }
 }
 
