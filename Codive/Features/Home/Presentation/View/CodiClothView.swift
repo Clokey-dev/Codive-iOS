@@ -31,6 +31,7 @@ struct ClothCardView: View {
 }
 
 struct CodiClothView: View {
+    let title: String
     
     // 예시 데이터 (테스트용)
     let items: [ClothItem] = [
@@ -48,8 +49,8 @@ struct CodiClothView: View {
     // 수정
     @State private var currentIndex: Int
 
-    init() {
-        // items 배열의 중앙 인덱스를 기본값으로 설정
+    init(title: String) {
+            self.title = title
         _currentIndex = State(initialValue: items.count / 2)
     }
     
@@ -125,7 +126,7 @@ struct CodiClothView: View {
             .frame(height: 148)
             .clipShape(RoundedRectangle(cornerRadius: 16))
             
-            Text("바지")
+            Text(title)
                 .font(.caption.bold())
                 .foregroundColor(.white)
                 .padding(.horizontal, 12)
@@ -139,6 +140,6 @@ struct CodiClothView: View {
 }
 
 #Preview {
-    CodiClothView()
+    CodiClothView(title: "바지")
         .padding(.horizontal, 20)
 }

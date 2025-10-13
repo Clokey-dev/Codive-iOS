@@ -30,7 +30,6 @@ struct CodiBoardView: View {
                     .shadow(color: .black.opacity(0.1), radius: 5, y: 2)
                     .padding(.horizontal, 20)
                 
-                
                 CustomButton(text: "이 코디로 결정하기", widthType: .half) {
                     print("이 코디로 결정하기 tapped")
                 }

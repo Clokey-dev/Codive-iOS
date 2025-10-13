@@ -39,11 +39,11 @@ struct HomeView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.bottom, 16)
                     
-                    CodiClothView()
+                    CodiClothView(title: "상의")
                         .padding(.horizontal, 20)
-                    CodiClothView()
+                    CodiClothView(title: "바지")
                         .padding(.horizontal, 20)
-                    CodiClothView()
+                    CodiClothView(title: "신발")
                         .padding(.horizontal, 20)
                     
                     Spacer()
