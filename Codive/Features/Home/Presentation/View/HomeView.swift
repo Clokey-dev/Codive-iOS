@@ -7,23 +7,33 @@
 
 import SwiftUI
 
+// Anchor Preference Key 정의
+struct TitleBoundsPreferenceKey: PreferenceKey {
+    static var defaultValue: Anchor<CGRect>?
+    
+    static func reduce(value: inout Anchor<CGRect>?, nextValue: () -> Anchor<CGRect>?) {
+        value = value ?? nextValue()
+    }
+}
+
 struct HomeView: View {
     @State private var hasCodi: Bool = true
     @State private var selectedIndex: Int? = 0
     @State private var showClothSelector: Bool = false
+    @State private var titleFrame: CGRect = .zero
     
     var body: some View {
-        VStack(spacing: 0) {
-            TopNavigationBar(
-                onSearchTap: {
-                    print("검색 버튼 클릭")
-                },
-                onNotificationTap: {
-                    print("알림 버튼 클릭")
-                }
-            )
-            
-            ZStack {
+        ZStack(alignment: .topTrailing) {
+            VStack(spacing: 0) {
+                TopNavigationBar(
+                    onSearchTap: {
+                        print("검색 버튼 클릭")
+                    },
+                    onNotificationTap: {
+                        print("알림 버튼 클릭")
+                    }
+                )
+                
                 ScrollView {
                     VStack {
                         WeatherCardView()
@@ -37,23 +47,23 @@ struct HomeView: View {
                                         .font(Font.codive_title1)
                                         .foregroundStyle(Color.Codive.grayscale1)
                                         .padding(.horizontal, 20)
+                                        .anchorPreference(
+                                            key: TitleBoundsPreferenceKey.self,
+                                            value: .bounds
+                                        ) { $0 }
                                     
                                     Spacer()
-                                    
-                                    CustomOverflowMenu(
-                                        menuType: .coordination,
-                                        menuActions: [
-                                            { print("코디 수정 tapped") },
-                                            { print("룩북에 추가 tapped") },
-                                            { print("코디 공유 tapped") }
-                                        ]
-                                    )
                                 }
+                                .padding(.top, 16)
+                                .padding(.bottom, 12)
                                 
                                 ZStack(alignment: .bottomLeading) {
                                     RoundedRectangle(cornerRadius: 15)
                                         .fill(Color.Codive.grayscale7)
-                                        .frame(width: UIScreen.main.bounds.width - 40, height: UIScreen.main.bounds.width - 40)
+                                        .frame(
+                                            width: UIScreen.main.bounds.width - 40,
+                                            height: UIScreen.main.bounds.width - 40
+                                        )
                                         .overlay(
                                             RoundedRectangle(cornerRadius: 15)
                                                 .stroke(Color.Codive.grayscale5, lineWidth: 1)
@@ -77,6 +87,7 @@ struct HomeView: View {
                                     .padding(.leading, 16)
                                     .padding()
                                 }
+                                
                                 if showClothSelector {
                                     HStack(spacing: 12) {
                                         ForEach(0..<4, id: \.self) { index in
@@ -135,6 +146,25 @@ struct HomeView: View {
                             .padding(.horizontal, 20)
                             .padding(.top, 40)
                         }
+                    }
+                }
+            }
+            .overlayPreferenceValue(TitleBoundsPreferenceKey.self) { preferences in
+                GeometryReader { geometry in
+                    if let anchor = preferences {
+                        let frame = geometry[anchor]
+                        CustomOverflowMenu(
+                            menuType: .coordination,
+                            menuActions: [
+                                { print("코디 수정 tapped") },
+                                { print("룩북에 추가 tapped") },
+                                { print("코디 공유 tapped") }
+                            ]
+                        )
+                        .position(
+                            x: UIScreen.main.bounds.width - 40,
+                            y: frame.midY
+                        )
                     }
                 }
             }
