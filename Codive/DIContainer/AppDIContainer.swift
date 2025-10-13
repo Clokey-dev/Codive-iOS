@@ -16,8 +16,10 @@ final class AppDIContainer {
     
     // MARK: - DIContainers
     func makeAuthDIContainer() -> AuthDIContainer {
-        return AuthDIContainer(appRouter: appRouter)
-    }
+        return AuthDIContainer(
+                appRouter: appRouter,
+                navigationRouter: navigationRouter
+            )    }
     
     func makeAddDIContainer() -> AddDIContainer {
         return AddDIContainer(navigationRouter: navigationRouter)
