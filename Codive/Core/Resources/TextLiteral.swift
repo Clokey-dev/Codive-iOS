@@ -51,4 +51,22 @@ enum TextLiteral {
         static let searchButtonAccessibilityLabel = "검색"
         static let notificationButtonAccessibilityLabel = "알림"
     }
+    
+    // MARK: - Add (옷/이미지 추가)
+    enum Add {
+        static let mainTitle = "추가"
+        static let questionTitle = "추가할 항목은 무엇인가요?"
+        
+        // 옷 추가 섹션
+        static let clothesSectionTitle = "옷 추가"
+        static let aiAutoAddTitle = "AI 자동추가"
+        static let aiAutoAddDescription = "이미지를 업로드하면 옷이 자동으로 등록돼요"
+        static let manualAddTitle = "직접 추가"
+        static let manualAddDescription = "옷을 직접 추가하여 나만의 옷장을 만들어요"
+        
+        // 기록 추가 섹션
+        static let recordSectionTitle = "기록 추가"
+        static let recordAddTitle = "기록 추가"
+        static let recordAddDescription = "오늘의 스타일을 기록해요"
+    }
 }
