@@ -52,7 +52,12 @@ final class RecordAddViewModel: ObservableObject {
     func loadAlbums() {
         albums = fetchPhotosUseCase.fetchAlbums()
         
-        if let firstAlbum = albums.first {
+        // "최근 항목" 찾기
+        if let recentAlbum = albums.first(where: {
+            $0.collection.assetCollectionSubtype == .smartAlbumUserLibrary
+        }) {
+            selectAlbum(recentAlbum)
+        } else if let firstAlbum = albums.first {
             selectAlbum(firstAlbum)
         }
     }
@@ -107,9 +112,23 @@ final class RecordAddViewModel: ObservableObject {
         isCameraPresented = true
     }
     
-    func handleCameraCapture() {
-        // 카메라로 촬영 후 갤러리 새로고침
-        loadAlbums()
+    func handleCameraCapture(image: UIImage) {
+        // 사진을 포토 라이브러리에 저장
+        Task {
+            await saveImageToPhotoLibrary(image)
+            // 저장 후 갤러리 새로고침
+            loadAlbums()
+        }
+    }
+    
+    private func saveImageToPhotoLibrary(_ image: UIImage) async {
+        do {
+            try await PHPhotoLibrary.shared().performChanges {
+                PHAssetChangeRequest.creationRequestForAsset(from: image)
+            }
+        } catch {
+            print("사진 저장 실패: \(error)")
+        }
     }
     
     func completeSelection() {

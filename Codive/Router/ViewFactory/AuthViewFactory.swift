@@ -31,6 +31,9 @@ final class AuthViewFactory {
         case .main:
             // Main Feature에서 사용될 예정
             EmptyView()
+        case .recordAdd:
+            // Add Feature에서 처리되므로 여기서는 사용 안 함
+            EmptyView()
         }
     }
 }

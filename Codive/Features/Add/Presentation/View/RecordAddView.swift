@@ -82,6 +82,7 @@ struct RecordAddView: View {
                 }
             }
         }
+        .navigationBarHidden(true)
         .background(Color.white)
         .sheet(isPresented: $viewModel.isAlbumSheetPresented) {
             AlbumBottomSheet(
@@ -98,6 +99,7 @@ struct RecordAddView: View {
             CameraView { image in
                 viewModel.handleCameraCapture()
             }
+            .ignoresSafeArea()
         }
         .task {
             await viewModel.requestAuthorization()
