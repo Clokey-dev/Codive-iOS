@@ -11,7 +11,7 @@ import Foundation
 final class AddDIContainer {
     
     // MARK: - Properties
-    private let navigationRouter: NavigationRouter
+    let navigationRouter: NavigationRouter
     
     // MARK: - DataSources
     lazy var photoDataSource = PhotoDataSource()

@@ -10,12 +10,13 @@ import SwiftUI
 struct AddView: View {
     
     // MARK: - Properties
-    @StateObject private var navigationRouter = NavigationRouter()
+    @StateObject private var navigationRouter: NavigationRouter
     private let addDIContainer: AddDIContainer
     
     // MARK: - Initializer
     init(addDIContainer: AddDIContainer) {
         self.addDIContainer = addDIContainer
+        _navigationRouter = StateObject(wrappedValue: addDIContainer.navigationRouter)
     }
     
     // MARK: - Body
@@ -81,7 +82,7 @@ struct AddView: View {
                                 title: TextLiteral.Add.recordAddTitle,
                                 description: TextLiteral.Add.recordAddDescription
                             ) {
-                                navigationRouter.navigate(to: .recordAdd)
+                                navigationRouter.navigate(to: AppDestination.recordAdd)
                             }
                             .padding(.horizontal, 20)
                         }
