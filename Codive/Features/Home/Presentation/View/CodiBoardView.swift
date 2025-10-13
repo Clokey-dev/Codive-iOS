@@ -44,7 +44,7 @@ struct CodiBoardView: View {
             .safeAreaInset(edge: .bottom) {
                 CustomButton(
                     text: "이 코디로 결정하기",
-                    widthType: .half,
+                    widthType: .fixed,
                     action: viewModel.handleConfirmCodi
                 )
                 .padding(.horizontal, 20)
