@@ -22,16 +22,17 @@ struct PhotoGridCell: View {
     // MARK: - Body
     var body: some View {
         ZStack(alignment: .topTrailing) {
-            // 사진
+            Color.gray.opacity(0.2)
+                .frame(width: size.width, height: size.height)
+            
+            // 사진 (로드되면 fade-in)
             if let image = image {
                 Image(uiImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: size.width, height: size.height)
                     .clipped()
-            } else {
-                Color.gray.opacity(0.3)
-                    .frame(width: size.width, height: size.height)
+                    .transition(.opacity)
             }
             
             // 선택 표시
@@ -57,7 +58,7 @@ struct PhotoGridCell: View {
             }
         }
         .frame(width: size.width, height: size.height)
-        .contentShape(Rectangle()) 
+        .contentShape(Rectangle())
         .task {
             await loadImage()
         }
@@ -66,6 +67,10 @@ struct PhotoGridCell: View {
     // MARK: - Methods
     private func loadImage() async {
         let dataSource = PhotoDataSource()
-        image = await dataSource.loadImage(for: asset, size: size)
+        let loadedImage = await dataSource.loadImage(for: asset, size: size)
+        
+        withAnimation(.easeOut(duration: 0.2)) {
+            image = loadedImage
+        }
     }
 }
