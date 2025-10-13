@@ -95,6 +95,13 @@ struct AddView: View {
                 switch destination {
                 case .recordAdd:
                     addDIContainer.makeRecordAddView()
+                case .photoEdit(let photos):
+                    PhotoEditView(
+                        viewModel: PhotoEditViewModel(
+                            selectedPhotos: photos,
+                            navigationRouter: navigationRouter
+                        )
+                    )
                 default:
                     EmptyView()
                 }
