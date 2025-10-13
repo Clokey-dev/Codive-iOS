@@ -12,11 +12,6 @@ struct CodiBoardView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            /// 상단 네비게이션 바
-            CustomNavigationBar(title: "코디보드") {
-                viewModel.handleBackTap()
-            }
-            
             ScrollView {
                 VStack {
                     Text("옷을 자유롭게 배치해 스타일을 살펴보세요.")

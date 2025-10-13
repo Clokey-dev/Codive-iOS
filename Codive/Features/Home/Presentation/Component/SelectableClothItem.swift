@@ -14,7 +14,7 @@ struct SelectableClothItem: View {
     
     var body: some View {
         ZStack {
-            if let imageName = imageName, !imageName.isEmpty {
+            if let imageName = imageName, !imageName.isEmpty, UIImage(named: imageName) != nil {
                 Image(imageName)
                     .resizable()
                     .scaledToFit()

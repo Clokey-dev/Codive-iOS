@@ -12,11 +12,6 @@ struct EditCategoryView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            /// 상단 네비게이션 바
-            CustomNavigationBar(title: "카테고리 편집하기") {
-                viewModel.handleBackTap()
-            }
-            
             ScrollView {
                 VStack {
                     /// 현재 카테고리 개수 표시

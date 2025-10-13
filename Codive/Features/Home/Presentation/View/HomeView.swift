@@ -20,13 +20,6 @@ struct HomeView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            /// 상단 네비게이션 바
-            TopNavigationBar(
-                onSearchTap: viewModel.handleSearchTap,
-                onNotificationTap: viewModel.handleNotificationTap
-            )
-            .zIndex(1)
-            
             ScrollView {
                 VStack {
                     /// 날씨
@@ -159,6 +152,7 @@ extension HomeView {
             }
             .padding(.horizontal, 20)
             .padding(.top, 40)
+            .padding(.bottom, 100)
         }
     }
 }
