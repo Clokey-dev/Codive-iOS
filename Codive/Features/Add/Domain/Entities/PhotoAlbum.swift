@@ -6,6 +6,7 @@
 //
 
 import Photos
+import UIKit
 
 // MARK: - PhotoAlbum Entity
 struct PhotoAlbum {

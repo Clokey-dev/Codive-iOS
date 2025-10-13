@@ -134,9 +134,28 @@ final class RecordAddViewModel: ObservableObject {
     }
     
     func completeSelection() {
-        // TODO: 선택 완료 액션
-        print("선택된 사진: \(selectedPhotos.count)장")
-        navigationRouter.navigateBack()
+        // 선택된 사진들을 UIImage로 변환
+        Task {
+            var selectedPhotoItems: [SelectedPhoto] = []
+            
+            for (index, photo) in selectedPhotos.enumerated() {
+                let dataSource = PhotoDataSource()
+                if let image = await dataSource.loadImage(
+                    for: photo.asset,
+                    size: PHImageManagerMaximumSize
+                ) {
+                    let selectedPhoto = SelectedPhoto(
+                        id: photo.id,
+                        originalImage: image,
+                        order: index + 1
+                    )
+                    selectedPhotoItems.append(selectedPhoto)
+                }
+            }
+            
+            // PhotoEditView로 이동
+            navigationRouter.navigate(to: .photoEdit(photos: selectedPhotoItems))
+        }
     }
     
     func dismissView() {

@@ -12,6 +12,7 @@ enum AppDestination: Hashable {
     case signup
     case main
     case recordAdd
+    case photoEdit
     
     // 각 목적지의 고유 식별자
     var id: String {
@@ -24,6 +25,8 @@ enum AppDestination: Hashable {
             return "main"
         case .recordAdd:
             return "recordAdd"
+        case .photoEdit:
+            return "photoEdit"
         }
     }
 }
