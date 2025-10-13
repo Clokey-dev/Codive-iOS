@@ -35,7 +35,7 @@ struct CategoryCounterView: View {
                     .overlay(
                         Image(systemName: "minus")
                             .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(count > range.lowerBound ? Color.Codive.main1 : Color.Codive.main1)
+                            .foregroundColor(Color.Codive.main1)
                     )
             }
             .disabled(count <= range.lowerBound)
@@ -58,7 +58,7 @@ struct CategoryCounterView: View {
                     .overlay(
                         Image(systemName: "plus")
                             .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(isMaxed ? Color.Codive.main1 : Color.Codive.main1)
+                            .foregroundColor(Color.Codive.main1)
                     )
             }
             .disabled(totalCount >= maxLimit)
