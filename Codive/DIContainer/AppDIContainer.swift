@@ -17,4 +17,8 @@ final class AppDIContainer {
     func makeAuthDIContainer() -> AuthDIContainer {
         return AuthDIContainer(appRouter: appRouter)
     }
+    
+    func makeAddDIContainer() -> AddDIContainer {
+        return AddDIContainer(navigationRouter: navigationRouter)
+    }
 }
