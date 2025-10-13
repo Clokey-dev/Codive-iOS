@@ -19,14 +19,14 @@ struct AddView: View {
             Text(TextLiteral.Add.questionTitle)
                 .font(.codive_title1)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.top, 40)
+                .padding(.top, 38)
                 .padding(.bottom, 24)
                 .padding(.horizontal, 20)
             
             ScrollView {
                 VStack(spacing: 24) {
                     // 옷 추가 섹션
-                    VStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: 8) {
                         Text(TextLiteral.Add.clothesSectionTitle)
                             .font(.system(size: 18, weight: .bold))
                             .padding(.horizontal, 20)
@@ -52,9 +52,10 @@ struct AddView: View {
                         }
                         .padding(.horizontal, 20)
                     }
+                    .padding(.bottom,48)
                     
                     // 기록 추가 섹션
-                    VStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: 8) {
                         Text(TextLiteral.Add.recordSectionTitle)
                             .font(.system(size: 18, weight: .bold))
                             .padding(.horizontal, 20)
@@ -70,9 +71,7 @@ struct AddView: View {
                         .padding(.horizontal, 20)
                     }
                 }
-                .padding(.vertical, 20)
             }
-            
             Spacer()
         }
         .background(Color.white)
