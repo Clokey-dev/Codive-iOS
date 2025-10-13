@@ -9,33 +9,33 @@ import SwiftUI
 
 @MainActor
 final class EditCategoryViewModel: ObservableObject {
-    @Published var topCount = 0
-    @Published var bottomCount = 0
-    @Published var skirtCount = 0
-    @Published var outerCount = 0
-    @Published var shoeCount = 0
-    @Published var bagCount = 0
-    @Published var accessoryCount = 0
-    
-    var totalCount: Int {
-        topCount + bottomCount + skirtCount + outerCount + shoeCount + bagCount + accessoryCount
+
+    struct Item: Identifiable, Hashable {
+        var id = UUID()
+        var title: String
+        var count: Int
     }
-    
+
+    @Published var categories: [Item] = [
+        Item(title: "상의", count: 0),
+        Item(title: "바지", count: 0),
+        Item(title: "스커트", count: 0),
+        Item(title: "아우터", count: 0),
+        Item(title: "신발", count: 0),
+        Item(title: "가방", count: 0),
+        Item(title: "패션 소품", count: 0)
+    ]
+
+    var totalCount: Int { categories.reduce(0) { $0 + $1.count } }
+
     func resetCounts() {
-        topCount = 0
-        bottomCount = 0
-        skirtCount = 0
-        outerCount = 0
-        shoeCount = 0
-        bagCount = 0
-        accessoryCount = 0
+        for i in categories.indices { categories[i].count = 0 }
     }
-    
+
     func applyChanges() {
         print("적용하기 tapped")
+        categories.forEach { print("\($0.title): \($0.count)") }
     }
-    
-    func handleBackTap() {
-        print("뒤로가기 tapped")
-    }
+
+    func handleBackTap() { print("뒤로가기 tapped") }
 }

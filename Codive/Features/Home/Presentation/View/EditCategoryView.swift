@@ -28,13 +28,13 @@ struct EditCategoryView: View {
                     
                     /// 카테고리별 카운터 리스트
                     VStack(spacing: 24) {
-                        CategoryCounterView(title: "상의", count: $viewModel.topCount, totalCount: viewModel.totalCount)
-                        CategoryCounterView(title: "바지", count: $viewModel.bottomCount, totalCount: viewModel.totalCount)
-                        CategoryCounterView(title: "스커트", count: $viewModel.skirtCount, totalCount: viewModel.totalCount)
-                        CategoryCounterView(title: "아우터", count: $viewModel.outerCount, totalCount: viewModel.totalCount)
-                        CategoryCounterView(title: "신발", count: $viewModel.shoeCount, totalCount: viewModel.totalCount)
-                        CategoryCounterView(title: "가방", count: $viewModel.bagCount, totalCount: viewModel.totalCount)
-                        CategoryCounterView(title: "패션 소품", count: $viewModel.accessoryCount, totalCount: viewModel.totalCount)
+                        ForEach($viewModel.categories) { $category in
+                            CategoryCounterView(
+                                title: category.title,
+                                count: $category.count,
+                                totalCount: viewModel.totalCount
+                            )
+                        }
                     }
                     .padding(.horizontal, 20)
                     .padding(.bottom, 20)
