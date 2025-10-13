@@ -92,19 +92,7 @@ struct AddView: View {
             }
             .background(Color.white)
             .navigationDestination(for: AppDestination.self) { destination in
-                switch destination {
-                case .recordAdd:
-                    addDIContainer.makeRecordAddView()
-                case .photoEdit(let photos):
-                    PhotoEditView(
-                        viewModel: PhotoEditViewModel(
-                            selectedPhotos: photos,
-                            navigationRouter: navigationRouter
-                        )
-                    )
-                default:
-                    EmptyView()
-                }
+                addDIContainer.addViewFactory.makeView(for: destination)
             }
         }
     }

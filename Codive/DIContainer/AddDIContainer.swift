@@ -12,6 +12,7 @@ final class AddDIContainer {
     
     // MARK: - Properties
     let navigationRouter: NavigationRouter
+    lazy var addViewFactory = AddViewFactory(addDIContainer: self)
     
     // MARK: - DataSources
     lazy var photoDataSource = PhotoDataSource()
