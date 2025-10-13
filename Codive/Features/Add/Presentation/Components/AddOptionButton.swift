@@ -40,7 +40,7 @@ struct AddOptionButton: View {
             .padding(.horizontal, 15)
             .background(Color.white)
             .cornerRadius(10)
-            .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
+            .shadow(color: .Codive.grayscale1.opacity(0.05), radius: 8, x: 0, y: 2)
         }
     }
 }
