@@ -29,6 +29,7 @@ final class PhotoRepositoryImpl: PhotoRepository {
         
         return collections.compactMap { collection in
             let assets = dataSource.fetchPhotos(from: collection)
+            // swiftlint:disable:next empty_count
             guard assets.count > 0 else { return nil }
             
             return PhotoAlbum(

@@ -9,6 +9,9 @@ import SwiftUI
 
 struct AddView: View {
     
+    // MARK: - Properties
+    @State private var isShowingRecordAdd = false
+    
     // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
@@ -71,7 +74,7 @@ struct AddView: View {
                             title: TextLiteral.Add.recordAddTitle,
                             description: TextLiteral.Add.recordAddDescription
                         ) {
-                            // TODO: 기록 추가 액션
+                            isShowingRecordAdd = true
                         }
                         .padding(.horizontal, 20)
                     }
@@ -80,6 +83,14 @@ struct AddView: View {
             Spacer()
         }
         .background(Color.white)
+        .fullScreenCover(isPresented: $isShowingRecordAdd) {
+            let dataSource = PhotoDataSource()
+            let repository = PhotoRepositoryImpl(dataSource: dataSource)
+            let useCase = FetchPhotosUseCase(repository: repository)
+            let viewModel = RecordAddViewModel(fetchPhotosUseCase: useCase)
+            
+            RecordAddView(viewModel: viewModel)
+        }
     }
 }
 
