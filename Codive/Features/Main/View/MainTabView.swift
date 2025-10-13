@@ -4,6 +4,12 @@ struct MainTabView: View {
     
     // MARK: - Properties
     @StateObject private var viewModel = MainTabViewModel()
+    private let appDIContainer: AppDIContainer
+    
+    // MARK: - Initializer
+    init(appDIContainer: AppDIContainer) {
+        self.appDIContainer = appDIContainer
+    }
     
     // MARK: - Body
     var body: some View {
@@ -26,7 +32,7 @@ struct MainTabView: View {
                     case .closet:
                         ClosetView()
                     case .add:
-                        AddView()
+                        AddView(addDIContainer: appDIContainer.makeAddDIContainer())
                     case .feed:
                         FeedView()
                     case .profile:

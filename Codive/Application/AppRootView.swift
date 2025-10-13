@@ -12,10 +12,12 @@ struct AppRootView: View {
     
     @StateObject var appRouter: AppRouter
     private let authDIContainer: AuthDIContainer
+    private let appDIContainer: AppDIContainer
     
     init(appDIContainer: AppDIContainer) {
         self._appRouter = StateObject(wrappedValue: appDIContainer.appRouter)
         self.authDIContainer = appDIContainer.makeAuthDIContainer()
+        self.appDIContainer = appDIContainer
     }
     
     var body: some View {
@@ -23,7 +25,7 @@ struct AppRootView: View {
         case .auth:
             authDIContainer.makeAuthFlowView()
         case .main:
-            MainTabView()
+            MainTabView(appDIContainer: appDIContainer)
         }
     }
 }
