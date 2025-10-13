@@ -8,55 +8,50 @@
 import SwiftUI
 
 struct EditCategoryView: View {
-    @State private var topCount = 0
-    @State private var bottomCount = 0
-    @State private var skirtCount = 0
-    @State private var outerCount = 0
-    @State private var shoeCount = 0
-    @State private var bagCount = 0
-    @State private var accessoryCount = 0
-    
-    var totalCount: Int {
-        topCount + bottomCount + skirtCount + outerCount + shoeCount + bagCount + accessoryCount
-    }
+    @StateObject private var viewModel = EditCategoryViewModel()
     
     var body: some View {
-        CustomNavigationBar(title: "카테고리 편집하기") {
-            print("뒤로가기")
-        }
-        
-        ScrollView {
-            VStack {
-                Text("현재 카테고리(\(totalCount)/10)")
-                    .font(Font.codive_title2)
-                    .foregroundStyle(Color.Codive.grayscale1)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(EdgeInsets(top: 24, leading: 20, bottom: 24, trailing: 20))
-                
-                VStack(spacing: 60) {
-                    VStack(spacing: 24) {
-                        CategoryCounterView(title: "상의", count: $topCount, totalCount: totalCount)
-                        CategoryCounterView(title: "바지", count: $bottomCount, totalCount: totalCount)
-                        CategoryCounterView(title: "스커트", count: $skirtCount, totalCount: totalCount)
-                        CategoryCounterView(title: "아우터", count: $outerCount, totalCount: totalCount)
-                        CategoryCounterView(title: "신발", count: $shoeCount, totalCount: totalCount)
-                        CategoryCounterView(title: "가방", count: $bagCount, totalCount: totalCount)
-                        CategoryCounterView(title: "패션 소품", count: $accessoryCount, totalCount: totalCount)
-                    }
+        VStack(spacing: 0) {
+            /// 상단 네비게이션 바
+            CustomNavigationBar(title: "카테고리 편집하기") {
+                viewModel.handleBackTap()
+            }
+            
+            ScrollView {
+                VStack {
+                    /// 현재 카테고리 개수 표시
+                    Text("현재 카테고리(\(viewModel.totalCount)/10)")
+                        .font(Font.codive_title2)
+                        .foregroundStyle(Color.Codive.grayscale1)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(EdgeInsets(top: 24, leading: 20, bottom: 24, trailing: 20))
                     
-                    HStack(spacing: 9) {
-                        CustomButton(text: "초기화", widthType: .outlinedHalf) {
-                            print("취소 tapped")
+                    VStack(spacing: 60) {
+                        /// 카테고리별 카운터 리스트
+                        VStack(spacing: 24) {
+                            CategoryCounterView(title: "상의", count: $viewModel.topCount, totalCount: viewModel.totalCount)
+                            CategoryCounterView(title: "바지", count: $viewModel.bottomCount, totalCount: viewModel.totalCount)
+                            CategoryCounterView(title: "스커트", count: $viewModel.skirtCount, totalCount: viewModel.totalCount)
+                            CategoryCounterView(title: "아우터", count: $viewModel.outerCount, totalCount: viewModel.totalCount)
+                            CategoryCounterView(title: "신발", count: $viewModel.shoeCount, totalCount: viewModel.totalCount)
+                            CategoryCounterView(title: "가방", count: $viewModel.bagCount, totalCount: viewModel.totalCount)
+                            CategoryCounterView(title: "패션 소품", count: $viewModel.accessoryCount, totalCount: viewModel.totalCount)
                         }
-                        CustomButton(text: "적용하기", widthType: .half) {
-                            print("확인 tapped")
+                        
+                        HStack(spacing: 9) {
+                            CustomButton(text: "초기화", widthType: .outlinedHalf) {
+                                viewModel.resetCounts()
+                            }
+                            CustomButton(text: "적용하기", widthType: .half) {
+                                viewModel.applyChanges()
+                            }
                         }
                     }
+                    .padding(.horizontal, 20)
                 }
-                .padding(.horizontal, 20)
             }
         }
-        Spacer()
+        .background(Color.white)
     }
 }
 

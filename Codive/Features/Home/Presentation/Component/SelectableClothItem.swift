@@ -1,5 +1,5 @@
 //
-//  SelectableClothItemView.swift
+//  SelectableClothItem.swift
 //  Codive
 //
 //  Created by 한금준 on 10/13/25.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SelectableClothItemView: View {
+struct SelectableClothItem: View {
     let imageName: String?
     @Binding var isSelected: Bool
     let size: CGFloat = 72
@@ -51,7 +51,7 @@ private struct PreviewContainer: View {
     var body: some View {
         HStack(spacing: 12) {
             ForEach(0..<4, id: \.self) { index in
-                SelectableClothItemView(
+                SelectableClothItem(
                     imageName: index == 3 ? nil : "cardigan",
                     isSelected: Binding(
                         get: { selectedIndex == index },
