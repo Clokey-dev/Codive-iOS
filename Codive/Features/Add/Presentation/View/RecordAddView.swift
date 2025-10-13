@@ -12,7 +12,6 @@ struct RecordAddView: View {
     
     // MARK: - Properties
     @StateObject private var viewModel: RecordAddViewModel
-    @Environment(\.dismiss) private var dismiss
     
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 3), count: 4)
     private let cellSize: CGFloat = (UIScreen.main.bounds.width - 9) / 4 // 3px * 3 간격 / 4개
@@ -29,7 +28,7 @@ struct RecordAddView: View {
             CustomNavigationBar(
                 title: "기록 추가",
                 onBack: {
-                    dismiss()
+                    viewModel.dismissView()
                 },
                 rightButton: .text(
                     title: "완료",
@@ -60,6 +59,15 @@ struct RecordAddView: View {
             // Photo Grid
             ScrollView {
                 LazyVGrid(columns: columns, spacing: 3) {
+                    // 첫 번째 셀: 카메라
+                    CameraCell(
+                        size: CGSize(width: cellSize, height: cellSize),
+                        onTap: {
+                            viewModel.showCamera()
+                        }
+                    )
+                    
+                    // 나머지 셀: 갤러리 사진들
                     ForEach(viewModel.photos) { photo in
                         PhotoGridCell(
                             asset: photo.asset,
@@ -86,6 +94,11 @@ struct RecordAddView: View {
             .presentationDetents([.medium, .large])
             .presentationDragIndicator(.hidden)
         }
+        .fullScreenCover(isPresented: $viewModel.isCameraPresented) {
+            CameraView { image in
+                viewModel.handleCameraCapture()
+            }
+        }
         .task {
             await viewModel.requestAuthorization()
         }
@@ -96,7 +109,11 @@ struct RecordAddView: View {
     let dataSource = PhotoDataSource()
     let repository = PhotoRepositoryImpl(dataSource: dataSource)
     let useCase = FetchPhotosUseCase(repository: repository)
-    let viewModel = RecordAddViewModel(fetchPhotosUseCase: useCase)
+    let router = NavigationRouter()
+    let viewModel = RecordAddViewModel(
+        fetchPhotosUseCase: useCase,
+        navigationRouter: router
+    )
     
     return RecordAddView(viewModel: viewModel)
 }
