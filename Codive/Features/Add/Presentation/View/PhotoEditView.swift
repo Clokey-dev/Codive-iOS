@@ -22,126 +22,112 @@ struct PhotoEditView: View {
     // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
-            // Navigation Bar
+            // Navigation Bar (오른쪽 버튼 없음)
             CustomNavigationBar(
                 title: "사진 편집",
                 onBack: {
                     viewModel.dismissView()
-                },
-                rightButton: .text(
-                    title: "완료",
-                    isEnabled: true
-                ) {
-                    viewModel.completeEditing()
                 }
             )
             
-            // Main Image Area
-            ZStack(alignment: .topTrailing) {
-                if let currentPhoto = viewModel.currentPhoto {
-                    Image(uiImage: currentPhoto.croppedImage)
-                        .resizable()
-                        .aspectRatio(3/4, contentMode: .fit)
-                        .frame(maxWidth: .infinity)
-                        .background(Color.black)
-                } else {
-                    Color.gray.opacity(0.2)
-                        .aspectRatio(3/4, contentMode: .fit)
-                }
-                
-                // Crop Button
-                Button(action: {
-                    viewModel.startEditing()
-                }) {
-                    Image("crop_icon")
-                        .resizable()
-                        .frame(width: 24, height: 24)
-                        .padding(12)
-                        .background(Color.white.opacity(0.9))
-                        .clipShape(Circle())
-                        .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
-                }
-                .padding(16)
-            }
-            
-            Spacer()
-            
-            // Bottom Controls
-            VStack(spacing: 16) {
-                // Photo Navigation
+            // Photo Thumbnails (상단으로 이동)
+            ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
-                    Button(action: {
-                        viewModel.moveToPrevious()
-                    }) {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 20, weight: .semibold))
-                            .foregroundColor(viewModel.canMoveBack ? .Codive.grayscale1 : .Codive.grayscale3)
-                    }
-                    .disabled(!viewModel.canMoveBack)
-                    
-                    Text("\(viewModel.currentIndex + 1) / \(viewModel.selectedPhotos.count)")
-                        .font(.codive_body1_medium)
-                        .foregroundColor(.Codive.grayscale1)
-                    
-                    Button(action: {
-                        viewModel.moveToNext()
-                    }) {
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 20, weight: .semibold))
-                            .foregroundColor(viewModel.canMoveForward ? .Codive.grayscale1 : .Codive.grayscale3)
-                    }
-                    .disabled(!viewModel.canMoveForward)
-                }
-                .padding(.bottom, 8)
-                
-                // Photo Thumbnails
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 12) {
-                        ForEach(viewModel.selectedPhotos) { photo in
-                            PhotoEditCell(
-                                photo: photo,
-                                isSelected: photo.id == viewModel.currentPhoto?.id
-                            )
-                            .onTapGesture {
-                                if let index = viewModel.selectedPhotos.firstIndex(where: { $0.id == photo.id }) {
-                                    viewModel.currentIndex = index
-                                }
+                    ForEach(viewModel.selectedPhotos) { photo in
+                        PhotoEditCell(
+                            photo: photo,
+                            isSelected: photo.id == viewModel.currentPhoto?.id
+                        )
+                        .onTapGesture {
+                            if let index = viewModel.selectedPhotos.firstIndex(where: { $0.id == photo.id }) {
+                                viewModel.currentIndex = index
                             }
-                            .onDrag {
-                                self.draggedPhoto = photo
-                                return NSItemProvider(object: photo.id as NSString)
-                            }
-                            .onDrop(of: [.text], delegate: PhotoDropDelegate(
+                        }
+                        .onDrag {
+                            self.draggedPhoto = photo
+                            return NSItemProvider(object: photo.id as NSString)
+                        }
+                        .onDrop(
+                            of: [.text],
+                            delegate: PhotoDropDelegate(
                                 photo: photo,
                                 photos: $viewModel.selectedPhotos,
                                 draggedPhoto: $draggedPhoto,
                                 onReorder: { source, destination in
                                     viewModel.reorderPhotos(from: source, to: destination)
                                 }
-                            ))
-                        }
+                            )
+                        )
                     }
-                    .padding(.horizontal, 20)
                 }
-                .frame(height: 100)
+                .padding(.horizontal, 20)
             }
+            .frame(height: 100)
+            .padding(.top, 16)
+            
+            // Main Image Area (좌우 20 여백)
+            ZStack(alignment: .topTrailing) {
+                if let currentPhoto = viewModel.currentPhoto {
+                    Image(uiImage: currentPhoto.croppedImage)
+                        .resizable()
+                        .aspectRatio(3/4, contentMode: .fit)
+                        .frame(maxWidth: .infinity)
+                } else {
+                    Color.gray.opacity(0.2)
+                        .aspectRatio(3/4, contentMode: .fit)
+                }
+                
+                // Crop Button
+                Button(
+                    action: {
+                        viewModel.startEditing()
+                    },
+                    label: {
+                        Image("crop_icon")
+                            .resizable()
+                            .frame(width: 24, height: 24)
+                            .padding(12)
+                            .background(Color.white.opacity(0.9))
+                            .clipShape(Circle())
+                            .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+                    }
+                )
+                .padding(16)
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 20)
+            
+            Spacer()
+            
+            // Bottom Button
+            CustomButton(
+                text: "완료",
+                widthType: .fixed,
+                action: {
+                    viewModel.completeEditing()
+                }
+            )
+            .padding(.horizontal, 20)
             .padding(.bottom, 20)
         }
         .navigationBarHidden(true)
         .background(Color.white)
-        .sheet(isPresented: $viewModel.isEditingMode) {
-            if let currentPhoto = viewModel.currentPhoto {
-                ImageCropView(
-                    image: currentPhoto.originalImage,
-                    onComplete: { croppedImage in
-                        viewModel.updateCroppedImage(croppedImage)
-                    },
-                    onCancel: {
-                        viewModel.cancelEditing()
-                    }
-                )
+        .sheet(
+            isPresented: $viewModel.isEditingMode,
+            content: {
+                if let currentPhoto = viewModel.currentPhoto {
+                    ImageCropView(
+                        image: currentPhoto.originalImage,
+                        onComplete: { croppedImage in
+                            viewModel.updateCroppedImage(croppedImage)
+                        },
+                        onCancel: {
+                            viewModel.cancelEditing()
+                        }
+                    )
+                }
             }
-        }
+        )
     }
 }
 

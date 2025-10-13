@@ -33,6 +33,7 @@ struct MainTabView: View {
                         ClosetView()
                     case .add:
                         AddView(addDIContainer: appDIContainer.makeAddDIContainer())
+                            .ignoresSafeArea(.all, edges: .bottom)
                     case .feed:
                         FeedView()
                     case .profile:

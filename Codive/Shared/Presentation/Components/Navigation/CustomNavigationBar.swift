@@ -43,7 +43,6 @@ struct CustomNavigationBar: View {
                 .frame(width: 44, height: 44)
         }
         .frame(height: 56)
-        .padding(.horizontal, 20)
         .background(Color.white)
     }
     
