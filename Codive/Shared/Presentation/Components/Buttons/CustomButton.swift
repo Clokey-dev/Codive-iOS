@@ -51,7 +51,7 @@ private extension CustomButton {
     var textColor: Color {
         switch widthType {
         case .outlinedHalf:
-            return .black
+            return .Codive.main0
         default:
             return .white
         }
@@ -60,7 +60,7 @@ private extension CustomButton {
     var borderColor: Color {
         switch widthType {
         case .outlinedHalf:
-            return .brown
+            return .Codive.main0
         default:
             return .clear
         }
