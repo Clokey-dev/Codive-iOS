@@ -8,14 +8,16 @@
 import SwiftUI
 
 struct AddView: View {
+    
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
-            // 상단 타이틀
+            // Title
             Text(TextLiteral.Add.mainTitle)
                 .font(.codive_title1)
                 .padding(.top, 20)
             
-            // 질문 텍스트
+            // Question Text
             Text(TextLiteral.Add.questionTitle)
                 .font(.codive_title1)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -25,48 +27,51 @@ struct AddView: View {
             
             ScrollView {
                 VStack(spacing: 24) {
-                    // 옷 추가 섹션
+                    // MARK: - Clothes Section
                     VStack(alignment: .leading, spacing: 8) {
                         Text(TextLiteral.Add.clothesSectionTitle)
                             .font(.system(size: 18, weight: .bold))
                             .padding(.horizontal, 20)
                         
                         VStack(spacing: 12) {
+                            // AI Auto Add
                             AddOptionButton(
                                 iconName: "ai_icon",
                                 iconBackgroundColor: .orange,
                                 title: TextLiteral.Add.aiAutoAddTitle,
                                 description: TextLiteral.Add.aiAutoAddDescription
                             ) {
-                                // AI 자동추가 액션
+                                // TODO: AI 자동추가 액션
                             }
                             
+                            // Manual Add
                             AddOptionButton(
                                 iconName: "cloth_icon",
                                 iconBackgroundColor: .orange,
                                 title: TextLiteral.Add.manualAddTitle,
                                 description: TextLiteral.Add.manualAddDescription
                             ) {
-                                // 직접 추가 액션
+                                // TODO: 직접 추가 액션
                             }
                         }
                         .padding(.horizontal, 20)
                     }
-                    .padding(.bottom,48)
+                    .padding(.bottom, 48)
                     
-                    // 기록 추가 섹션
+                    // MARK: - Record Section
                     VStack(alignment: .leading, spacing: 8) {
                         Text(TextLiteral.Add.recordSectionTitle)
                             .font(.system(size: 18, weight: .bold))
                             .padding(.horizontal, 20)
                         
+                        // Record Add
                         AddOptionButton(
                             iconName: "feed_icon",
                             iconBackgroundColor: .orange,
                             title: TextLiteral.Add.recordAddTitle,
                             description: TextLiteral.Add.recordAddDescription
                         ) {
-                            // 기록 추가 액션
+                            // TODO: 기록 추가 액션
                         }
                         .padding(.horizontal, 20)
                     }
