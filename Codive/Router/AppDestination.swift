@@ -12,8 +12,8 @@ enum AppDestination: Hashable {
     case signup
     case main
     case recordAdd
-    case photoEdit
-    
+    case photoEdit(photos: [SelectedPhoto])
+
     // 각 목적지의 고유 식별자
     var id: String {
         switch self {

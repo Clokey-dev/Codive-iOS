@@ -84,6 +84,19 @@ struct RecordAddView: View {
         }
         .navigationBarHidden(true)
         .background(Color.white)
+        .navigationDestination(for: AppDestination.self) { destination in
+            switch destination {
+            case .photoEdit(let photos):
+                PhotoEditView(
+                    viewModel: PhotoEditViewModel(
+                        selectedPhotos: photos,
+                        navigationRouter: viewModel.navigationRouter
+                    )
+                )
+            default:
+                EmptyView()
+            }
+        }
         .sheet(isPresented: $viewModel.isAlbumSheetPresented) {
             AlbumBottomSheet(
                 albums: viewModel.albums,

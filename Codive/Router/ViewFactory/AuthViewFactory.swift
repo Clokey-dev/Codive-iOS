@@ -34,6 +34,8 @@ final class AuthViewFactory {
         case .recordAdd:
             // Add Feature에서 처리되므로 여기서는 사용 안 함
             EmptyView()
+        case .photoEdit(photos: let photos):
+            EmptyView()
         }
     }
 }

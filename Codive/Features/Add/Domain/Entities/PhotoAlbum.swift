@@ -26,7 +26,7 @@ struct PhotoAsset: Identifiable {
 }
 
 // MARK: - SelectedPhoto Entity
-struct SelectedPhoto: Identifiable, Equatable {
+struct SelectedPhoto: Identifiable, Equatable, Hashable {
     let id: String
     let originalImage: UIImage
     var croppedImage: UIImage
@@ -37,6 +37,17 @@ struct SelectedPhoto: Identifiable, Equatable {
         self.originalImage = originalImage
         self.croppedImage = Self.cropTo3_4Ratio(image: originalImage)
         self.order = order
+    }
+    
+    // Hashable 구현
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+        hasher.combine(order)
+    }
+    
+    // Equatable 구현
+    static func == (lhs: SelectedPhoto, rhs: SelectedPhoto) -> Bool {
+        lhs.id == rhs.id && lhs.order == rhs.order
     }
     
     // 3:4 비율로 자동 크롭

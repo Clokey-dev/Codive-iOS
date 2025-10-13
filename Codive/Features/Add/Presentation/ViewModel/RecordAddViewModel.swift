@@ -23,7 +23,7 @@ final class RecordAddViewModel: ObservableObject {
     @Published var authorizationStatus: PHAuthorizationStatus = .notDetermined
     
     private let fetchPhotosUseCase: FetchPhotosUseCase
-    private let navigationRouter: NavigationRouter
+    let navigationRouter: NavigationRouter
     
     // MARK: - Computed Properties
     var isCompleteEnabled: Bool {
