@@ -116,6 +116,8 @@ final class RecordAddViewModel: ObservableObject {
         // 사진을 포토 라이브러리에 저장
         Task {
             await saveImageToPhotoLibrary(image)
+            // 선택 상태 초기화
+            selectedPhotos.removeAll()
             // 저장 후 갤러리 새로고침
             loadAlbums()
         }
