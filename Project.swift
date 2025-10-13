@@ -120,7 +120,10 @@ let project = Project(
                 .external(name: "KakaoSDKUser"),
                 
                 // 네트워킹
-                .external(name: "Moya")
+                .external(name: "Moya"),
+                
+                // 이미지 크롭
+                .external(name: "Mantis"),
             ],
             settings: .settings(
                 base: [
