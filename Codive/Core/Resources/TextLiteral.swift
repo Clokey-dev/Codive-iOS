@@ -68,5 +68,10 @@ enum TextLiteral {
         static let recordSectionTitle = "기록 추가"
         static let recordAddTitle = "기록 추가"
         static let recordAddDescription = "오늘의 스타일을 기록해요"
+        
+        // 기록 추가 화면
+        static let recordAddNavigationTitle = "기록 추가"
+        static let completeButtonTitle = "완료"
+        static let recentAlbumTitle = "최근 항목"
     }
 }
