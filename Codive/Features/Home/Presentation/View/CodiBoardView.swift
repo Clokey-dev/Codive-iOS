@@ -37,7 +37,6 @@ struct CodiBoardView: View {
                 .padding(.top, 205)
             }
         }
-        
     }
 }
 

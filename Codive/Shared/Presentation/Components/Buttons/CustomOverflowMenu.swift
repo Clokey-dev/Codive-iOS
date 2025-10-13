@@ -20,8 +20,7 @@ enum MenuType {
             return [
                 .init(icon: .system(name: "pencil"), text: "코디 수정"),
                 .init(icon: .system(name: "plus"), text: "룩북에 추가"),
-                .init(icon: .asset(name: "ic_share"), text: "코디 공유"),
-                .init(icon: .asset(name: "ic_download"), text: "이미지 저장")
+                .init(icon: .asset(name: "ic_share"), text: "코디 공유")
             ]
         case .lookbook:
             return [
@@ -185,8 +184,7 @@ private extension CustomOverflowMenu {
         menuActions: [
             { print("코디 수정 tapped") },
             { print("룩북에 추가 tapped") },
-            { print("코디 공유 tapped") },
-            { print("이미지 저장 tapped") }
+            { print("코디 공유 tapped") }
         ]
     )
     
