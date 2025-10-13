@@ -147,7 +147,7 @@ extension HomeView {
             Spacer()
             
             HStack(spacing: 16) {
-                CustomButton(text: "코디보드", widthType: .half, action: viewModel.handleCodiBoardTap)
+                CustomButton(text: "코디보드", widthType: .outlinedHalf, action: viewModel.handleCodiBoardTap)
                 CustomButton(text: "이 코디로 결정하기", widthType: .half, action: viewModel.handleConfirmCodiTap)
             }
             .padding(.horizontal, 20)
