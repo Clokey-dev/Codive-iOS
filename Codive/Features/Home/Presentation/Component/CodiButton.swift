@@ -24,7 +24,6 @@ struct CodiButton: View {
                     .font(Font.codive_body2_regular)
                     .foregroundStyle(Color.Codive.grayscale1)
             }
-            .foregroundColor(Color.Codive.main0)
             .padding(.horizontal, 14)
             .padding(.vertical, 8)
             .overlay(
