@@ -41,6 +41,7 @@ struct CustomNavigationBar: View {
             // 오른쪽 버튼
             rightButtonView
                 .frame(width: 44, height: 44)
+                .padding(.trailing, 10)
         }
         .frame(height: 56)
         .background(Color.white)
