@@ -20,121 +20,144 @@ struct RecordDetailView: View {
     
     // MARK: - Body
     var body: some View {
-        VStack(spacing: 0) {
-            // Navigation Bar
-            CustomNavigationBar(
-                title: "기록 추가",
-                onBack: {
+        GeometryReader { geometry in
+            VStack(spacing: 0) {
+                CustomNavigationBar(title: "기록 추가") {
                     viewModel.dismissView()
                 }
-            )
-            
-            ScrollView {
-                VStack(spacing: 0) {
-                    // Question Title
-                    Text("오늘의 내 기록을 추가해볼까요?")
-                        .font(.codive_title1)
-                        .foregroundStyle(Color.Codive.grayscale1)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 20)
-                        .padding(.top, 20)
-                        .padding(.bottom, 24)
-                    
-                    // Photo Carousel
-                    TabView(selection: $viewModel.currentPhotoIndex) {
-                        ForEach(Array(viewModel.selectedPhotos.enumerated()), id: \.element.id) { index, photo in
-                            Image(uiImage: photo.croppedImage)
-                                .resizable()
-                                .aspectRatio(3/4, contentMode: .fit)
-                                .cornerRadius(10)
-                                .tag(index)
-                        }
-                    }
-                    .tabViewStyle(.page(indexDisplayMode: .always))
-                    .frame(height: UIScreen.main.bounds.width * 4/3 - 40)
-                    .padding(.horizontal, 20)
-                    
-                    // Page Indicator를 위한 간격
-                    Spacer()
-                        .frame(height: 24)
-                    
-                    // Style Selection
-                    CustomMultiSelectButton(
-                        title: "오늘의 스타일을 선택해보세요",
-                        options: viewModel.styleOptions,
-                        selectedOptions: $viewModel.selectedStyles,
-                        maxSelection: 3,
-                        showRequiredMark: true
-                    )
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 24)
-                    
-                    // Situation Selection
-                    CustomMultiSelectButton(
-                        title: "어떤 상황에 주로 입으시나요?",
-                        options: viewModel.situationOptions,
-                        selectedOptions: $viewModel.selectedSituations,
-                        showRequiredMark: true
-                    )
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 24)
-                    
-                    // Caption TextField
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "pencil")
-                                .font(.system(size: 16))
-                                .foregroundStyle(Color.Codive.grayscale2)
-                            
-                            Text("캡션을 추가해주세요")
-                                .font(.codive_body2_medium)
-                                .foregroundStyle(Color.Codive.grayscale2)
-                        }
-                        
-                        TextEditor(text: $viewModel.captionText)
-                            .font(.codive_body2_medium)
+                
+                ScrollView {
+                    VStack(spacing: 0) {
+                        Text("오늘의 내 기록을 추가해볼까요?")
+                            .font(.codive_title1)
                             .foregroundStyle(Color.Codive.grayscale1)
-                            .frame(height: 158)
-                            .padding(12)
-                            .background(Color.Codive.grayscale7)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color.Codive.grayscale5, lineWidth: 1)
-                            )
-                            .overlay(alignment: .topLeading) {
-                                if viewModel.captionText.isEmpty {
-                                    Text("나만의 스타일 이야기를 채워보세요.\n#아이템과 #스타일을 자랑해보세요.")
-                                        .font(.codive_body2_medium)
-                                        .foregroundStyle(Color.Codive.grayscale4)
-                                        .padding(.top, 20)
-                                        .padding(.leading, 16)
-                                        .allowsHitTesting(false)
-                                }
-                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 20)
+                            .padding(.top, 20)
+                            .padding(.bottom, 16)
+                        
+                        photoCarouselSection(geometry: geometry)
+                        multiSelectSection()
+                        captionSection()
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 40)
                 }
+                
+                bottomButton()
             }
-            
-            // Bottom Button
-            CustomButton(
-                text: "작성 완료",
-                widthType: .fixed,
-                action: {
-                    viewModel.completeRecord()
-                }
-            )
-            .padding(.horizontal, 20)
-            .padding(.bottom, 20)
-            .opacity(viewModel.isCompleteEnabled ? 1.0 : 0.5)
-            .disabled(!viewModel.isCompleteEnabled)
+            .navigationBarHidden(true)
+            .background(Color.white)
         }
-        .navigationBarHidden(true)
-        .background(Color.white)
     }
 }
 
+// MARK: - View Components
+private extension RecordDetailView {
+    
+    @ViewBuilder
+    func photoCarouselSection(geometry: GeometryProxy) -> some View {
+        let imageWidth = max(geometry.size.width - 40, 0)
+        let imageHeight = imageWidth * 4 / 3
+        
+        VStack(spacing: 0) {
+            TabView(selection: $viewModel.currentPhotoIndex) {
+                ForEach(Array(viewModel.selectedPhotos.enumerated()), id: \.element.id) { index, photo in
+                    Image(uiImage: photo.croppedImage)
+                        .resizable()
+                        .aspectRatio(3/4, contentMode: .fit)
+                        .cornerRadius(10)
+                        .tag(index)
+                }
+            }
+            .tabViewStyle(.page(indexDisplayMode: .never))
+            .frame(height: max(imageHeight, 1))
+            .padding(.horizontal, 20)
+            
+            HStack(spacing: 6) {
+                ForEach(0..<viewModel.selectedPhotos.count, id: \.self) { index in
+                    Circle()
+                        .fill(index == viewModel.currentPhotoIndex ? Color.Codive.grayscale1 : Color.Codive.grayscale5)
+                        .frame(width: 6, height: 6)
+                }
+            }
+            .padding(.top, 12)
+            .padding(.bottom, 24)
+        }
+    }
+    
+    @ViewBuilder
+    func multiSelectSection() -> some View {
+        VStack(spacing: 24) {
+            CustomMultiSelectButton(
+                title: "오늘의 스타일을 선택해보세요",
+                options: viewModel.styleOptions,
+                selectedOptions: $viewModel.selectedStyles,
+                maxSelection: 3,
+                showRequiredMark: true
+            )
+            
+            CustomMultiSelectButton(
+                title: "어떤 상황에 주로 입으시나요?",
+                options: viewModel.situationOptions,
+                selectedOptions: $viewModel.selectedSituations,
+                showRequiredMark: true
+            )
+        }
+        .padding(.horizontal, 20)
+        .padding(.bottom, 24)
+    }
+    
+    @ViewBuilder
+    func captionSection() -> some View {
+        TextEditor(text: $viewModel.captionText)
+            .font(.codive_body2_medium)
+            .foregroundStyle(Color.Codive.grayscale1)
+            .frame(height: 158)
+            .padding(12)
+            .background(Color.Codive.grayscale7)
+            .cornerRadius(8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.Codive.grayscale5, lineWidth: 1)
+            )
+            .overlay(alignment: .topLeading) {
+                if viewModel.captionText.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "pencil")
+                                .font(.system(size: 16))
+                                .foregroundStyle(Color.Codive.grayscale1)
+                            
+                            Text("캡션을 추가해주세요")
+                                .font(.codive_body1_medium)
+                                .foregroundStyle(Color.Codive.grayscale1)
+                        }
+                        
+                        Text("나만의 스타일 이야기를 채워보세요.\n#아이템과 #스타일을 자랑해보세요.")
+                            .font(.codive_body2_medium)
+                            .foregroundStyle(Color.Codive.grayscale4)
+                    }
+                    .padding(.top, 20)
+                    .padding(.leading, 16)
+                    .allowsHitTesting(false)
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 40)
+    }
+    
+    @ViewBuilder
+    func bottomButton() -> some View {
+        CustomButton(text: "작성 완료", widthType: .fixed) {
+            viewModel.completeRecord()
+        }
+        .padding(.horizontal, 20)
+        .padding(.bottom, 20)
+        .opacity(viewModel.isCompleteEnabled ? 1.0 : 0.5)
+        .disabled(!viewModel.isCompleteEnabled)
+    }
+}
+
+// MARK: - Preview
 #Preview {
     let sampleImage = UIImage(systemName: "photo")!
     let photos = [
