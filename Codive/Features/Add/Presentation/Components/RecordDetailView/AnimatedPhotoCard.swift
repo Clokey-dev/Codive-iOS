@@ -25,11 +25,11 @@ struct AnimatedPhotoCard: View {
             Image(uiImage: photo.croppedImage)
                 .resizable()
                 .aspectRatio(3/4, contentMode: .fit)
-                .cornerRadius(10)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
             
             // Dark Overlay
             Color.black.opacity(0.5)
-                .cornerRadius(10)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
             
             // Animated Circle with Text
             VStack(spacing: 14) {
@@ -109,15 +109,4 @@ struct AnimatedPhotoCard: View {
         timer?.invalidate()
         timer = nil
     }
-}
-
-// MARK: - Preview
-#Preview {
-    let sampleImage = UIImage(systemName: "photo")!
-    let photo = SelectedPhoto(id: "1", originalImage: sampleImage, order: 1)
-    
-    return AnimatedPhotoCard(photo: photo) {
-        print("Photo tapped")
-    }
-    .frame(width: 300, height: 400)
 }

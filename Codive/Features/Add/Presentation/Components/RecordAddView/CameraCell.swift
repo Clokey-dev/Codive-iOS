@@ -22,7 +22,7 @@ struct CameraCell: View {
                 
                 Image(systemName: "camera.fill")
                     .font(.system(size: 32))
-                    .foregroundColor(.Codive.grayscale3)
+                    .foregroundStyle(Color.Codive.grayscale3)
             }
             .frame(width: size.width, height: size.height)
         }

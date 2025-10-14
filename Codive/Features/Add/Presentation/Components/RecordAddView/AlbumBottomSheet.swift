@@ -66,7 +66,7 @@ struct AlbumRow: View {
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 60, height: 60)
                         .clipped()
-                        .cornerRadius(8)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
                 } else {
                     RoundedRectangle(cornerRadius: 8)
                         .fill(Color.gray.opacity(0.3))
@@ -77,11 +77,11 @@ struct AlbumRow: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(album.title)
                         .font(.codive_body1_medium)
-                        .foregroundColor(.Codive.grayscale1)
+                        .foregroundStyle(Color.Codive.grayscale1)
                     
                     Text("\(album.count)")
                         .font(.codive_body2_medium)
-                        .foregroundColor(.Codive.grayscale3)
+                        .foregroundStyle(Color.Codive.grayscale3)
                 }
                 
                 Spacer()
@@ -90,7 +90,7 @@ struct AlbumRow: View {
                 if isSelected {
                     Image(systemName: "checkmark")
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.Codive.main0)
+                        .foregroundStyle(Color.Codive.main0)
                 }
             }
             .padding(.horizontal, 20)

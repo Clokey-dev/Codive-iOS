@@ -43,7 +43,7 @@ struct PhotoGridCell: View {
                     .overlay(
                         Text("\(order)")
                             .font(.codive_body3_medium)
-                            .foregroundColor(.white)
+                            .foregroundStyle(.white)
                     )
                     .padding(8)
             } else {

@@ -27,11 +27,11 @@ struct AddOptionButton: View {
                 VStack(alignment: .leading, spacing: 1) {
                     Text(title)
                         .font(.codive_body1_medium)
-                        .foregroundColor(.Codive.grayscale1)
+                        .foregroundStyle(Color.Codive.grayscale1)
                     
                     Text(description)
                         .font(.codive_body2_medium)
-                        .foregroundColor(.Codive.grayscale3)
+                        .foregroundStyle(Color.Codive.grayscale3)
                 }
                 
                 Spacer()
@@ -39,7 +39,7 @@ struct AddOptionButton: View {
             .padding(.vertical, 20)
             .padding(.horizontal, 15)
             .background(Color.white)
-            .cornerRadius(10)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
             .shadow(color: .Codive.grayscale1.opacity(0.05), radius: 8, x: 0, y: 2)
         }
     }

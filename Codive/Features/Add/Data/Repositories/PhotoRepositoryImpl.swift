@@ -68,13 +68,13 @@ final class PhotoRepositoryImpl: PhotoRepository {
     }
     
     // MARK: - Private Helpers
-    
+
     /// PHAssetCollection을 PhotoAlbum Entity로 변환
     /// 비즈니스 규칙: 사진이 없는 앨범은 제외
     private func convertToPhotoAlbum(_ collection: PHAssetCollection) -> PhotoAlbum? {
         let assets = dataSource.fetchPhotos(from: collection)
         
-        // 빈 앨범은 반환하지 않음 (비즈니스 규칙)
+        // swiftlint:disable:next empty_count
         guard assets.count > 0 else { return nil }
         
         return PhotoAlbum(

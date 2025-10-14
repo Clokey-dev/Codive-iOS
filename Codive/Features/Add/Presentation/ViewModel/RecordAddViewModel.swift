@@ -162,7 +162,6 @@ final class RecordAddViewModel: ObservableObject {
         }
     }
 
-    
     func resetSelection() {
         selectedPhotos.removeAll()
         for index in photos.indices {

@@ -73,11 +73,11 @@ struct PhotoEditView: View {
                         .resizable()
                         .aspectRatio(3/4, contentMode: .fit)
                         .frame(maxWidth: .infinity)
-                        .cornerRadius(10)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
                 } else {
                     Color.gray.opacity(0.2)
                         .aspectRatio(3/4, contentMode: .fit)
-                        .cornerRadius(10)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
                 
                 // Crop Button
@@ -151,17 +151,4 @@ struct PhotoDropDelegate: DropDelegate {
             onReorder(IndexSet(integer: fromIndex), toIndex > fromIndex ? toIndex + 1 : toIndex)
         }
     }
-}
-
-#Preview {
-    let sampleImage = UIImage(systemName: "photo")!
-    let photos = [
-        SelectedPhoto(id: "1", originalImage: sampleImage, order: 1),
-        SelectedPhoto(id: "2", originalImage: sampleImage, order: 2),
-        SelectedPhoto(id: "3", originalImage: sampleImage, order: 3)
-    ]
-    let router = NavigationRouter()
-    let viewModel = PhotoEditViewModel(selectedPhotos: photos, navigationRouter: router)
-    
-    return PhotoEditView(viewModel: viewModel)
 }

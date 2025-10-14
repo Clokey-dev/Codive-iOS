@@ -138,13 +138,3 @@ struct CustomRoundedCorner: Shape {
         return Path(path.cgPath)
     }
 }
-
-// MARK: - Preview
-#Preview {
-    let sampleImage = UIImage(systemName: "photo")!
-    let photo = SelectedPhoto(id: "1", originalImage: sampleImage, order: 1)
-    let router = NavigationRouter()
-    let viewModel = PhotoTagViewModel(photo: photo, allPhotos: [photo], navigationRouter: router)
-    
-    return PhotoTagView(viewModel: viewModel)
-}

@@ -45,11 +45,11 @@ struct RecordAddView: View {
                 HStack(spacing: 4) {
                     Text(viewModel.selectedAlbumTitle)
                         .font(.codive_body1_medium)
-                        .foregroundColor(.Codive.grayscale1)
+                        .foregroundStyle(Color.Codive.grayscale1)
                     
                     Image(systemName: "chevron.down")
                         .font(.system(size: 14))
-                        .foregroundColor(.Codive.grayscale3)
+                        .foregroundStyle(Color.Codive.grayscale3)
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 16)

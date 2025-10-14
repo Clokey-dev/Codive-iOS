@@ -112,7 +112,7 @@ private extension RecordDetailView {
             .frame(height: 158)
             .padding(12)
             .background(Color.Codive.grayscale7)
-            .cornerRadius(8)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(Color.Codive.grayscale5, lineWidth: 1)
@@ -153,18 +153,4 @@ private extension RecordDetailView {
         .opacity(viewModel.isCompleteEnabled ? 1.0 : 0.5)
         .disabled(!viewModel.isCompleteEnabled)
     }
-}
-
-// MARK: - Preview
-#Preview {
-    let sampleImage = UIImage(systemName: "photo")!
-    let photos = [
-        SelectedPhoto(id: "1", originalImage: sampleImage, order: 1),
-        SelectedPhoto(id: "2", originalImage: sampleImage, order: 2),
-        SelectedPhoto(id: "3", originalImage: sampleImage, order: 3)
-    ]
-    let router = NavigationRouter()
-    let viewModel = RecordDetailViewModel(selectedPhotos: photos, navigationRouter: router)
-    
-    return RecordDetailView(viewModel: viewModel)
 }
