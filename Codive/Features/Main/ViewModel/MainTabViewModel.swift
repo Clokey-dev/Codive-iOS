@@ -6,10 +6,32 @@
 //
 
 import Foundation
+import Combine
 
 @MainActor
 final class MainTabViewModel: ObservableObject {
     @Published var selectedTab: TabBarType = .home
+    @Published var shouldShowTabBar: Bool = true
+    
+    private var cancellables = Set<AnyCancellable>()
+    private let navigationRouter: NavigationRouter
+    
+    // MARK: - Initializer
+    init(navigationRouter: NavigationRouter) {
+        self.navigationRouter = navigationRouter
+        observeNavigationDepth()
+    }
+    
+    // MARK: - Private Methods
+    private func observeNavigationDepth() {
+        navigationRouter.$path
+            .map { $0.count }
+            .removeDuplicates()
+            .sink { [weak self] depth in
+                self?.shouldShowTabBar = (depth == 0)
+            }
+            .store(in: &cancellables)
+    }
     
     // MARK: - Actions
     func handleSearchTap() {
