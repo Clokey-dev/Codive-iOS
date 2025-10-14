@@ -50,15 +50,12 @@ final class RecordAddViewModel: ObservableObject {
     }
     
     func loadAlbums() {
-        albums = fetchPhotosUseCase.fetchAlbums()
+        let (fetchedAlbums, defaultAlbum) = fetchPhotosUseCase.fetchAlbumsWithDefault()
         
-        // "최근 항목" 찾기
-        if let recentAlbum = albums.first(where: {
-            $0.collection.assetCollectionSubtype == .smartAlbumUserLibrary
-        }) {
-            selectAlbum(recentAlbum)
-        } else if let firstAlbum = albums.first {
-            selectAlbum(firstAlbum)
+        albums = fetchedAlbums
+        
+        if let defaultAlbum = defaultAlbum {
+            selectAlbum(defaultAlbum)
         }
     }
     
