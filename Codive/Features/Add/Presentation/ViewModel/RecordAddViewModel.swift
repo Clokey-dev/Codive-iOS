@@ -23,6 +23,7 @@ final class RecordAddViewModel: ObservableObject {
     @Published var authorizationStatus: PHAuthorizationStatus = .notDetermined
     
     private let fetchPhotosUseCase: FetchPhotosUseCase
+    private let processImageUseCase: ProcessImageUseCase
     let navigationRouter: NavigationRouter
     
     // MARK: - Computed Properties
@@ -35,10 +36,15 @@ final class RecordAddViewModel: ObservableObject {
     }
     
     // MARK: - Initializer
-    init(fetchPhotosUseCase: FetchPhotosUseCase, navigationRouter: NavigationRouter) {
-        self.fetchPhotosUseCase = fetchPhotosUseCase
-        self.navigationRouter = navigationRouter
-    }
+    init(
+            fetchPhotosUseCase: FetchPhotosUseCase,
+            processImageUseCase: ProcessImageUseCase,
+            navigationRouter: NavigationRouter
+        ) {
+            self.fetchPhotosUseCase = fetchPhotosUseCase
+            self.processImageUseCase = processImageUseCase
+            self.navigationRouter = navigationRouter
+        }
     
     // MARK: - Methods
     func requestAuthorization() async {
@@ -131,7 +137,6 @@ final class RecordAddViewModel: ObservableObject {
     }
     
     func completeSelection() {
-        // 선택된 사진들을 UIImage로 변환
         Task {
             var selectedPhotoItems: [SelectedPhoto] = []
             
@@ -141,19 +146,22 @@ final class RecordAddViewModel: ObservableObject {
                     for: photo.asset,
                     size: PHImageManagerMaximumSize
                 ) {
+                    let croppedImage = processImageUseCase.cropTo3_4Ratio(image)
+                    
                     let selectedPhoto = SelectedPhoto(
                         id: photo.id,
                         originalImage: image,
+                        croppedImage: croppedImage, 
                         order: index + 1
                     )
                     selectedPhotoItems.append(selectedPhoto)
                 }
             }
             
-            // PhotoEditView로 이동
             navigationRouter.navigate(to: .photoEdit(photos: selectedPhotoItems))
         }
     }
+
     
     func resetSelection() {
         selectedPhotos.removeAll()

@@ -27,6 +27,8 @@ final class AddDIContainer {
         repository: photoRepository
     )
     
+    lazy var processImageUseCase = ProcessImageUseCase()
+    
     // MARK: - Initializer
     init(navigationRouter: NavigationRouter) {
         self.navigationRouter = navigationRouter
@@ -36,6 +38,7 @@ final class AddDIContainer {
     func makeRecordAddViewModel() -> RecordAddViewModel {
         return RecordAddViewModel(
             fetchPhotosUseCase: fetchPhotosUseCase,
+            processImageUseCase: processImageUseCase,
             navigationRouter: navigationRouter
         )
     }

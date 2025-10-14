@@ -32,48 +32,19 @@ struct SelectedPhoto: Identifiable, Equatable, Hashable {
     var croppedImage: UIImage
     var order: Int
     
-    init(id: String, originalImage: UIImage, order: Int) {
+    init(id: String, originalImage: UIImage, croppedImage: UIImage, order: Int) {
         self.id = id
         self.originalImage = originalImage
-        self.croppedImage = Self.cropTo3_4Ratio(image: originalImage)
+        self.croppedImage = croppedImage
         self.order = order
     }
     
-    // Hashable 구현
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
         hasher.combine(order)
     }
     
-    // Equatable 구현
     static func == (lhs: SelectedPhoto, rhs: SelectedPhoto) -> Bool {
         lhs.id == rhs.id && lhs.order == rhs.order
-    }
-    
-    // 3:4 비율로 자동 크롭
-    private static func cropTo3_4Ratio(image: UIImage) -> UIImage {
-        let targetRatio: CGFloat = 3.0 / 4.0
-        let imageSize = image.size
-        let currentRatio = imageSize.width / imageSize.height
-        
-        var cropRect: CGRect
-        
-        if currentRatio > targetRatio {
-            // 이미지가 더 넓음 - 너비를 자름
-            let targetWidth = imageSize.height * targetRatio
-            let x = (imageSize.width - targetWidth) / 2
-            cropRect = CGRect(x: x, y: 0, width: targetWidth, height: imageSize.height)
-        } else {
-            // 이미지가 더 높음 - 높이를 자름
-            let targetHeight = imageSize.width / targetRatio
-            let y = (imageSize.height - targetHeight) / 2
-            cropRect = CGRect(x: 0, y: y, width: imageSize.width, height: targetHeight)
-        }
-        
-        guard let cgImage = image.cgImage?.cropping(to: cropRect) else {
-            return image
-        }
-        
-        return UIImage(cgImage: cgImage, scale: image.scale, orientation: image.imageOrientation)
     }
 }
