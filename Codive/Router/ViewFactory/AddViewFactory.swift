@@ -31,6 +31,8 @@ final class AddViewFactory {
                     navigationRouter: addDIContainer.navigationRouter
                 )
             )
+        case .recordDetail(let photos):
+            addDIContainer.makeRecordDetailView(selectedPhotos: photos)
         default:
             EmptyView()
         }
