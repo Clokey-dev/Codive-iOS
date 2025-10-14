@@ -61,11 +61,10 @@ private extension RecordDetailView {
         VStack(spacing: 0) {
             TabView(selection: $viewModel.currentPhotoIndex) {
                 ForEach(Array(viewModel.selectedPhotos.enumerated()), id: \.element.id) { index, photo in
-                    Image(uiImage: photo.croppedImage)
-                        .resizable()
-                        .aspectRatio(3/4, contentMode: .fit)
-                        .cornerRadius(10)
-                        .tag(index)
+                    AnimatedPhotoCard(photo: photo) {
+                        viewModel.navigateToPhotoTag()
+                    }
+                    .tag(index)
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
@@ -83,7 +82,6 @@ private extension RecordDetailView {
             .padding(.bottom, 24)
         }
     }
-    
     @ViewBuilder
     func multiSelectSection() -> some View {
         VStack(spacing: 24) {

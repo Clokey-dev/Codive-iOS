@@ -26,7 +26,7 @@ final class RecordDetailViewModel: ObservableObject {
     private let navigationRouter: NavigationRouter
     
     // MARK: - Options
-    let styleOptions = ["캐주얼", "러블리", "미니멀", "빈티지", "스포티", "스트릿", "시크", "오피스룩", "캐주얼", "클래식", "하이틴"]
+    let styleOptions = ["캐주얼", "러블리", "미니멀", "빈티지", "스포티", "스트릿", "시크", "오피스룩", "클래식", "하이틴"]
     let situationOptions = ["데이트", "데일리", "여행", "운동", "축제", "출근복", "파티"]
     
     // MARK: - Computed Properties
@@ -60,6 +60,11 @@ final class RecordDetailViewModel: ObservableObject {
         
         // 메인으로 돌아가기
         navigationRouter.navigateToRoot()
+    }
+    
+    func navigateToPhotoTag() {
+        guard let currentPhoto = currentPhoto else { return }
+        navigationRouter.navigate(to: .photoTag(photo: currentPhoto, allPhotos: selectedPhotos))
     }
     
     func dismissView() {

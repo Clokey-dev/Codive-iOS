@@ -15,7 +15,7 @@ struct AnimatedPhotoCard: View {
     let onTap: () -> Void
     
     @State private var scale: CGFloat = 0
-    @State private var opacity: Double = 0.8
+    @State private var opacity: Double = 0
     
     // MARK: - Body
     var body: some View {
@@ -65,32 +65,43 @@ struct AnimatedPhotoCard: View {
 
     // MARK: - Methods
     private func startAnimation() {
+        // 초기 상태 설정
+        scale = 0
+        opacity = 0
+        
         Timer.scheduledTimer(withTimeInterval: 1.3, repeats: true) { _ in
             // 초기화
             scale = 0
-            opacity = 1.0
+            opacity = 0
             
-            // 0.7초 동안 커지기
-            withAnimation(.easeOut(duration: 0.7)) {
-                scale = 1.0
-            }
-            
-            // 0.7초 후 페이드아웃
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
-                withAnimation(.easeOut(duration: 0.4)) {
-                    opacity = 0
+            // 약간의 딜레이 후 애니메이션 시작
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                // 0.7초 동안 커지기
+                withAnimation(.easeOut(duration: 0.7)) {
+                    scale = 1.0
+                    opacity = 1.0
+                }
+                
+                // 0.7초 후 페이드아웃
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+                    withAnimation(.easeOut(duration: 0.4)) {
+                        opacity = 0
+                    }
                 }
             }
         }
         
         // 즉시 첫 애니메이션 시작
-        withAnimation(.easeOut(duration: 0.7)) {
-            scale = 1.0
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
-            withAnimation(.easeOut(duration: 0.4)) {
-                opacity = 0
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            withAnimation(.easeOut(duration: 0.7)) {
+                scale = 1.0
+                opacity = 1.0
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+                withAnimation(.easeOut(duration: 0.4)) {
+                    opacity = 0
+                }
             }
         }
     }
