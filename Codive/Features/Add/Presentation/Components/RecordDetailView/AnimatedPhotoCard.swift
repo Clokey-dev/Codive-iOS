@@ -16,6 +16,7 @@ struct AnimatedPhotoCard: View {
     
     @State private var scale: CGFloat = 0
     @State private var opacity: Double = 0
+    @State private var timer: Timer?
     
     // MARK: - Body
     var body: some View {
@@ -61,49 +62,52 @@ struct AnimatedPhotoCard: View {
         .onAppear {
             startAnimation()
         }
+        .onDisappear {
+            stopAnimation()
+        }
     }
 
     // MARK: - Methods
     private func startAnimation() {
-        // 초기 상태 설정
+        // 초기 상태
         scale = 0
         opacity = 0
         
-        Timer.scheduledTimer(withTimeInterval: 1.3, repeats: true) { _ in
-            // 초기화
+        // 첫 애니메이션 시작
+        performAnimation()
+        
+        // 타이머로 반복
+        timer = Timer.scheduledTimer(withTimeInterval: 1.3, repeats: true) { _ in
+            performAnimation()
+        }
+    }
+    
+    private func performAnimation() {
+        // 즉시 초기화 (애니메이션 없이)
+        withAnimation(.linear(duration: 0)) {
             scale = 0
             opacity = 0
-            
-            // 약간의 딜레이 후 애니메이션 시작
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                // 0.7초 동안 커지기
-                withAnimation(.easeOut(duration: 0.7)) {
-                    scale = 1.0
-                    opacity = 1.0
-                }
-                
-                // 0.7초 후 페이드아웃
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
-                    withAnimation(.easeOut(duration: 0.4)) {
-                        opacity = 0
-                    }
-                }
-            }
         }
         
-        // 즉시 첫 애니메이션 시작
+        // 짧은 딜레이 후 커지는 애니메이션
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
             withAnimation(.easeOut(duration: 0.7)) {
-                scale = 1.0
-                opacity = 1.0
+                self.scale = 1.0
+                self.opacity = 1.0
             }
             
+            // 0.7초 후 페이드아웃
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
                 withAnimation(.easeOut(duration: 0.4)) {
-                    opacity = 0
+                    self.opacity = 0
                 }
             }
         }
+    }
+    
+    private func stopAnimation() {
+        timer?.invalidate()
+        timer = nil
     }
 }
 

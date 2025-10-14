@@ -12,10 +12,9 @@ struct PhotoTagView: View {
     
     // MARK: - Properties
     @StateObject private var viewModel: PhotoTagViewModel
-    @State private var bottomSheetOffset: CGFloat = 0
+    @State private var isExpanded: Bool = false
     
-    private let minBottomSheetHeight: CGFloat = 300
-    private let maxBottomSheetHeight: CGFloat = 600
+    private let collapsedHeight: CGFloat = 250
     
     // MARK: - Initializer
     init(viewModel: PhotoTagViewModel) {
@@ -41,7 +40,6 @@ struct PhotoTagView: View {
                             viewModel.completeTagging()
                         }
                     )
-                    .padding(.horizontal, 20)
                     
                     // Photo
                     Image(uiImage: viewModel.currentPhoto.croppedImage)
@@ -55,10 +53,12 @@ struct PhotoTagView: View {
                 
                 // Bottom Sheet
                 bottomSheet(geometry: geometry)
+                    .ignoresSafeArea(.all, edges: .bottom)
             }
             .background(Color.white)
             .navigationBarHidden(true)
         }
+        .ignoresSafeArea(.all, edges: .bottom)
     }
 }
 
@@ -74,39 +74,43 @@ private extension PhotoTagView {
                 .frame(width: 40, height: 5)
                 .padding(.top, 12)
                 .padding(.bottom, 20)
+                .onTapGesture {
+                    withAnimation(.spring()) {
+                        isExpanded.toggle()
+                    }
+                }
             
             // Content Area (비어있음 - 나중에 구현)
-            Spacer()
+            ScrollView {
+                VStack {
+                    ForEach(0..<20) { index in
+                        Text("Content \(index)")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                    }
+                }
+                .padding(.bottom, 40)
+            }
         }
-        .frame(height: minBottomSheetHeight + max(0, -bottomSheetOffset))
-        .frame(maxWidth: .infinity)
+        .frame(
+            width: geometry.size.width,
+            height: isExpanded ? geometry.size.height * 0.7 : collapsedHeight
+        )
         .background(Color.white)
         .customCornerRadius(20, corners: [.topLeft, .topRight])
         .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: -5)
-        .offset(y: bottomSheetOffset)
         .gesture(
             DragGesture()
-                .onChanged { value in
-                    let translation = value.translation.height
-                    // 위로만 드래그 가능 (음수 값만)
-                    if translation < 0 {
-                        let maxDrag = maxBottomSheetHeight - minBottomSheetHeight
-                        bottomSheetOffset = max(translation, -maxDrag)
-                    } else {
-                        bottomSheetOffset = 0
-                    }
-                }
                 .onEnded { value in
-                    let translation = value.translation.height
-                    let velocity = value.predictedEndTranslation.height
+                    let dragDistance = value.translation.height
                     
                     withAnimation(.spring()) {
-                        if velocity < -200 || translation < -100 {
-                            // 위로 스와이프 - 전체 확장
-                            bottomSheetOffset = -(maxBottomSheetHeight - minBottomSheetHeight)
-                        } else {
-                            // 기본 위치로 복귀
-                            bottomSheetOffset = 0
+                        if dragDistance < -50 {
+                            // 위로 스와이프 - 확장
+                            isExpanded = true
+                        } else if dragDistance > 50 {
+                            // 아래로 스와이프 - 축소
+                            isExpanded = false
                         }
                     }
                 }
