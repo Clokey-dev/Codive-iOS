@@ -24,12 +24,12 @@ struct AddView: View {
         NavigationStack(path: $navigationRouter.path) {
             VStack(spacing: 0) {
                 // Title
-                Text(TextLiteral.Add.mainTitle)
+                Text(TextLiteral.Add.title)
                     .font(.codive_title1)
                     .padding(.top, 20)
                 
                 // Question Text
-                Text(TextLiteral.Add.questionTitle)
+                Text(TextLiteral.Add.question)
                     .font(.codive_title1)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.top, 38)
@@ -49,8 +49,8 @@ struct AddView: View {
                                 AddOptionButton(
                                     iconName: "ai_icon",
                                     iconBackgroundColor: .orange,
-                                    title: TextLiteral.Add.aiAutoAddTitle,
-                                    description: TextLiteral.Add.aiAutoAddDescription
+                                    title: TextLiteral.Add.clothesAiAutoTitle,
+                                    description: TextLiteral.Add.clothesAiAutoDescription
                                 ) {
                                     // TODO: AI 자동추가 액션
                                 }
@@ -59,8 +59,8 @@ struct AddView: View {
                                 AddOptionButton(
                                     iconName: "cloth_icon",
                                     iconBackgroundColor: .orange,
-                                    title: TextLiteral.Add.manualAddTitle,
-                                    description: TextLiteral.Add.manualAddDescription
+                                    title: TextLiteral.Add.clothesManualTitle,
+                                    description: TextLiteral.Add.clothesManualDescription
                                 ) {
                                     // TODO: 직접 추가 액션
                                 }
@@ -71,7 +71,7 @@ struct AddView: View {
                         
                         // MARK: - Record Section
                         VStack(alignment: .leading, spacing: 8) {
-                            Text(TextLiteral.Add.recordSectionTitle)
+                            Text(TextLiteral.Add.recordTitle)
                                 .font(.system(size: 18, weight: .bold))
                                 .padding(.horizontal, 20)
                             
@@ -79,8 +79,8 @@ struct AddView: View {
                             AddOptionButton(
                                 iconName: "feed_icon",
                                 iconBackgroundColor: .orange,
-                                title: TextLiteral.Add.recordAddTitle,
-                                description: TextLiteral.Add.recordAddDescription
+                                title: TextLiteral.Add.recordTitle,
+                                description: TextLiteral.Add.recordDescription
                             ) {
                                 navigationRouter.navigate(to: AppDestination.recordAdd)
                             }

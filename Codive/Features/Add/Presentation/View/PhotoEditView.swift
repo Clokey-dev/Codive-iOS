@@ -24,7 +24,7 @@ struct PhotoEditView: View {
         VStack(spacing: 0) {
             // Navigation Bar
             CustomNavigationBar(
-                title: "사진 편집",
+                title: TextLiteral.Add.photoEditTitle,
                 onBack: {
                     viewModel.dismissView()
                 }
@@ -100,7 +100,7 @@ struct PhotoEditView: View {
             
             // Bottom Button
             CustomButton(
-                text: "편집 완료",
+                text: TextLiteral.Add.photoEditComplete,
                 widthType: .fixed,
                 action: {
                     viewModel.completeEditing()

@@ -29,12 +29,12 @@ struct PhotoTagView: View {
                 VStack(spacing: 0) {
                     // Navigation Bar
                     CustomNavigationBar(
-                        title: "태그하기",
+                        title: TextLiteral.Add.photoTagTitle,
                         onBack: {
                             viewModel.dismissView()
                         },
                         rightButton: .text(
-                            title: "완료",
+                            title: TextLiteral.Add.photoTagAnimationText,
                             isEnabled: viewModel.isCompleteEnabled
                         ) {
                             viewModel.completeTagging()

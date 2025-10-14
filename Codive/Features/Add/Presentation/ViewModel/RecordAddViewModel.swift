@@ -31,7 +31,7 @@ final class RecordAddViewModel: ObservableObject {
     }
     
     var selectedAlbumTitle: String {
-        selectedAlbum?.title ?? TextLiteral.Add.recentAlbumTitle
+        selectedAlbum?.title ?? TextLiteral.Add.recordRecentAlbum
     }
     
     // MARK: - Initializer

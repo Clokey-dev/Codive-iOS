@@ -26,12 +26,12 @@ struct RecordAddView: View {
         VStack(spacing: 0) {
             // Navigation Bar
             CustomNavigationBar(
-                title: TextLiteral.Add.recordAddNavigationTitle,
+                title: TextLiteral.Add.recordTitle,
                 onBack: {
                     viewModel.dismissView()
                 },
                 rightButton: .text(
-                    title: TextLiteral.Add.completeButtonTitle,
+                    title: TextLiteral.Common.complete,
                     isEnabled: viewModel.isCompleteEnabled
                 ) {
                     viewModel.completeSelection()

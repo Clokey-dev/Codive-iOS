@@ -22,13 +22,13 @@ struct RecordDetailView: View {
     var body: some View {
         GeometryReader { geometry in
             VStack(spacing: 0) {
-                CustomNavigationBar(title: "기록 추가") {
+                CustomNavigationBar(title: TextLiteral.Add.recordTitle) {
                     viewModel.dismissView()
                 }
                 
                 ScrollView {
                     VStack(spacing: 0) {
-                        Text("오늘의 내 기록을 추가해볼까요?")
+                        Text(TextLiteral.Add.recordDetailQuestion)
                             .font(.codive_title1)
                             .foregroundStyle(Color.Codive.grayscale1)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -86,7 +86,7 @@ private extension RecordDetailView {
     func multiSelectSection() -> some View {
         VStack(spacing: 24) {
             CustomMultiSelectButton(
-                title: "오늘의 스타일을 선택해보세요",
+                title: TextLiteral.Add.recordDetailStyleTitle,
                 options: viewModel.styleOptions,
                 selectedOptions: $viewModel.selectedStyles,
                 maxSelection: 3,
@@ -94,7 +94,7 @@ private extension RecordDetailView {
             )
             
             CustomMultiSelectButton(
-                title: "어떤 상황에 주로 입으시나요?",
+                title: TextLiteral.Add.recordDetailSituationTitle,
                 options: viewModel.situationOptions,
                 selectedOptions: $viewModel.selectedSituations,
                 showRequiredMark: true
@@ -125,12 +125,12 @@ private extension RecordDetailView {
                                 .font(.system(size: 16))
                                 .foregroundStyle(Color.Codive.grayscale1)
                             
-                            Text("캡션을 추가해주세요")
+                            Text(TextLiteral.Add.recordDetailCaptionTitle)
                                 .font(.codive_body1_medium)
                                 .foregroundStyle(Color.Codive.grayscale1)
                         }
                         
-                        Text("나만의 스타일 이야기를 채워보세요.\n#아이템과 #스타일을 자랑해보세요.")
+                        Text(TextLiteral.Add.recordDetailCaptionPlaceholder)
                             .font(.codive_body2_medium)
                             .foregroundStyle(Color.Codive.grayscale4)
                     }
@@ -145,7 +145,7 @@ private extension RecordDetailView {
     
     @ViewBuilder
     func bottomButton() -> some View {
-        CustomButton(text: "작성 완료", widthType: .fixed) {
+        CustomButton(text: TextLiteral.Add.recordDetailComplete, widthType: .fixed) {
             viewModel.completeRecord()
         }
         .padding(.horizontal, 20)

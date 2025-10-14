@@ -51,7 +51,7 @@ struct AnimatedPhotoCard: View {
                         .frame(width: 16, height: 16)
                 }
                 
-                Text("오늘 입은 옷을 태그해보세요")
+                Text(TextLiteral.Add.photoTagAnimationText)
                     .font(.codive_body1_medium)
                     .foregroundStyle(Color.white)
             }
