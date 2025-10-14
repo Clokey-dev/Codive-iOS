@@ -70,7 +70,7 @@ final class PhotoEditViewModel: ObservableObject {
         selectedPhotos.move(fromOffsets: source, toOffset: destination)
         
         // 순서 재정렬
-        for (index, _) in selectedPhotos.enumerated() {
+        for index in selectedPhotos.indices {
             selectedPhotos[index].order = index + 1
         }
     }

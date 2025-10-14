@@ -39,9 +39,9 @@ struct RecordAddView: View {
             )
             
             // Album Selector
-            Button(action: {
+            Button {
                 viewModel.showAlbumSheet()
-            }) {
+            } label: {
                 HStack(spacing: 4) {
                     Text(viewModel.selectedAlbumTitle)
                         .font(.codive_body1_medium)
@@ -61,11 +61,10 @@ struct RecordAddView: View {
                 LazyVGrid(columns: columns, spacing: 3) {
                     // 첫 번째 셀: 카메라
                     CameraCell(
-                        size: CGSize(width: cellSize, height: cellSize),
-                        onTap: {
-                            viewModel.showCamera()
-                        }
-                    )
+                        size: CGSize(width: cellSize, height: cellSize)
+                    ) {
+                        viewModel.showCamera()
+                    }
                     
                     // 나머지 셀: 갤러리 사진들
                     ForEach(viewModel.photos) { photo in
@@ -87,11 +86,10 @@ struct RecordAddView: View {
         .sheet(isPresented: $viewModel.isAlbumSheetPresented) {
             AlbumBottomSheet(
                 albums: viewModel.albums,
-                selectedAlbum: viewModel.selectedAlbum,
-                onSelect: { album in
-                    viewModel.selectAlbum(album)
-                }
-            )
+                selectedAlbum: viewModel.selectedAlbum
+            ) { album in
+                viewModel.selectAlbum(album)
+            }
             .presentationDetents([.medium, .large])
             .presentationDragIndicator(.hidden)
         }

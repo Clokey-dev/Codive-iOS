@@ -31,11 +31,10 @@ struct AlbumBottomSheet: View {
                     ForEach(albums, id: \.id) { album in
                         AlbumRow(
                             album: album,
-                            isSelected: selectedAlbum?.id == album.id,
-                            onTap: {
-                                onSelect(album)
-                            }
-                        )
+                            isSelected: selectedAlbum?.id == album.id
+                        ) {
+                            onSelect(album)
+                        }
                     }
                 }
             }
@@ -56,7 +55,9 @@ struct AlbumRow: View {
     
     // MARK: - Body
     var body: some View {
-        Button(action: onTap) {
+        Button {
+            onTap()
+        } label: {
             HStack(spacing: 12) {
                 // 썸네일
                 if let thumbnail = thumbnail {

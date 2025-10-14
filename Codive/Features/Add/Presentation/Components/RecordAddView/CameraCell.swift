@@ -28,10 +28,3 @@ struct CameraCell: View {
         }
     }
 }
-
-#Preview {
-    CameraCell(
-        size: CGSize(width: 100, height: 100),
-        onTap: { print("Camera tapped") }
-    )
-}

@@ -24,11 +24,10 @@ struct PhotoEditView: View {
         VStack(spacing: 0) {
             // Navigation Bar
             CustomNavigationBar(
-                title: TextLiteral.Add.photoEditTitle,
-                onBack: {
-                    viewModel.dismissView()
-                }
-            )
+                title: TextLiteral.Add.photoEditTitle
+            ) {
+                viewModel.dismissView()
+            }
             
             // Photo Thumbnails (상단 미리보기)
             ScrollView(.horizontal, showsIndicators: false) {
@@ -47,6 +46,7 @@ struct PhotoEditView: View {
                             self.draggedPhoto = photo
                             return NSItemProvider(object: photo.id as NSString)
                         }
+                        // swiftlint:disable trailing_closure
                         .onDrop(
                             of: [.text],
                             delegate: PhotoDropDelegate(
@@ -58,6 +58,7 @@ struct PhotoEditView: View {
                                 }
                             )
                         )
+                        // swiftlint:enable trailing_closure
                     }
                 }
                 .padding(.horizontal, 20)
@@ -80,54 +81,47 @@ struct PhotoEditView: View {
                 }
                 
                 // Crop Button
-                Button(
-                    action: {
-                        viewModel.startEditing()
-                    },
-                    label: {
-                        Image("crop_icon")
-                            .resizable()
-                            .frame(width: 30, height: 30)
-                            .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
-                    }
-                )
+                Button {
+                    viewModel.startEditing()
+                } label: {
+                    Image("crop_icon")
+                        .resizable()
+                        .frame(width: 30, height: 30)
+                        .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+                }
                 .padding(16)
             }
             .padding(.horizontal, 20)
-            .padding(.top, 16) 
+            .padding(.top, 16)
             
             Spacer()
             
             // Bottom Button
             CustomButton(
                 text: TextLiteral.Add.photoEditComplete,
-                widthType: .fixed,
-                action: {
-                    viewModel.completeEditing()
-                }
-            )
+                widthType: .fixed
+            ) {
+                viewModel.completeEditing()
+            }
             .padding(.horizontal, 20)
             .padding(.top, 40)
             .padding(.bottom, 20)
         }
         .navigationBarHidden(true)
         .background(Color.white)
-        .sheet(
-            isPresented: $viewModel.isEditingMode,
-            content: {
-                if let currentPhoto = viewModel.currentPhoto {
-                    ImageCropView(
-                        image: currentPhoto.originalImage,
-                        onComplete: { croppedImage in
-                            viewModel.updateCroppedImage(croppedImage)
-                        },
-                        onCancel: {
-                            viewModel.cancelEditing()
-                        }
-                    )
-                }
+        .sheet(isPresented: $viewModel.isEditingMode) {
+            if let currentPhoto = viewModel.currentPhoto {
+                ImageCropView(
+                    image: currentPhoto.originalImage,
+                    onComplete: { croppedImage in
+                        viewModel.updateCroppedImage(croppedImage)
+                    },
+                    onCancel: {
+                        viewModel.cancelEditing()
+                    }
+                )
             }
-        )
+        }
     }
 }
 
