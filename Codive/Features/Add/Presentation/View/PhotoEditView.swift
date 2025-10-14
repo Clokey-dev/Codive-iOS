@@ -22,7 +22,7 @@ struct PhotoEditView: View {
     // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
-            // Navigation Bar (오른쪽 버튼 없음)
+            // Navigation Bar
             CustomNavigationBar(
                 title: "사진 편집",
                 onBack: {
@@ -30,7 +30,7 @@ struct PhotoEditView: View {
                 }
             )
             
-            // Photo Thumbnails (상단으로 이동)
+            // Photo Thumbnails (상단 미리보기)
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
                     ForEach(viewModel.selectedPhotos) { photo in
@@ -65,16 +65,18 @@ struct PhotoEditView: View {
             .frame(height: 100)
             .padding(.top, 16)
             
-            // Main Image Area (좌우 20 여백)
+            // Main Image Area (큰 이미지)
             ZStack(alignment: .topTrailing) {
                 if let currentPhoto = viewModel.currentPhoto {
                     Image(uiImage: currentPhoto.croppedImage)
                         .resizable()
                         .aspectRatio(3/4, contentMode: .fit)
                         .frame(maxWidth: .infinity)
+                        .cornerRadius(10)
                 } else {
                     Color.gray.opacity(0.2)
                         .aspectRatio(3/4, contentMode: .fit)
+                        .cornerRadius(10)
                 }
                 
                 // Crop Button
@@ -85,29 +87,27 @@ struct PhotoEditView: View {
                     label: {
                         Image("crop_icon")
                             .resizable()
-                            .frame(width: 24, height: 24)
-                            .padding(12)
-                            .background(Color.white.opacity(0.9))
-                            .clipShape(Circle())
+                            .frame(width: 30, height: 30)
                             .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
                     }
                 )
                 .padding(16)
             }
             .padding(.horizontal, 20)
-            .padding(.top, 20)
+            .padding(.top, 16) // 상단 미리보기와 여백 16
             
             Spacer()
             
             // Bottom Button
             CustomButton(
-                text: "완료",
+                text: "편집 완료",
                 widthType: .fixed,
                 action: {
                     viewModel.completeEditing()
                 }
             )
             .padding(.horizontal, 20)
+            .padding(.top, 40) // 큰 이미지와 버튼 사이 여백 40
             .padding(.bottom, 20)
         }
         .navigationBarHidden(true)
@@ -132,6 +132,8 @@ struct PhotoEditView: View {
 }
 
 // MARK: - PhotoDropDelegate
+// 드래그 앤 드롭으로 사진 순서를 변경하기 위한 델리게이트
+// 상단 썸네일들을 길게 눌러서 드래그하면 순서를 바꿀 수 있음
 struct PhotoDropDelegate: DropDelegate {
     let photo: SelectedPhoto
     @Binding var photos: [SelectedPhoto]
