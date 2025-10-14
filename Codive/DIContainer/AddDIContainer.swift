@@ -40,8 +40,21 @@ final class AddDIContainer {
         )
     }
     
+    func makeRecordDetailViewModel(selectedPhotos: [SelectedPhoto]) -> RecordDetailViewModel {
+        return RecordDetailViewModel(
+            selectedPhotos: selectedPhotos,
+            navigationRouter: navigationRouter
+        )
+    }
+    
     // MARK: - Views
     func makeRecordAddView() -> RecordAddView {
         return RecordAddView(viewModel: makeRecordAddViewModel())
+    }
+    
+    func makeRecordDetailView(selectedPhotos: [SelectedPhoto]) -> RecordDetailView {
+        return RecordDetailView(
+            viewModel: makeRecordDetailViewModel(selectedPhotos: selectedPhotos)
+        )
     }
 }

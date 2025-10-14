@@ -94,7 +94,7 @@ struct PhotoEditView: View {
                 .padding(16)
             }
             .padding(.horizontal, 20)
-            .padding(.top, 16) // 상단 미리보기와 여백 16
+            .padding(.top, 16) 
             
             Spacer()
             
@@ -107,7 +107,7 @@ struct PhotoEditView: View {
                 }
             )
             .padding(.horizontal, 20)
-            .padding(.top, 40) // 큰 이미지와 버튼 사이 여백 40
+            .padding(.top, 40)
             .padding(.bottom, 20)
         }
         .navigationBarHidden(true)

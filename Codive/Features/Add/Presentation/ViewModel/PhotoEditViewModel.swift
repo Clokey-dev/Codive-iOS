@@ -76,9 +76,7 @@ final class PhotoEditViewModel: ObservableObject {
     }
     
     func completeEditing() {
-        // TODO: 다음 화면으로 이동하면서 selectedPhotos 전달
-        print("편집 완료: \(selectedPhotos.count)장")
-        navigationRouter.navigateBack()
+        navigationRouter.navigate(to: .recordDetail(photos: selectedPhotos))
     }
     
     func dismissView() {
