@@ -107,16 +107,3 @@ struct RecordAddView: View {
         }
     }
 }
-
-#Preview {
-    let dataSource = PhotoDataSource()
-    let repository = PhotoRepositoryImpl(dataSource: dataSource)
-    let useCase = FetchPhotosUseCase(repository: repository)
-    let router = NavigationRouter()
-    let viewModel = RecordAddViewModel(
-        fetchPhotosUseCase: useCase,
-        navigationRouter: router
-    )
-    
-    return RecordAddView(viewModel: viewModel)
-}
