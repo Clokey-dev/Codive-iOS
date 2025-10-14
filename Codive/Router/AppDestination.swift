@@ -14,6 +14,7 @@ enum AppDestination: Hashable {
     case recordAdd
     case photoEdit(photos: [SelectedPhoto])
     case recordDetail(photos: [SelectedPhoto])
+    case photoTag(photo: SelectedPhoto, allPhotos: [SelectedPhoto])
 
     // MARK: - Computed Properties
     
@@ -30,8 +31,10 @@ enum AppDestination: Hashable {
             return "recordAdd"
         case .photoEdit:
             return "photoEdit"
-        case .recordDetail(photos: let photos):
+        case .recordDetail(photos: _):
             return "photoEdit"
+        case .photoTag(photo: let photo, allPhotos: let allPhotos):
+            return "photoTag"
         }
     }
     
