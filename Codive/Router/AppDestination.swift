@@ -14,7 +14,9 @@ enum AppDestination: Hashable {
     case recordAdd
     case photoEdit(photos: [SelectedPhoto])
 
-    // 각 목적지의 고유 식별자
+    // MARK: - Computed Properties
+    
+    /// 각 목적지의 고유 식별자
     var id: String {
         switch self {
         case .login:
@@ -27,6 +29,16 @@ enum AppDestination: Hashable {
             return "recordAdd"
         case .photoEdit:
             return "photoEdit"
+        }
+    }
+    
+    /// 이 화면이 탭바를 덮어야 하는가?
+    var shouldCoverTabBar: Bool {
+        switch self {
+        case .recordAdd, .photoEdit:
+            return true
+        default:
+            return false
         }
     }
 }

@@ -1,14 +1,25 @@
+//
+//  MainTabView.swift
+//  Codive
+//
+//  Created by 황상환 on 9/22/25.
+//
+
 import SwiftUI
 
 struct MainTabView: View {
     
     // MARK: - Properties
     @StateObject private var viewModel = MainTabViewModel()
+    @ObservedObject private var navigationRouter: NavigationRouter
     private let appDIContainer: AppDIContainer
+    private let addDIContainer: AddDIContainer
     
     // MARK: - Initializer
     init(appDIContainer: AppDIContainer) {
         self.appDIContainer = appDIContainer
+        self.addDIContainer = appDIContainer.makeAddDIContainer()
+        self.navigationRouter = appDIContainer.navigationRouter
     }
     
     // MARK: - Body
@@ -23,7 +34,6 @@ struct MainTabView: View {
                 )
             }
             
-            // MARK: - Main Content Area
             ZStack(alignment: .bottom) {
                 Group {
                     switch viewModel.selectedTab {
@@ -32,7 +42,7 @@ struct MainTabView: View {
                     case .closet:
                         ClosetView()
                     case .add:
-                        AddView(addDIContainer: appDIContainer.makeAddDIContainer())
+                        AddView(addDIContainer: addDIContainer)
                             .ignoresSafeArea(.all, edges: .bottom)
                     case .feed:
                         FeedView()
@@ -42,8 +52,11 @@ struct MainTabView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
-                // Tab Bar
-                TabBar(selectedTab: $viewModel.selectedTab)
+                // MARK: - Tab Bar
+                if navigationRouter.currentDestination == nil ||
+                   navigationRouter.currentDestination?.shouldCoverTabBar == false {
+                    TabBar(selectedTab: $viewModel.selectedTab)
+                }
             }
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
