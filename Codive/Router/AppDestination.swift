@@ -33,7 +33,7 @@ enum AppDestination: Hashable {
             return "photoEdit"
         case .recordDetail(photos: _):
             return "photoEdit"
-        case .photoTag(photo: let photo, allPhotos: let allPhotos):
+        case .photoTag(photo: _, allPhotos: _):
             return "photoTag"
         }
     }
@@ -41,7 +41,7 @@ enum AppDestination: Hashable {
     /// 이 화면이 탭바를 덮어야 하는가?
     var shouldCoverTabBar: Bool {
         switch self {
-        case .recordAdd, .photoEdit, .recordDetail:
+        case .recordAdd, .photoEdit, .recordDetail, .photoTag:
             return true
         default:
             return false

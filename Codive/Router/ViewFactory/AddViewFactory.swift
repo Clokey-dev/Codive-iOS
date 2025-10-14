@@ -33,6 +33,8 @@ final class AddViewFactory {
             )
         case .recordDetail(let photos):
             addDIContainer.makeRecordDetailView(selectedPhotos: photos)
+        case .photoTag(let photo, let allPhotos):
+            addDIContainer.makePhotoTagView(photo: photo, allPhotos: allPhotos)
         default:
             EmptyView()
         }
