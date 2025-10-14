@@ -19,44 +19,54 @@ final class PhotoDataSource {
         return await PHPhotoLibrary.requestAuthorization(for: .readWrite)
     }
     
-    // MARK: - Fetch Albums
-    func fetchAlbums() -> [PHAssetCollection] {
-        var albums: [PHAssetCollection] = []
-        
-        // 최근 항목 (스마트 앨범)
-        let recentAlbum = PHAssetCollection.fetchAssetCollections(
+    // MARK: - Fetch Collections
+    
+    /// 최근 항목 스마트 앨범 가져오기
+    func fetchRecentCollection() -> PHAssetCollection? {
+        let collections = PHAssetCollection.fetchAssetCollections(
             with: .smartAlbum,
             subtype: .smartAlbumUserLibrary,
             options: nil
         )
-        recentAlbum.enumerateObjects { collection, _, _ in
-            albums.append(collection)
-        }
+        return collections.firstObject
+    }
+    
+    /// 사용자가 만든 앨범들 가져오기
+    func fetchUserCollections() -> [PHAssetCollection] {
+        var collections: [PHAssetCollection] = []
         
-        // 사용자 앨범
-        let userAlbums = PHAssetCollection.fetchAssetCollections(
+        let fetchResult = PHAssetCollection.fetchAssetCollections(
             with: .album,
             subtype: .any,
             options: nil
         )
-        userAlbums.enumerateObjects { collection, _, _ in
-            albums.append(collection)
+        
+        fetchResult.enumerateObjects { collection, _, _ in
+            collections.append(collection)
         }
         
-        // 스마트 앨범 (셀피, 즐겨찾기 등)
-        let smartAlbums = PHAssetCollection.fetchAssetCollections(
+        return collections
+    }
+    
+    /// 스마트 앨범들 가져오기 (최근 항목 제외)
+    func fetchSmartCollections(excludingRecent: Bool = true) -> [PHAssetCollection] {
+        var collections: [PHAssetCollection] = []
+        
+        let fetchResult = PHAssetCollection.fetchAssetCollections(
             with: .smartAlbum,
             subtype: .any,
             options: nil
         )
-        smartAlbums.enumerateObjects { collection, _, _ in
-            // 최근 항목 중복 제거
-            if collection.assetCollectionSubtype != .smartAlbumUserLibrary {
-                albums.append(collection)
+        
+        fetchResult.enumerateObjects { collection, _, _ in
+            // 최근 항목 중복 제거 옵션
+            if excludingRecent && collection.assetCollectionSubtype == .smartAlbumUserLibrary {
+                return
             }
+            collections.append(collection)
         }
         
-        return albums
+        return collections
     }
     
     // MARK: - Fetch Photos
