@@ -34,7 +34,7 @@ struct PhotoTagView: View {
                             viewModel.dismissView()
                         },
                         rightButton: .text(
-                            title: TextLiteral.Add.photoTagAnimationText,
+                            title: TextLiteral.Common.complete,
                             isEnabled: viewModel.isCompleteEnabled
                         ) {
                             viewModel.completeTagging()
