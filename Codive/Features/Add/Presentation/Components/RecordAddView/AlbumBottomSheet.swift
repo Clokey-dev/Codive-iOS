@@ -107,7 +107,6 @@ struct AlbumRow: View {
     // MARK: - Methods
     private func loadThumbnail() async {
         guard let asset = album.thumbnail else { return }
-        let dataSource = PhotoDataSource()
-        thumbnail = await dataSource.loadImage(for: asset, size: CGSize(width: 120, height: 120))
+        thumbnail = await viewModel.loadThumbnail(for: asset, size: CGSize(width: 120, height: 120))
     }
 }
