@@ -16,7 +16,8 @@ struct AnimatedPhotoCard: View {
     
     @State private var scale: CGFloat = 0
     @State private var opacity: Double = 0
-    @State private var timer: Timer?
+    
+    private let timer = Timer.publish(every: 1.3, on: .main, in: .common).autoconnect()
     
     // MARK: - Body
     var body: some View {
@@ -60,28 +61,14 @@ struct AnimatedPhotoCard: View {
             onTap()
         }
         .onAppear {
-            startAnimation()
+            performAnimation()
         }
-        .onDisappear {
-            stopAnimation()
+        .onReceive(timer) { _ in
+            performAnimation()
         }
     }
 
     // MARK: - Methods
-    private func startAnimation() {
-        // 초기 상태
-        scale = 0
-        opacity = 0
-        
-        // 첫 애니메이션 시작
-        performAnimation()
-        
-        // 타이머로 반복
-        timer = Timer.scheduledTimer(withTimeInterval: 1.3, repeats: true) { _ in
-            performAnimation()
-        }
-    }
-    
     private func performAnimation() {
         // 즉시 초기화 (애니메이션 없이)
         withAnimation(.linear(duration: 0)) {
@@ -103,10 +90,5 @@ struct AnimatedPhotoCard: View {
                 }
             }
         }
-    }
-    
-    private func stopAnimation() {
-        timer?.invalidate()
-        timer = nil
     }
 }
