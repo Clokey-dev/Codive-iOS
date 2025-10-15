@@ -11,7 +11,7 @@ import SwiftUI
 final class AuthViewFactory {
     
     // MARK: - Properties
-    private let authDIContainer: AuthDIContainer
+    private weak var authDIContainer: AuthDIContainer?
     
     // MARK: - Initializer
     init(authDIContainer: AuthDIContainer) {
