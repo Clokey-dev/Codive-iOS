@@ -72,7 +72,8 @@ struct RecordAddView: View {
                             asset: photo.asset,
                             isSelected: photo.isSelected,
                             selectionOrder: photo.selectionOrder,
-                            size: CGSize(width: cellSize, height: cellSize)
+                            size: CGSize(width: cellSize, height: cellSize),
+                            viewModel: viewModel
                         )
                         .onTapGesture {
                             viewModel.togglePhotoSelection(photo)
@@ -86,7 +87,8 @@ struct RecordAddView: View {
         .sheet(isPresented: $viewModel.isAlbumSheetPresented) {
             AlbumBottomSheet(
                 albums: viewModel.albums,
-                selectedAlbum: viewModel.selectedAlbum
+                selectedAlbum: viewModel.selectedAlbum,
+                viewModel: viewModel
             ) { album in
                 viewModel.selectAlbum(album)
             }

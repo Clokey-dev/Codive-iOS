@@ -16,6 +16,7 @@ struct PhotoGridCell: View {
     let isSelected: Bool
     let selectionOrder: Int?
     let size: CGSize
+    let viewModel: RecordAddViewModel
     
     @State private var image: UIImage?
     
@@ -66,11 +67,11 @@ struct PhotoGridCell: View {
     
     // MARK: - Methods
     private func loadImage() async {
-        let dataSource = PhotoDataSource()
-        let loadedImage = await dataSource.loadImage(for: asset, size: size)
+        image = await viewModel.loadThumbnail(for: asset, size: size)
         
-        withAnimation(.easeOut(duration: 0.2)) {
-            image = loadedImage
+        if image != nil {
+            withAnimation(.easeOut(duration: 0.2)) {
+            }
         }
     }
 }

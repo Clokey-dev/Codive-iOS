@@ -46,6 +46,11 @@ final class RecordAddViewModel: ObservableObject {
             self.navigationRouter = navigationRouter
         }
     
+    // MARK: - Image Loading
+    func loadThumbnail(for asset: PHAsset, size: CGSize) async -> UIImage? {
+        return await fetchPhotosUseCase.loadThumbnail(for: asset, size: size)
+    }
+    
     // MARK: - Methods
     func requestAuthorization() async {
         authorizationStatus = await fetchPhotosUseCase.requestAuthorization()

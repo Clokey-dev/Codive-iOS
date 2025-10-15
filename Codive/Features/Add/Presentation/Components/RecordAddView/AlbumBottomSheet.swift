@@ -14,6 +14,7 @@ struct AlbumBottomSheet: View {
     // MARK: - Properties
     let albums: [PhotoAlbum]
     let selectedAlbum: PhotoAlbum?
+    let viewModel: RecordAddViewModel
     let onSelect: (PhotoAlbum) -> Void
     
     // MARK: - Body
@@ -31,7 +32,8 @@ struct AlbumBottomSheet: View {
                     ForEach(albums, id: \.id) { album in
                         AlbumRow(
                             album: album,
-                            isSelected: selectedAlbum?.id == album.id
+                            isSelected: selectedAlbum?.id == album.id,
+                            viewModel: viewModel
                         ) {
                             onSelect(album)
                         }
@@ -49,6 +51,7 @@ struct AlbumRow: View {
     // MARK: - Properties
     let album: PhotoAlbum
     let isSelected: Bool
+    let viewModel: RecordAddViewModel
     let onTap: () -> Void
     
     @State private var thumbnail: UIImage?
