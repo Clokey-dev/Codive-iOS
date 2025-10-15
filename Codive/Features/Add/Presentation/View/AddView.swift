@@ -70,7 +70,7 @@ struct AddView: View {
                         // MARK: - Record Section
                         VStack(alignment: .leading, spacing: 8) {
                             Text(TextLiteral.Add.recordTitle)
-                                .font(.system(size: 18, weight: .bold))
+                                .font(.codive_title2)
                                 .padding(.horizontal, 20)
                             
                             // Record Add
