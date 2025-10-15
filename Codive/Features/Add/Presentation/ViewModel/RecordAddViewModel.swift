@@ -146,8 +146,7 @@ final class RecordAddViewModel: ObservableObject {
             var selectedPhotoItems: [SelectedPhoto] = []
             
             for (index, photo) in selectedPhotos.enumerated() {
-                let dataSource = PhotoDataSource()
-                if let image = await dataSource.loadImage(
+                if let image = await fetchPhotosUseCase.loadThumbnail(
                     for: photo.asset,
                     size: PHImageManagerMaximumSize
                 ) {
@@ -156,7 +155,7 @@ final class RecordAddViewModel: ObservableObject {
                     let selectedPhoto = SelectedPhoto(
                         id: photo.id,
                         originalImage: image,
-                        croppedImage: croppedImage, 
+                        croppedImage: croppedImage,
                         order: index + 1
                     )
                     selectedPhotoItems.append(selectedPhoto)
@@ -166,7 +165,6 @@ final class RecordAddViewModel: ObservableObject {
             navigationRouter.navigate(to: .photoEdit(photos: selectedPhotoItems))
         }
     }
-
     func resetSelection() {
         selectedPhotos.removeAll()
         for index in photos.indices {
