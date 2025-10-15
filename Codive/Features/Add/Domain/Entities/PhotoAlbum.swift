@@ -32,13 +32,6 @@ struct SelectedPhoto: Identifiable, Equatable, Hashable {
     var croppedImage: UIImage
     var order: Int
     
-    init(id: String, originalImage: UIImage, croppedImage: UIImage, order: Int) {
-        self.id = id
-        self.originalImage = originalImage
-        self.croppedImage = croppedImage
-        self.order = order
-    }
-    
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
         hasher.combine(order)
