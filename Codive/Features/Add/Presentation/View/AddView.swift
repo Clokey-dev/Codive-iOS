@@ -37,11 +37,11 @@ struct AddView: View {
                     .padding(.horizontal, 20)
                 
                 ScrollView {
-                    VStack(spacing: 24) {
+                    VStack {
                         // MARK: - Clothes Section
                         VStack(alignment: .leading, spacing: 8) {
                             Text(TextLiteral.Add.clothesSectionTitle)
-                                .font(.system(size: 18, weight: .bold))
+                                .font(.codive_title2)
                                 .padding(.horizontal, 20)
                             
                             VStack(spacing: 12) {
