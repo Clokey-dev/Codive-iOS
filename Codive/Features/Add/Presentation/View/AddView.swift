@@ -48,7 +48,6 @@ struct AddView: View {
                                 // AI Auto Add
                                 AddOptionButton(
                                     iconName: "ai_icon",
-                                    iconBackgroundColor: .orange,
                                     title: TextLiteral.Add.clothesAiAutoTitle,
                                     description: TextLiteral.Add.clothesAiAutoDescription
                                 ) {
@@ -58,7 +57,6 @@ struct AddView: View {
                                 // Manual Add
                                 AddOptionButton(
                                     iconName: "cloth_icon",
-                                    iconBackgroundColor: .orange,
                                     title: TextLiteral.Add.clothesManualTitle,
                                     description: TextLiteral.Add.clothesManualDescription
                                 ) {
@@ -78,7 +76,6 @@ struct AddView: View {
                             // Record Add
                             AddOptionButton(
                                 iconName: "feed_icon",
-                                iconBackgroundColor: .orange,
                                 title: TextLiteral.Add.recordTitle,
                                 description: TextLiteral.Add.recordDescription
                             ) {

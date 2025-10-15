@@ -9,7 +9,6 @@ import SwiftUI
 
 struct AddOptionButton: View {
     let iconName: String
-    let iconBackgroundColor: Color
     let title: String
     let description: String
     let action: () -> Void
