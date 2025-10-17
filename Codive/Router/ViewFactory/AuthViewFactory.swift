@@ -11,7 +11,7 @@ import SwiftUI
 final class AuthViewFactory {
     
     // MARK: - Properties
-    private let authDIContainer: AuthDIContainer
+    private weak var authDIContainer: AuthDIContainer?
     
     // MARK: - Initializer
     init(authDIContainer: AuthDIContainer) {
@@ -28,8 +28,7 @@ final class AuthViewFactory {
         case .signup:
             // SignUpView(viewModel: authDIContainer.makeSignUpViewModel())
             Text("회원가입 화면") // 임시
-        case .main:
-            // Main Feature에서 사용될 예정
+        default:
             EmptyView()
         }
     }
