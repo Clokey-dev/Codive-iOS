@@ -29,7 +29,7 @@ struct ImageCropView: View {
                 maskRadius: maskRadius,
                 cropImageCircular: false,
                 rotateImage: false,
-                zoomSensitivity: 0.5,
+                zoomSensitivity: 5.0,
                 rectAspectRatio: 3/4
             )
         ) { croppedImage in
