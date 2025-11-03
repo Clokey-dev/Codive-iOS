@@ -12,6 +12,7 @@ final class AuthDIContainer {
     
     // MARK: - Properties
     private let appRouter: AppRouter
+    let navigationRouter: NavigationRouter
     lazy var authViewFactory = AuthViewFactory(authDIContainer: self)
     
     // MARK: - Services (Data Layer)
@@ -22,12 +23,10 @@ final class AuthDIContainer {
         socialAuthService: socialAuthService
     )
     
-    // MARK: - Routers
-    lazy var navigationRouter = NavigationRouter()
-    
     // MARK: - Initializer
-    init(appRouter: AppRouter) {
+    init(appRouter: AppRouter, navigationRouter: NavigationRouter) {
         self.appRouter = appRouter
+        self.navigationRouter = navigationRouter
     }
     
     // MARK: - ViewModels

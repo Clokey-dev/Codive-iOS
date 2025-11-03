@@ -11,16 +11,27 @@ enum AppDestination: Hashable {
     case login
     case signup
     case main
+    case recordAdd
+    case photoEdit(photos: [SelectedPhoto])
+    case recordDetail(photos: [SelectedPhoto])
+    case photoTag(photo: SelectedPhoto, allPhotos: [SelectedPhoto])
     
-    // 각 목적지의 고유 식별자
-    var id: String {
+    // MARK: - 하단 탭바
+    /// 이 화면이 탭바를 덮어야 하는가?
+    /// - 전체 화면으로 표시되어야 하는 플로우는 true 반환
+    /// - 기본적으로 탭바는 표시됨 (false)
+    var shouldCoverTabBar: Bool {
         switch self {
-        case .login:
-            return "login"
-        case .signup:
-            return "signup"
-        case .main:
-            return "main"
+        // Add Flow - 기록 추가 관련 전체 화면
+        case .recordAdd, .photoEdit, .recordDetail, .photoTag:
+            return true
+            
+        // 다른 플로우 전체 화면은 여기에 추가
+        // case .closetEdit, .feedCreate:
+        //     return true
+            
+        default:
+            return false
         }
     }
 }

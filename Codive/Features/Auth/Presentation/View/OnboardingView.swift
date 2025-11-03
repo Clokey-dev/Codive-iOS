@@ -21,7 +21,7 @@ struct OnboardingView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // 메인 타이틀
-            Text(TextLiteral.Auth.Onboarding.mainTitle)
+            Text(TextLiteral.Auth.onboardingMainTitle)
                 .font(.codive_title1)
                 .padding(.top, 75)
                 .padding(.horizontal, 20)

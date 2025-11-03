@@ -24,11 +24,13 @@ struct CustomButton: View {
                 .font(Font.codive_title2)
                 .padding()
                 .foregroundStyle(.white)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .modifier(WidthModifier(type: widthType))
         .frame(height: 48)
         .background(Color.Codive.main0)
         .clipShape(RoundedRectangle(cornerRadius: 10))
+        .contentShape(Rectangle())
     }
 }
 
@@ -53,7 +55,7 @@ struct WidthModifier: ViewModifier {
 
 #Preview {
     VStack(spacing: 20) {
-        /// 1. 6.  화면 전체 너비 버튼
+        /// 1. 6. 화면 전체 너비 버튼
         CustomButton(text: "이 코디로 결정하기", widthType: .fixed) {
             print("이 코디 결정 tapped!")
         }
