@@ -111,17 +111,16 @@ struct PhotoEditView: View {
         .background(Color.white)
         .sheet(isPresented: $viewModel.isEditingMode) {
             if let currentPhoto = viewModel.currentPhoto {
-                NavigationView {
-                    ImageCropView(
-                        image: currentPhoto.originalImage,
-                        onComplete: { croppedImage in
-                            viewModel.updateCroppedImage(croppedImage)
-                        },
-                        onCancel: {
-                            viewModel.cancelEditing()
-                        }
-                    )
-                }
+                ImageCropView(
+                    image: currentPhoto.originalImage,
+                    onComplete: { croppedImage in
+                        viewModel.updateCroppedImage(croppedImage)
+                        viewModel.isEditingMode = false
+                    },
+                    onCancel: {
+                        viewModel.isEditingMode = false
+                    }
+                )
             }
         }
     }
