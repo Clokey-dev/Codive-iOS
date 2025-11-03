@@ -150,11 +150,12 @@ final class RecordAddViewModel: ObservableObject {
             
             // 임시로 사진 순서 저장
             let photosToProcess = selectedPhotos
+            let targetSize = CGSize(width: 1200, height: 1200)
             
             for (index, photo) in photosToProcess.enumerated() {
                 if let image = await fetchPhotosUseCase.loadThumbnail(
                     for: photo.asset,
-                    size: PHImageManagerMaximumSize
+                    size: targetSize
                 ) {
                     let croppedImage = processImageUseCase.cropTo3_4Ratio(image)
                     
