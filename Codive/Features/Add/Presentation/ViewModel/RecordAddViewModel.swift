@@ -21,8 +21,8 @@ final class RecordAddViewModel: ObservableObject {
     @Published var isAlbumSheetPresented = false
     @Published var isCameraPresented = false
     @Published var authorizationStatus: PHAuthorizationStatus = .notDetermined
-    @Published var isLoadingPhotos = false
-    
+    @Published var isCompletingSelection = false
+
     private let fetchPhotosUseCase: FetchPhotosUseCase
     private let processImageUseCase: ProcessImageUseCase
     let navigationRouter: NavigationRouter
@@ -144,6 +144,8 @@ final class RecordAddViewModel: ObservableObject {
     
     func completeSelection() {
         Task {
+            isCompletingSelection = true
+            
             var selectedPhotoItems: [SelectedPhoto] = []
             
             for (index, photo) in selectedPhotos.enumerated() {
@@ -163,9 +165,11 @@ final class RecordAddViewModel: ObservableObject {
                 }
             }
             
+            isCompletingSelection = false
             navigationRouter.navigate(to: .photoEdit(photos: selectedPhotoItems))
         }
     }
+    
     func resetSelection() {
         selectedPhotos.removeAll()
         for index in photos.indices {

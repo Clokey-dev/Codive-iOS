@@ -23,70 +23,76 @@ struct RecordAddView: View {
     
     // MARK: - Body
     var body: some View {
-        VStack(spacing: 0) {
-            // Navigation Bar
-            CustomNavigationBar(
-                title: TextLiteral.Add.recordTitle,
-                onBack: {
-                    viewModel.dismissView()
-                },
-                rightButton: .text(
-                    title: TextLiteral.Common.complete,
-                    isEnabled: viewModel.isCompleteEnabled
-                ) {
-                    viewModel.completeSelection()
-                }
-            )
-            
-            // Album Selector
-            Button {
-                viewModel.showAlbumSheet()
-            } label: {
-                HStack(spacing: 4) {
-                    Text(viewModel.selectedAlbumTitle)
-                        .font(.codive_body1_medium)
-                        .foregroundStyle(Color.Codive.grayscale1)
-                    
-                    Image(systemName: "chevron.down")
-                        .font(.system(size: 14))
-                        .foregroundStyle(Color.Codive.grayscale3)
-                }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 16)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            
-            // Photo Grid
-            ScrollView {
-                LazyVGrid(columns: columns, spacing: 3) {
-                    // 첫 번째 셀: 카메라
-                    CameraCell(
-                        size: CGSize(width: cellSize, height: cellSize)
+        ZStack {
+            VStack(spacing: 0) {
+                // Navigation Bar
+                CustomNavigationBar(
+                    title: TextLiteral.Add.recordTitle,
+                    onBack: {
+                        viewModel.dismissView()
+                    },
+                    rightButton: .text(
+                        title: TextLiteral.Common.complete,
+                        isEnabled: viewModel.isCompleteEnabled
                     ) {
-                        viewModel.showCamera()
+                        viewModel.completeSelection()
                     }
-                    
-                    if viewModel.photos.isEmpty {
-                        // 스켈레톤 셀들
-                        ForEach(0..<40, id: \.self) { _ in
-                            SkeletonCell(size: CGSize(width: cellSize, height: cellSize))
+                )
+                
+                // Album Selector
+                Button {
+                    viewModel.showAlbumSheet()
+                } label: {
+                    HStack(spacing: 4) {
+                        Text(viewModel.selectedAlbumTitle)
+                            .font(.codive_body1_medium)
+                            .foregroundStyle(Color.Codive.grayscale1)
+                        
+                        Image(systemName: "chevron.down")
+                            .font(.system(size: 14))
+                            .foregroundStyle(Color.Codive.grayscale3)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                
+                // Photo Grid
+                ScrollView {
+                    LazyVGrid(columns: columns, spacing: 3) {
+                        // 첫 번째 셀: 카메라
+                        CameraCell(
+                            size: CGSize(width: cellSize, height: cellSize)
+                        ) {
+                            viewModel.showCamera()
                         }
-                    } else {
-                        // 실제 사진들
-                        ForEach(viewModel.photos) { photo in
-                            PhotoGridCell(
-                                asset: photo.asset,
-                                isSelected: photo.isSelected,
-                                selectionOrder: photo.selectionOrder,
-                                size: CGSize(width: cellSize, height: cellSize),
-                                viewModel: viewModel
-                            )
-                            .onTapGesture {
-                                viewModel.togglePhotoSelection(photo)
+                        
+                        if viewModel.photos.isEmpty {
+                            // 스켈레톤 셀들
+                            ForEach(0..<40, id: \.self) { _ in
+                                SkeletonCell(size: CGSize(width: cellSize, height: cellSize))
+                            }
+                        } else {
+                            // 실제 사진들
+                            ForEach(viewModel.photos) { photo in
+                                PhotoGridCell(
+                                    asset: photo.asset,
+                                    isSelected: photo.isSelected,
+                                    selectionOrder: photo.selectionOrder,
+                                    size: CGSize(width: cellSize, height: cellSize),
+                                    viewModel: viewModel
+                                )
+                                .onTapGesture {
+                                    viewModel.togglePhotoSelection(photo)
+                                }
                             }
                         }
                     }
                 }
+            }
+            // 로딩 오버레이
+            if viewModel.isCompletingSelection {
+                LoadingView()
             }
         }
         .navigationBarHidden(true)
