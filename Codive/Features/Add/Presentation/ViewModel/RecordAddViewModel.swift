@@ -21,6 +21,7 @@ final class RecordAddViewModel: ObservableObject {
     @Published var isAlbumSheetPresented = false
     @Published var isCameraPresented = false
     @Published var authorizationStatus: PHAuthorizationStatus = .notDetermined
+    @Published var isLoadingPhotos = false
     
     private let fetchPhotosUseCase: FetchPhotosUseCase
     private let processImageUseCase: ProcessImageUseCase
@@ -61,12 +62,18 @@ final class RecordAddViewModel: ObservableObject {
     }
     
     func loadAlbums() {
+        isLoadingPhotos = true
+        
         let (fetchedAlbums, defaultAlbum) = fetchPhotosUseCase.fetchAlbumsWithDefault()
         
         albums = fetchedAlbums
         
         if let defaultAlbum = defaultAlbum {
             selectAlbum(defaultAlbum)
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.isLoadingPhotos = false
         }
     }
     
