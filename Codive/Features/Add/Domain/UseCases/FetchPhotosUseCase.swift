@@ -31,23 +31,27 @@ final class FetchPhotosUseCase {
         return repository.fetchAlbums()
     }
     
-    /// 앨범 목록과 기본으로 선택할 앨범을 함께 반환
+    /// 앨범 목록과 기본으로 선택할 앨범을 함께 반환 (비동기)
     /// 비즈니스 규칙: 최근 항목이 있으면 최근 항목, 없으면 첫 번째 앨범
-    func fetchAlbumsWithDefault() -> (albums: [PhotoAlbum], defaultAlbum: PhotoAlbum?) {
-        let albums = repository.fetchAlbums()
-        
-        // 최근 항목 찾기
-        let defaultAlbum = albums.first {
-            $0.collection.assetCollectionSubtype == .smartAlbumUserLibrary
-        } ?? albums.first
-        
-        return (albums, defaultAlbum)
+    func fetchAlbumsWithDefault() async -> (albums: [PhotoAlbum], defaultAlbum: PhotoAlbum?) {
+        return await Task.detached(priority: .userInitiated) {
+            let albums = self.repository.fetchAlbums()
+            
+            // 최근 항목 찾기
+            let defaultAlbum = albums.first {
+                $0.collection.assetCollectionSubtype == .smartAlbumUserLibrary
+            } ?? albums.first
+            
+            return (albums, defaultAlbum)
+        }.value
     }
-    
+
     // MARK: - Fetch Photos
     
-    func fetchPhotos(from album: PhotoAlbum) -> [PhotoAsset] {
-        return repository.fetchPhotos(from: album)
+    func fetchPhotos(from album: PhotoAlbum) async -> [PhotoAsset] {
+        return await Task.detached(priority: .userInitiated) {
+            self.repository.fetchPhotos(from: album)
+        }.value
     }
     
     /// 여러 앨범에서 최근 사진들을 합쳐서 가져오기

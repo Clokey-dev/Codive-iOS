@@ -57,29 +57,23 @@ final class RecordAddViewModel: ObservableObject {
         authorizationStatus = await fetchPhotosUseCase.requestAuthorization()
         
         if authorizationStatus == .authorized || authorizationStatus == .limited {
-            loadAlbums()
+            await loadAlbums()
         }
     }
-    
-    func loadAlbums() {
-        isLoadingPhotos = true
-        
-        let (fetchedAlbums, defaultAlbum) = fetchPhotosUseCase.fetchAlbumsWithDefault()
+
+    func loadAlbums() async {
+        let (fetchedAlbums, defaultAlbum) = await fetchPhotosUseCase.fetchAlbumsWithDefault()
         
         albums = fetchedAlbums
         
         if let defaultAlbum = defaultAlbum {
-            selectAlbum(defaultAlbum)
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            self.isLoadingPhotos = false
+            await selectAlbum(defaultAlbum)
         }
     }
     
-    func selectAlbum(_ album: PhotoAlbum) {
+    func selectAlbum(_ album: PhotoAlbum) async {
         selectedAlbum = album
-        photos = fetchPhotosUseCase.fetchPhotos(from: album)
+        photos = await fetchPhotosUseCase.fetchPhotos(from: album)
         isAlbumSheetPresented = false
     }
     
@@ -134,7 +128,7 @@ final class RecordAddViewModel: ObservableObject {
             // 선택 상태 초기화
             selectedPhotos.removeAll()
             // 저장 후 갤러리 새로고침
-            loadAlbums()
+            await loadAlbums()
         }
     }
     

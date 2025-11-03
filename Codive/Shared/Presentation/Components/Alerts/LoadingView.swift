@@ -11,10 +11,10 @@ struct LoadingView: View {
     
     var body: some View {
         ZStack {
-            Color.white
+            Color.black.opacity(0.3)
             
             ProgressView()
-                .progressViewStyle(CircularProgressViewStyle(tint: Color.Codive.main0))
+                .progressViewStyle(CircularProgressViewStyle(tint: Color.Codive.point2))
                 .scaleEffect(1.5)
         }
         .ignoresSafeArea()

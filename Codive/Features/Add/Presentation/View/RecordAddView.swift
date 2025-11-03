@@ -66,17 +66,24 @@ struct RecordAddView: View {
                         viewModel.showCamera()
                     }
                     
-                    // 나머지 셀: 갤러리 사진들
-                    ForEach(viewModel.photos) { photo in
-                        PhotoGridCell(
-                            asset: photo.asset,
-                            isSelected: photo.isSelected,
-                            selectionOrder: photo.selectionOrder,
-                            size: CGSize(width: cellSize, height: cellSize),
-                            viewModel: viewModel
-                        )
-                        .onTapGesture {
-                            viewModel.togglePhotoSelection(photo)
+                    if viewModel.photos.isEmpty {
+                        // 스켈레톤 셀들
+                        ForEach(0..<40, id: \.self) { _ in
+                            SkeletonCell(size: CGSize(width: cellSize, height: cellSize))
+                        }
+                    } else {
+                        // 실제 사진들
+                        ForEach(viewModel.photos) { photo in
+                            PhotoGridCell(
+                                asset: photo.asset,
+                                isSelected: photo.isSelected,
+                                selectionOrder: photo.selectionOrder,
+                                size: CGSize(width: cellSize, height: cellSize),
+                                viewModel: viewModel
+                            )
+                            .onTapGesture {
+                                viewModel.togglePhotoSelection(photo)
+                            }
                         }
                     }
                 }
@@ -90,7 +97,7 @@ struct RecordAddView: View {
                 selectedAlbum: viewModel.selectedAlbum,
                 viewModel: viewModel
             ) { album in
-                viewModel.selectAlbum(album)
+                await viewModel.selectAlbum(album)
             }
             .presentationDetents([.medium, .large])
             .presentationDragIndicator(.hidden)
