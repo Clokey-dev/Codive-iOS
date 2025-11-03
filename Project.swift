@@ -123,7 +123,7 @@ let project = Project(
                 .external(name: "Moya"),
                 
                 // 이미지 크롭
-                .external(name: "Mantis"),
+                .external(name: "SwiftyCrop"),
             ],
             settings: .settings(
                 base: [

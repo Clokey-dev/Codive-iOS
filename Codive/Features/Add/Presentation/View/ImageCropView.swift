@@ -6,58 +6,36 @@
 //
 
 import SwiftUI
-import Mantis
+import SwiftyCrop
 
-// MARK: - ImageCropView
-struct ImageCropView: UIViewControllerRepresentable {
+struct ImageCropView: View {
     
     let image: UIImage
     let onComplete: (UIImage) -> Void
     let onCancel: () -> Void
     
-    func makeUIViewController(context: Context) -> CropViewController {
-        // 3:4 비율 설정
-        var config = Mantis.Config()
-        config.presetFixedRatioType = .alwaysUsingOnePresetFixedRatio(ratio: 3.0 / 4.0)
-        config.cropViewConfig.cropShapeType = .rect
-        
-        let cropViewController = Mantis.cropViewController(
-            image: image,
-            config: config
-        )
-        cropViewController.delegate = context.coordinator
-        
-        return cropViewController
-    }
-    
-    func updateUIViewController(_ uiViewController: CropViewController, context: Context) {}
-    
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-    
-    // MARK: - Coordinator
-    class Coordinator: NSObject, CropViewControllerDelegate {
-        let parent: ImageCropView
-        
-        init(_ parent: ImageCropView) {
-            self.parent = parent
-        }
-        
-        func cropViewControllerDidCrop(
-            _ cropViewController: CropViewController,
-            cropped: UIImage,
-            transformation: Transformation,
-            cropInfo: CropInfo
-        ) {
-            parent.onComplete(cropped)
-        }
-        
-        func cropViewControllerDidCancel(
-            _ cropViewController: CropViewController,
-            original: UIImage
-        ) {
-            parent.onCancel()
+    var body: some View {
+        GeometryReader { geometry in
+            let screenWidth = geometry.size.width
+            let maskHeight = (screenWidth - 40) * (4/3) 
+            let maskRadius = maskHeight / 2
+            
+            SwiftyCropView(
+                imageToCrop: image,
+                maskShape: .rectangle,
+                configuration: SwiftyCropConfiguration(
+                    maxMagnificationScale: 30.0,
+                    maskRadius: maskRadius,
+                    cropImageCircular: false,
+                    rotateImage: false,
+                    zoomSensitivity: 5.0,
+                    rectAspectRatio: 3/4
+                )
+            ) { croppedImage in
+                if let croppedImage = croppedImage {
+                    onComplete(croppedImage)
+                }
+            }
         }
     }
 }
