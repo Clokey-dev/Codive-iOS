@@ -148,7 +148,10 @@ final class RecordAddViewModel: ObservableObject {
             
             var selectedPhotoItems: [SelectedPhoto] = []
             
-            for (index, photo) in selectedPhotos.enumerated() {
+            // 임시로 사진 순서 저장
+            let photosToProcess = selectedPhotos
+            
+            for (index, photo) in photosToProcess.enumerated() {
                 if let image = await fetchPhotosUseCase.loadThumbnail(
                     for: photo.asset,
                     size: PHImageManagerMaximumSize
@@ -164,6 +167,9 @@ final class RecordAddViewModel: ObservableObject {
                     selectedPhotoItems.append(selectedPhoto)
                 }
             }
+            
+            // 처리 완료 후 리셋
+            resetSelection()
             
             isCompletingSelection = false
             navigationRouter.navigate(to: .photoEdit(photos: selectedPhotoItems))
