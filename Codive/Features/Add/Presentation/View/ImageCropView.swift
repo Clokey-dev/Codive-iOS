@@ -19,14 +19,13 @@ struct ImageCropView: View {
     var body: some View {
         let screenWidth = UIScreen.main.bounds.width
         let maskHeight = (screenWidth - 40) * (4/3)
-        let maskRadius = maskHeight / 2
         
         SwiftyCropView(
             imageToCrop: image,
             maskShape: .rectangle,
             configuration: SwiftyCropConfiguration(
                 maxMagnificationScale: 30.0,
-                maskRadius: maskRadius,
+                maskRadius: maskHeight / 2,
                 cropImageCircular: false,
                 rotateImage: false,
                 zoomSensitivity: 5.0,
