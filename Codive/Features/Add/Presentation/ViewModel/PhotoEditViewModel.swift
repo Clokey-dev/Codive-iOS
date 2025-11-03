@@ -59,6 +59,7 @@ final class PhotoEditViewModel: ObservableObject {
     func updateCroppedImage(_ image: UIImage) {
         guard selectedPhotos.indices.contains(currentIndex) else { return }
         selectedPhotos[currentIndex].croppedImage = image
+        objectWillChange.send()
         isEditingMode = false
     }
     

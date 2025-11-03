@@ -32,15 +32,14 @@ struct PhotoEditView: View {
             // Photo Thumbnails (상단 미리보기)
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
-                    ForEach(viewModel.selectedPhotos) { photo in
+                    ForEach(Array(viewModel.selectedPhotos.enumerated()), id: \.element.id) { index, photo in
                         PhotoEditCell(
-                            photo: photo,
-                            isSelected: photo.id == viewModel.currentPhoto?.id
+                            photo: viewModel.selectedPhotos[index],
+                            isSelected: index == viewModel.currentIndex
                         )
+                        .id("\(photo.id)-\(photo.croppedImage.hashValue)")
                         .onTapGesture {
-                            if let index = viewModel.selectedPhotos.firstIndex(where: { $0.id == photo.id }) {
-                                viewModel.currentIndex = index
-                            }
+                            viewModel.currentIndex = index
                         }
                         .onDrag {
                             self.draggedPhoto = photo
