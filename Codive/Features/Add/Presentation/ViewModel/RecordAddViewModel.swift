@@ -169,11 +169,11 @@ final class RecordAddViewModel: ObservableObject {
                 }
             }
             
+            navigationRouter.navigate(to: .photoEdit(photos: selectedPhotoItems))
+                    
             // 처리 완료 후 리셋
             resetSelection()
-            
             isCompletingSelection = false
-            navigationRouter.navigate(to: .photoEdit(photos: selectedPhotoItems))
         }
     }
     
