@@ -24,9 +24,8 @@ struct CustomButton: View {
             Text(text)
                 .font(Font.codive_title2)
                 .padding()
-                .foregroundColor(textColor)
-                .frame(height: 48)
-                .frame(maxWidth: widthType == .dynamic ? nil : .infinity)
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .background(backgroundColor)
         .overlay(
@@ -34,45 +33,7 @@ struct CustomButton: View {
                 .stroke(borderColor, lineWidth: borderWidth)
         )
         .clipShape(RoundedRectangle(cornerRadius: 10))
-        .modifier(WidthModifier(type: widthType))
-    }
-}
-
-private extension CustomButton {
-    var backgroundColor: Color {
-        switch widthType {
-        case .outlinedHalf:
-            return .white
-        default:
-            return Color.Codive.main0
-        }
-    }
-    
-    var textColor: Color {
-        switch widthType {
-        case .outlinedHalf:
-            return .Codive.main0
-        default:
-            return .white
-        }
-    }
-    
-    var borderColor: Color {
-        switch widthType {
-        case .outlinedHalf:
-            return .Codive.main0
-        default:
-            return .clear
-        }
-    }
-    
-    var borderWidth: CGFloat {
-        switch widthType {
-        case .outlinedHalf:
-            return 1
-        default:
-            return 0
-        }
+        .contentShape(Rectangle())
     }
 }
 
@@ -96,7 +57,7 @@ struct WidthModifier: ViewModifier {
 
 #Preview {
     VStack(spacing: 20) {
-        /// 1. 6.  화면 전체 너비 버튼
+        /// 1. 6. 화면 전체 너비 버튼
         CustomButton(text: "이 코디로 결정하기", widthType: .fixed) {
             print("이 코디 결정 tapped!")
         }

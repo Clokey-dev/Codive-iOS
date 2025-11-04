@@ -11,13 +11,15 @@ import Combine
 @MainActor
 final class NavigationRouter: ObservableObject {
     
-    // MARK: - Navigation Path
+    // MARK: - Properties
     @Published var path = NavigationPath()
+    @Published var currentDestination: AppDestination?
     
     // MARK: - Navigation Methods
     
     /// 새로운 화면으로 이동 (스택에 추가)
     func navigate(to destination: AppDestination) {
+        currentDestination = destination
         path.append(destination)
     }
     
@@ -25,18 +27,26 @@ final class NavigationRouter: ObservableObject {
     func navigateBack() {
         guard !path.isEmpty else { return }
         path.removeLast()
+        
+        if path.isEmpty {
+            currentDestination = nil
+        }
     }
     
     /// 루트 화면으로 돌아가기 (모든 스택 제거)
     func navigateToRoot() {
         path = NavigationPath()
+        currentDestination = nil
     }
     
     /// 특정 화면으로 교체 (현재 스택을 모두 비우고 새로운 화면으로)
     func navigateAndReplace(to destination: AppDestination) {
         path = NavigationPath()
+        currentDestination = destination
         path.append(destination)
     }
+    
+    // MARK: - Computed Properties
     
     /// 현재 경로의 깊이 확인
     var pathCount: Int {

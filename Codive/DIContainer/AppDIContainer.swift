@@ -12,9 +12,16 @@ final class AppDIContainer {
     
     // MARK: - Routers
     lazy var appRouter = AppRouter()
+    lazy var navigationRouter = NavigationRouter()
     
     // MARK: - DIContainers
     func makeAuthDIContainer() -> AuthDIContainer {
-        return AuthDIContainer(appRouter: appRouter)
+        return AuthDIContainer(
+                appRouter: appRouter,
+                navigationRouter: navigationRouter
+            )    }
+    
+    func makeAddDIContainer() -> AddDIContainer {
+        return AddDIContainer(navigationRouter: navigationRouter)
     }
 }

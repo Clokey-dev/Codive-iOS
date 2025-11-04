@@ -18,5 +18,6 @@ let package = Package(
         // 카카오 SDK
         .package(url: "https://github.com/kakao/kakao-ios-sdk", from: "2.22.5"),
         .package(url: "https://github.com/Moya/Moya.git", from: "15.0.0"),
+        .package(url: "https://github.com/guoyingtao/Mantis.git", from: "2.27.0")
     ]
 )
