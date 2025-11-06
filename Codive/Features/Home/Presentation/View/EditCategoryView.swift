@@ -8,12 +8,17 @@
 import SwiftUI
 
 struct EditCategoryView: View {
-    @StateObject private var viewModel = EditCategoryViewModel()
+    @StateObject private var viewModel: EditCategoryViewModel
+    
+    init(viewModel: EditCategoryViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
     
     var body: some View {
         VStack(spacing: 0) {
             /// 네비게이션 바
             CustomNavigationBar(title: "카테고리 편집") {
+                viewModel.handleBackTap()
                 print("뒤로가기")
             }
             
@@ -42,7 +47,7 @@ struct EditCategoryView: View {
             }
             .safeAreaInset(edge: .bottom) {
                 HStack(spacing: 9) {
-                    CustomButton(text: "초기화", widthType: .outlinedHalf) {
+                    CustomButton(text: "초기화", widthType: .half) {
                         viewModel.resetCounts()
                     }
                     CustomButton(text: "적용하기", widthType: .half) {
@@ -54,10 +59,7 @@ struct EditCategoryView: View {
                 .background(Color.white)
             }
         }
+        .navigationBarHidden(true)
         .background(Color.white)
     }
-}
-
-#Preview {
-    EditCategoryView()
 }

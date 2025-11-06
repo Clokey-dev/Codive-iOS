@@ -9,6 +9,12 @@ import SwiftUI
 
 @MainActor
 final class EditCategoryViewModel: ObservableObject {
+    
+    private let navigationRouter: NavigationRouter
+    
+    init(navigationRouter: NavigationRouter) {
+        self.navigationRouter = navigationRouter
+    }
 
     struct Item: Identifiable, Hashable {
         var id = UUID()
@@ -37,5 +43,8 @@ final class EditCategoryViewModel: ObservableObject {
         categories.forEach { print("\($0.title): \($0.count)") }
     }
 
-    func handleBackTap() { print("뒤로가기 tapped") }
+    func handleBackTap() {
+        navigationRouter.navigateBack()
+        print("뒤로가기 tapped")
+    }
 }

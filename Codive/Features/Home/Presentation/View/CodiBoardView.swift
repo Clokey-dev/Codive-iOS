@@ -1,13 +1,26 @@
+//
+//  CodiBoardView.swift
+//  Codive
+//
+//  Created by 한금준 on 10/13/25.
+//
+
 import SwiftUI
 
 struct CodiBoardView: View {
-    @StateObject private var viewModel = CodiBoardViewModel()
+    @StateObject private var viewModel: CodiBoardViewModel
+    
+    init(viewModel: CodiBoardViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
     
     var body: some View {
         VStack(spacing: 0) {
             /// 네비게이션 바
-            CustomNavigationBar(title: "코디 보드") {
-                print("뒤로가기")
+            CustomNavigationBar(
+                title: "코디 보드"
+            ) {
+                viewModel.handleBackTap()
             }
             
             GeometryReader { geometry in
@@ -48,6 +61,7 @@ struct CodiBoardView: View {
                 }
             }
         }
+        .navigationBarHidden(true)
         .background(Color.white)
         .onChange(of: viewModel.isConfirmed) { confirmed in
             if confirmed {
@@ -55,8 +69,4 @@ struct CodiBoardView: View {
             }
         }
     }
-}
-
-#Preview {
-    CodiBoardView()
 }

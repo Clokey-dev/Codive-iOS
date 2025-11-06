@@ -6,6 +6,9 @@
 //
 
 import SwiftUI
+import Foundation
+import UIKit
+import Combine
 
 @MainActor
 final class HomeViewModel: ObservableObject {
@@ -14,10 +17,20 @@ final class HomeViewModel: ObservableObject {
     @Published var showClothSelector: Bool = false
     @Published var titleFrame: CGRect = .zero
     
+    private let navigationRouter: NavigationRouter
+    
+    init(navigationRouter: NavigationRouter) {
+        self.navigationRouter = navigationRouter
+    }
+    
     var menuActions: [() -> Void] {
         return [
-            { print("코디 수정 tapped") },
-            { print("룩북에 추가 tapped") },
+            {
+                print("코디 수정 tapped")
+            },
+            {
+                print("룩북에 추가 tapped")
+            },
             { print("코디 공유 tapped") }
         ]
     }
@@ -41,10 +54,15 @@ final class HomeViewModel: ObservableObject {
     }
 
     func handleCodiBoardTap() {
+        navigationRouter.navigate(to: .codiBoard)
         print("코디보드 tapped")
     }
 
     func handleConfirmCodiTap() {
         print("이 코디 결정 tapped")
+    }
+    
+    func handleEditCategory() {
+        navigationRouter.navigate(to: .editCategory)
     }
 }

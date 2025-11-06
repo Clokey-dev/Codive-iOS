@@ -10,9 +10,16 @@ import SwiftUI
 @MainActor
 final class CodiBoardViewModel: ObservableObject {
     @Published var isConfirmed: Bool = false
+    
+    private let navigationRouter: NavigationRouter
+    
+    init(navigationRouter: NavigationRouter) {
+        self.navigationRouter = navigationRouter
+    }
 
     func handleBackTap() {
         print("뒤로가기 tapped")
+        navigationRouter.navigateBack()
     }
 
     func handleConfirmCodi() {

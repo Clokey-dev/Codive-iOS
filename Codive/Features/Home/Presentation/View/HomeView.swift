@@ -1,3 +1,10 @@
+//
+//  HomeView.swift
+//  Codive
+//
+//  Created by 한금준 on 10/13/25.
+//
+
 import SwiftUI
 
 struct TitleBoundsPreferenceKey: PreferenceKey {
@@ -9,42 +16,55 @@ struct TitleBoundsPreferenceKey: PreferenceKey {
 }
 
 struct HomeView: View {
-    @StateObject private var viewModel = HomeViewModel()
+    @StateObject private var navigationRouter: NavigationRouter
+    private let homeDIContainer: HomeDIContainer
+    @StateObject private var viewModel: HomeViewModel
+    
+    init(homeDIContainer: HomeDIContainer) {
+        self.homeDIContainer = homeDIContainer
+        _navigationRouter = StateObject(wrappedValue: homeDIContainer.navigationRouter)
+        _viewModel = StateObject(wrappedValue: HomeViewModel(navigationRouter: homeDIContainer.navigationRouter))
+    }
     
     var body: some View {
-        GeometryReader { outerGeometry in
-            VStack(spacing: 0) {
-                ScrollView {
-                    VStack {
-                        /// 날씨
-                        WeatherCardView()
-                            .padding(.horizontal, 20)
-                            .padding(.top, 16)
-                        
-                        if viewModel.hasCodi {
-                            hasCodiSection(width: outerGeometry.size.width)
-                        } else {
-                            noCodiSection
+        NavigationStack(path: $navigationRouter.path) {
+            GeometryReader { outerGeometry in
+                VStack(spacing: 0) {
+                    ScrollView {
+                        VStack {
+                            /// 날씨
+                            WeatherCardView()
+                                .padding(.horizontal, 20)
+                                .padding(.top, 16)
+                            
+                            if viewModel.hasCodi {
+                                hasCodiSection(width: outerGeometry.size.width)
+                            } else {
+                                noCodiSection
+                            }
                         }
-                    }
-                    .overlayPreferenceValue(TitleBoundsPreferenceKey.self) { preferences in
-                        GeometryReader { geometry in
-                            if let anchor = preferences {
-                                let frame = geometry[anchor]
-                                CustomOverflowMenu(
-                                    menuType: .coordination,
-                                    menuActions: viewModel.menuActions
-                                )
-                                .position(
-                                    x: geometry.size.width - 40,
-                                    y: frame.midY
-                                )
+                        .overlayPreferenceValue(TitleBoundsPreferenceKey.self) { preferences in
+                            GeometryReader { geometry in
+                                if let anchor = preferences {
+                                    let frame = geometry[anchor]
+                                    CustomOverflowMenu(
+                                        menuType: .coordination,
+                                        menuActions: viewModel.menuActions
+                                    )
+                                    .position(
+                                        x: geometry.size.width - 40,
+                                        y: frame.midY
+                                    )
+                                }
                             }
                         }
                     }
                 }
+                .background(Color.white)
+                .navigationDestination(for: AppDestination.self) { destination in
+                    homeDIContainer.homeViewFactory.makeView(for: destination)
+                }
             }
-            .background(Color.white)
         }
     }
 }
@@ -148,8 +168,10 @@ extension HomeView {
 
     private var categoryButtons: some View {
         HStack(spacing: 8) {
-            CodiButton(iconName: "plus", title: "카테고리 편집") { }
-            CodiButton(iconName: "shuffle", title: "랜덤 코디") { }
+            CodiButton(iconName: "plus", title: "카테고리 편집") {
+                viewModel.handleEditCategory()
+            }
+            CodiButton(iconName: "shuffle", title: "랜덤 코디") {}
         }
         .padding(.horizontal, 20)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -169,7 +191,7 @@ extension HomeView {
         HStack(spacing: 16) {
             CustomButton(
                 text: "코디보드",
-                widthType: .outlinedHalf,
+                widthType: .half,
                 action: viewModel.handleCodiBoardTap
             )
             CustomButton(
@@ -182,8 +204,4 @@ extension HomeView {
         .padding(.top, 40)
         .padding(.bottom, 100)
     }
-}
-
-#Preview {
-    HomeView()
 }
