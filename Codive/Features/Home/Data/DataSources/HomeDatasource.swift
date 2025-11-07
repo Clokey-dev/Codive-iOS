@@ -63,19 +63,22 @@ final class HomeDatasource {
     // 이미지 로드
     func loadInitialImages() -> [DraggableImageEntity] {
         return [
-            DraggableImageEntity(id: 1, name: "image1", position: CGPoint(x: 80, y: 80), scale: 1.0),
-            DraggableImageEntity(id: 2, name: "image2", position: CGPoint(x: 160, y: 120), scale: 1.0),
-            DraggableImageEntity(id: 3, name: "image3", position: CGPoint(x: 240, y: 160), scale: 1.0),
-            DraggableImageEntity(id: 4, name: "image4", position: CGPoint(x: 120, y: 240), scale: 1.0),
-            DraggableImageEntity(id: 5, name: "image5", position: CGPoint(x: 200, y: 280), scale: 1.0),
-            DraggableImageEntity(id: 6, name: "image6", position: CGPoint(x: 250, y: 240), scale: 1.0)
+            DraggableImageEntity(id: 1, name: "image1", position: CGPoint(x: 80, y: 80), scale: 1.0, rotationAngle: 0.0),
+            DraggableImageEntity(id: 2, name: "image2", position: CGPoint(x: 160, y: 120), scale: 1.0, rotationAngle: 0.0),
+            DraggableImageEntity(id: 3, name: "image3", position: CGPoint(x: 240, y: 160), scale: 1.0, rotationAngle: 0.0),
+            DraggableImageEntity(id: 4, name: "image4", position: CGPoint(x: 120, y: 240), scale: 1.0, rotationAngle: 0.0),
+            DraggableImageEntity(id: 5, name: "image5", position: CGPoint(x: 200, y: 280), scale: 1.0, rotationAngle: 0.0),
+            DraggableImageEntity(id: 6, name: "image6", position: CGPoint(x: 250, y: 240), scale: 1.0, rotationAngle: 0.0)
         ]
     }
     
     func saveCodiResult(_ images: [DraggableImageEntity]) {
         print("코디 저장 완료 (\(images.count)개)")
         for image in images {
-            print("• \(image.name) → pos: (\(Int(image.position.x)), \(Int(image.position.y))), scale: \(String(format: "%.2f", image.scale))")
+            let pos = "pos: (\(Int(image.position.x)), \(Int(image.position.y)))"
+            let scaleStr = "scale: \(String(format: "%.2f", image.scale))"
+            let rotStr = "rotation: \(String(format: "%.2f", image.rotationAngle))°"
+            print("• \(image.name) →", pos + ",", scaleStr + ",", rotStr)
         }
     }
     

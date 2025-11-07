@@ -33,6 +33,7 @@ struct DraggableImageEntity: Identifiable {
     let name: String
     var position: CGPoint
     var scale: CGFloat
+    var rotationAngle: Double 
 }
 
 struct CodiItemEntity: Identifiable {

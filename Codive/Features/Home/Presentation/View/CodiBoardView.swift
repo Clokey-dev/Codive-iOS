@@ -36,52 +36,16 @@ struct CodiBoardView: View {
                             .padding(.vertical, 24)
 
                         ZStack {
-                            RoundedRectangle(cornerRadius: 15)
-                                .fill(Color.Codive.grayscale7)
-                                .frame(width: boardSize, height: boardSize)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 15)
-                                        .stroke(Color.Codive.grayscale5, lineWidth: 1)
-                                )
-                                .shadow(color: .black.opacity(0.1), radius: 5, y: 2)
-
+                            boardBackground(size: boardSize)
+                            
                             ForEach($viewModel.images) { $image in
-                                Image(image.name)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .scaleEffect(image.scale) // 확대/축소 적용
-                                    .frame(width: imageHalfSize * 2, height: imageHalfSize * 2)
-                                    .position(image.position)
-                                    .gesture(
-                                        SimultaneousGesture( // Drag + Pinch 동시 처리
-                                            DragGesture()
-                                                .onChanged { value in
-                                                    if viewModel.currentlyDraggedID == nil {
-                                                        viewModel.currentlyDraggedID = image.id
-                                                        viewModel.bringImageToFront(id: image.id)
-                                                    }
-                                                    if let activeId = viewModel.currentlyDraggedID {
-                                                        let clampedX = max(minBound, min(maxBound, value.location.x))
-                                                        let clampedY = max(minBound, min(maxBound, value.location.y))
-                                                        viewModel.updateImagePosition(
-                                                            id: activeId,
-                                                            newPosition: CGPoint(x: clampedX, y: clampedY)
-                                                        )
-                                                    }
-                                                }
-                                                .onEnded { _ in
-                                                    viewModel.currentlyDraggedID = nil
-                                                },
-                                            MagnificationGesture()
-                                                .onChanged { scaleValue in
-                                                    let newScale = max(0.5, min(2.0, scaleValue))
-                                                    viewModel.updateImageScale(id: image.id, newScale: newScale)
-                                                }
-                                        )
-                                    )
-                                    .onTapGesture {
-                                        viewModel.bringImageToFront(id: image.id)
-                                    }
+                                DraggableImageView(
+                                    image: $image,
+                                    imageHalfSize: imageHalfSize,
+                                    minBound: minBound,
+                                    maxBound: maxBound,
+                                    viewModel: viewModel
+                                )
                             }
                         }
                         .frame(width: boardSize, height: boardSize)
@@ -109,5 +73,89 @@ struct CodiBoardView: View {
                 print("코디 완성 완료, 데이터 전달됨!")
             }
         }
+    }
+    
+    @ViewBuilder
+    private func boardBackground(size: CGFloat) -> some View {
+        RoundedRectangle(cornerRadius: 15)
+            .fill(Color.Codive.grayscale7)
+            .frame(width: size, height: size)
+            .overlay(
+                RoundedRectangle(cornerRadius: 15)
+                    .stroke(Color.Codive.grayscale5, lineWidth: 1)
+            )
+            .shadow(color: .black.opacity(0.1), radius: 5, y: 2)
+    }
+}
+
+struct DraggableImageView: View {
+    @Binding var image: DraggableImageEntity
+    let imageHalfSize: CGFloat
+    let minBound: CGFloat
+    let maxBound: CGFloat
+    @ObservedObject var viewModel: CodiBoardViewModel
+    
+    var body: some View {
+        Image(image.name)
+            .resizable()
+            .scaledToFit()
+            .rotationEffect(.degrees(image.rotationAngle))
+            .scaleEffect(image.scale)
+            .frame(width: imageHalfSize * 2, height: imageHalfSize * 2)
+            .position(image.position)
+            .gesture(createCombinedGesture())
+            .onTapGesture {
+                viewModel.bringImageToFront(id: image.id)
+            }
+    }
+    
+    private func createCombinedGesture() -> some Gesture {
+        let drag = createDragGesture()
+        let magnify = createMagnificationGesture()
+        let rotate = createRotationGesture()
+        
+        return SimultaneousGesture(
+            drag,
+            SimultaneousGesture(magnify, rotate)
+        )
+    }
+    
+    private func createDragGesture() -> some Gesture {
+        DragGesture()
+            .onChanged { value in
+                handleDragChanged(value)
+            }
+            .onEnded { _ in
+                viewModel.currentlyDraggedID = nil
+            }
+    }
+    
+    private func handleDragChanged(_ value: DragGesture.Value) {
+        if viewModel.currentlyDraggedID == nil {
+            viewModel.currentlyDraggedID = image.id
+            viewModel.bringImageToFront(id: image.id)
+        }
+        
+        if let activeId = viewModel.currentlyDraggedID {
+            let clampedX = max(minBound, min(maxBound, value.location.x))
+            let clampedY = max(minBound, min(maxBound, value.location.y))
+            let newPosition = CGPoint(x: clampedX, y: clampedY)
+            viewModel.updateImagePosition(id: activeId, newPosition: newPosition)
+        }
+    }
+    
+    private func createMagnificationGesture() -> some Gesture {
+        MagnificationGesture()
+            .onChanged { scaleValue in
+                let newScale = max(0.5, min(2.0, scaleValue))
+                viewModel.updateImageScale(id: image.id, newScale: newScale)
+            }
+    }
+    
+    private func createRotationGesture() -> some Gesture {
+        RotationGesture()
+            .onChanged { angle in
+                viewModel.updateImageRotation(id: image.id, newRotation: angle.degrees)
+            }
     }
 }

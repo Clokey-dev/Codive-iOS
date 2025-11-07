@@ -53,4 +53,10 @@ final class CodiBoardViewModel: ObservableObject {
             images[index].scale = newScale
         }
     }
+    
+    func updateImageRotation(id: Int, newRotation: Double) {
+        if let index = images.firstIndex(where: { $0.id == id }) {
+            images[index].rotationAngle = newRotation
+        }
+    }
 }
