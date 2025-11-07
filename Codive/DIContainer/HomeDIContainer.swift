@@ -14,9 +14,24 @@ final class HomeDIContainer {
     let navigationRouter: NavigationRouter
     lazy var homeViewFactory = HomeViewFactory(homeDIContainer: self)
     
+    lazy var homeDatasource = HomeDatasource()
+    
+    lazy var homeRepository: HomeRepository = HomeRepositoryImpl(
+        dataSource: homeDatasource
+    )
+    
+    lazy var homeUseCase = HomeUseCase(repository: homeRepository)
+    
     // MARK: - Initializer
     init(navigationRouter: NavigationRouter) {
         self.navigationRouter = navigationRouter
+    }
+    
+    func homeViewModel() -> HomeViewModel {
+        return HomeViewModel(
+            navigationRouter: navigationRouter,
+            useCase: homeUseCase
+        )
     }
     
     func makeEditCategoryViewModel() -> EditCategoryViewModel {

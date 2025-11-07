@@ -9,6 +9,7 @@ import SwiftUI
 import Foundation
 import UIKit
 import Combine
+import CoreLocation
 
 @MainActor
 final class HomeViewModel: ObservableObject {
@@ -16,21 +17,33 @@ final class HomeViewModel: ObservableObject {
     @Published var selectedIndex: Int? = 0
     @Published var showClothSelector: Bool = false
     @Published var titleFrame: CGRect = .zero
-    
+
+    // ✅ 날씨 데이터 상태 추가
+    @Published var weatherData: WeatherData?
+
     private let navigationRouter: NavigationRouter
-    
-    init(navigationRouter: NavigationRouter) {
+    private let useCase: HomeUseCase
+
+    init(navigationRouter: NavigationRouter, useCase: HomeUseCase) {
         self.navigationRouter = navigationRouter
+        self.useCase = useCase
     }
-    
+
+    // ✅ WeatherKit 데이터 불러오기
+    func loadWeather(for location: CLLocation) async {
+        do {
+            let data = try await useCase.execute(for: location)
+            weatherData = data
+        } catch {
+            print("❌ Failed to fetch weather:", error)
+        }
+    }
+
+    // MARK: - 기존 코드
     var menuActions: [() -> Void] {
         return [
-            {
-                print("코디 수정 tapped")
-            },
-            {
-                print("룩북에 추가 tapped")
-            },
+            { print("코디 수정 tapped") },
+            { print("룩북에 추가 tapped") },
             { print("코디 공유 tapped") }
         ]
     }
@@ -61,7 +74,7 @@ final class HomeViewModel: ObservableObject {
     func handleConfirmCodiTap() {
         print("이 코디 결정 tapped")
     }
-    
+
     func handleEditCategory() {
         navigationRouter.navigate(to: .editCategory)
     }

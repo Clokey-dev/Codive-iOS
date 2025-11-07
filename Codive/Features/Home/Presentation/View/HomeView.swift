@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import CoreLocation
 
 struct TitleBoundsPreferenceKey: PreferenceKey {
     static var defaultValue: Anchor<CGRect>?
@@ -19,43 +20,42 @@ struct HomeView: View {
     @StateObject private var navigationRouter: NavigationRouter
     private let homeDIContainer: HomeDIContainer
     @StateObject private var viewModel: HomeViewModel
-    
+
     init(homeDIContainer: HomeDIContainer) {
         self.homeDIContainer = homeDIContainer
+
+        // ✅ UseCase 생성 및 ViewModel 주입
+        let repository = HomeRepositoryImpl()
+        let useCase = HomeUseCase(repository: repository)
         _navigationRouter = StateObject(wrappedValue: homeDIContainer.navigationRouter)
-        _viewModel = StateObject(wrappedValue: HomeViewModel(navigationRouter: homeDIContainer.navigationRouter))
+        _viewModel = StateObject(
+            wrappedValue: HomeViewModel(
+                navigationRouter: homeDIContainer.navigationRouter,
+                useCase: useCase
+            )
+        )
     }
-    
+
     var body: some View {
         NavigationStack(path: $navigationRouter.path) {
             GeometryReader { outerGeometry in
                 VStack(spacing: 0) {
                     ScrollView {
                         VStack {
-                            /// 날씨
-                            WeatherCardView()
-                                .padding(.horizontal, 20)
-                                .padding(.top, 16)
-                            
+                            // ✅ 날씨 카드 (데이터 바인딩)
+                            if let weather = viewModel.weatherData {
+                                WeatherCardView(weatherData: weather)
+                                    .padding(.horizontal, 20)
+                                    .padding(.top, 16)
+                            } else {
+                                ProgressView("날씨 불러오는 중...")
+                                    .padding(.top, 16)
+                            }
+
                             if viewModel.hasCodi {
                                 hasCodiSection(width: outerGeometry.size.width)
                             } else {
                                 noCodiSection
-                            }
-                        }
-                        .overlayPreferenceValue(TitleBoundsPreferenceKey.self) { preferences in
-                            GeometryReader { geometry in
-                                if let anchor = preferences {
-                                    let frame = geometry[anchor]
-                                    CustomOverflowMenu(
-                                        menuType: .coordination,
-                                        menuActions: viewModel.menuActions
-                                    )
-                                    .position(
-                                        x: geometry.size.width - 40,
-                                        y: frame.midY
-                                    )
-                                }
                             }
                         }
                     }
@@ -63,6 +63,11 @@ struct HomeView: View {
                 .background(Color.white)
                 .navigationDestination(for: AppDestination.self) { destination in
                     homeDIContainer.homeViewFactory.makeView(for: destination)
+                }
+                // ✅ 화면이 나타날 때 날씨 로드
+                .task {
+                    let location = CLLocation(latitude: 37.5665, longitude: 126.9780) // 서울 예시
+                    await viewModel.loadWeather(for: location)
                 }
             }
         }

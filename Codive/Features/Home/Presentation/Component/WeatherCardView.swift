@@ -8,46 +8,49 @@
 import SwiftUI
 
 struct WeatherCardView: View {
+    let weatherData: WeatherData
+
     var body: some View {
         HStack {
             HStack(spacing: 16) {
-                Image(systemName: "sun.max.fill")
+                Image(systemName: weatherData.symbolName)
                     .font(.system(size: 36))
                     .foregroundColor(Color.Codive.main0)
-                
+
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("30°")
+                    Text("\(weatherData.currentTemp)°")
                         .font(Font.codive_title1)
                         .foregroundColor(Color.Codive.main0)
-                    
-                    // 온도 슬라이더
-                    VStack(spacing: 4) {
-                        ZStack(alignment: .center) {
-                            Capsule()
-                                .fill(Color.Codive.grayscale5)
-                                .frame(height: 4)
 
-                            Capsule()
-                                .fill(Color.Codive.main0)
-                                .frame(width: 95, height: 4)
-                        }
-                        .frame(width: 110)
-                        .padding(.top, 2)
+                    if let first = weatherData.dailyForecasts.first {
+                        VStack(spacing: 4) {
+                            ZStack(alignment: .center) {
+                                Capsule()
+                                    .fill(Color.Codive.grayscale5)
+                                    .frame(height: 4)
 
-                        HStack {
-                            Text("24°")
-                            Spacer()
-                            Text("32°")
+                                Capsule()
+                                    .fill(Color.Codive.main0)
+                                    .frame(width: 95, height: 4)
+                            }
+                            .frame(width: 110)
+                            .padding(.top, 2)
+
+                            HStack {
+                                Text("\(first.lowTemperature)°")
+                                Spacer()
+                                Text("\(first.highTemperature)°")
+                            }
+                            .font(Font.codive_body4_regular)
+                            .foregroundColor(Color.Codive.main0)
+                            .frame(width: 110)
                         }
-                        .font(Font.codive_body4_regular)
-                        .foregroundColor(Color.Codive.main0)
-                        .frame(width: 110)
                     }
                 }
             }
-            
+
             Spacer()
-            
+
             VStack(alignment: .trailing, spacing: 4) {
                 HStack(spacing: 4) {
                     Image(systemName: "apple.logo")
@@ -56,7 +59,7 @@ struct WeatherCardView: View {
                         .font(.system(size: 10))
                 }
                 .foregroundColor(.black)
-                
+
                 HStack(spacing: 4) {
                     Text("서울특별시")
                         .font(Font.codive_body1_medium)
@@ -73,7 +76,7 @@ struct WeatherCardView: View {
     }
 }
 
-#Preview {
-    WeatherCardView()
-        .padding(.horizontal, 20)
-}
+//#Preview {
+//    WeatherCardView()
+//        .padding(.horizontal, 20)
+//}
