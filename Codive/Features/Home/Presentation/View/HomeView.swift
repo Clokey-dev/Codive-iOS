@@ -8,14 +8,6 @@
 import SwiftUI
 import CoreLocation
 
-struct TitleBoundsPreferenceKey: PreferenceKey {
-    static var defaultValue: Anchor<CGRect>?
-    
-    static func reduce(value: inout Anchor<CGRect>?, nextValue: () -> Anchor<CGRect>?) {
-        value = value ?? nextValue()
-    }
-}
-
 struct HomeView: View {
     @StateObject private var navigationRouter: NavigationRouter
     private let homeDIContainer: HomeDIContainer
