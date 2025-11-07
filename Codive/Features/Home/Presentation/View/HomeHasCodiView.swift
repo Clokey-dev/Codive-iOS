@@ -90,7 +90,11 @@ struct HomeHasCodiView: View {
                         isSelected: Binding(
                             get: { viewModel.selectedItemID == item.id },
                             set: { newValue in
-                                if newValue { viewModel.selectItem(item.id) }
+                                if newValue {
+                                    viewModel.selectItem(item.id)
+                                } else if viewModel.selectedItemID == item.id {
+                                    viewModel.selectItem(nil)
+                                }
                             }
                         )
                     )
