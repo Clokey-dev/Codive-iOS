@@ -12,23 +12,41 @@ struct HomeHasCodiView: View {
     let width: CGFloat
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            header
-            codiDisplayArea
-            if viewModel.showClothSelector {
-                clothSelector
+        ZStack(alignment: .topTrailing) {
+
+            VStack(alignment: .leading, spacing: 16) {
+                header
+                codiDisplayArea
+
+                if viewModel.showClothSelector {
+                    clothSelector
+                }
+
+                CustomBanner(text: "오늘 이 코디를 기억하고 싶다면?") {
+                    print("Icon tapped!")
+                }
+                .padding()
             }
-            CustomBanner(text: "오늘 이 코디를 기억하고 싶다면?") {
-                print("Icon tapped!")
-            }
-            .padding()
+
+            CustomOverflowMenu(
+                menuType: .coordination,
+                menuActions: [
+                    { print("코디 수정 tapped") },
+                    { print("룩북에 추가 tapped") },
+                    { print("코디 공유 tapped") }
+                ]
+            )
+            .zIndex(9999)
         }
     }
 
     private var header: some View {
-        Text("오늘의 코디(08.18)")
-            .font(.title2)
-            .padding(.horizontal, 20)
+        HStack {
+            Text("오늘의 코디(08.18)")
+                .font(.title2)
+                .padding(.horizontal, 20)
+            Spacer()
+        }
     }
 
     private var codiDisplayArea: some View {
