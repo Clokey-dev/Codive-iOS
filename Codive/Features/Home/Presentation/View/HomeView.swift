@@ -24,7 +24,7 @@ struct HomeView: View {
     init(homeDIContainer: HomeDIContainer) {
         self.homeDIContainer = homeDIContainer
 
-        // ✅ UseCase 생성 및 ViewModel 주입
+        // UseCase 생성 및 ViewModel 주입
         _navigationRouter = StateObject(wrappedValue: homeDIContainer.navigationRouter)
         _viewModel = StateObject(
             wrappedValue: homeDIContainer.homeViewModel()
@@ -37,7 +37,7 @@ struct HomeView: View {
                 VStack(spacing: 0) {
                     ScrollView {
                         VStack {
-                            // ✅ 날씨 카드 (데이터 바인딩)
+                            // 날씨 카드 (데이터 바인딩)
                             if let weather = viewModel.weatherData {
                                 WeatherCardView(weatherData: weather)
                                     .padding(.horizontal, 20)
@@ -59,7 +59,7 @@ struct HomeView: View {
                 .navigationDestination(for: AppDestination.self) { destination in
                     homeDIContainer.homeViewFactory.makeView(for: destination)
                 }
-                // ✅ 화면이 나타날 때 날씨 로드
+                // 화면이 나타날 때 날씨 로드
                 .task {
                     let location = CLLocation(latitude: 37.5665, longitude: 126.9780) // 서울 예시
                     await viewModel.loadWeather(for: location)

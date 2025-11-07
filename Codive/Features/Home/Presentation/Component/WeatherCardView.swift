@@ -75,8 +75,3 @@ struct WeatherCardView: View {
         .cornerRadius(12)
     }
 }
-
-//#Preview {
-//    WeatherCardView()
-//        .padding(.horizontal, 20)
-//}

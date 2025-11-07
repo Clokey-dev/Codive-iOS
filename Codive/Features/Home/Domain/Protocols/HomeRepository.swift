@@ -11,4 +11,6 @@ protocol HomeRepository {
     func fetchWeatherData(for location: CLLocation) async throws -> WeatherData
     func fetchCategories() -> [CategoryEntity]
     func saveCategories(_ categories: [CategoryEntity])
+    func fetchInitialImages() -> [DraggableImageEntity]
+    func saveImages(_ images: [DraggableImageEntity])
 }

@@ -50,8 +50,6 @@ struct CategoryCounterView: View {
                     count += 1
                 }
             } label: {
-                let isMaxed = totalCount >= maxLimit
-                
                 Circle()
                     .fill(Color.Codive.main5)
                     .frame(width: 28, height: 28)

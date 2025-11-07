@@ -28,4 +28,14 @@ final class HomeUseCase {
     func updateCategories(_ categories: [CategoryEntity]) {
         repository.saveCategories(categories)
     }
+    
+    // 이미지 로드
+    func loadCodiItems() -> [DraggableImageEntity] {
+        repository.fetchInitialImages()
+    }
+
+    // 이미지 저장
+    func saveCodiItems(_ images: [DraggableImageEntity]) {
+        repository.saveImages(images)
+    }
 }

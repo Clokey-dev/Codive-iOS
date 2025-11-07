@@ -25,4 +25,12 @@ final class HomeRepositoryImpl: HomeRepository {
     func saveCategories(_ categories: [CategoryEntity]) {
         dataSource.saveCategories(categories)
     }
+    
+    func fetchInitialImages() -> [DraggableImageEntity] {
+        dataSource.loadInitialImages()
+    }
+    
+    func saveImages(_ images: [DraggableImageEntity]) {
+        dataSource.saveCodiResult(images)
+    }
 }

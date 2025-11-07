@@ -40,7 +40,7 @@ final class HomeDIContainer {
     
     func makeCodiBoardViewModel() -> CodiBoardViewModel {
         return CodiBoardViewModel(
-            navigationRouter: navigationRouter
+            navigationRouter: navigationRouter, useCase: homeUseCase
         )
     }
     

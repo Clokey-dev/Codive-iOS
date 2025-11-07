@@ -59,4 +59,24 @@ final class HomeDatasource {
         print("저장 완료:")
         categories.forEach { print("\($0.id): \($0.title): \($0.itemCount)") }
     }
+    
+    // 이미지 로드
+    func loadInitialImages() -> [DraggableImageEntity] {
+        return [
+            DraggableImageEntity(id: 1, name: "image1", position: CGPoint(x: 80, y: 80), scale: 1.0),
+            DraggableImageEntity(id: 2, name: "image2", position: CGPoint(x: 160, y: 120), scale: 1.0),
+            DraggableImageEntity(id: 3, name: "image3", position: CGPoint(x: 240, y: 160), scale: 1.0),
+            DraggableImageEntity(id: 4, name: "image4", position: CGPoint(x: 120, y: 240), scale: 1.0),
+            DraggableImageEntity(id: 5, name: "image5", position: CGPoint(x: 200, y: 280), scale: 1.0),
+            DraggableImageEntity(id: 6, name: "image6", position: CGPoint(x: 250, y: 240), scale: 1.0)
+        ]
+    }
+    
+    // 코디 완성 시 이미지 정보 + 크기 전달
+    func saveCodiResult(_ images: [DraggableImageEntity]) {
+        print("코디 저장 완료 (\(images.count)개)")
+        for image in images {
+            print("• \(image.name) → pos: (\(Int(image.position.x)), \(Int(image.position.y))), scale: \(String(format: "%.2f", image.scale))")
+        }
+    }
 }
