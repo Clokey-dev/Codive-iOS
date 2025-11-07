@@ -20,6 +20,7 @@ final class HomeViewModel: ObservableObject {
 
     // 날씨 데이터 상태 추가
     @Published var weatherData: WeatherData?
+    @Published var weatherErrorMessage: String?
     
     @Published var todayString: String = ""
     @Published var selectedItemID: Int?
@@ -43,6 +44,7 @@ final class HomeViewModel: ObservableObject {
             weatherData = data
         } catch {
             print("Failed to fetch weather:", error)
+            weatherErrorMessage = "날씨 정보를 가져오는 데 실패했습니다. 잠시 후 다시 시도해주세요."
         }
     }
 
@@ -81,7 +83,7 @@ final class HomeViewModel: ObservableObject {
         codiItems = useCase.loadTodaysCodi()
     }
     
-    func selectItem(_ id: Int) {
+    func selectItem(_ id: Int?) {
         selectedItemID = id
     }
     

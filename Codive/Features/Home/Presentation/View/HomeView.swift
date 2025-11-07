@@ -39,8 +39,16 @@ struct HomeView: View {
                                     .padding(.horizontal, 20)
                                     .padding(.top, 16)
                             } else {
-                                ProgressView("날씨 불러오는 중...")
-                                    .padding(.top, 16)
+                                if let errorMessage = viewModel.weatherErrorMessage {
+                                    Text(errorMessage)
+                                        .foregroundColor(.red)
+                                        .multilineTextAlignment(.center)
+                                        .padding(.top, 16)
+                                        .padding(.horizontal, 20)
+                                } else {
+                                    ProgressView("날씨 불러오는 중...")
+                                        .padding(.top, 16)
+                                }
                             }
 
                             // 리팩토링한 분리 뷰
