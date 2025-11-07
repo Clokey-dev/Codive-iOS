@@ -78,7 +78,7 @@ final class HomeViewModel: ObservableObject {
     }
     
     func loadDummyCodi() {
-        codiItems = useCase.executeFetchCodiItems()
+        codiItems = useCase.loadTodaysCodi()
     }
     
     func selectItem(_ id: Int) {

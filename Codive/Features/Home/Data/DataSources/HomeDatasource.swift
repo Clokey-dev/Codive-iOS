@@ -72,7 +72,7 @@ final class HomeDatasource {
         ]
     }
     
-    func saveCodiResult(_ images: [DraggableImageEntity]) {
+    func saveCodiItems(_ images: [DraggableImageEntity]) {
         print("코디 저장 완료 (\(images.count)개)")
         for image in images {
             let pos = "pos: (\(Int(image.position.x)), \(Int(image.position.y)))"

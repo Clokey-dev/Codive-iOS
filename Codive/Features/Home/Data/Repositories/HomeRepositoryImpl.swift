@@ -30,8 +30,8 @@ final class HomeRepositoryImpl: HomeRepository {
         dataSource.loadInitialImages()
     }
     
-    func saveImages(_ images: [DraggableImageEntity]) {
-        dataSource.saveCodiResult(images)
+    func saveCodiItems(_ images: [DraggableImageEntity]) {
+        dataSource.saveCodiItems(images)
     }
     
     func fetchCodiItems() -> [CodiItemEntity] {

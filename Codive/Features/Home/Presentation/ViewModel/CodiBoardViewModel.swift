@@ -23,7 +23,7 @@ final class CodiBoardViewModel: ObservableObject {
     }
 
     private func loadInitialData() {
-        images = useCase.loadCodiItems()
+        images = useCase.loadCodiBoardImages()
     }
 
     func handleBackTap() {

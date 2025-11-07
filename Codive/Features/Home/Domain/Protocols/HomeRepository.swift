@@ -12,7 +12,7 @@ protocol HomeRepository {
     func fetchCategories() -> [CategoryEntity]
     func saveCategories(_ categories: [CategoryEntity])
     func fetchInitialImages() -> [DraggableImageEntity]
-    func saveImages(_ images: [DraggableImageEntity])
+    func saveCodiItems(_ images: [DraggableImageEntity])
     func fetchCodiItems() -> [CodiItemEntity]
     func getToday() -> DateEntity
 }

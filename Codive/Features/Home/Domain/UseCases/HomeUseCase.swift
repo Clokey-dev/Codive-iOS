@@ -30,16 +30,16 @@ final class HomeUseCase {
     }
     
     // 이미지 로드
-    func loadCodiItems() -> [DraggableImageEntity] {
+    func loadCodiBoardImages() -> [DraggableImageEntity] {
         repository.fetchInitialImages()
     }
 
     // 이미지 저장
     func saveCodiItems(_ images: [DraggableImageEntity]) {
-        repository.saveImages(images)
+        repository.saveCodiItems(images)
     }
     
-    func executeFetchCodiItems() -> [CodiItemEntity] {
+    func loadTodaysCodi() -> [CodiItemEntity] {
         repository.fetchCodiItems()
     }
     
