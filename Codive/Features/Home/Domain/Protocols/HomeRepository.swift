@@ -14,4 +14,5 @@ protocol HomeRepository {
     func fetchInitialImages() -> [DraggableImageEntity]
     func saveImages(_ images: [DraggableImageEntity])
     func fetchCodiItems() -> [CodiItemEntity]
+    func getToday() -> DateEntity
 }

@@ -42,4 +42,8 @@ final class HomeUseCase {
     func executeFetchCodiItems() -> [CodiItemEntity] {
         repository.fetchCodiItems()
     }
+    
+    func getToday() -> DateEntity {
+        repository.getToday()
+    }
 }

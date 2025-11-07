@@ -43,3 +43,7 @@ struct CodiItemEntity: Identifiable {
     let width: CGFloat
     let height: CGFloat
 }
+
+struct DateEntity {
+    let formattedDate: String
+}

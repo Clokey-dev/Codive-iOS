@@ -48,7 +48,6 @@ final class CodiBoardViewModel: ObservableObject {
         }
     }
     
-    // 이미지 확대/축소 반영
     func updateImageScale(id: Int, newScale: CGFloat) {
         if let index = images.firstIndex(where: { $0.id == id }) {
             images[index].scale = newScale

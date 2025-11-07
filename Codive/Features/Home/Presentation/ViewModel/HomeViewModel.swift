@@ -21,7 +21,8 @@ final class HomeViewModel: ObservableObject {
     // 날씨 데이터 상태 추가
     @Published var weatherData: WeatherData?
     
-    @Published var selectedItemID: Int? = nil
+    @Published var todayString: String = ""
+    @Published var selectedItemID: Int?
     @Published var codiItems: [CodiItemEntity] = []
 
     private let navigationRouter: NavigationRouter
@@ -32,6 +33,7 @@ final class HomeViewModel: ObservableObject {
         self.useCase = useCase
         
         loadDummyCodi()
+        loadToday()
     }
 
     // WeatherKit 데이터 불러오기
@@ -40,17 +42,8 @@ final class HomeViewModel: ObservableObject {
             let data = try await useCase.execute(for: location)
             weatherData = data
         } catch {
-            print("❌ Failed to fetch weather:", error)
+            print("Failed to fetch weather:", error)
         }
-    }
-
-    // MARK: - 기존 코드
-    var menuActions: [() -> Void] {
-        return [
-            { print("코디 수정 tapped") },
-            { print("룩북에 추가 tapped") },
-            { print("코디 공유 tapped") }
-        ]
     }
 
     func toggleClothSelector() {
@@ -90,5 +83,26 @@ final class HomeViewModel: ObservableObject {
     
     func selectItem(_ id: Int) {
         selectedItemID = id
+    }
+    
+    func loadToday() {
+        let entity = useCase.getToday()
+        self.todayString = entity.formattedDate
+    }
+    
+    func rememberCodi() {
+        print("오늘 이 코디를 기억")
+    }
+    
+    func selectEditCodi() {
+        print("코디 수정 tapped")
+    }
+    
+    func addLookbook() {
+        print("룩북에 추가 tapped")
+    }
+    
+    func sharedCodi() {
+        print("코디 공유 tapped")
     }
 }

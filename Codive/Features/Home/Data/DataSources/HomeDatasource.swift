@@ -72,7 +72,6 @@ final class HomeDatasource {
         ]
     }
     
-    // 코디 완성 시 이미지 정보 + 크기 전달
     func saveCodiResult(_ images: [DraggableImageEntity]) {
         print("코디 저장 완료 (\(images.count)개)")
         for image in images {
@@ -87,7 +86,15 @@ final class HomeDatasource {
             CodiItemEntity(id: 3, imageName: "image3", x: 240, y: 160, width: 100, height: 100),
             CodiItemEntity(id: 4, imageName: "image4", x: 120, y: 240, width: 70, height: 70),
             CodiItemEntity(id: 5, imageName: "image5", x: 200, y: 280, width: 120, height: 120),
-            CodiItemEntity(id: 6, imageName: "image6", x: 250, y: 240, width: 110, height: 110),
+            CodiItemEntity(id: 6, imageName: "image6", x: 250, y: 240, width: 110, height: 110)
         ]
+    }
+    
+    func fetchToday() -> DateEntity {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM.dd"
+        
+        let todayString = formatter.string(from: Date())
+        return DateEntity(formattedDate: todayString)
     }
 }

@@ -23,7 +23,7 @@ struct HomeHasCodiView: View {
                 }
 
                 CustomBanner(text: "오늘 이 코디를 기억하고 싶다면?") {
-                    print("Icon tapped!")
+                    viewModel.rememberCodi()
                 }
                 .padding()
             }
@@ -31,9 +31,9 @@ struct HomeHasCodiView: View {
             CustomOverflowMenu(
                 menuType: .coordination,
                 menuActions: [
-                    { print("코디 수정 tapped") },
-                    { print("룩북에 추가 tapped") },
-                    { print("코디 공유 tapped") }
+                    { viewModel.selectEditCodi() },
+                    { viewModel.addLookbook() },
+                    { viewModel.sharedCodi() }
                 ]
             )
             .zIndex(9999)
@@ -42,7 +42,7 @@ struct HomeHasCodiView: View {
 
     private var header: some View {
         HStack {
-            Text("오늘의 코디(08.18)")
+            Text("오늘의 코디(\(viewModel.todayString))")
                 .font(.title2)
                 .padding(.horizontal, 20)
             Spacer()

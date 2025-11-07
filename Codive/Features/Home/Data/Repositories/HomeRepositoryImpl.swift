@@ -37,4 +37,8 @@ final class HomeRepositoryImpl: HomeRepository {
     func fetchCodiItems() -> [CodiItemEntity] {
         dataSource.loadDummyCodiItems()
     }
+    
+    func getToday() -> DateEntity {
+        dataSource.fetchToday()
+    }
 }
