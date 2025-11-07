@@ -1,5 +1,5 @@
 {
-  "originHash" : "fd4104770e216640cf81c6e2eb619f77b730335b205d50fc963444b9d728f734",
+  "originHash" : "306c8b0a5b438619961ac50341bbf6216374f61a50ac7a0c9a300298070b8c51",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -17,15 +17,6 @@
       "state" : {
         "revision" : "f17e30773062d9df4c8e0e211da9ac22dfb2e5c1",
         "version" : "2.24.6"
-      }
-    },
-    {
-      "identity" : "mantis",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/guoyingtao/Mantis.git",
-      "state" : {
-        "revision" : "d471b02c6ab8c1432b612738b0f63eaff980df1c",
-        "version" : "2.27.0"
       }
     },
     {
@@ -53,6 +44,15 @@
       "state" : {
         "revision" : "5dd1907d64f0d36f158f61a466bab75067224893",
         "version" : "6.9.0"
+      }
+    },
+    {
+      "identity" : "swiftycrop",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/benedom/SwiftyCrop.git",
+      "state" : {
+        "revision" : "5caca6629d98d34988161dc474b27e5e8584de40",
+        "version" : "2.0.0"
       }
     }
   ],
