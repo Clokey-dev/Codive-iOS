@@ -23,12 +23,8 @@ struct HomeView: View {
 
     init(homeDIContainer: HomeDIContainer) {
         self.homeDIContainer = homeDIContainer
-
-        // UseCase 생성 및 ViewModel 주입
         _navigationRouter = StateObject(wrappedValue: homeDIContainer.navigationRouter)
-        _viewModel = StateObject(
-            wrappedValue: homeDIContainer.homeViewModel()
-        )
+        _viewModel = StateObject(wrappedValue: homeDIContainer.homeViewModel())
     }
 
     var body: some View {
@@ -37,7 +33,7 @@ struct HomeView: View {
                 VStack(spacing: 0) {
                     ScrollView {
                         VStack {
-                            // 날씨 카드 (데이터 바인딩)
+                            // Weather 출력
                             if let weather = viewModel.weatherData {
                                 WeatherCardView(weatherData: weather)
                                     .padding(.horizontal, 20)
@@ -47,10 +43,14 @@ struct HomeView: View {
                                     .padding(.top, 16)
                             }
 
+                            // 리팩토링한 분리 뷰
                             if viewModel.hasCodi {
-                                hasCodiSection(width: outerGeometry.size.width)
+                                HomeHasCodiView(
+                                    viewModel: viewModel,
+                                    width: outerGeometry.size.width
+                                )
                             } else {
-                                noCodiSection
+                                HomeNoCodiView(viewModel: viewModel)
                             }
                         }
                     }
@@ -59,149 +59,11 @@ struct HomeView: View {
                 .navigationDestination(for: AppDestination.self) { destination in
                     homeDIContainer.homeViewFactory.makeView(for: destination)
                 }
-                // 화면이 나타날 때 날씨 로드
                 .task {
-                    let location = CLLocation(latitude: 37.5665, longitude: 126.9780) // 서울 예시
+                    let location = CLLocation(latitude: 37.5665, longitude: 126.9780)
                     await viewModel.loadWeather(for: location)
                 }
             }
         }
-    }
-}
-
-extension HomeView {
-    /// 등록한 코디가 있는 경우
-    private func hasCodiSection(width: CGFloat) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
-            sectionHeader
-            codiDisplayView(width: width)
-            clothSelectorView
-            codiBanner
-        }
-    }
-
-    private var sectionHeader: some View {
-        HStack {
-            Text("오늘의 코디 (08.18)")
-                .font(Font.codive_title1)
-                .foregroundStyle(Color.Codive.grayscale1)
-                .padding(.horizontal, 20)
-                .anchorPreference(
-                    key: TitleBoundsPreferenceKey.self,
-                    value: .bounds
-                ) { $0 }
-            Spacer()
-        }
-        .padding(.top, 16)
-        .padding(.bottom, 12)
-    }
-
-    private func codiDisplayView(width: CGFloat) -> some View {
-        ZStack(alignment: .bottomLeading) {
-            RoundedRectangle(cornerRadius: 15)
-                .fill(Color.Codive.grayscale7)
-                .frame(width: width - 40, height: width - 40)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 15)
-                        .stroke(Color.Codive.grayscale5, lineWidth: 1)
-                )
-                .shadow(color: .black.opacity(0.1), radius: 5, y: 2)
-                .padding(.horizontal, 20)
-            
-            Button(action: viewModel.toggleClothSelector) {
-                Image("ic_tag")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 28, height: 28)
-            }
-            .padding(.leading, 16)
-            .padding()
-        }
-    }
-
-    private var clothSelectorView: some View {
-        Group {
-            if viewModel.showClothSelector {
-                HStack(spacing: 12) {
-                    ForEach(0..<4, id: \.self) { index in
-                        SelectableClothItem(
-                            imageName: index == 3 ? nil : "cardigan",
-                            isSelected: Binding(
-                                get: { viewModel.selectedIndex == index },
-                                set: { newValue in
-                                    if newValue { viewModel.selectCloth(at: index) }
-                                }
-                            )
-                        )
-                    }
-                }
-                .padding(.horizontal, 20)
-            }
-        }
-    }
-
-    private var codiBanner: some View {
-        CustomBanner(text: "오늘 이 코디를 기억하고 싶다면?") {
-            print("Icon tapped!")
-        }
-        .padding()
-    }
-    
-    /// 등록한 코디가 없는 경우
-    private var noCodiSection: some View {
-        VStack {
-            noCodiHeader
-            categoryButtons
-            codiClothList
-            Spacer()
-            bottomButtons
-        }
-    }
-
-    private var noCodiHeader: some View {
-        Text("오늘 날씨에 이 코디 어때요?")
-            .font(Font.codive_title1)
-            .foregroundStyle(Color.Codive.grayscale1)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(EdgeInsets(top: 24, leading: 20, bottom: 16, trailing: 20))
-    }
-
-    private var categoryButtons: some View {
-        HStack(spacing: 8) {
-            CodiButton(iconName: "plus", title: "카테고리 편집") {
-                viewModel.handleEditCategory()
-            }
-            CodiButton(iconName: "shuffle", title: "랜덤 코디") {}
-        }
-        .padding(.horizontal, 20)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.bottom, 16)
-    }
-
-    private var codiClothList: some View {
-        VStack(spacing: 16) {
-            CodiClothView(title: "상의")
-            CodiClothView(title: "바지")
-            CodiClothView(title: "신발")
-        }
-        .padding(.horizontal, 20)
-    }
-
-    private var bottomButtons: some View {
-        HStack(spacing: 16) {
-            CustomButton(
-                text: "코디보드",
-                widthType: .half,
-                action: viewModel.handleCodiBoardTap
-            )
-            CustomButton(
-                text: "이 코디로 결정하기",
-                widthType: .half,
-                action: viewModel.handleConfirmCodiTap
-            )
-        }
-        .padding(.horizontal, 20)
-        .padding(.top, 40)
-        .padding(.bottom, 100)
     }
 }
