@@ -25,14 +25,9 @@ struct HomeView: View {
         self.homeDIContainer = homeDIContainer
 
         // ✅ UseCase 생성 및 ViewModel 주입
-        let repository = HomeRepositoryImpl()
-        let useCase = HomeUseCase(repository: repository)
         _navigationRouter = StateObject(wrappedValue: homeDIContainer.navigationRouter)
         _viewModel = StateObject(
-            wrappedValue: HomeViewModel(
-                navigationRouter: homeDIContainer.navigationRouter,
-                useCase: useCase
-            )
+            wrappedValue: homeDIContainer.homeViewModel()
         )
     }
 
