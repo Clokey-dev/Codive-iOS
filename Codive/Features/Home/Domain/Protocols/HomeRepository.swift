@@ -13,4 +13,5 @@ protocol HomeRepository {
     func saveCategories(_ categories: [CategoryEntity])
     func fetchInitialImages() -> [DraggableImageEntity]
     func saveImages(_ images: [DraggableImageEntity])
+    func fetchCodiItems() -> [CodiItemEntity]
 }

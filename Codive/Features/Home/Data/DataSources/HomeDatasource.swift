@@ -79,4 +79,15 @@ final class HomeDatasource {
             print("• \(image.name) → pos: (\(Int(image.position.x)), \(Int(image.position.y))), scale: \(String(format: "%.2f", image.scale))")
         }
     }
+    
+    func loadDummyCodiItems() -> [CodiItemEntity] {
+        return [
+            CodiItemEntity(id: 1, imageName: "image1", x: 80, y: 80,  width: 80, height: 80),
+            CodiItemEntity(id: 2, imageName: "image2", x: 160, y: 120,  width: 90, height: 90),
+            CodiItemEntity(id: 3, imageName: "image3", x: 240, y: 160, width: 100, height: 100),
+            CodiItemEntity(id: 4, imageName: "image4", x: 120, y: 240, width: 70, height: 70),
+            CodiItemEntity(id: 5, imageName: "image5", x: 200, y: 280, width: 120, height: 120),
+            CodiItemEntity(id: 6, imageName: "image6", x: 250, y: 240, width: 110, height: 110),
+        ]
+    }
 }

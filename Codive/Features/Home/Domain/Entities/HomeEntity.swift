@@ -34,3 +34,12 @@ struct DraggableImageEntity: Identifiable {
     var position: CGPoint
     var scale: CGFloat
 }
+
+struct CodiItemEntity: Identifiable {
+    let id: Int
+    let imageName: String
+    let x: CGFloat
+    let y: CGFloat
+    let width: CGFloat
+    let height: CGFloat
+}

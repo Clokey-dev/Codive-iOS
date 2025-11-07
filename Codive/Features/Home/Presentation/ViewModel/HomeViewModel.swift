@@ -20,6 +20,9 @@ final class HomeViewModel: ObservableObject {
 
     // 날씨 데이터 상태 추가
     @Published var weatherData: WeatherData?
+    
+    @Published var selectedItemID: Int? = nil
+    @Published var codiItems: [CodiItemEntity] = []
 
     private let navigationRouter: NavigationRouter
     private let useCase: HomeUseCase
@@ -27,6 +30,8 @@ final class HomeViewModel: ObservableObject {
     init(navigationRouter: NavigationRouter, useCase: HomeUseCase) {
         self.navigationRouter = navigationRouter
         self.useCase = useCase
+        
+        loadDummyCodi()
     }
 
     // WeatherKit 데이터 불러오기
@@ -77,5 +82,13 @@ final class HomeViewModel: ObservableObject {
 
     func handleEditCategory() {
         navigationRouter.navigate(to: .editCategory)
+    }
+    
+    func loadDummyCodi() {
+        codiItems = useCase.executeFetchCodiItems()
+    }
+    
+    func selectItem(_ id: Int) {
+        selectedItemID = id
     }
 }

@@ -8,60 +8,25 @@
 import SwiftUI
 
 struct SelectableClothItem: View {
-    let imageName: String?
+    let entity: CodiItemEntity
     @Binding var isSelected: Bool
-    let size: CGFloat = 72
     
     var body: some View {
         ZStack {
-            if let imageName = imageName, !imageName.isEmpty, UIImage(named: imageName) != nil {
-                Image(imageName)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: size - 8, height: size - 8)
-                    .background(Color.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
-            } else {
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(Color.Codive.main1)
-                    .frame(width: size - 8, height: size - 8)
-            }
+            Image(entity.imageName)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 68, height: 68)
+                .clipped()
         }
-        .frame(width: size, height: size)
+        .frame(width: 72, height: 72)
         .background(Color.white)
         .overlay(
-            RoundedRectangle(cornerRadius: 10)
-                .stroke(isSelected ? Color.black : Color.Codive.grayscale6, lineWidth: 1)
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(isSelected ? .black : .gray, lineWidth: 1)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 4))
-        .shadow(color: .black.opacity(0.05), radius: 2, y: 1)
         .onTapGesture {
             isSelected.toggle()
         }
-    }
-}
-
-#Preview {
-    PreviewContainer()
-}
-
-private struct PreviewContainer: View {
-    @State private var selectedIndex: Int? = 0
-
-    var body: some View {
-        HStack(spacing: 12) {
-            ForEach(0..<4, id: \.self) { index in
-                SelectableClothItem(
-                    imageName: index == 3 ? nil : "cardigan",
-                    isSelected: Binding(
-                        get: { selectedIndex == index },
-                        set: { newValue in
-                            if newValue { selectedIndex = index }
-                        }
-                    )
-                )
-            }
-        }
-        .padding()
     }
 }

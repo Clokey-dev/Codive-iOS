@@ -13,73 +13,72 @@ struct HomeHasCodiView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            sectionHeader
-            codiDisplayView
-            clothSelectorView
-            codiBanner
-        }
-    }
-
-    private var sectionHeader: some View {
-        HStack {
-            Text("오늘의 코디 (08.18)")
-                .font(Font.codive_title1)
-                .foregroundStyle(Color.Codive.grayscale1)
-                .padding(.horizontal, 20)
-            Spacer()
-        }
-        .padding(.top, 16)
-        .padding(.bottom, 12)
-    }
-
-    private var codiDisplayView: some View {
-        ZStack(alignment: .bottomLeading) {
-            RoundedRectangle(cornerRadius: 15)
-                .fill(Color.Codive.grayscale7)
-                .frame(width: width - 40, height: width - 40)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 15)
-                        .stroke(Color.Codive.grayscale5, lineWidth: 1)
-                )
-                .shadow(color: .black.opacity(0.1), radius: 5, y: 2)
-                .padding(.horizontal, 20)
-
-            Button(action: viewModel.toggleClothSelector) {
-                Image("ic_tag")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 28, height: 28)
+            header
+            codiDisplayArea
+            if viewModel.showClothSelector {
+                clothSelector
             }
-            .padding(.leading, 16)
+            CustomBanner(text: "오늘 이 코디를 기억하고 싶다면?") {
+                print("Icon tapped!")
+            }
             .padding()
         }
     }
 
-    private var clothSelectorView: some View {
-        Group {
-            if viewModel.showClothSelector {
-                HStack(spacing: 12) {
-                    ForEach(0..<4, id: \.self) { index in
-                        SelectableClothItem(
-                            imageName: index == 3 ? nil : "cardigan",
-                            isSelected: Binding(
-                                get: { viewModel.selectedIndex == index },
-                                set: { newValue in
-                                    if newValue { viewModel.selectCloth(at: index) }
-                                }
-                            )
-                        )
-                    }
-                }
+    private var header: some View {
+        Text("오늘의 코디(08.18)")
+            .font(.title2)
+            .padding(.horizontal, 20)
+    }
+
+    private var codiDisplayArea: some View {
+        ZStack(alignment: .bottomLeading) {
+            RoundedRectangle(cornerRadius: 15)
+                .fill(Color.Codive.grayscale7)
+                .frame(
+                    width: max(width - 40, 0),
+                    height: max(width - 40, 0)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 15)
+                        .stroke(Color.gray.opacity(0.4), lineWidth: 1)
+                )
                 .padding(.horizontal, 20)
+
+            ForEach(viewModel.codiItems) { item in
+                Image(item.imageName)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: item.width, height: item.height)
+                    .position(x: item.x, y: item.y)
             }
+
+            Button(action: viewModel.toggleClothSelector) {
+                Image("ic_tag")
+                    .resizable()
+                    .frame(width: 28, height: 28)
+            }
+            .padding(.leading, 36)
+            .padding(.bottom, 16)
         }
     }
 
-    private var codiBanner: some View {
-        CustomBanner(text: "오늘 이 코디를 기억하고 싶다면?") {
-            print("Icon tapped!")
+    private var clothSelector: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 12) {
+                ForEach(viewModel.codiItems) { item in
+                    SelectableClothItem(
+                        entity: item,
+                        isSelected: Binding(
+                            get: { viewModel.selectedItemID == item.id },
+                            set: { newValue in
+                                if newValue { viewModel.selectItem(item.id) }
+                            }
+                        )
+                    )
+                }
+            }
+            .padding(.horizontal, 20)
         }
-        .padding()
     }
 }

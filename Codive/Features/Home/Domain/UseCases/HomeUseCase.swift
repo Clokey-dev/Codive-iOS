@@ -38,4 +38,8 @@ final class HomeUseCase {
     func saveCodiItems(_ images: [DraggableImageEntity]) {
         repository.saveImages(images)
     }
+    
+    func executeFetchCodiItems() -> [CodiItemEntity] {
+        repository.fetchCodiItems()
+    }
 }

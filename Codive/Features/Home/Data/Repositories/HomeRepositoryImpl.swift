@@ -33,4 +33,8 @@ final class HomeRepositoryImpl: HomeRepository {
     func saveImages(_ images: [DraggableImageEntity]) {
         dataSource.saveCodiResult(images)
     }
+    
+    func fetchCodiItems() -> [CodiItemEntity] {
+        dataSource.loadDummyCodiItems()
+    }
 }
