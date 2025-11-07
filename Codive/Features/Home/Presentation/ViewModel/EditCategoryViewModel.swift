@@ -9,42 +9,46 @@ import SwiftUI
 
 @MainActor
 final class EditCategoryViewModel: ObservableObject {
-    
     private let navigationRouter: NavigationRouter
+    private let useCase: HomeUseCase
     
-    init(navigationRouter: NavigationRouter) {
+    @Published var categories: [CategoryEntity] = []
+    
+    init(navigationRouter: NavigationRouter, useCase: HomeUseCase) {
         self.navigationRouter = navigationRouter
+        self.useCase = useCase
+        loadInitialData()
     }
-
-    struct Item: Identifiable, Hashable {
-        var id = UUID()
-        var title: String
-        var count: Int
+    
+    var totalCount: Int { categories.reduce(0) { $0 + $1.itemCount } }
+    
+    private func loadInitialData() {
+        categories = useCase.loadCategories()
     }
-
-    @Published var categories: [Item] = [
-        Item(title: "상의", count: 0),
-        Item(title: "바지", count: 0),
-        Item(title: "스커트", count: 0),
-        Item(title: "아우터", count: 0),
-        Item(title: "신발", count: 0),
-        Item(title: "가방", count: 0),
-        Item(title: "패션 소품", count: 0)
-    ]
-
-    var totalCount: Int { categories.reduce(0) { $0 + $1.count } }
-
+    
+    func incrementCount(for category: CategoryEntity) {
+        guard let index = categories.firstIndex(where: { $0.id == category.id }) else { return }
+        if totalCount < 10 {
+            categories[index].itemCount += 1
+        }
+    }
+    
+    func decrementCount(for category: CategoryEntity) {
+        guard let index = categories.firstIndex(where: { $0.id == category.id }) else { return }
+        if categories[index].itemCount > 0 {
+            categories[index].itemCount -= 1
+        }
+    }
+    
     func resetCounts() {
-        for i in categories.indices { categories[i].count = 0 }
+        for i in categories.indices { categories[i].itemCount = 0 }
     }
-
+    
     func applyChanges() {
-        print("적용하기 tapped")
-        categories.forEach { print("\($0.title): \($0.count)") }
+        useCase.updateCategories(categories)
     }
-
+    
     func handleBackTap() {
         navigationRouter.navigateBack()
-        print("뒤로가기 tapped")
     }
 }

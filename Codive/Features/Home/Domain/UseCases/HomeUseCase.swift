@@ -18,4 +18,14 @@ final class HomeUseCase {
     func execute(for location: CLLocation) async throws -> WeatherData {
         return try await repository.fetchWeatherData(for: location)
     }
+    
+    // 카테고리 불러오기
+    func loadCategories() -> [CategoryEntity] {
+        return repository.fetchCategories()
+    }
+    
+    // 각 카테고리 별 count update
+    func updateCategories(_ categories: [CategoryEntity]) {
+        repository.saveCategories(categories)
+    }
 }

@@ -13,10 +13,15 @@ struct WeatherData {
     var currentTemp: Int
     var symbolName: String
     let dailyForecasts: [DailyWeather]
-    
 }
 
 struct DailyWeather {
     let highTemperature: Int
     let lowTemperature: Int
+}
+
+struct CategoryEntity: Identifiable{
+    let id: Int
+    let title: String
+    var itemCount: Int
 }

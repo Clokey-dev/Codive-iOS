@@ -16,27 +16,23 @@ struct EditCategoryView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            /// 네비게이션 바
             CustomNavigationBar(title: "카테고리 편집") {
                 viewModel.handleBackTap()
-                print("뒤로가기")
             }
             
             ScrollView {
                 VStack {
-                    /// 현재 카테고리 개수 표시
-                    Text("현재 카테고리(\(viewModel.totalCount)/10)")
+                    Text("현재 카테고리 (\(viewModel.totalCount)/10)")
                         .font(Font.codive_title2)
                         .foregroundStyle(Color.Codive.grayscale1)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(EdgeInsets(top: 24, leading: 20, bottom: 24, trailing: 20))
                     
-                    /// 카테고리별 카운터 리스트
                     VStack(spacing: 24) {
-                        ForEach($viewModel.categories) { $category in
+                        ForEach($viewModel.categories, id: \.id) { $category in
                             CategoryCounterView(
                                 title: category.title,
-                                count: $category.count,
+                                count: $category.itemCount,
                                 totalCount: viewModel.totalCount
                             )
                         }

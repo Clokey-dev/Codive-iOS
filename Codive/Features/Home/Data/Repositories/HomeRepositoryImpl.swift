@@ -17,4 +17,12 @@ final class HomeRepositoryImpl: HomeRepository {
     func fetchWeatherData(for location: CLLocation) async throws -> WeatherData {
         return try await dataSource.fetchWeatherData(for: location)
     }
+    
+    func fetchCategories() -> [CategoryEntity] {
+        return dataSource.loadCategories()
+    }
+    
+    func saveCategories(_ categories: [CategoryEntity]) {
+        dataSource.saveCategories(categories)
+    }
 }
