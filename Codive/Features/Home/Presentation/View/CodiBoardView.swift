@@ -69,9 +69,7 @@ struct CodiBoardView: View {
         .navigationBarHidden(true)
         .background(Color.white)
         .onChange(of: viewModel.isConfirmed) { confirmed in
-            if confirmed {
-                print("코디 완성 완료, 데이터 전달됨!")
-            }
+            if confirmed { }
         }
     }
     
