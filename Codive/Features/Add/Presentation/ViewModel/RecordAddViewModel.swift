@@ -21,7 +21,8 @@ final class RecordAddViewModel: ObservableObject {
     @Published var isAlbumSheetPresented = false
     @Published var isCameraPresented = false
     @Published var authorizationStatus: PHAuthorizationStatus = .notDetermined
-    
+    @Published var isCompletingSelection = false
+
     private let fetchPhotosUseCase: FetchPhotosUseCase
     private let processImageUseCase: ProcessImageUseCase
     let navigationRouter: NavigationRouter
@@ -56,23 +57,23 @@ final class RecordAddViewModel: ObservableObject {
         authorizationStatus = await fetchPhotosUseCase.requestAuthorization()
         
         if authorizationStatus == .authorized || authorizationStatus == .limited {
-            loadAlbums()
+            await loadAlbums()
         }
     }
-    
-    func loadAlbums() {
-        let (fetchedAlbums, defaultAlbum) = fetchPhotosUseCase.fetchAlbumsWithDefault()
+
+    func loadAlbums() async {
+        let (fetchedAlbums, defaultAlbum) = await fetchPhotosUseCase.fetchAlbumsWithDefault()
         
         albums = fetchedAlbums
         
         if let defaultAlbum = defaultAlbum {
-            selectAlbum(defaultAlbum)
+            await selectAlbum(defaultAlbum)
         }
     }
     
-    func selectAlbum(_ album: PhotoAlbum) {
+    func selectAlbum(_ album: PhotoAlbum) async {
         selectedAlbum = album
-        photos = fetchPhotosUseCase.fetchPhotos(from: album)
+        photos = await fetchPhotosUseCase.fetchPhotos(from: album)
         isAlbumSheetPresented = false
     }
     
@@ -127,7 +128,7 @@ final class RecordAddViewModel: ObservableObject {
             // 선택 상태 초기화
             selectedPhotos.removeAll()
             // 저장 후 갤러리 새로고침
-            loadAlbums()
+            await loadAlbums()
         }
     }
     
@@ -143,12 +144,18 @@ final class RecordAddViewModel: ObservableObject {
     
     func completeSelection() {
         Task {
+            isCompletingSelection = true
+            
             var selectedPhotoItems: [SelectedPhoto] = []
             
-            for (index, photo) in selectedPhotos.enumerated() {
+            // 임시로 사진 순서 저장
+            let photosToProcess = selectedPhotos
+            let targetSize = CGSize(width: 1200, height: 1200)
+            
+            for (index, photo) in photosToProcess.enumerated() {
                 if let image = await fetchPhotosUseCase.loadThumbnail(
                     for: photo.asset,
-                    size: PHImageManagerMaximumSize
+                    size: targetSize
                 ) {
                     let croppedImage = processImageUseCase.cropTo3_4Ratio(image)
                     
@@ -163,8 +170,13 @@ final class RecordAddViewModel: ObservableObject {
             }
             
             navigationRouter.navigate(to: .photoEdit(photos: selectedPhotoItems))
+                    
+            // 처리 완료 후 리셋
+            resetSelection()
+            isCompletingSelection = false
         }
     }
+    
     func resetSelection() {
         selectedPhotos.removeAll()
         for index in photos.indices {
