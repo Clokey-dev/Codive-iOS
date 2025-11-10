@@ -27,7 +27,7 @@ final class HomeDIContainer {
         self.navigationRouter = navigationRouter
     }
     
-    func homeViewModel() -> HomeViewModel {
+    func makeHomeViewModel() -> HomeViewModel {
         return HomeViewModel(
             navigationRouter: navigationRouter,
             useCase: homeUseCase
