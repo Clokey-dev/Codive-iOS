@@ -8,26 +8,57 @@
 import SwiftUI
 
 struct SettingLikedView: View {
-    var body: some View {
-        CustomNavigationBar(title: "좋아요 한 기록") {
-            print("뒤로가기")
-        }
-        Spacer()
-        Text("아직 좋아요한 기록이 없어요!")
-            .font(.codive_title2)
-            .foregroundStyle(Color("Grayscale1"))
-            .padding(.bottom, 8)
-        Text("지금 하나 눌러볼까요?")
-            .font(.codive_body2_regular)
-            .foregroundStyle(Color("Grayscale1"))
-            .padding(.bottom, 24)
-        CustomButton(text: "피드로 이동하기", widthType: .dynamic) {
-            print("피드 lets go")
-        }
-        Spacer()
-    }
-}
+    @StateObject var vm: LikedRecordsViewModel
 
-#Preview {
-    SettingLikedView()
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 8), count: 3)
+
+    var body: some View {
+        Group {
+            if vm.isLoading && vm.items.isEmpty {
+                ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if let error = vm.error, vm.items.isEmpty {
+                VStack(spacing: 12) {
+                    Text("불러오지 못했어요").font(.codive_title2)
+                    Text(error.localizedDescription).font(.codive_body2_regular).foregroundStyle(.secondary)
+                    CustomButton(text: "다시 시도", widthType: .fixed) {
+                        Task { await vm.refresh() }
+                    }
+                }.frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if vm.items.isEmpty {
+                SettingsEmptyView(
+                    title: "아직 좋아요한 기록이 없어요!",
+                    message: "지금 하나 눌러볼까요?",
+                    actionTitle: "피드로 이동하기",
+                    action: {/* 라우팅 */ }
+                )
+            } else {
+                ScrollView {
+                    LazyVGrid(columns: columns, spacing: 8) {
+                        ForEach(vm.items, id: \.postId) {item in
+                            AsyncImage(url: item.thumbnailURL) { phase in
+                                switch phase {
+                                case .success(let img): img.resizable().scaledToFill()
+                                case .empty: Color("main6")
+                                case .failure: Color("main6")
+                                @unknown default: Color("main6")
+                                }
+                            }
+                            .frame(height: 110)
+                            .clipped()
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .onTapGesture {
+                                // 게시글 상세로 이동 등
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 12)
+                }
+            }
+        }
+        .navigationTitle("좋아요 한 기록")
+        .navigationBarTitleDisplayMode(.inline)
+        .task { await vm.refresh() }
+        .refreshable { await vm.refresh() }
+    }
 }

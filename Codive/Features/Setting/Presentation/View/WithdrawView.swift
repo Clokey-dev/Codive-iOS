@@ -31,7 +31,6 @@ struct WithdrawView: View {
                 .scaledToFit()
                 .padding(.bottom, 12)
                 .padding(.horizontal, 20)
-            
             Image("withdraw2")
                 .resizable()
                 .scaledToFit()

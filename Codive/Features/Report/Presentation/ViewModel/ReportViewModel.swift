@@ -7,161 +7,114 @@
 
 import SwiftUI
 
-// MARK: - 신고 대상 (게시글 / 댓글)
-public enum ReportTarget {
-    case post
-    case comment
+@MainActor
+final class ReportViewModel: ObservableObject {
+    // 의존성
+    private let getContextUseCase: GetReportContextUseCase
+    private let submitUseCase: SubmitReportUseCase
 
-    var label: String {
-        switch self {
-        case .post: return "게시글"
-        case .comment: return "댓글"
-        }
+    // 대상
+    let target: ReportTarget
+
+    // 화면 상태
+    @Published private(set) var draft: ReportDraft
+    @Published var context: ReportContext?          // 작성자/미리보기
+    @Published var isLoading: Bool = false
+    @Published var isSubmitting: Bool = false
+    @Published var errorMessage: String?
+
+    // 초기화
+    init(target: ReportTarget,
+         getContextUseCase: GetReportContextUseCase,
+         submitUseCase: SubmitReportUseCase) {
+        self.target = target
+        self.getContextUseCase = getContextUseCase
+        self.submitUseCase = submitUseCase
+        self.draft = ReportDraft(target: target)
     }
 
+    // 표시용 타이틀
     var navTitle: String {
-        switch self {
-        case .post: return "기록 신고하기"
+        switch target {
+        case .post:    return "기록 신고하기"
         case .comment: return "댓글 신고하기"
         }
     }
-
     var contentSectionTitle: String {
-        switch self {
-        case .post: return "기록 내용"
+        switch target {
+        case .post:    return "기록 내용"
         case .comment: return "댓글 내용"
         }
     }
 
-    // 대상별 신고 사유 목록
-    var reasons: [ReportReason] {
-        switch self {
-        case .post:
-            return ReportReason.postReasons
-        case .comment:
-            return ReportReason.commentReasons
-        }
-    }
-}
-
-// MARK: - 신고 사유 (대상별로 다른 목록)
-enum ReportReason: Hashable {
-    // 기록용
-    case sexual
-    case violence
-    case harmful
-    case privacy
-    case malicious
-    case other
-
-    // 댓글용
-    case slander
-    case discrimination
-    case spam
-    case infoLeak
-    case offensive
-
-    var title: String {
-        switch self {
-        // 기록용
-        case .sexual:       return "음란물 또는 선정적인 내용입니다."
-        case .violence:     return "폭력적이거나 불법적인 내용을 포함하고 있습니다."
-        case .harmful:      return "청소년에게 유해한 내용입니다."
-        case .privacy:      return "개인정보 노출 게시물입니다."
-        case .malicious:    return "악의적이거나 불쾌감을 유발하는 표현입니다."
-        case .other:        return "기타 (직접 입력 가능)"
-
-        // 댓글용
-        case .slander:        return "욕설 및 비방이 포함되어 있습니다."
-        case .discrimination: return "혐오 및 차별적 표현입니다."
-        case .spam:           return "스팸 홍보 및 도배 댓글입니다."
-        case .infoLeak:       return "사적인 정보가 포함된 댓글입니다."
-        case .offensive:      return "불쾌감을 주는 표현입니다."
+    // 대상별 사유 리스트
+    var reasonList: [ReportReason] {
+        switch target {
+        case .post:    return PostReportReason.allCases.map { .post($0) }
+        case .comment: return CommentReportReason.allCases.map { .comment($0) }
         }
     }
 
-    // 선택 시에만 보이는 보조 설명(더 있어야함 추가 요청할 것)
-    var subDescription: [String]? {
-        switch self {
-        case .violence:
-            return [
-                "폭력, 학대, 자해, 성매매 등 위험한 행위를 조장",
-                "불법 행위를 암시하거나 조장하는 게시물 (불법 약물, 도박 등)"
-            ]
-        case .discrimination:
-            return [
-                "성별, 인종, 종교, 성적 지향 등을 이유로 한 차별적 발언",
-                "혐오, 비하, 폭력 조장 또는 위협적인 표현"
-            ]
-        default:
+    // 선택/입력 액션
+    func select(reason: ReportReason) {
+        draft.select(reason)
+        objectWillChange.send()
+    }
+    func updateDetail(_ text: String) {
+        draft.updateDetail(text)
+        objectWillChange.send()
+    }
+
+    // 버튼 활성화
+    var isNextEnabled: Bool {
+        draft.validate().isValid
+    }
+
+    // 컨텍스트 로드
+    func loadContext() async {
+        isLoading = true
+        errorMessage = nil
+        do {
+            let ctx = try await getContextUseCase.fetchContext(for: target)
+            self.context = ctx
+        } catch {
+            self.errorMessage = "신고 대상을 불러오지 못했습니다."
+        }
+        isLoading = false
+    }
+
+    // 제출
+    @discardableResult
+    func submit(reporterId: UserID) async -> String? {
+        guard !isSubmitting else { return nil }
+        isSubmitting = true
+        defer { isSubmitting = false }
+
+        do {
+            let id = try await submitUseCase.submit(draft: draft, reporterId: reporterId)
+            return id
+        } catch let ReportError.invalidDraft(failure) {
+            switch failure {
+            case .missingReason:
+                errorMessage = "신고 사유를 선택해 주세요."
+            case .detailRequiredForEtc:
+                errorMessage = "기타 사유를 입력해 주세요."
+            case .detailTooLong(let limit):
+                errorMessage = "상세 내용은 \(limit)자 이내로 입력해 주세요."
+            }
+            return nil
+        } catch {
+            errorMessage = "신고 제출에 실패했습니다. 잠시 후 다시 시도해 주세요."
             return nil
         }
     }
 
-    // 기록 신고 전용 목록
-    static let postReasons: [ReportReason] = [
-        .sexual, .violence, .harmful, .privacy, .malicious, .other
-    ]
+    // View 바인딩용
+    var selectedReason: ReportReason? { draft.selectedReason }
+    var draftDetail: String { draft.detail }
 
-    // 댓글 신고 전용 목록
-    static let commentReasons: [ReportReason] = [
-        .slander, .discrimination, .spam, .infoLeak, .offensive, .other
-    ]
-}
-//팝업용 VM
-final class ReportPopupViewModel: ObservableObject {
-    @Published var target: ReportTarget
-    @Published var itemTitle: String
-    @Published var reason: String
-
-    init(target: ReportTarget, itemTitle: String, reason: String) {
-        self.target = target
-        self.itemTitle = itemTitle
-        self.reason = reason
-    }
-
-    var headerLine1: String { "신고 접수된" }
-    var headerLine2: String { "\(target.label)이 있습니다." }
-
-    var middleLine1: String { "신고당한 \(target.label) : \(itemTitle)" }
-    var middleLine2: String { "신고 사유 : \(reason)" }
-}
-
-// 신고화면용 VM
-final class ReportViewModel: ObservableObject {
-    @Published var target: ReportTarget
-    @Published var selectedReason: ReportReason? = nil
-    @Published var customReason: String = ""
-
-    @Published var authorName: String
-    @Published var authorId: String
-    @Published var contentText: String
-
-    init(target: ReportTarget,
-         authorName: String,
-         authorId: String,
-         contentText: String) {
-        self.target = target
-        self.authorName = authorName
-        self.authorId = authorId
-        self.contentText = contentText
-    }
-
-    var navTitle: String { target.navTitle }
-    var contentSectionTitle: String { target.contentSectionTitle }
-    var reasonList: [ReportReason] { target.reasons }
-
-    var isNextEnabled: Bool {
-        guard let selected = selectedReason else { return false }
-        if selected == .other {
-            return !customReason.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        }
-        return true
-    }
-
-    // 서버 전송용 최종 사유 텍스트
-    var submitReasonText: String {
-        guard let selected = selectedReason else { return "" }
-        return selected == .other ? customReason : selected.title
-    }
+    // UI 표기용 (placeholder 포함)
+    var authorName: String { context?.author.nickname ?? "닉네임" }
+    var authorHandle: String { context?.author.handle ?? "아이디" }
+    var contentPreview: String { context?.previewText ?? "" }
 }
