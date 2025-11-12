@@ -38,7 +38,7 @@ struct HomeView: View {
                                         .padding(.top, 16)
                                         .padding(.horizontal, 20)
                                 } else {
-                                    ProgressView("날씨 불러오는 중...")
+                                    ProgressView(TextLiteral.Home.weatherLoading)
                                         .padding(.top, 16)
                                 }
                             }

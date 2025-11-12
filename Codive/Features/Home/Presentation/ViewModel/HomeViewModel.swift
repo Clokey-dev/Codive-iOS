@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Foundation
 import UIKit
 import Combine
 import CoreLocation
@@ -44,7 +43,7 @@ final class HomeViewModel: ObservableObject {
             weatherData = data
         } catch {
             print("Failed to fetch weather:", error)
-            weatherErrorMessage = "날씨 정보를 가져오는 데 실패했습니다. 잠시 후 다시 시도해주세요."
+            weatherErrorMessage = TextLiteral.Home.failWeather
         }
     }
     

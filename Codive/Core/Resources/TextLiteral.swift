@@ -90,4 +90,20 @@ enum TextLiteral {
         static let photoTagTitle = "태그하기"
         static let photoTagAnimationText = "오늘 입은 옷을 태그해보세요"
     }
+    
+    enum Home {
+        static let edit = "카테고리 편집"
+        static let random = "랜덤 코디"
+        static let complete = "코디 완성하기"
+        static let codiBoardTitle = "코디 보드"
+        static let codiBoardDescription = "옷을 자유롭게 배치하고 확대/축소할 수 있어요."
+        static let editCategoryTitle = "카테고리 편집"
+        static let reset = "초기화"
+        static let apply = "적용하기"
+        static let bannerTitle = "오늘 이 코디를 기억하고 싶다면?"
+        static let noCodiTitle = "오늘 날씨에 이 코디 어때요?"
+        static let decesion = "이 코디로 결정하기"
+        static let weatherLoading = "날씨 정보를 가져오는 중입니다..."
+        static let failWeather = "날씨 정보를 가져오는 데 실패했습니다."
+    }
 }

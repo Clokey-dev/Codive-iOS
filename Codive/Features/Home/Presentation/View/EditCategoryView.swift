@@ -16,7 +16,7 @@ struct EditCategoryView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            CustomNavigationBar(title: "카테고리 편집") {
+            CustomNavigationBar(title: TextLiteral.Home.editCategoryTitle) {
                 viewModel.handleBackTap()
             }
             
@@ -43,10 +43,10 @@ struct EditCategoryView: View {
             }
             .safeAreaInset(edge: .bottom) {
                 HStack(spacing: 9) {
-                    CustomButton(text: "초기화", widthType: .half) {
+                    CustomButton(text: TextLiteral.Home.reset, widthType: .half) {
                         viewModel.resetCounts()
                     }
-                    CustomButton(text: "적용하기", widthType: .half) {
+                    CustomButton(text: TextLiteral.Home.apply, widthType: .half) {
                         viewModel.applyChanges()
                     }
                 }

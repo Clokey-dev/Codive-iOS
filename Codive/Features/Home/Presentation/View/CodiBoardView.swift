@@ -16,7 +16,7 @@ struct CodiBoardView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            CustomNavigationBar(title: "코디 보드") {
+            CustomNavigationBar(title: TextLiteral.Home.codiBoardTitle) {
                 viewModel.handleBackTap()
             }
 
@@ -28,7 +28,7 @@ struct CodiBoardView: View {
 
                 ScrollView {
                     VStack {
-                        Text("옷을 자유롭게 배치하고 확대/축소할 수 있어요.")
+                        Text(TextLiteral.Home.codiBoardDescription)
                             .font(Font.codive_title2)
                             .foregroundStyle(Color.Codive.grayscale1)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -56,7 +56,7 @@ struct CodiBoardView: View {
                 }
                 .safeAreaInset(edge: .bottom) {
                     CustomButton(
-                        text: "코디 완성하기",
+                        text: TextLiteral.Home.complete,
                         widthType: .fixed,
                         action: viewModel.handleConfirmCodi
                     )

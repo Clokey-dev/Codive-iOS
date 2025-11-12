@@ -22,7 +22,7 @@ struct HomeHasCodiView: View {
                     clothSelector
                 }
 
-                CustomBanner(text: "오늘 이 코디를 기억하고 싶다면?") {
+                CustomBanner(text: TextLiteral.Home.bannerTitle) {
                     viewModel.rememberCodi()
                 }
                 .padding()

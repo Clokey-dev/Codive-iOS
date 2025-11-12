@@ -36,8 +36,8 @@ struct CodiButton: View {
 
 #Preview {
     HStack(spacing: 16) {
-        CodiButton(iconName: "plus", title: "카테고리 편집") { }
-        CodiButton(iconName: "shuffle", title: "랜덤 코디") { }
+        CodiButton(iconName: "plus", title: TextLiteral.Home.edit) { }
+        CodiButton(iconName: "shuffle", title: TextLiteral.Home.random) { }
     }
     .padding()
 }

@@ -21,7 +21,7 @@ struct HomeNoCodiView: View {
     }
 
     private var header: some View {
-        Text("오늘 날씨에 이 코디 어때요?")
+        Text(TextLiteral.Home.noCodiTitle)
             .font(Font.codive_title1)
             .foregroundStyle(Color.Codive.grayscale1)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -30,10 +30,10 @@ struct HomeNoCodiView: View {
 
     private var categoryButtons: some View {
         HStack(spacing: 8) {
-            CodiButton(iconName: "plus", title: "카테고리 편집") {
+            CodiButton(iconName: "plus", title: TextLiteral.Home.edit) {
                 viewModel.handleEditCategory()
             }
-            CodiButton(iconName: "shuffle", title: "랜덤 코디") {}
+            CodiButton(iconName: "shuffle", title: TextLiteral.Home.random) {}
         }
         .padding(.horizontal, 20)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -52,12 +52,12 @@ struct HomeNoCodiView: View {
     private var bottomButtons: some View {
         HStack(spacing: 16) {
             CustomButton(
-                text: "코디보드",
+                text: TextLiteral.Home.codiBoardTitle,
                 widthType: .half,
                 action: viewModel.handleCodiBoardTap
             )
             CustomButton(
-                text: "이 코디로 결정하기",
+                text: TextLiteral.Home.decesion,
                 widthType: .half,
                 action: viewModel.handleConfirmCodiTap
             )
