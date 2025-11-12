@@ -60,8 +60,7 @@ struct HomeView: View {
                     homeDIContainer.homeViewFactory.makeView(for: destination)
                 }
                 .task {
-                    let location = CLLocation(latitude: 37.5665, longitude: 126.9780)
-                    await viewModel.loadWeather(for: location)
+                    await viewModel.loadWeather(for: nil)
                 }
             }
         }

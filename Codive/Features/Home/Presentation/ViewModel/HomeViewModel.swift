@@ -12,7 +12,7 @@ import CoreLocation
 
 @MainActor
 final class HomeViewModel: ObservableObject {
-    @Published var hasCodi: Bool = true
+    @Published var hasCodi: Bool = false
     @Published var selectedIndex: Int? = 0
     @Published var showClothSelector: Bool = false
     @Published var titleFrame: CGRect = .zero
@@ -37,8 +37,9 @@ final class HomeViewModel: ObservableObject {
     }
     
     // WeatherKit 데이터 불러오기
-    func loadWeather(for location: CLLocation) async {
+    func loadWeather(for location: CLLocation?) async {
         do {
+            // ⭐️ 수정: UseCase 호출 시 Optional location 전달
             let data = try await useCase.execute(for: location)
             weatherData = data
         } catch {

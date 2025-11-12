@@ -13,8 +13,9 @@ final class HomeDIContainer {
     // MARK: - Properties
     let navigationRouter: NavigationRouter
     lazy var homeViewFactory = HomeViewFactory(homeDIContainer: self)
+    let locationService: LocationService = SystemLocationService()
     
-    lazy var homeDatasource = HomeDatasource()
+    lazy var homeDatasource = HomeDatasource(locationService: locationService)
     
     lazy var homeRepository: HomeRepository = HomeRepositoryImpl(
         dataSource: homeDatasource

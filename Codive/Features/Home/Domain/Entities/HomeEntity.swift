@@ -15,6 +15,7 @@ struct WeatherData {
     var currentTemp: Int
     var symbolName: String
     let dailyForecasts: [DailyWeather]
+    let locationName: String
 }
 
 struct DailyWeather {

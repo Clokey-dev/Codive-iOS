@@ -8,7 +8,7 @@
 import CoreLocation
 
 protocol HomeRepository {
-    func fetchWeatherData(for location: CLLocation) async throws -> WeatherData
+    func fetchWeatherData(for location: CLLocation?) async throws -> WeatherData
     func fetchCategories() -> [CategoryEntity]
     func saveCategories(_ categories: [CategoryEntity])
     func fetchInitialImages() -> [DraggableImageEntity]

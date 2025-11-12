@@ -12,11 +12,69 @@ import CoreLocation
 final class HomeDatasource {
     
     private let service = WeatherService.shared
+    private let locationService: LocationService
+    
+    init(locationService: LocationService) {
+        self.locationService = locationService
+    }
+    
+    // MARK: - 추가: 위치(CLLocation)를 지역 이름(String)으로 변환하는 함수
+    private func geocodeLocation(_ location: CLLocation) async -> String {
+        let geocoder = CLGeocoder()
+        do {
+            let placemarks = try await geocoder.reverseGeocodeLocation(location)
+            guard let placemark = placemarks.first else {
+                return "알 수 없는 위치"
+            }
+            
+            // administrativeArea: 도/특별시/광역시 정보
+            // locality: 시/군 레벨
+            // subLocality: 구 레벨
+            let province = placemark.administrativeArea ?? ""
+            let city = placemark.locality ?? ""
+            let district = placemark.subLocality ?? ""
+            
+            // 도/특별시/광역시 + 시/군 + 구 형식으로 조합
+            var locationComponents: [String] = []
+            
+            if !province.isEmpty {
+                locationComponents.append(province)
+            }
+            if !city.isEmpty {
+                locationComponents.append(city)
+            }
+            if !district.isEmpty {
+                locationComponents.append(district)
+            }
+            
+            if !locationComponents.isEmpty {
+                return locationComponents.joined(separator: " ")
+            } else {
+                return "현재 위치"
+            }
+        } catch {
+            print("Geocoding failed:", error.localizedDescription)
+            return "위치 정보 오류"
+        }
+    }
     
     /// WeatherKit을 이용해 날씨 데이터를 불러와 `WeatherData`로 변환
-    func fetchWeatherData(for location: CLLocation) async throws -> WeatherData {
+    func fetchWeatherData(for location: CLLocation?) async throws -> WeatherData {
+        
+        let targetLocation: CLLocation
+        
+        if let loc = location {
+            targetLocation = loc
+        } else {
+
+            targetLocation = try await locationService.getCurrentLocation()
+        }
+        
+        // 위치 이름을 비동기로 가져옵니다.
+        let locationName = await geocodeLocation(targetLocation) // <-- targetLocation 사용
+        
         // WeatherKit에서 날씨 데이터 가져오기
-        let weather = try await service.weather(for: location)
+        let weather = try await service.weather(for: targetLocation) // <-- targetLocation 사용
         
         // 현재 온도 및 상태 아이콘 정보 추출
         let current = weather.currentWeather
@@ -24,7 +82,7 @@ final class HomeDatasource {
         let symbolName = current.symbolName
         
         // 일별 예보 정보 변환 (최대 5일치 정도만 가져오는 예시)
-        let dailyForecasts = weather.dailyForecast.prefix(5).map { day in
+        let dailyForecasts = weather.dailyForecast.prefix(1).map { day in
             DailyWeather(
                 highTemperature: Int(day.highTemperature.converted(to: .celsius).value),
                 lowTemperature: Int(day.lowTemperature.converted(to: .celsius).value)
@@ -35,7 +93,9 @@ final class HomeDatasource {
         let weatherData = WeatherData(
             currentTemp: currentTemp,
             symbolName: symbolName,
-            dailyForecasts: Array(dailyForecasts)
+            dailyForecasts: Array(dailyForecasts),
+            // MARK: - 수정: 위치 이름을 추가합니다.
+            locationName: locationName
         )
         
         return weatherData

@@ -61,7 +61,7 @@ struct WeatherCardView: View {
                 .foregroundColor(.black)
 
                 HStack(spacing: 4) {
-                    Text("서울특별시")
+                    Text(weatherData.locationName)
                         .font(Font.codive_body1_medium)
                     Image(systemName: "dot.scope")
                         .foregroundColor(Color.Codive.main1)

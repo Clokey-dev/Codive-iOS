@@ -13,8 +13,8 @@ final class HomeRepositoryImpl: HomeRepository {
     init(dataSource: HomeDatasource) {
         self.dataSource = dataSource
     }
-
-    func fetchWeatherData(for location: CLLocation) async throws -> WeatherData {
+    
+    func fetchWeatherData(for location: CLLocation?) async throws -> WeatherData {
         return try await dataSource.fetchWeatherData(for: location)
     }
     
