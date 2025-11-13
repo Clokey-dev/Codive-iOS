@@ -25,7 +25,6 @@ struct HomeView: View {
                 VStack(spacing: 0) {
                     ScrollView {
                         VStack {
-                            // Weather 출력
                             if let weather = viewModel.weatherData {
                                 WeatherCardView(weatherData: weather)
                                     .padding(.horizontal, 20)
@@ -43,7 +42,6 @@ struct HomeView: View {
                                 }
                             }
 
-                            // 리팩토링한 분리 뷰
                             if viewModel.hasCodi {
                                 HomeHasCodiView(
                                     viewModel: viewModel,

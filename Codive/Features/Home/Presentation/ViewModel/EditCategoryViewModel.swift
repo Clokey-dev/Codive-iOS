@@ -28,12 +28,10 @@ final class EditCategoryViewModel: ObservableObject {
     }
 
     var isApplyButtonEnabled: Bool {
-        // 1. 변경사항이 없으면 비활성화
         if !hasChanges {
             return false
         }
         
-        // 2. 기본 카테고리 외 최소 1개 이상 선택되어야 활성화
         let nonDefaultCategories = categories.filter { !$0.isDefaultCategory }
         return nonDefaultCategories.contains { $0.itemCount > 0 }
     }
@@ -67,7 +65,6 @@ final class EditCategoryViewModel: ObservableObject {
     func decrementCount(for category: CategoryEntity) {
         guard let index = categories.firstIndex(where: { $0.id == category.id }) else { return }
         
-        // 기본 카테고리는 1 미만으로 내려갈 수 없음
         if category.isDefaultCategory {
             if categories[index].itemCount > 1 {
                 categories[index].itemCount -= 1

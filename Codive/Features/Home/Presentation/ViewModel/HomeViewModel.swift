@@ -51,7 +51,6 @@ final class HomeViewModel: ObservableObject {
 
     func loadActiveCategories() {
         let allCategories = useCase.loadCategories()
-        // itemCount가 0보다 큰 카테고리만 필터링
         activeCategories = allCategories.filter { $0.itemCount > 0 }
     }
     func loadDummyCodi() {
