@@ -2,17 +2,67 @@
 //  HomeView.swift
 //  Codive
 //
-//  Created by 황상환 on 9/24/25.
+//  Created by 한금준 on 10/13/25.
 //
 
 import SwiftUI
+import CoreLocation
 
 struct HomeView: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-    }
-}
+    @StateObject private var navigationRouter: NavigationRouter
+    private let homeDIContainer: HomeDIContainer
+    @StateObject private var viewModel: HomeViewModel
 
-#Preview {
-    HomeView()
+    init(homeDIContainer: HomeDIContainer) {
+        self.homeDIContainer = homeDIContainer
+        _navigationRouter = StateObject(wrappedValue: homeDIContainer.navigationRouter)
+        _viewModel = StateObject(wrappedValue: homeDIContainer.makeHomeViewModel())
+    }
+
+    var body: some View {
+        NavigationStack(path: $navigationRouter.path) {
+            GeometryReader { outerGeometry in
+                VStack(spacing: 0) {
+                    ScrollView {
+                        VStack {
+                            if let weather = viewModel.weatherData {
+                                WeatherCardView(weatherData: weather)
+                                    .padding(.horizontal, 20)
+                                    .padding(.top, 16)
+                            } else {
+                                if let errorMessage = viewModel.weatherErrorMessage {
+                                    Text(errorMessage)
+                                        .foregroundStyle(.red)
+                                        .multilineTextAlignment(.center)
+                                        .padding(.top, 16)
+                                        .padding(.horizontal, 20)
+                                } else {
+                                    ProgressView(TextLiteral.Home.weatherLoading)
+                                        .padding(.top, 16)
+                                }
+                            }
+
+                            if viewModel.hasCodi {
+                                HomeHasCodiView(
+                                    viewModel: viewModel,
+                                    width: outerGeometry.size.width
+                                )
+                            } else {
+                                HomeNoCodiView(viewModel: viewModel)
+                            }
+                        }
+                    }
+                }
+                .background(alignment: .center) {
+                    Color.white
+                }
+                .navigationDestination(for: AppDestination.self) { destination in
+                    homeDIContainer.homeViewFactory.makeView(for: destination)
+                }
+                .task {
+                    await viewModel.loadWeather(for: nil)
+                }
+            }
+        }
+    }
 }

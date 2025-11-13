@@ -24,4 +24,8 @@ final class AppDIContainer {
     func makeAddDIContainer() -> AddDIContainer {
         return AddDIContainer(navigationRouter: navigationRouter)
     }
+    
+    func makeHomeDIContainer() -> HomeDIContainer {
+        return HomeDIContainer(navigationRouter: navigationRouter)
+    }
 }
