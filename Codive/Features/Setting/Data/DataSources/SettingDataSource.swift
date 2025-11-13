@@ -14,9 +14,7 @@ final class SettingsDataSource {
     private var blockedUsersStore: [BlockedUser] = []
     private var notificationPrefsStore: NotificationPrefs = .init(
         pushEnabled: true,
-        marketingOptIn: false,
-        commentNotifyEnabled: true,
-        likeNotifyEnabled: true
+        marketingOptIn: false
     )
 
     private let withdrawNoticesStore: [WithdrawNotice] = [

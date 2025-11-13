@@ -62,24 +62,16 @@ public struct BlockedUser: Hashable, Sendable, Identifiable {
 }
 
 // 알림 환경설정
+// 푸시 알림 여부
 public struct NotificationPrefs: Equatable, Sendable {
     public var pushEnabled: Bool
     public var marketingOptIn: Bool
-    public var commentNotifyEnabled: Bool
-    public var likeNotifyEnabled: Bool
-    public init(
-        pushEnabled: Bool,
-        marketingOptIn: Bool,
-        commentNotifyEnabled: Bool,
-        likeNotifyEnabled: Bool
-    ) {
+
+    public init(pushEnabled: Bool, marketingOptIn: Bool) {
         self.pushEnabled = pushEnabled
         self.marketingOptIn = marketingOptIn
-        self.commentNotifyEnabled = commentNotifyEnabled
-        self.likeNotifyEnabled = likeNotifyEnabled
     }
 }
-
 // 탈퇴 안내
 public struct WithdrawNotice: Sendable, Hashable {
     public let title: String

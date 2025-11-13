@@ -24,5 +24,5 @@ public protocol SettingRepository {
 
     // 계정 탈퇴
     func getWithdrawNotices() async throws -> [WithdrawNotice] // 탈퇴 전 화면 제공
-    func withdrawAccount() async throws //탈퇴처리
+    func withdrawAccount() async throws // 탈퇴처리
 }
