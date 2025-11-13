@@ -15,6 +15,8 @@ final class HomeDatasource {
     private let service = WeatherService.shared
     private let locationService: LocationService
     
+    private var cachedLocation: CLLocation?
+    
     // MARK: - Initializer
     init(locationService: LocationService) {
         self.locationService = locationService
@@ -33,17 +35,23 @@ final class HomeDatasource {
             let city = placemark.locality ?? ""
             let district = placemark.subLocality ?? ""
             
-            // 도/특별시/광역시 + 시/군 + 구 형식으로 조합
             var locationComponents: [String] = []
             
-            if !province.isEmpty {
+            if province.contains("특별시") || province.contains("광역시") {
                 locationComponents.append(province)
-            }
-            if !city.isEmpty {
-                locationComponents.append(city)
-            }
-            if !district.isEmpty {
-                locationComponents.append(district)
+                if !district.isEmpty {
+                    locationComponents.append(district)
+                }
+            } else {
+                if !province.isEmpty {
+                    locationComponents.append(province)
+                }
+                if !city.isEmpty && city != province {
+                    locationComponents.append(city)
+                }
+                if !district.isEmpty {
+                    locationComponents.append(district)
+                }
             }
             
             if !locationComponents.isEmpty {
@@ -66,6 +74,7 @@ final class HomeDatasource {
             targetLocation = loc
         } else {
             targetLocation = try await locationService.getCurrentLocation()
+            self.cachedLocation = targetLocation
         }
         
         let locationName = await geocodeLocation(targetLocation)
