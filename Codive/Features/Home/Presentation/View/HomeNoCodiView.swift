@@ -53,15 +53,19 @@ struct HomeNoCodiView: View {
     }
 
     private var bottomButtons: some View {
-        HStack(spacing: 16) {
+        HStack {
             CustomButton(
                 text: TextLiteral.Home.codiBoardTitle,
-                widthType: .half,
+                widthType: .dynamic,
+                styleType: .border,
                 action: viewModel.handleCodiBoardTap
             )
+            
+            Spacer()
+            
             CustomButton(
                 text: TextLiteral.Home.decesion,
-                widthType: .half,
+                widthType: .dynamic,
                 action: viewModel.handleConfirmCodiTap
             )
         }
