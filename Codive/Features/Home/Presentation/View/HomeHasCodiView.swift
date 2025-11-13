@@ -57,10 +57,10 @@ struct HomeHasCodiView: View {
                     width: max(width - 40, 0),
                     height: max(width - 40, 0)
                 )
-                .overlay(
+                .overlay(alignment: .center) {
                     RoundedRectangle(cornerRadius: 15)
                         .stroke(Color.gray.opacity(0.4), lineWidth: 1)
-                )
+                }
                 .padding(.horizontal, 20)
 
             ForEach(viewModel.codiItems) { item in

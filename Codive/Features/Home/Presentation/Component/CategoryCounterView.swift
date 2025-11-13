@@ -26,7 +26,7 @@ struct CategoryCounterView: View {
         HStack {
             Text(title)
                 .font(Font.codive_body1_medium)
-                .foregroundColor(.black)
+                .foregroundStyle(.black)
             
             Spacer()
             
@@ -41,14 +41,14 @@ struct CategoryCounterView: View {
                     .overlay(
                         Image(systemName: "minus")
                             .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(count > minCount ? Color.Codive.main1 : Color.Codive.grayscale3)
+                            .foregroundStyle(count > minCount ? Color.Codive.main1 : Color.Codive.grayscale3)
                     )
             }
             .disabled(count <= minCount)
             
             Text("\(count)")
                 .font(Font.codive_body1_medium)
-                .foregroundColor(.black)
+                .foregroundStyle(.black)
                 .frame(width: 24)
             
             Button {
@@ -62,17 +62,17 @@ struct CategoryCounterView: View {
                     .overlay(
                         Image(systemName: "plus")
                             .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(totalCount < maxLimit ? Color.Codive.main1 : Color.Codive.grayscale3)
+                            .foregroundStyle(totalCount < maxLimit ? Color.Codive.main1 : Color.Codive.grayscale3)
                     )
             }
             .disabled(totalCount >= maxLimit)
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 12)
-        .background(
+        .background(alignment: .center) {
             RoundedRectangle(cornerRadius: 999)
                 .stroke(Color.Codive.grayscale5)
-        )
+        }
     }
 }
 

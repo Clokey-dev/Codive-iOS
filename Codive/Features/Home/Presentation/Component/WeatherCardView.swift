@@ -15,12 +15,12 @@ struct WeatherCardView: View {
             HStack(spacing: 16) {
                 Image(systemName: weatherData.symbolName)
                     .font(.system(size: 36))
-                    .foregroundColor(Color.Codive.main0)
+                    .foregroundStyle(Color.Codive.main0)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("\(weatherData.currentTemp)°")
                         .font(Font.codive_title1)
-                        .foregroundColor(Color.Codive.main0)
+                        .foregroundStyle(Color.Codive.main0)
 
                     if let first = weatherData.dailyForecasts.first {
                         VStack(spacing: 4) {
@@ -42,7 +42,7 @@ struct WeatherCardView: View {
                                 Text("\(first.highTemperature)°")
                             }
                             .font(Font.codive_body4_regular)
-                            .foregroundColor(Color.Codive.main0)
+                            .foregroundStyle(Color.Codive.main0)
                             .frame(width: 110)
                         }
                     }
@@ -58,20 +58,22 @@ struct WeatherCardView: View {
                     Text("Weather")
                         .font(.system(size: 10))
                 }
-                .foregroundColor(.black)
+                .foregroundStyle(.black)
 
                 HStack(spacing: 4) {
                     Text(weatherData.locationName)
                         .font(Font.codive_body1_medium)
                     Image(systemName: "dot.scope")
-                        .foregroundColor(Color.Codive.main1)
+                        .foregroundStyle(Color.Codive.main1)
                         .font(.system(size: 16))
                 }
             }
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 14)
-        .background(Color.Codive.grayscale7)
-        .cornerRadius(12)
+        .background(alignment: .center) {
+            Color.Codive.grayscale7
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 }

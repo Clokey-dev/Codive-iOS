@@ -56,11 +56,15 @@ struct EditCategoryView: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 16)
-                .background(Color.white)
+                .background(alignment: .center) {
+                    Color.white
+                }
             }
         }
         .navigationBarHidden(true)
-        .background(Color.white)
+        .background(alignment: .center) {
+            Color.white
+        }
         .alert("변경사항이 있습니다", isPresented: $viewModel.showExitAlert) {
             Button("취소", role: .cancel) {
                 viewModel.cancelExit()

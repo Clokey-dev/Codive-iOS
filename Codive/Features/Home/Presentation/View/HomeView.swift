@@ -33,7 +33,7 @@ struct HomeView: View {
                             } else {
                                 if let errorMessage = viewModel.weatherErrorMessage {
                                     Text(errorMessage)
-                                        .foregroundColor(.red)
+                                        .foregroundStyle(.red)
                                         .multilineTextAlignment(.center)
                                         .padding(.top, 16)
                                         .padding(.horizontal, 20)
@@ -55,7 +55,9 @@ struct HomeView: View {
                         }
                     }
                 }
-                .background(Color.white)
+                .background(alignment: .center) {
+                    Color.white
+                }
                 .navigationDestination(for: AppDestination.self) { destination in
                     homeDIContainer.homeViewFactory.makeView(for: destination)
                 }

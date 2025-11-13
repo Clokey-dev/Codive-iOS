@@ -20,11 +20,13 @@ struct SelectableClothItem: View {
                 .clipped()
         }
         .frame(width: 72, height: 72)
-        .background(Color.white)
-        .overlay(
+        .background(alignment: .center) {
+            Color.white
+        }
+        .overlay(alignment: .center) {
             RoundedRectangle(cornerRadius: 8)
                 .stroke(isSelected ? .black : .gray, lineWidth: 1)
-        )
+        }
         .onTapGesture {
             isSelected.toggle()
         }

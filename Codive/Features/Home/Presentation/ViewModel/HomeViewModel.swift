@@ -94,8 +94,6 @@ final class HomeViewModel: ObservableObject {
         navigationRouter.navigate(to: .editCategory)
     }
     
-    
-    
     // MARK: - Lifecycle
     func onAppear() {
         loadActiveCategories()

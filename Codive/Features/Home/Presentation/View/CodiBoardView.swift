@@ -62,12 +62,16 @@ struct CodiBoardView: View {
                     )
                     .padding(.horizontal, 20)
                     .padding(.vertical, 16)
-                    .background(Color.white)
+                    .background(alignment: .center) {
+                        Color.white
+                    }
                 }
             }
         }
         .navigationBarHidden(true)
-        .background(Color.white)
+        .background(alignment: .center) {
+            Color.white
+        }
         .onChange(of: viewModel.isConfirmed) { confirmed in
             if confirmed { }
         }
@@ -78,10 +82,10 @@ struct CodiBoardView: View {
         RoundedRectangle(cornerRadius: 15)
             .fill(Color.Codive.grayscale7)
             .frame(width: size, height: size)
-            .overlay(
+            .overlay(alignment: .center) {
                 RoundedRectangle(cornerRadius: 15)
                     .stroke(Color.Codive.grayscale5, lineWidth: 1)
-            )
+            }
             .shadow(color: .black.opacity(0.1), radius: 5, y: 2)
     }
 }

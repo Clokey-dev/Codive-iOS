@@ -67,9 +67,9 @@ struct TextStyleModifier: ViewModifier {
     func body(content: Content) -> some View {
         switch type {
         case .fill:
-            content.foregroundColor(isEnabled ? .white : Color.white)
+            content.foregroundStyle(isEnabled ? .white : Color.white)
         case .border:
-            content.foregroundColor(isEnabled ? Color.Codive.main0 : Color.white)
+            content.foregroundStyle(isEnabled ? Color.Codive.main0 : Color.white)
         }
     }
 }
@@ -82,14 +82,18 @@ struct ButtonStyleModifier: ViewModifier {
         switch type {
         case .fill:
             content
-                .background(isEnabled ? Color.Codive.main0 : Color.Codive.main3)
+                .background(alignment: .center) {
+                    isEnabled ? Color.Codive.main0 : Color.Codive.main3
+                }
         case .border:
             content
-                .background(Color.white)
-                .overlay(
+                .background(alignment: .center) {
+                    Color.white
+                }
+                .overlay(alignment: .center) {
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(isEnabled ? Color.Codive.main0 : Color.Codive.grayscale4, lineWidth: 1)
-                )
+                }
         }
     }
 }

@@ -111,17 +111,21 @@ struct CodiClothView: View {
                     }
                 }
                 .clipShape(RoundedRectangle(cornerRadius: 20))
-                .background(Color.Codive.grayscale7)
+                .background(alignment: .center) {
+                    Color.Codive.grayscale7
+                }
             }
             .frame(height: 148)
             .clipShape(RoundedRectangle(cornerRadius: 16))
             
             Text(title)
                 .font(.caption.bold())
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)
-                .background(Color.Codive.main3)
+                .background(alignment: .center) {
+                    Color.Codive.main3
+                }
                 .clipShape(Capsule())
                 .padding(.horizontal, 10)
                 .padding(.vertical, 10)

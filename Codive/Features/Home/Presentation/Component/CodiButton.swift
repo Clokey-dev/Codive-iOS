@@ -26,10 +26,10 @@ struct CodiButton: View {
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 8)
-            .overlay(
+            .overlay(alignment: .center) {
                 Capsule()
                     .stroke(Color.Codive.main0, lineWidth: 1)
-            )
+            }
         }
     }
 }
