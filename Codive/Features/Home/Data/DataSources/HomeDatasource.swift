@@ -11,14 +11,16 @@ import CoreLocation
 
 final class HomeDatasource {
     
+    // MARK: - Properties
     private let service = WeatherService.shared
     private let locationService: LocationService
     
+    // MARK: - Initializer
     init(locationService: LocationService) {
         self.locationService = locationService
     }
     
-    // MARK: - 추가: 위치(CLLocation)를 지역 이름(String)으로 변환하는 함수
+    // MARK: - Location & Geocoding
     private func geocodeLocation(_ location: CLLocation) async -> String {
         let geocoder = CLGeocoder()
         do {
@@ -26,10 +28,7 @@ final class HomeDatasource {
             guard let placemark = placemarks.first else {
                 return "알 수 없는 위치"
             }
-            
-            // administrativeArea: 도/특별시/광역시 정보
-            // locality: 시/군 레벨
-            // subLocality: 구 레벨
+        
             let province = placemark.administrativeArea ?? ""
             let city = placemark.locality ?? ""
             let district = placemark.subLocality ?? ""
@@ -58,7 +57,7 @@ final class HomeDatasource {
         }
     }
     
-    /// WeatherKit을 이용해 날씨 데이터를 불러와 `WeatherData`로 변환
+    // MARK: - Weather Data Fetching
     func fetchWeatherData(for location: CLLocation?) async throws -> WeatherData {
         
         let targetLocation: CLLocation
@@ -66,22 +65,16 @@ final class HomeDatasource {
         if let loc = location {
             targetLocation = loc
         } else {
-
             targetLocation = try await locationService.getCurrentLocation()
         }
         
-        // 위치 이름을 비동기로 가져옵니다.
-        let locationName = await geocodeLocation(targetLocation) // <-- targetLocation 사용
+        let locationName = await geocodeLocation(targetLocation)
+        let weather = try await service.weather(for: targetLocation)
         
-        // WeatherKit에서 날씨 데이터 가져오기
-        let weather = try await service.weather(for: targetLocation) // <-- targetLocation 사용
-        
-        // 현재 온도 및 상태 아이콘 정보 추출
         let current = weather.currentWeather
         let currentTemp = Int(current.temperature.converted(to: .celsius).value)
         let symbolName = current.symbolName
         
-        // 일별 예보 정보 변환 (최대 5일치 정도만 가져오는 예시)
         let dailyForecasts = weather.dailyForecast.prefix(1).map { day in
             DailyWeather(
                 highTemperature: Int(day.highTemperature.converted(to: .celsius).value),
@@ -89,7 +82,6 @@ final class HomeDatasource {
             )
         }
         
-        // WeatherData 모델에 담아서 반환
         let weatherData = WeatherData(
             currentTemp: currentTemp,
             symbolName: symbolName,
@@ -101,7 +93,7 @@ final class HomeDatasource {
         return weatherData
     }
     
-    // 카테고리 불러오기
+    // MARK: - Categories
     func loadCategories() -> [CategoryEntity] {
         return [
             CategoryEntity(id: 1, title: "상의", itemCount: 0),
@@ -114,13 +106,12 @@ final class HomeDatasource {
         ]
     }
     
-    // 카테고리 저장
     func saveCategories(_ categories: [CategoryEntity]) {
         print("저장 완료:")
         categories.forEach { print("\($0.id): \($0.title): \($0.itemCount)") }
     }
     
-    // 이미지 로드
+    // MARK: - Codi Items
     func loadInitialImages() -> [DraggableImageEntity] {
         return [
             DraggableImageEntity(id: 1, name: "image1", position: CGPoint(x: 80, y: 80), scale: 1.0, rotationAngle: 0.0),
@@ -153,6 +144,7 @@ final class HomeDatasource {
         ]
     }
     
+    // MARK: - Date Handling
     func fetchToday() -> DateEntity {
         let formatter = DateFormatter()
         formatter.dateFormat = "MM.dd"

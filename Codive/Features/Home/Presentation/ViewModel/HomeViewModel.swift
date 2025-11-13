@@ -12,15 +12,14 @@ import CoreLocation
 
 @MainActor
 final class HomeViewModel: ObservableObject {
+    
+    // MARK: - Properties
     @Published var hasCodi: Bool = false
     @Published var selectedIndex: Int? = 0
     @Published var showClothSelector: Bool = false
     @Published var titleFrame: CGRect = .zero
-    
-    // 날씨 데이터 상태 추가
     @Published var weatherData: WeatherData?
     @Published var weatherErrorMessage: String?
-    
     @Published var todayString: String = ""
     @Published var selectedItemID: Int?
     @Published var codiItems: [CodiItemEntity] = []
@@ -28,6 +27,7 @@ final class HomeViewModel: ObservableObject {
     private let navigationRouter: NavigationRouter
     private let useCase: HomeUseCase
     
+    // MARK: - Initializer
     init(navigationRouter: NavigationRouter, useCase: HomeUseCase) {
         self.navigationRouter = navigationRouter
         self.useCase = useCase
@@ -36,10 +36,9 @@ final class HomeViewModel: ObservableObject {
         loadToday()
     }
     
-    // WeatherKit 데이터 불러오기
+    // MARK: - Weather
     func loadWeather(for location: CLLocation?) async {
         do {
-            // ⭐️ 수정: UseCase 호출 시 Optional location 전달
             let data = try await useCase.execute(for: location)
             weatherData = data
         } catch {
@@ -48,6 +47,7 @@ final class HomeViewModel: ObservableObject {
         }
     }
     
+    // MARK: - UI Actions
     func toggleClothSelector() {
         withAnimation(.spring()) {
             showClothSelector.toggle()
@@ -58,10 +58,15 @@ final class HomeViewModel: ObservableObject {
         selectedIndex = index
     }
     
+    func selectItem(_ id: Int?) {
+        selectedItemID = id
+    }
+    
     func handleSearchTap() {}
     
     func handleNotificationTap() {}
     
+    // MARK: - Navigation
     func handleCodiBoardTap() {
         navigationRouter.navigate(to: .codiBoard)
     }
@@ -73,19 +78,17 @@ final class HomeViewModel: ObservableObject {
         navigationRouter.navigate(to: .editCategory)
     }
     
+    // MARK: - Data Loading
     func loadDummyCodi() {
         codiItems = useCase.loadTodaysCodi()
     }
-    
-    func selectItem(_ id: Int?) {
-        selectedItemID = id
-    }
-    
+
     func loadToday() {
         let entity = useCase.getToday()
         self.todayString = entity.formattedDate
     }
     
+    // MARK: - Feature Placeholders
     func rememberCodi() {}
     
     func selectEditCodi() {}

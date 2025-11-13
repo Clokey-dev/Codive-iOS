@@ -8,16 +8,20 @@
 import CoreLocation
 
 final class HomeRepositoryImpl: HomeRepository {
+    // MARK: - Properties
     private let dataSource: HomeDatasource
     
+    // MARK: - Initializer
     init(dataSource: HomeDatasource) {
         self.dataSource = dataSource
     }
     
+    // MARK: - Weather
     func fetchWeatherData(for location: CLLocation?) async throws -> WeatherData {
         return try await dataSource.fetchWeatherData(for: location)
     }
     
+    // MARK: - Categories
     func fetchCategories() -> [CategoryEntity] {
         return dataSource.loadCategories()
     }
@@ -26,6 +30,7 @@ final class HomeRepositoryImpl: HomeRepository {
         dataSource.saveCategories(categories)
     }
     
+    // MARK: - Codi Items
     func fetchInitialImages() -> [DraggableImageEntity] {
         dataSource.loadInitialImages()
     }
@@ -38,6 +43,7 @@ final class HomeRepositoryImpl: HomeRepository {
         dataSource.loadDummyCodiItems()
     }
     
+    // MARK: - Date
     func getToday() -> DateEntity {
         dataSource.fetchToday()
     }

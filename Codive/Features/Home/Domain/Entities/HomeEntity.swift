@@ -7,10 +7,12 @@
 
 import Foundation
 
+// MARK: - Home
 struct HomeEntity {
     let title: String
 }
 
+// MARK: - Weather
 struct WeatherData {
     var currentTemp: Int
     var symbolName: String
@@ -23,12 +25,14 @@ struct DailyWeather {
     let lowTemperature: Int
 }
 
+// MARK: - Category
 struct CategoryEntity: Identifiable {
     let id: Int
     let title: String
     var itemCount: Int
 }
 
+// MARK: - Draggable Image
 struct DraggableImageEntity: Identifiable {
     let id: Int
     let name: String
@@ -37,6 +41,7 @@ struct DraggableImageEntity: Identifiable {
     var rotationAngle: Double 
 }
 
+// MARK: - Codi Item
 struct CodiItemEntity: Identifiable {
     let id: Int
     let imageName: String
@@ -46,6 +51,7 @@ struct CodiItemEntity: Identifiable {
     let height: CGFloat
 }
 
+// MARK: - Date
 struct DateEntity {
     let formattedDate: String
 }

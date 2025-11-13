@@ -8,41 +8,43 @@
 import CoreLocation
 
 final class HomeUseCase {
+    // MARK: - Properties
     private let repository: HomeRepository
     
+    // MARK: - Initializer
     init(repository: HomeRepository) {
         self.repository = repository
     }
     
-    /// 현재 위치 기반 날씨 정보를 가져오는 UseCase
+    // MARK: - Weather
     func execute(for location: CLLocation?) async throws -> WeatherData {
         return try await repository.fetchWeatherData(for: location)
     }
     
-    // 카테고리 불러오기
+    // MARK: - Categories
     func loadCategories() -> [CategoryEntity] {
         return repository.fetchCategories()
     }
     
-    // 각 카테고리 별 count update
     func updateCategories(_ categories: [CategoryEntity]) {
         repository.saveCategories(categories)
     }
     
-    // 이미지 로드
+    // MARK: - Codi Items
     func loadCodiBoardImages() -> [DraggableImageEntity] {
         repository.fetchInitialImages()
     }
     
-    // 이미지 저장
     func saveCodiItems(_ images: [DraggableImageEntity]) {
         repository.saveCodiItems(images)
     }
     
+    // MARK: - Today Codi
     func loadTodaysCodi() -> [CodiItemEntity] {
         repository.fetchCodiItems()
     }
     
+    // MARK: - Date
     func getToday() -> DateEntity {
         repository.getToday()
     }
