@@ -43,7 +43,7 @@ struct EditCategoryView: View {
             }
             .safeAreaInset(edge: .bottom) {
                 HStack(spacing: 9) {
-                    CustomButton(text: TextLiteral.Home.reset, widthType: .half) {
+                    CustomButton(text: TextLiteral.Home.reset, widthType: .half, styleType: .border) {
                         viewModel.resetCounts()
                     }
                     CustomButton(

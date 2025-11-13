@@ -1,4 +1,9 @@
-// CustomButton.swift
+//
+//  CustomButton.swift
+//  Codive
+//
+//  Created by 한금준 on 10/4/25.
+//
 
 import SwiftUI
 
@@ -25,14 +30,15 @@ struct CustomButton: View {
             Text(text)
                 .font(Font.codive_title2)
                 .padding()
-                .modifier(TextStyleModifier(type: styleType))
+                .modifier(TextStyleModifier(type: styleType, isEnabled: isEnabled))
         }
         .modifier(WidthModifier(type: widthType))
         .frame(height: 48)
-        .modifier(ButtonStyleModifier(type: styleType))
+        .modifier(ButtonStyleModifier(type: styleType, isEnabled: isEnabled))
         .clipShape(RoundedRectangle(cornerRadius: 10))
         .contentShape(Rectangle())
-     }
+        .disabled(!isEnabled)
+    }
 }
 
 struct WidthModifier: ViewModifier {
@@ -56,31 +62,33 @@ struct WidthModifier: ViewModifier {
 
 struct TextStyleModifier: ViewModifier {
     let type: ButtonStyleType
+    let isEnabled: Bool
     
     func body(content: Content) -> some View {
         switch type {
         case .fill:
-            content.foregroundColor(.white)
+            content.foregroundColor(isEnabled ? .white : Color.white)
         case .border:
-            content.foregroundColor(Color.Codive.main0)
+            content.foregroundColor(isEnabled ? Color.Codive.main0 : Color.white)
         }
     }
 }
 
 struct ButtonStyleModifier: ViewModifier {
     let type: ButtonStyleType
+    let isEnabled: Bool
 
     func body(content: Content) -> some View {
         switch type {
         case .fill:
             content
-                .background(Color.Codive.main0)
+                .background(isEnabled ? Color.Codive.main0 : Color.Codive.main3)
         case .border:
             content
                 .background(Color.white)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.Codive.main0, lineWidth: 1)
+                        .stroke(isEnabled ? Color.Codive.main0 : Color.Codive.grayscale4, lineWidth: 1)
                 )
         }
     }
@@ -88,21 +96,31 @@ struct ButtonStyleModifier: ViewModifier {
 
 #Preview {
     VStack(spacing: 20) {
-        CustomButton(text: "이 코디로 결정하기 (Default Fill)", widthType: .fixed) {
+        // 활성화된 버튼
+        CustomButton(text: "이 코디로 결정하기 (활성화)", widthType: .fixed) {
+            print("이 코디 결정 tapped!")
+        }
+        
+        // 비활성화된 버튼
+        CustomButton(text: "이 코디로 결정하기 (비활성화)", widthType: .fixed, isEnabled: false) {
             print("이 코디 결정 tapped!")
         }
 
         CustomButton(text: "피드 작성하러 가기 (Border)", widthType: .dynamic, styleType: .border) {
             print("피드작성 tapped!")
         }
+        
+        CustomButton(text: "피드 작성하러 가기 (Border 비활성화)", widthType: .dynamic, styleType: .border, isEnabled: false) {
+            print("피드작성 tapped!")
+        }
     }
     .padding()
 
     HStack(spacing: 9) {
-        CustomButton(text: "이전으로 (Default Fill)", widthType: .half) {
+        CustomButton(text: "이전으로", widthType: .half) {
             print("이전으로 tapped")
         }
-        CustomButton(text: "등록하기 (Border)", widthType: .half, styleType: .border) {
+        CustomButton(text: "등록하기 (비활성화)", widthType: .half, isEnabled: false) {
             print("등록하기 tapped")
         }
     }
