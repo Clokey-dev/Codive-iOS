@@ -10,11 +10,17 @@ import SwiftUI
 struct CategoryCounterView: View {
     let title: String
     @Binding var count: Int
-    
+
     let totalCount: Int
     let maxLimit: Int = 10
-    
-    let range: ClosedRange<Int> = 0...10
+
+    private var isDefaultCategory: Bool {
+        return title == "상의" || title == "바지" || title == "신발"
+    }
+
+    private var minCount: Int {
+        return isDefaultCategory ? 1 : 0
+    }
 
     var body: some View {
         HStack {
@@ -25,20 +31,20 @@ struct CategoryCounterView: View {
             Spacer()
             
             Button {
-                if count > range.lowerBound {
+                if count > minCount {
                     count -= 1
                 }
             } label: {
                 Circle()
-                    .fill(Color.Codive.main5)
+                    .fill(count > minCount ? Color.Codive.main5 : Color.Codive.grayscale5)
                     .frame(width: 28, height: 28)
                     .overlay(
                         Image(systemName: "minus")
                             .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(Color.Codive.main1)
+                            .foregroundColor(count > minCount ? Color.Codive.main1 : Color.Codive.grayscale3)
                     )
             }
-            .disabled(count <= range.lowerBound)
+            .disabled(count <= minCount)
             
             Text("\(count)")
                 .font(Font.codive_body1_medium)
@@ -51,12 +57,12 @@ struct CategoryCounterView: View {
                 }
             } label: {
                 Circle()
-                    .fill(Color.Codive.main5)
+                    .fill(totalCount < maxLimit ? Color.Codive.main5 : Color.Codive.grayscale5)
                     .frame(width: 28, height: 28)
                     .overlay(
                         Image(systemName: "plus")
                             .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(Color.Codive.main1)
+                            .foregroundColor(totalCount < maxLimit ? Color.Codive.main1 : Color.Codive.grayscale3)
                     )
             }
             .disabled(totalCount >= maxLimit)

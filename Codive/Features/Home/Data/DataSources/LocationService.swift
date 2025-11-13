@@ -71,15 +71,19 @@ final class SystemLocationService: NSObject, LocationService, CLLocationManagerD
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         let newStatus = manager.authorizationStatus
         self.authorizationStatus = newStatus
-        
-        if (newStatus == .authorizedWhenInUse || newStatus == .authorizedAlways) {
+
+        if newStatus == .authorizedWhenInUse || newStatus == .authorizedAlways {
             if locationContinuation != nil {
                 manager.requestLocation()
             }
-        }
-        
-        else if (newStatus == .denied || newStatus == .restricted) {
-            let deniedError = NSError(domain: kCLErrorDomain, code: CLError.Code.denied.rawValue, userInfo: [NSLocalizedDescriptionKey: "위치 권한이 거부되어 날씨 정보를 불러올 수 없습니다."])
+        } else if newStatus == .denied || newStatus == .restricted {
+            let deniedError = NSError(
+                domain: kCLErrorDomain,
+                code: CLError.Code.denied.rawValue,
+                userInfo: [
+                    NSLocalizedDescriptionKey: "위치 권한이 거부되어 날씨 정보를 불러올 수 없습니다."
+                ]
+            )
             locationContinuation?.resume(throwing: deniedError)
             locationContinuation = nil
         }

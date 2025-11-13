@@ -46,7 +46,11 @@ struct EditCategoryView: View {
                     CustomButton(text: TextLiteral.Home.reset, widthType: .half) {
                         viewModel.resetCounts()
                     }
-                    CustomButton(text: TextLiteral.Home.apply, widthType: .half) {
+                    CustomButton(
+                        text: TextLiteral.Home.apply,
+                        widthType: .half,
+                        isEnabled: viewModel.isApplyButtonEnabled
+                    ) {
                         viewModel.applyChanges()
                     }
                 }
@@ -57,5 +61,15 @@ struct EditCategoryView: View {
         }
         .navigationBarHidden(true)
         .background(Color.white)
+        .alert("변경사항이 있습니다", isPresented: $viewModel.showExitAlert) {
+            Button("취소", role: .cancel) {
+                viewModel.cancelExit()
+            }
+            Button("나가기", role: .destructive) {
+                viewModel.confirmExit()
+            }
+        } message: {
+            Text("변경사항을 저장하지 않고 나가시겠습니까?")
+        }
     }
 }

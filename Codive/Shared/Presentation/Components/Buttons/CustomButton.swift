@@ -16,6 +16,7 @@ enum ButtonType {
 struct CustomButton: View {
     let text: String
     let widthType: ButtonType
+    var isEnabled: Bool = true
     let action: () -> Void
 
     var body: some View {

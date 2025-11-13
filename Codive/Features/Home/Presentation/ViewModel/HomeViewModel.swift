@@ -23,6 +23,7 @@ final class HomeViewModel: ObservableObject {
     @Published var todayString: String = ""
     @Published var selectedItemID: Int?
     @Published var codiItems: [CodiItemEntity] = []
+    @Published var activeCategories: [CategoryEntity] = []
     
     private let navigationRouter: NavigationRouter
     private let useCase: HomeUseCase
@@ -34,9 +35,10 @@ final class HomeViewModel: ObservableObject {
         
         loadDummyCodi()
         loadToday()
+        loadActiveCategories()
     }
     
-    // MARK: - Weather
+    // MARK: - Data Loading
     func loadWeather(for location: CLLocation?) async {
         do {
             let data = try await useCase.execute(for: location)
@@ -45,6 +47,20 @@ final class HomeViewModel: ObservableObject {
             print("Failed to fetch weather:", error)
             weatherErrorMessage = TextLiteral.Home.failWeather
         }
+    }
+
+    func loadActiveCategories() {
+        let allCategories = useCase.loadCategories()
+        // itemCount가 0보다 큰 카테고리만 필터링
+        activeCategories = allCategories.filter { $0.itemCount > 0 }
+    }
+    func loadDummyCodi() {
+        codiItems = useCase.loadTodaysCodi()
+    }
+
+    func loadToday() {
+        let entity = useCase.getToday()
+        self.todayString = entity.formattedDate
     }
     
     // MARK: - UI Actions
@@ -78,14 +94,11 @@ final class HomeViewModel: ObservableObject {
         navigationRouter.navigate(to: .editCategory)
     }
     
-    // MARK: - Data Loading
-    func loadDummyCodi() {
-        codiItems = useCase.loadTodaysCodi()
-    }
-
-    func loadToday() {
-        let entity = useCase.getToday()
-        self.todayString = entity.formattedDate
+    
+    
+    // MARK: - Lifecycle
+    func onAppear() {
+        loadActiveCategories()
     }
     
     // MARK: - Feature Placeholders

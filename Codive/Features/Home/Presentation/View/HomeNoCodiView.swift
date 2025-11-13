@@ -18,6 +18,9 @@ struct HomeNoCodiView: View {
             Spacer()
             bottomButtons
         }
+        .onAppear {
+            viewModel.onAppear()
+        }
     }
 
     private var header: some View {
@@ -42,9 +45,9 @@ struct HomeNoCodiView: View {
 
     private var codiClothList: some View {
         VStack(spacing: 16) {
-            CodiClothView(title: "상의")
-            CodiClothView(title: "바지")
-            CodiClothView(title: "신발")
+            ForEach(viewModel.activeCategories) { category in
+                CodiClothView(title: category.title)
+            }
         }
         .padding(.horizontal, 20)
     }

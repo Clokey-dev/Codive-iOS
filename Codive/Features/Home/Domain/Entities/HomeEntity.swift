@@ -26,10 +26,14 @@ struct DailyWeather {
 }
 
 // MARK: - Category
-struct CategoryEntity: Identifiable {
+struct CategoryEntity: Identifiable, Codable {
     let id: Int
     let title: String
     var itemCount: Int
+
+    var isDefaultCategory: Bool {
+        return id == 1 || id == 2 || id == 5
+    }
 }
 
 // MARK: - Draggable Image
