@@ -28,4 +28,8 @@ final class AppDIContainer {
     func makeSettingDIContainer() -> SettingDIContainer {
         return SettingDIContainer(appRouter: appRouter, navigationRouter: navigationRouter)
     }
+    
+    func makeReportDIContainer() -> ReportDIContainer {
+        return ReportDIContainer(appRouter: appRouter, navigationRouter: navigationRouter)
+    }
 }

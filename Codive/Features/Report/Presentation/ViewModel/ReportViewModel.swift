@@ -10,6 +10,8 @@ import SwiftUI
 @MainActor
 final class ReportViewModel: ObservableObject {
     // 의존성
+    private let appRouter: AppRouter
+    private let navigationRouter: NavigationRouter
     private let getContextUseCase: GetReportContextUseCase
     private let submitUseCase: SubmitReportUseCase
 
@@ -25,9 +27,13 @@ final class ReportViewModel: ObservableObject {
 
     // 초기화
     init(target: ReportTarget,
+         appRouter: AppRouter,
+         navigationRouter: NavigationRouter,
          getContextUseCase: GetReportContextUseCase,
          submitUseCase: SubmitReportUseCase) {
         self.target = target
+        self.appRouter = appRouter
+        self.navigationRouter = navigationRouter
         self.getContextUseCase = getContextUseCase
         self.submitUseCase = submitUseCase
         self.draft = ReportDraft(target: target)

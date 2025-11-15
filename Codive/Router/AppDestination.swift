@@ -20,6 +20,8 @@ enum AppDestination: Hashable {
     case settingMyComments
     case settingBlockedUsers
     case settingWithdraw
+    case report
+    case reportDetail
     
     // MARK: - 하단 탭바
     /// 이 화면이 탭바를 덮어야 하는가?

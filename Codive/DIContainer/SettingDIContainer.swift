@@ -30,7 +30,7 @@ final class SettingDIContainer {
         // 인메모리 스텁 + 레포지토리 연결
         let dataSource = SettingsDataSource()
         self.dataSource = dataSource
-        self.repository = SettingsRepositoryImpl(dataSource: dataSource)
+        self.repository = SettingsRepositoryImpl(dataSource: dataSource) //여기에 그냥 repository인지 Impl이 와여하는건지 잘 모르겠음
     }
 
     // MARK: - UseCases

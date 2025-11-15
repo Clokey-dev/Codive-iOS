@@ -14,18 +14,22 @@ final class SettingViewFactory {
         self.container = settingDIContainer
     }
 
+    @MainActor
     func makeSettingView() -> SettingView {
         container.makeSettingView()
     }
 
+    @MainActor
     func makeSettingLikedView() -> SettingLikedView {
         container.makeSettingLikedView()
     }
 
+    @MainActor
     func makeSettingCommentView() -> SettingCommentView {
         container.makeSettingCommentView()
     }
 
+    @MainActor
     func makeSettingBlockedView() -> SettingBlockedView {
         container.makeSettingBlockedView()
     }
