@@ -15,6 +15,11 @@ enum AppDestination: Hashable {
     case photoEdit(photos: [SelectedPhoto])
     case recordDetail(photos: [SelectedPhoto])
     case photoTag(photo: SelectedPhoto, allPhotos: [SelectedPhoto])
+    case settings
+    case settingLikedRecords
+    case settingMyComments
+    case settingBlockedUsers
+    case settingWithdraw
     
     // MARK: - 하단 탭바
     /// 이 화면이 탭바를 덮어야 하는가?

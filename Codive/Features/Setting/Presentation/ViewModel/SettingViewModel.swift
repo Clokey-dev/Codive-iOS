@@ -7,16 +7,23 @@ final class SettingViewModel: ObservableObject {
     @Published var isPushOn: Bool = false
     @Published var isMarketingOn: Bool = false
 
+    
     @Published private(set) var isLoading: Bool = false
     @Published private(set) var error: Error?
 
+    private let appRouter: AppRouter
+    private let navigationRouter: NavigationRouter
     private let getPrefsUC: GetNotificationPrefsUseCase
     private let updatePrefsUC: UpdateNotificationPrefsUseCase
 
     init(
+        appRouter: AppRouter,
+        navigationRouter: NavigationRouter,
         getPrefsUC: GetNotificationPrefsUseCase,
         updatePrefsUC: UpdateNotificationPrefsUseCase
     ) {
+        self.appRouter = appRouter
+        self.navigationRouter = navigationRouter
         self.getPrefsUC = getPrefsUC
         self.updatePrefsUC = updatePrefsUC
     }

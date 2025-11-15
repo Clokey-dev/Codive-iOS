@@ -24,4 +24,8 @@ final class AppDIContainer {
     func makeAddDIContainer() -> AddDIContainer {
         return AddDIContainer(navigationRouter: navigationRouter)
     }
+    
+    func makeSettingDIContainer() -> SettingDIContainer {
+        return SettingDIContainer(appRouter: appRouter, navigationRouter: navigationRouter)
+    }
 }
