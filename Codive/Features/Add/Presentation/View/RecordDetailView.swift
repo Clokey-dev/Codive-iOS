@@ -104,6 +104,7 @@ private extension RecordDetailView {
         .padding(.bottom, 24)
     }
     
+    // TODO: 플레이스 홀더 문구 수정 필요
     @ViewBuilder
     func captionSection() -> some View {
         VStack(alignment: .leading, spacing: 8) {            
