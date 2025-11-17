@@ -10,7 +10,7 @@ import SwiftUI
 
 struct ReportDetailView: View {
     @ObservedObject var vm: ReportViewModel
-    var onSubmit: (() -> Void)? = nil
+    var onSubmit: (() -> Void)?
 
     var body: some View {
         ScrollView {

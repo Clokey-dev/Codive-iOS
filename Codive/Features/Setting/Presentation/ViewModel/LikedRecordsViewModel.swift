@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-//좋아요한 기록
+// 좋아요한 기록
 final class LikedRecordsViewModel: ObservableObject {
     @Published private(set) var items: [LikedRecord] = []
     @Published private(set) var isLoading = false

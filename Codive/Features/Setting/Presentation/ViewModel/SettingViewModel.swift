@@ -6,8 +6,6 @@ final class SettingViewModel: ObservableObject {
     // UI 토글 값
     @Published var isPushOn: Bool = false
     @Published var isMarketingOn: Bool = false
-
-    
     @Published private(set) var isLoading: Bool = false
     @Published private(set) var error: Error?
 

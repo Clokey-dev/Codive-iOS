@@ -26,9 +26,10 @@ struct SettingCommentView: View {
                 SettingsEmptyView(
                     title: "아직 남긴 댓글이 없어요!",
                     message: "지금 하나 써볼까요?",
-                    actionTitle: "피드로 이동하기",
-                    action: { /* 라우팅 */ }
-                )
+                    actionTitle: "피드로 이동하기"
+                ) {
+                    /* 라우팅 */
+                }
             } else {
 //                List(vm.items) { c in
 //                    VStack(alignment: .leading, spacing: 6) {

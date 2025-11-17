@@ -26,11 +26,12 @@ struct SettingLikedView: View {
                 }.frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if vm.items.isEmpty {
                 SettingsEmptyView(
-                    title: "아직 좋아요한 기록이 없어요!",
-                    message: "지금 하나 눌러볼까요?",
-                    actionTitle: "피드로 이동하기",
-                    action: {/* 라우팅 */ }
-                )
+                    title: "아직 남긴 댓글이 없어요!",
+                    message: "지금 하나 써볼까요?",
+                    actionTitle: "피드로 이동하기"
+                ) {
+                    /* 라우팅 */
+                }
             } else {
                 ScrollView {
                     LazyVGrid(columns: columns, spacing: 8) {

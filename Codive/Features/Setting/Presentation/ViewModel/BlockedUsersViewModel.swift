@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-//차단한 계정
+// 차단한 계정
 final class BlockedUsersViewModel: ObservableObject {
     @Published private(set) var items: [BlockedUser] = []
     @Published private(set) var isLoading = false

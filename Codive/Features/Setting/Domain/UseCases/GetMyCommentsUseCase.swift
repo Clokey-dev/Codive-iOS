@@ -23,4 +23,3 @@ final class GetMyCommentsUseCase {
         try await repository.fetchMyComments(page: page, pageSize: size)
     }
 }
-

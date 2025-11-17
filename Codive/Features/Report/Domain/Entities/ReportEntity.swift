@@ -48,8 +48,7 @@ public struct ReportContext: Sendable, Equatable {
 
     public init(target: ReportTarget,
                 author: AuthorSnapshot,
-                previewText: String)
-    {
+                previewText: String) {
         self.target = target
         self.author = author
         self.previewText = previewText

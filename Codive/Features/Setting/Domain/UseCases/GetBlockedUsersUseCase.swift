@@ -6,7 +6,7 @@
 //
 import Foundation
 
-// MARK: -  GetBlockedUsersUseCase
+    // MARK: - GetBlockedUsersUseCase
 final class  GetBlockedUsersUseCase {
 
     // MARK: - Properties
@@ -23,4 +23,3 @@ final class  GetBlockedUsersUseCase {
         try await repository.fetchBlockedUsers()
     }
 }
-

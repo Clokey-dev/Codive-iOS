@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ReportView: View {
     @ObservedObject var vm: ReportViewModel
-    var onSubmit: (() -> Void)? = nil   // 필요 시 제출 액션 주입
+    var onSubmit: (() -> Void)?   // 필요 시 제출 액션 주입
 
     var body: some View {
         ScrollView {

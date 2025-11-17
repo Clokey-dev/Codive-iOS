@@ -6,7 +6,7 @@
 //
 import Foundation
 
-// MARK: -  UpdateNotificationPrefsUseCase
+    // MARK: - UpdateNotificationPrefsUseCase
 final class  UpdateNotificationPrefsUseCase {
 
     // MARK: - Properties
