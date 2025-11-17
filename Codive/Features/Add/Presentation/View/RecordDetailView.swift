@@ -108,34 +108,34 @@ private extension RecordDetailView {
     func captionSection() -> some View {
         TextEditor(text: $viewModel.captionText)
             .font(.codive_body2_medium)
-            .foregroundStyle(Color.Codive.grayscale1)
+            .foregroundStyle(Color.black)
             .frame(height: 158)
-            .padding(12)
-            .background(Color.Codive.grayscale7)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .padding(5)
+            .background(Color.white)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(Color.Codive.grayscale5, lineWidth: 1)
             )
             .overlay(alignment: .topLeading) {
                 if viewModel.captionText.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 5) {
                         HStack(spacing: 4) {
                             Image(systemName: "pencil")
                                 .font(.system(size: 16))
-                                .foregroundStyle(Color.Codive.grayscale1)
+                                .foregroundStyle(Color.Codive.grayscale3)
                             
                             Text(TextLiteral.Add.recordDetailCaptionTitle)
                                 .font(.codive_body1_medium)
-                                .foregroundStyle(Color.Codive.grayscale1)
+                                .foregroundStyle(Color.Codive.grayscale3)
                         }
                         
                         Text(TextLiteral.Add.recordDetailCaptionPlaceholder)
                             .font(.codive_body2_medium)
                             .foregroundStyle(Color.Codive.grayscale4)
                     }
-                    .padding(.top, 20)
-                    .padding(.leading, 16)
+                    .padding(.top, 10)
+                    .padding(.leading, 10)
                     .allowsHitTesting(false)
                 }
             }
