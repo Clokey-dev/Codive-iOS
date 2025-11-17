@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import SwiftUI
 
 // MARK: - RecordDetailViewModel
 @MainActor
@@ -21,7 +22,14 @@ final class RecordDetailViewModel: ObservableObject {
     @Published var selectedSituations: Set<String> = []
     
     // TextField Property
-    @Published var captionText: String = ""
+    @Published var captionText: String = "" {
+        didSet {
+            processHashtags(captionText)
+        }
+    }
+    
+    @Published var hashtags: [String] = []
+    @Published var attributedCaption: AttributedString = AttributedString("")
     
     private let navigationRouter: NavigationRouter
     
@@ -69,5 +77,35 @@ final class RecordDetailViewModel: ObservableObject {
     
     func dismissView() {
         navigationRouter.navigateBack()
+    }
+    
+    private func processHashtags(_ text: String) {
+        var attributed = AttributedString(text)
+        var foundHashtags: [String] = []
+        
+        // 해시태그 패턴: # 뒤에 한글/영문/숫자가 1개 이상
+        let pattern = "(?<!#)#(?!#)[ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-9]+"
+        guard let regex = try? NSRegularExpression(pattern: pattern) else {
+            self.attributedCaption = attributed
+            return
+        }
+        
+        let nsString = text as NSString
+        let matches = regex.matches(in: text, range: NSRange(location: 0, length: nsString.length))
+        
+        for match in matches {
+            let matchedString = nsString.substring(with: match.range)
+            foundHashtags.append(matchedString)
+            
+            if let range = Range(match.range, in: text) {
+                let attributedRange = AttributedString.Index(range.lowerBound, within: attributed)!
+                ..< AttributedString.Index(range.upperBound, within: attributed)!
+                
+                attributed[attributedRange].foregroundColor = Color.Codive.point1
+            }
+        }
+        
+        self.hashtags = foundHashtags
+        self.attributedCaption = attributed
     }
 }

@@ -106,41 +106,25 @@ private extension RecordDetailView {
     
     @ViewBuilder
     func captionSection() -> some View {
-        TextEditor(text: $viewModel.captionText)
-            .font(.codive_body2_medium)
-            .foregroundStyle(Color.black)
+        VStack(alignment: .leading, spacing: 8) {            
+            // HashtagTextEditor
+            HashtagTextEditor(
+                text: $viewModel.captionText,
+                hashtagColor: UIColor(Color.Codive.point1),
+                font: UIFont.systemFont(ofSize: 15, weight: .medium),
+                textColor: UIColor.black,
+                placeholder: TextLiteral.Add.recordDetailCaptionPlaceholder,
+                placeholderColor: UIColor(Color.Codive.grayscale4)
+            )
             .frame(height: 158)
-            .padding(5)
-            .background(Color.white)
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(Color.Codive.grayscale5, lineWidth: 1)
             )
-            .overlay(alignment: .topLeading) {
-                if viewModel.captionText.isEmpty {
-                    VStack(alignment: .leading, spacing: 5) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "pencil")
-                                .font(.system(size: 16))
-                                .foregroundStyle(Color.Codive.grayscale3)
-                            
-                            Text(TextLiteral.Add.recordDetailCaptionTitle)
-                                .font(.codive_body1_medium)
-                                .foregroundStyle(Color.Codive.grayscale3)
-                        }
-                        
-                        Text(TextLiteral.Add.recordDetailCaptionPlaceholder)
-                            .font(.codive_body2_medium)
-                            .foregroundStyle(Color.Codive.grayscale4)
-                    }
-                    .padding(.top, 10)
-                    .padding(.leading, 10)
-                    .allowsHitTesting(false)
-                }
-            }
-            .padding(.horizontal, 20)
-            .padding(.bottom, 40)
+        }
+        .padding(.horizontal, 20)
+        .padding(.bottom, 40)
     }
     
     @ViewBuilder
