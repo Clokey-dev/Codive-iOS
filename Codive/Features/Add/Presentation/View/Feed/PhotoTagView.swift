@@ -89,7 +89,7 @@ private extension PhotoTagView {
                 searchText: $viewModel.searchText,
                 selectedCategory: $viewModel.selectedCategory,
                 selectedProducts: $viewModel.selectedProducts,
-                products: viewModel.mockClothItems,
+                products: viewModel.clothItems, 
                 onProductTap: { product in
                     viewModel.handleProductSelection(product)
                 }

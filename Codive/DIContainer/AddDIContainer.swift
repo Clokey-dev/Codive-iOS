@@ -16,10 +16,15 @@ final class AddDIContainer {
     
     // MARK: - DataSources
     lazy var photoDataSource = PhotoDataSource()
+    lazy var clothDataSource = ClothDataSource()
     
     // MARK: - Repositories
     lazy var photoRepository: PhotoRepository = PhotoRepositoryImpl(
         dataSource: photoDataSource
+    )
+    
+    lazy var clothRepository: ClothRepository = ClothRepositoryImpl(
+        dataSource: clothDataSource
     )
     
     // MARK: - UseCases
@@ -28,6 +33,10 @@ final class AddDIContainer {
     )
     
     lazy var processImageUseCase = ProcessImageUseCase()
+    
+    lazy var fetchClothItemsUseCase = FetchClothItemsUseCase(
+        repository: clothRepository
+    )
     
     // MARK: - Initializer
     init(navigationRouter: NavigationRouter) {
@@ -54,7 +63,8 @@ final class AddDIContainer {
         return PhotoTagViewModel(
             photo: photo,
             allPhotos: allPhotos,
-            navigationRouter: navigationRouter
+            navigationRouter: navigationRouter,
+            fetchClothItemsUseCase: fetchClothItemsUseCase
         )
     }
     
@@ -73,7 +83,8 @@ final class AddDIContainer {
         let viewModel = PhotoTagViewModel(
             photo: photo,
             allPhotos: allPhotos,
-            navigationRouter: navigationRouter
+            navigationRouter: navigationRouter,
+            fetchClothItemsUseCase: fetchClothItemsUseCase
         )
         return PhotoTagView(viewModel: viewModel)
     }
