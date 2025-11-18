@@ -13,6 +13,7 @@ final class SearchViewModel: ObservableObject {
     private let navigationRouter: NavigationRouter
     private let useCase: SearchUseCase
     
+    @Published var recentSearchTags: [SearchTagEntity] = []
     @Published var recommendedNews: [NewsEntity] = []
     @Published var showingDeleteAlert: Bool = false
     
@@ -25,7 +26,15 @@ final class SearchViewModel: ObservableObject {
     }
     
     func loadData() {
+        self.recentSearchTags = useCase.fetchRecentSearchTags()
         self.recommendedNews = useCase.fetchRecommendedNews()
+    }
+    
+    func deleteTag(tag: SearchTagEntity) {
+        if let index = recentSearchTags.firstIndex(where: { $0.id == tag.id }) {
+            recentSearchTags.remove(at: index)
+            print("태그 삭제 완료: \(tag.text)")
+        }
     }
     
     func handleDeleteAll() {
@@ -34,6 +43,7 @@ final class SearchViewModel: ObservableObject {
     
     func executeDeleteAll() {
         print("최근 검색어 전체 삭제 실행 완료")
+        self.recentSearchTags = []
     }
     
     // MARK: - Navigation

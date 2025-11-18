@@ -28,8 +28,8 @@ struct SearchView: View {
                 VStack {
                     HStack {
                         Text(TextLiteral.Search.recentSearch)
-                        .font(Font.codive_title2)
-                        .foregroundStyle(Color.Codive.grayscale1)
+                            .font(Font.codive_title2)
+                            .foregroundStyle(Color.Codive.grayscale1)
                         
                         Spacer()
                         
@@ -45,6 +45,27 @@ struct SearchView: View {
                         )
                     }
                     .padding(.top, 32)
+                    
+                    if viewModel.recentSearchTags.isEmpty {
+                        HStack {
+                            Text("최근 검색어가 없습니다.")
+                                .font(Font.codive_body2_medium)
+                                .foregroundStyle(Color.Codive.grayscale3)
+                            Spacer()
+                        }
+                        .padding(.top, 8)
+                    } else {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 16) {
+                                ForEach(viewModel.recentSearchTags) { tag in
+                                    SearchTagView(text: tag.text) {
+                                        viewModel.deleteTag(tag: tag)
+                                    }
+                                }
+                            }
+                        }
+                        .padding(.top, 8)
+                    }
                     
                     HStack {
                         Text(
@@ -75,19 +96,15 @@ struct SearchView: View {
         .background(Color.white.ignoresSafeArea(.all))
         .padding(.horizontal, 20)
         .alert(
-            "최근 검색어를 모두 삭제하시겠습니까?", // 제목
-            isPresented: $viewModel.showingDeleteAlert // 표시 조건
+            "최근 검색어를 모두 삭제하시겠습니까?",
+            isPresented: $viewModel.showingDeleteAlert
         ) {
-            // "삭제" 버튼 (빨간색으로 표시하기 위해 .destructive 사용)
             Button("삭제", role: .destructive) {
                 viewModel.executeDeleteAll()
             }
-            // "취소" 버튼 (기본 역할)
-            Button("취소", role: .cancel) {
-                // 아무 작업도 하지 않음
-            }
+            Button("취소", role: .cancel) {}
         } message: {
-            Text("한 번 삭제된 기록은 복구할 수 없습니다") // 메시지
+            Text("한 번 삭제된 기록은 복구할 수 없습니다")
         }
     }
 }

@@ -10,6 +10,11 @@ import Foundation
 struct SearchEntity {
 }
 
+struct SearchTagEntity: Identifiable {
+    let id: Int
+    let text: String
+}
+
 struct NewsEntity: Identifiable {
     let id: Int
     let imageUrl: String

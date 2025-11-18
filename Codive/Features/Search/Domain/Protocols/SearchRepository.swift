@@ -6,5 +6,6 @@
 //
 
 protocol SearchRepository {
+    func fetchRecentSearchTags() -> [SearchTagEntity]
     func fetchRecommendedNews() -> [NewsEntity]
 }

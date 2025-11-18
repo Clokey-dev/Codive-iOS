@@ -12,6 +12,10 @@ final class SearchRepositoryImpl: SearchRepository {
         self.datasource = datasource
     }
     
+    func fetchRecentSearchTags() -> [SearchTagEntity] {
+        return datasource.fetchRecentSearchTags()
+    }
+    
     func fetchRecommendedNews() -> [NewsEntity] {
         return datasource.fetchRecommendedNews()
     }
