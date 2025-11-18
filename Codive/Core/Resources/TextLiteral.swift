@@ -109,5 +109,7 @@ enum TextLiteral {
     
     enum Search {
         static let searchHint = "찾고 싶은 옷이나 브랜드를 검색해보세요"
+        static let recentSearch = "최근 검색어"
+        static let deleteAll = "전체 삭제"
     }
 }
