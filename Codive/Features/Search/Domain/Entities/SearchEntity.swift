@@ -9,3 +9,9 @@ import Foundation
 
 struct SearchEntity {
 }
+
+struct NewsEntity: Identifiable {
+    let id: Int
+    let imageUrl: String
+    let title: String
+}

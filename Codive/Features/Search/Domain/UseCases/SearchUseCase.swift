@@ -11,4 +11,8 @@ final class SearchUseCase {
     init(repository: SearchRepository) {
         self.repository = repository
     }
+    
+    func fetchRecommendedNews() -> [NewsEntity] {
+        return repository.fetchRecommendedNews()
+    }
 }

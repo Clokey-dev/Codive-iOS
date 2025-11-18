@@ -11,4 +11,8 @@ final class SearchRepositoryImpl: SearchRepository {
     init(datasource: SearchDataSource) {
         self.datasource = datasource
     }
+    
+    func fetchRecommendedNews() -> [NewsEntity] {
+        return datasource.fetchRecommendedNews()
+    }
 }
