@@ -14,6 +14,7 @@ struct CustomProductBottomSheet: View {
     @Binding var selectedCategory: String
     @Binding var selectedProducts: Set<UUID>
     let products: [ProductItem]
+    let onProductTap: (ProductItem) -> Void
 
     private let categories = ["전체", "상의", "바지", "스커트", "아우터", "신발", "가방", "패션소품"]
     private let columns = [
@@ -56,11 +57,7 @@ struct CustomProductBottomSheet: View {
                             isTodayCloth: product.isTodayCloth,
                             isSelected: selectedProducts.contains(product.id),
                             onTap: {
-                                if selectedProducts.contains(product.id) {
-                                    selectedProducts.remove(product.id)
-                                } else {
-                                    selectedProducts.insert(product.id)
-                                }
+                                onProductTap(product)
                             }
                         )
                     }
@@ -77,4 +74,20 @@ struct ProductItem: Identifiable {
     let id = UUID()
     let imageName: String
     let isTodayCloth: Bool
+    let brand: String?
+    let name: String?
+}
+
+// MARK: - Preview
+#Preview {
+    CustomProductBottomSheet(
+        searchText: .constant(""),
+        selectedCategory: .constant("전체"),
+        selectedProducts: .constant([]),
+        products: [
+            ProductItem(imageName: "sample1", isTodayCloth: true, brand: "Nike", name: "에어포스 1"),
+            ProductItem(imageName: "sample2", isTodayCloth: false, brand: "Adidas", name: "후디")
+        ],
+        onProductTap: { _ in }
+    )
 }

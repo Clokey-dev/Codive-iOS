@@ -41,12 +41,17 @@ struct PhotoTagView: View {
                         }
                     )
                     
-                    // Photo
-                    Image(uiImage: viewModel.currentPhoto.croppedImage)
-                        .resizable()
-                        .aspectRatio(3/4, contentMode: .fit)
-                        .padding(.horizontal, 20)
-                        .padding(.top, 20)
+                    // Photo with Tags
+                    TaggableImageView(
+                        image: viewModel.currentPhoto.croppedImage,
+                        tags: $viewModel.clothTags,
+                        onTagRemove: { tagId in
+                            viewModel.removeClothTag(tagId: tagId)
+                        }
+                    )
+                    .aspectRatio(3/4, contentMode: .fit)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 20)
                     
                     Spacer()
                 }
@@ -84,7 +89,10 @@ private extension PhotoTagView {
                 searchText: $viewModel.searchText,
                 selectedCategory: $viewModel.selectedCategory,
                 selectedProducts: $viewModel.selectedProducts,
-                products: viewModel.mockClothItems
+                products: viewModel.mockClothItems,
+                onProductTap: { product in
+                    viewModel.handleProductSelection(product)
+                }
             )
         }
         .frame(
