@@ -68,6 +68,13 @@ final class AddDIContainer {
         )
     }
     
+    func makePhotoEditViewModel(selectedPhotos: [SelectedPhoto]) -> PhotoEditViewModel {
+        return PhotoEditViewModel(
+            selectedPhotos: selectedPhotos,
+            navigationRouter: navigationRouter
+        )
+    }
+    
     // MARK: - Views
     func makeRecordAddView() -> RecordAddView {
         return RecordAddView(viewModel: makeRecordAddViewModel())
@@ -80,12 +87,13 @@ final class AddDIContainer {
     }
     
     func makePhotoTagView(photo: SelectedPhoto, allPhotos: [SelectedPhoto]) -> PhotoTagView {
-        let viewModel = PhotoTagViewModel(
-            photo: photo,
-            allPhotos: allPhotos,
-            navigationRouter: navigationRouter,
-            fetchClothItemsUseCase: fetchClothItemsUseCase
-        )
+        let viewModel = makePhotoTagViewModel(photo: photo, allPhotos: allPhotos)
         return PhotoTagView(viewModel: viewModel)
+    }
+    
+    func makePhotoEditView(selectedPhotos: [SelectedPhoto]) -> PhotoEditView {
+        return PhotoEditView(
+            viewModel: makePhotoEditViewModel(selectedPhotos: selectedPhotos)
+        )
     }
 }

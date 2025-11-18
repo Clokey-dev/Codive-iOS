@@ -11,7 +11,7 @@ import SwiftUI
 final class AddViewFactory {
     
     // MARK: - Properties
-    private weak var addDIContainer: AddDIContainer? 
+    private weak var addDIContainer: AddDIContainer?
     
     // MARK: - Initializer
     init(addDIContainer: AddDIContainer) {
@@ -25,12 +25,7 @@ final class AddViewFactory {
         case .recordAdd:
             addDIContainer?.makeRecordAddView()
         case .photoEdit(let photos):
-            PhotoEditView(
-                viewModel: PhotoEditViewModel(
-                    selectedPhotos: photos,
-                    navigationRouter: addDIContainer?.navigationRouter ?? NavigationRouter()
-                )
-            )
+            addDIContainer?.makePhotoEditView(selectedPhotos: photos)
         case .recordDetail(let photos):
             addDIContainer?.makeRecordDetailView(selectedPhotos: photos)
         case .photoTag(let photo, let allPhotos):
