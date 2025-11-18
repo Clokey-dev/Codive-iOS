@@ -32,4 +32,9 @@ final class AppDIContainer {
     func makeReportDIContainer() -> ReportDIContainer {
         return ReportDIContainer(appRouter: appRouter, navigationRouter: navigationRouter)
     }
+
+    func makeHomeDIContainer() -> HomeDIContainer {
+        return HomeDIContainer(navigationRouter: navigationRouter)
+    }
+
 }

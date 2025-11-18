@@ -14,11 +14,13 @@ struct MainTabView: View {
     @ObservedObject private var navigationRouter: NavigationRouter
     private let appDIContainer: AppDIContainer
     private let addDIContainer: AddDIContainer
+    private let homeDIContainer: HomeDIContainer
     
     // MARK: - Initializer
     init(appDIContainer: AppDIContainer) {
         self.appDIContainer = appDIContainer
         self.addDIContainer = appDIContainer.makeAddDIContainer()
+        self.homeDIContainer = appDIContainer.makeHomeDIContainer()
         self.navigationRouter = appDIContainer.navigationRouter
     }
     
@@ -38,7 +40,8 @@ struct MainTabView: View {
                 Group {
                     switch viewModel.selectedTab {
                     case .home:
-                        HomeView()
+                        HomeView(homeDIContainer: homeDIContainer)
+                            .ignoresSafeArea(.all, edges: .bottom)
                     case .closet:
                         ClosetView()
                     case .add:
@@ -64,7 +67,8 @@ struct MainTabView: View {
     
     // MARK: - Computed Properties
     private var shouldShowTopBar: Bool {
-        viewModel.selectedTab != .add
+        viewModel.selectedTab != .add &&
+        !(viewModel.selectedTab == .home && !navigationRouter.path.isEmpty)
     }
     
     private var showSearchButton: Bool {

@@ -15,7 +15,7 @@ struct AlbumBottomSheet: View {
     let albums: [PhotoAlbum]
     let selectedAlbum: PhotoAlbum?
     let viewModel: RecordAddViewModel
-    let onSelect: (PhotoAlbum) -> Void
+    let onSelect: (PhotoAlbum) async -> Void
     
     // MARK: - Body
     var body: some View {
@@ -35,7 +35,7 @@ struct AlbumBottomSheet: View {
                             isSelected: selectedAlbum?.id == album.id,
                             viewModel: viewModel
                         ) {
-                            onSelect(album)
+                            await onSelect(album)
                         }
                     }
                 }
@@ -52,17 +52,18 @@ struct AlbumRow: View {
     let album: PhotoAlbum
     let isSelected: Bool
     let viewModel: RecordAddViewModel
-    let onTap: () -> Void
+    let onTap: () async -> Void
     
     @State private var thumbnail: UIImage?
     
     // MARK: - Body
     var body: some View {
         Button {
-            onTap()
+            Task {
+                await onTap()
+            }
         } label: {
             HStack(spacing: 12) {
-                // 썸네일
                 if let thumbnail = thumbnail {
                     Image(uiImage: thumbnail)
                         .resizable()
