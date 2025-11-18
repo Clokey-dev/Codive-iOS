@@ -111,9 +111,12 @@ enum TextLiteral {
         static let searchHint = "찾고 싶은 옷이나 브랜드를 검색해보세요"
         static let recentSearch = "최근 검색어"
         static let deleteAll = "전체 삭제"
+        static let noTag = "최근 검색어가 없습니다."
     }
     
-    enum Alarm {
+    enum Notification {
         static let title = "알림"
+        static let read = "읽음"
+        static let notRead = "읽지 않음"
     }
 }

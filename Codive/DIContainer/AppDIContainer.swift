@@ -33,7 +33,7 @@ final class AppDIContainer {
         return SearchDIContainer(navigationRouter: navigationRouter)
     }
     
-    func makeAlarmDIContainer() -> AlarmDIContainer {
-        return AlarmDIContainer(navigationRouter: navigationRouter)
+    func makeNotificationDIContainer() -> NotificationDIContainer {
+        return NotificationDIContainer(navigationRouter: navigationRouter)
     }
 }

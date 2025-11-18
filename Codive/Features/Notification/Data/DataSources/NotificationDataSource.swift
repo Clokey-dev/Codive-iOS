@@ -7,6 +7,6 @@
 
 import Foundation
 
-final class AlarmDataSource {
+final class NotificationDataSource {
     
 }

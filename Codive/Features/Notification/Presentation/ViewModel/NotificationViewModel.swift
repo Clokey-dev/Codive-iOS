@@ -8,12 +8,12 @@
 import SwiftUI
 
 @MainActor
-final class AlarmViewModel: ObservableObject {
+final class NotificationViewModel: ObservableObject {
     // MARK: - Properties
     private let navigationRouter: NavigationRouter
-    private let useCase: AlarmUseCase
+    private let useCase: NotificationUseCase
     
-    init(navigationRouter: NavigationRouter, useCase: AlarmUseCase) {
+    init(navigationRouter: NavigationRouter, useCase: NotificationUseCase) {
         self.navigationRouter = navigationRouter
         self.useCase = useCase
     }
@@ -24,14 +24,14 @@ final class AlarmViewModel: ObservableObject {
     }
 }
 
-extension AlarmViewModel {
-    static var preview: AlarmViewModel {
+extension NotificationViewModel {
+    static var preview: NotificationViewModel {
         let mockRouter = NavigationRouter()
-        let mockDataSource = AlarmDataSource()
-        let mockRepository = AlarmRepositoryImpl(datasource: mockDataSource)
-        let mockUseCase = AlarmUseCase(repository: mockRepository)
+        let mockDataSource = NotificationDataSource()
+        let mockRepository = NotificationRepositoryImpl(datasource: mockDataSource)
+        let mockUseCase = NotificationUseCase(repository: mockRepository)
         
-        return AlarmViewModel(
+        return NotificationViewModel(
             navigationRouter: mockRouter,
             useCase: mockUseCase
         )

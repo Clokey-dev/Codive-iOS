@@ -48,7 +48,7 @@ struct SearchView: View {
                     
                     if viewModel.recentSearchTags.isEmpty {
                         HStack {
-                            Text("최근 검색어가 없습니다.")
+                            Text(TextLiteral.Search.noTag)
                                 .font(Font.codive_body2_medium)
                                 .foregroundStyle(Color.Codive.grayscale3)
                             Spacer()

@@ -8,20 +8,20 @@
 import SwiftUI
 
 @MainActor
-final class AlarmViewFactory {
-    private weak var alarmDIContainer: AlarmDIContainer?
+final class NotificationViewFactory {
+    private weak var notificationDIContainer: NotificationDIContainer?
     
     // MARK: - Initializer
-    init(alarmDIContainer: AlarmDIContainer) {
-        self.alarmDIContainer = alarmDIContainer
+    init(notificationDIContainer: NotificationDIContainer) {
+        self.notificationDIContainer = notificationDIContainer
     }
     
     // MARK: - Methods
     @ViewBuilder
     func makeView(for destination: AppDestination) -> some View {
         switch destination {
-        case .alarm:
-            alarmDIContainer?.makeAlarmView()
+        case .notification:
+            notificationDIContainer?.makeNotificationView()
         default:
             EmptyView()
         }
