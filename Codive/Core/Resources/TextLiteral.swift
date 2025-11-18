@@ -79,7 +79,12 @@ enum TextLiteral {
         // Photo Edit
         static let photoEditTitle = "사진 편집"
         static let photoEditComplete = "편집 완료"
-        
+
+        // Exit Alert
+        static let exitAlertTitle = "정말 나가시겠습니까?"
+        static let exitAlertMessage = "편집 중인 화면은 복구할 수 없습니다"
+        static let exitAlertLeave = "나가기"
+
         // Record Detail
         static let recordDetailQuestion = "오늘의 내 기록을 추가해볼까요?"
         static let recordDetailStyleTitle = "오늘의 스타일을 선택해보세요"

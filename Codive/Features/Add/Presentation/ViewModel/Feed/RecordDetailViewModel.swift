@@ -33,7 +33,10 @@ final class RecordDetailViewModel: ObservableObject {
     
     @Published var hashtags: [String] = []
     @Published var attributedCaption: AttributedString = AttributedString("")
-    
+
+    // Alert Property
+    @Published var showExitAlert: Bool = false
+
     private let navigationRouter: NavigationRouter
     
     // MARK: - Options
@@ -96,6 +99,10 @@ final class RecordDetailViewModel: ObservableObject {
     }
     
     func dismissView() {
+        showExitAlert = true
+    }
+
+    func confirmExit() {
         navigationRouter.navigateBack()
     }
     
