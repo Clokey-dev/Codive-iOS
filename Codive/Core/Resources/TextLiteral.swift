@@ -112,4 +112,8 @@ enum TextLiteral {
         static let recentSearch = "최근 검색어"
         static let deleteAll = "전체 삭제"
     }
+    
+    enum Alarm {
+        static let title = "알림"
+    }
 }

@@ -26,5 +26,6 @@ final class MainTabViewModel: ObservableObject {
     func handleNotificationTap() {
         // 알림 버튼 탭 처리
         // TODO: 알림 화면으로 이동하거나 알림 로직 처리
+        navigationRouter.navigate(to: .alarm)
     }
 }

@@ -16,6 +16,7 @@ struct MainTabView: View {
     private let addDIContainer: AddDIContainer
     private let homeDIContainer: HomeDIContainer
     private let searchDIContainer: SearchDIContainer
+    private let alarmDIContainer: AlarmDIContainer
     
     // MARK: - Initializer
     init(appDIContainer: AppDIContainer) {
@@ -23,6 +24,7 @@ struct MainTabView: View {
         self.addDIContainer = appDIContainer.makeAddDIContainer()
         self.homeDIContainer = appDIContainer.makeHomeDIContainer()
         self.searchDIContainer = appDIContainer.makeSearchDIContainer()
+        self.alarmDIContainer = appDIContainer.makeAlarmDIContainer()
         
         self._navigationRouter = ObservedObject(wrappedValue: appDIContainer.navigationRouter)
         let viewModel = MainTabViewModel(navigationRouter: appDIContainer.navigationRouter)
@@ -96,6 +98,8 @@ struct MainTabView: View {
         switch destination {
         case .search:
             searchDIContainer.makeSearchView()
+        case .alarm:
+            alarmDIContainer.makeAlarmView()
             
         default:
             EmptyView()

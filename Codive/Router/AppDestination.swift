@@ -18,6 +18,7 @@ enum AppDestination: Hashable {
     case editCategory
     case codiBoard
     case search
+    case alarm
     
     // MARK: - 하단 탭바
     /// 이 화면이 탭바를 덮어야 하는가?
@@ -33,8 +34,8 @@ enum AppDestination: Hashable {
         case .editCategory, .codiBoard:
             return true
             
-        // Search Flow
-        case .search:
+        // Search, Alarm Flow
+        case .search, .alarm:
             return true
             
         // 다른 플로우 전체 화면은 여기에 추가
