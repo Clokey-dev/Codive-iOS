@@ -11,4 +11,8 @@ final class NotificationRepositoryImpl: NotificationRepository {
     init(datasource: NotificationDataSource) {
         self.datasource = datasource
     }
+    
+    func fetchNotifications() -> [NotificationEntity] {
+        return datasource.fetchNotifications()
+    }
 }

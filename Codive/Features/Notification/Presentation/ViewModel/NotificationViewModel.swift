@@ -13,9 +13,22 @@ final class NotificationViewModel: ObservableObject {
     private let navigationRouter: NavigationRouter
     private let useCase: NotificationUseCase
     
+    @Published var unreadNotifications: [NotificationEntity] = []
+    @Published var readNotifications: [NotificationEntity] = []
+    
     init(navigationRouter: NavigationRouter, useCase: NotificationUseCase) {
         self.navigationRouter = navigationRouter
         self.useCase = useCase
+        
+        loadData()
+    }
+    
+    func loadData() {
+        let allNotifications = useCase.fetchNotifications()
+        
+        // isRead 상태를 기준으로 필터링
+        self.unreadNotifications = allNotifications.filter { !$0.isRead }
+        self.readNotifications = allNotifications.filter { $0.isRead }
     }
     
     // MARK: - Navigation

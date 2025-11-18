@@ -14,8 +14,6 @@ struct NotificationRow: View {
     
     // MARK: - Constants
     private let profileImageSize: CGFloat = 36
-    private let horizontalPadding: CGFloat = 20
-    private let verticalPadding: CGFloat = 10
     private let messageFont = Font.codive_body2_regular
     private let messageColor = Color.Codive.grayscale1
     
@@ -44,14 +42,12 @@ struct NotificationRow: View {
             
             Spacer()
         }
-        .padding(.horizontal, horizontalPadding)
-        .padding(.vertical, verticalPadding)
     }
 }
 
 // MARK: - Preview
 #Preview {
-    VStack(spacing: 10) {
+    VStack(spacing: 16) {
         NotificationRow(
             profileImageUrl: "https://picsum.photos/id/237/200/200",
             message: "홍길동님이 회원님의 옷장을 팔로우하기 시작했습니다."

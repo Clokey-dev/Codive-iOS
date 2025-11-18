@@ -7,6 +7,9 @@
 
 import Foundation
 
-struct NotificationEntity {
-    
+struct NotificationEntity: Identifiable {
+    let id: Int
+    let imageUrl: String?
+    let message: String
+    let isRead: Bool
 }

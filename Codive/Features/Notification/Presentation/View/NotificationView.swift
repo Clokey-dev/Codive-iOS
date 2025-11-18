@@ -23,21 +23,51 @@ struct NotificationView: View {
             
             ScrollView {
                 VStack {
-                    HStack {
-                        Text(TextLiteral.Notification.notRead)
-                            .font(Font.codive_body2_medium)
-                            .foregroundStyle(Color.Codive.grayscale3)
-                        Spacer()
+                    if !viewModel.unreadNotifications.isEmpty {
+                        HStack {
+                            Text(TextLiteral.Notification.notRead)
+                                .font(Font.codive_body2_medium)
+                                .foregroundStyle(Color.Codive.grayscale3)
+                            Spacer()
+                        }
+                        .padding(.top, 32)
+                        
+                        VStack(spacing: 16) {
+                            ForEach(viewModel.unreadNotifications) { item in
+                                NotificationRow(
+                                    profileImageUrl: item.imageUrl,
+                                    message: item.message
+                                )
+                            }
+                        }
+                        .padding(.top, 12)
                     }
-                    .padding(.top, 32)
+
+                    if !viewModel.readNotifications.isEmpty {
+                        HStack {
+                            Text(TextLiteral.Notification.read)
+                                .font(Font.codive_body2_medium)
+                                .foregroundStyle(Color.Codive.grayscale3)
+                            Spacer()
+                        }
+                        .padding(.top, 32)
+                        
+                        VStack(spacing: 16) {
+                            ForEach(viewModel.readNotifications) { item in
+                                NotificationRow(
+                                    profileImageUrl: item.imageUrl,
+                                    message: item.message
+                                )
+                            }
+                        }
+                        .padding(.top, 12)
+                    }
                     
-                    HStack {
-                        Text(TextLiteral.Notification.read)
-                            .font(Font.codive_body2_medium)
+                    if viewModel.unreadNotifications.isEmpty && viewModel.readNotifications.isEmpty {
+                        Text("새로운 알림이 없습니다.")
+                            .padding(.top, 50)
                             .foregroundStyle(Color.Codive.grayscale3)
-                        Spacer()
                     }
-                    .padding(.top, 32)
                 }
                 .padding(.horizontal, 20)
             }

@@ -11,4 +11,8 @@ final class NotificationUseCase {
     init(repository: NotificationRepository) {
         self.repository = repository
     }
+    
+    func fetchNotifications() -> [NotificationEntity] {
+        return repository.fetchNotifications()
+    }
 }

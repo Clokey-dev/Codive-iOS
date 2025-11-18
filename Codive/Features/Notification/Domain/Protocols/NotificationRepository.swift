@@ -6,5 +6,5 @@
 //
 
 protocol NotificationRepository {
-    
+    func fetchNotifications() -> [NotificationEntity]
 }
