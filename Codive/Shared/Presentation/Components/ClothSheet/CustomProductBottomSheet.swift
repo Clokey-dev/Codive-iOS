@@ -69,15 +69,6 @@ struct CustomProductBottomSheet: View {
     }
 }
 
-// MARK: - Product Item Model
-struct ProductItem: Identifiable {
-    let id = UUID()
-    let imageName: String
-    let isTodayCloth: Bool
-    let brand: String?
-    let name: String?
-}
-
 // MARK: - Preview
 #Preview {
     CustomProductBottomSheet(
