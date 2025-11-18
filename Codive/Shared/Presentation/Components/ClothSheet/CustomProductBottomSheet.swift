@@ -55,11 +55,10 @@ struct CustomProductBottomSheet: View {
                         CustomProductCard(
                             imageName: product.imageName,
                             isTodayCloth: product.isTodayCloth,
-                            isSelected: selectedProducts.contains(product.id),
-                            onTap: {
-                                onProductTap(product)
-                            }
-                        )
+                            isSelected: selectedProducts.contains(product.id)
+                        ) {
+                            onProductTap(product)
+                        }
                     }
                 }
                 .padding(.horizontal, 20)
@@ -67,18 +66,4 @@ struct CustomProductBottomSheet: View {
         }
         .padding(.top, 16)
     }
-}
-
-// MARK: - Preview
-#Preview {
-    CustomProductBottomSheet(
-        searchText: .constant(""),
-        selectedCategory: .constant("전체"),
-        selectedProducts: .constant([]),
-        products: [
-            ProductItem(imageName: "sample1", isTodayCloth: true, brand: "Nike", name: "에어포스 1"),
-            ProductItem(imageName: "sample2", isTodayCloth: false, brand: "Adidas", name: "후디")
-        ],
-        onProductTap: { _ in }
-    )
 }

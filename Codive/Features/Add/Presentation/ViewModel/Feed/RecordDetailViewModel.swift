@@ -112,7 +112,7 @@ final class RecordDetailViewModel: ObservableObject {
 
     private func setupPhotoTagSubscription() {
         PhotoTagViewModel.photoTagsUpdated
-            .sink { [weak self] (photoId, tags) in
+            .sink { [weak self] photoId, tags in
                 self?.updatePhotoTags(for: photoId, tags: tags)
             }
             .store(in: &cancellables)

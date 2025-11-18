@@ -33,7 +33,7 @@ struct TaggableImageView: View {
     
     // MARK: - Body
     var body: some View {
-        GeometryReader { geo in
+        GeometryReader { _ in
             ZStack {
                 // 이미지
                 Image(uiImage: image)

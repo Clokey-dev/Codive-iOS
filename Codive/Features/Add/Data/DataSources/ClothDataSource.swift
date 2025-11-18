@@ -26,7 +26,7 @@ final class ClothDataSource {
         
         // 카테고리 필터링 (전체면 전부 반환)
         if let category = category, category != "전체" {
-            return mockClothItems.filter { item in
+            return mockClothItems.filter { _ in
                 // TODO: ProductItem에 category 필드 추가 후 필터링
                 return true
             }
