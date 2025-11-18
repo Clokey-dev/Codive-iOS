@@ -45,7 +45,7 @@ struct TopNavigationBar: View {
                     Button {
                         onSearchTap?()
                     } label: {
-                        Image("search")
+                        Image(systemName: "magnifyingglass")
                             .renderingMode(.template)
                             .foregroundStyle(Color.Codive.grayscale1)
                             .frame(width: 24, height: 24)
@@ -58,7 +58,7 @@ struct TopNavigationBar: View {
                         onNotificationTap?()
                     } label: {
                         ZStack(alignment: .topTrailing) {
-                            Image("alert_off")
+                            Image(systemName: "bell")
                                 .renderingMode(.template)
                                 .foregroundStyle(Color.Codive.grayscale1)
                                 .frame(width: 24, height: 24)

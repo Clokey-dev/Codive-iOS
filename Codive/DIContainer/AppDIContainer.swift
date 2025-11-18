@@ -28,4 +28,8 @@ final class AppDIContainer {
     func makeHomeDIContainer() -> HomeDIContainer {
         return HomeDIContainer(navigationRouter: navigationRouter)
     }
+    
+    func makeSearchDIContainer() -> SearchDIContainer {
+        return SearchDIContainer(navigationRouter: navigationRouter)
+    }
 }

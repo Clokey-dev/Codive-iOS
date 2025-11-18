@@ -106,4 +106,8 @@ enum TextLiteral {
         static let weatherLoading = "날씨 정보를 가져오는 중입니다..."
         static let failWeather = "날씨 정보를 가져오는 데 실패했습니다."
     }
+    
+    enum Search {
+        static let searchHint = "찾고 싶은 옷이나 브랜드를 검색해보세요"
+    }
 }

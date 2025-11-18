@@ -10,18 +10,23 @@ import SwiftUI
 struct MainTabView: View {
     
     // MARK: - Properties
-    @StateObject private var viewModel = MainTabViewModel()
+    @StateObject private var viewModel: MainTabViewModel
     @ObservedObject private var navigationRouter: NavigationRouter
     private let appDIContainer: AppDIContainer
     private let addDIContainer: AddDIContainer
     private let homeDIContainer: HomeDIContainer
+    private let searchDIContainer: SearchDIContainer
     
     // MARK: - Initializer
     init(appDIContainer: AppDIContainer) {
         self.appDIContainer = appDIContainer
         self.addDIContainer = appDIContainer.makeAddDIContainer()
         self.homeDIContainer = appDIContainer.makeHomeDIContainer()
-        self.navigationRouter = appDIContainer.navigationRouter
+        self.searchDIContainer = appDIContainer.makeSearchDIContainer()
+        
+        self._navigationRouter = ObservedObject(wrappedValue: appDIContainer.navigationRouter)
+        let viewModel = MainTabViewModel(navigationRouter: appDIContainer.navigationRouter)
+        self._viewModel = StateObject(wrappedValue: viewModel)
     }
     
     // MARK: - Body
@@ -54,10 +59,16 @@ struct MainTabView: View {
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .overlay {
+                    if let destination = navigationRouter.currentDestination {
+                        destinationView(for: destination)
+                            .transition(.move(edge: .trailing))
+                    }
+                }
                 
                 // MARK: - Tab Bar
                 if navigationRouter.currentDestination == nil ||
-                   navigationRouter.currentDestination?.shouldCoverTabBar == false {
+                    navigationRouter.currentDestination?.shouldCoverTabBar == false {
                     TabBar(selectedTab: $viewModel.selectedTab)
                 }
             }
@@ -77,5 +88,17 @@ struct MainTabView: View {
     
     private var showNotificationButton: Bool {
         true
+    }
+    
+    // MARK: - Destination View Builder (추가)
+    @ViewBuilder
+    private func destinationView(for destination: AppDestination) -> some View {
+        switch destination {
+        case .search:
+            searchDIContainer.makeSearchView()
+            
+        default:
+            EmptyView()
+        }
     }
 }
