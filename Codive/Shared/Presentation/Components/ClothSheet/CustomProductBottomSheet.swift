@@ -12,6 +12,7 @@ struct CustomProductBottomSheet: View {
     // MARK: - Properties
     @Binding var searchText: String
     @Binding var selectedCategory: String
+    @Binding var selectedProducts: Set<UUID>
     let products: [ProductItem]
 
     private let categories = ["전체", "상의", "바지", "스커트", "아우터", "신발", "가방", "패션소품"]
@@ -52,7 +53,15 @@ struct CustomProductBottomSheet: View {
                     ForEach(products) { product in
                         CustomProductCard(
                             imageName: product.imageName,
-                            label: product.label
+                            label: product.label,
+                            isSelected: selectedProducts.contains(product.id),
+                            onTap: {
+                                if selectedProducts.contains(product.id) {
+                                    selectedProducts.remove(product.id)
+                                } else {
+                                    selectedProducts.insert(product.id)
+                                }
+                            }
                         )
                     }
                 }
@@ -75,6 +84,7 @@ struct ProductItem: Identifiable {
     CustomProductBottomSheet(
         searchText: .constant(""),
         selectedCategory: .constant("전체"),
+        selectedProducts: .constant([]),
         products: [
             ProductItem(imageName: "sample1", label: "오늘의 코디"),
             ProductItem(imageName: "sample2", label: "오늘의 코디"),
