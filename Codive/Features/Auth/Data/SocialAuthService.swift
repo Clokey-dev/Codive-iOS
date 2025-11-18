@@ -28,18 +28,18 @@ final class SocialAuthService: NSObject, SocialAuthServiceProtocol {
     func kakaoLogin() async -> AuthResult {
         return await withCheckedContinuation { continuation in
             if UserApi.isKakaoTalkLoginAvailable() {
-                UserApi.shared.loginWithKakaoTalk { (oauthToken, error) in
+                UserApi.shared.loginWithKakaoTalk { _, error in
                     if let error = error {
                         self.handleKakaoError(error, continuation: continuation)
-                    } else if let token = oauthToken {
+                    } else {
                         self.fetchKakaoUserInfo(continuation: continuation)
                     }
                 }
             } else {
-                UserApi.shared.loginWithKakaoAccount { (oauthToken, error) in
+                UserApi.shared.loginWithKakaoAccount { _, error in
                     if let error = error {
                         self.handleKakaoError(error, continuation: continuation)
-                    } else if let token = oauthToken {
+                    } else {
                         self.fetchKakaoUserInfo(continuation: continuation)
                     }
                 }
@@ -48,8 +48,8 @@ final class SocialAuthService: NSObject, SocialAuthServiceProtocol {
     }
     
     private func fetchKakaoUserInfo(continuation: CheckedContinuation<AuthResult, Never>) {
-        UserApi.shared.me { (user, error) in
-            if let error = error {
+        UserApi.shared.me { user, error in
+            if error != nil {
                 continuation.resume(returning: .failure(.userInfoError))
             } else if let user = user {
                 let authUser = AuthUser(
