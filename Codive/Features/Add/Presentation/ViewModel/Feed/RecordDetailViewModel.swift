@@ -37,8 +37,27 @@ final class RecordDetailViewModel: ObservableObject {
     private let navigationRouter: NavigationRouter
     
     // MARK: - Options
-    let styleOptions = ["캐주얼", "러블리", "미니멀", "빈티지", "스포티", "스트릿", "시크", "오피스룩", "클래식", "하이틴"]
-    let situationOptions = ["데이트", "데일리", "여행", "운동", "축제", "출근복", "파티"]
+    let styleOptions = [
+        TextLiteral.Add.styleCasual,
+        TextLiteral.Add.styleLoving,
+        TextLiteral.Add.styleMinimal,
+        TextLiteral.Add.styleVintage,
+        TextLiteral.Add.styleSporty,
+        TextLiteral.Add.styleStreet,
+        TextLiteral.Add.styleChic,
+        TextLiteral.Add.styleOffice,
+        TextLiteral.Add.styleClassic,
+        TextLiteral.Add.styleHighteen
+    ]
+    let situationOptions = [
+        TextLiteral.Add.situationDate,
+        TextLiteral.Add.situationDaily,
+        TextLiteral.Add.situationTravel,
+        TextLiteral.Add.situationExercise,
+        TextLiteral.Add.situationFestival,
+        TextLiteral.Add.situationWork,
+        TextLiteral.Add.situationParty
+    ]
     
     // MARK: - Computed Properties
     var currentPhoto: SelectedPhoto? {

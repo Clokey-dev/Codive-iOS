@@ -15,6 +15,7 @@ enum TextLiteral {
         static let save = "저장"
         static let confirm = "확인"
         static let delete = "삭제"
+        static let unknown = "알 수 없음"
     }
     
     // MARK: - Auth (인증)
@@ -73,6 +74,7 @@ enum TextLiteral {
         static let recordTitle = "기록 추가"
         static let recordDescription = "오늘의 스타일을 기록해요"
         static let recordRecentAlbum = "최근 항목"
+        static let recordPhotoSaveFailure = "사진 저장 실패: "
         
         // Photo Edit
         static let photoEditTitle = "사진 편집"
@@ -85,6 +87,27 @@ enum TextLiteral {
         static let recordDetailCaptionTitle = "캡션을 추가해주세요"
         static let recordDetailCaptionPlaceholder = "나만의 스타일 이야기를 채워보세요.\n#아이템과 #스타일을 자랑해보세요."
         static let recordDetailComplete = "작성 완료"
+
+        // Style Options
+        static let styleCasual = "캐주얼"
+        static let styleLoving = "러블리"
+        static let styleMinimal = "미니멀"
+        static let styleVintage = "빈티지"
+        static let styleSporty = "스포티"
+        static let styleStreet = "스트릿"
+        static let styleChic = "시크"
+        static let styleOffice = "오피스룩"
+        static let styleClassic = "클래식"
+        static let styleHighteen = "하이틴"
+
+        // Situation Options
+        static let situationDate = "데이트"
+        static let situationDaily = "데일리"
+        static let situationTravel = "여행"
+        static let situationExercise = "운동"
+        static let situationFestival = "축제"
+        static let situationWork = "출근복"
+        static let situationParty = "파티"
         
         // Photo Tag
         static let photoTagTitle = "태그하기"
