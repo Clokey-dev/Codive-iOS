@@ -70,8 +70,11 @@ final class AddDIContainer {
     }
     
     func makePhotoTagView(photo: SelectedPhoto, allPhotos: [SelectedPhoto]) -> PhotoTagView {
-        return PhotoTagView(
-            viewModel: makePhotoTagViewModel(photo: photo, allPhotos: allPhotos)
+        let viewModel = PhotoTagViewModel(
+            photo: photo,
+            allPhotos: allPhotos,
+            navigationRouter: navigationRouter
         )
+        return PhotoTagView(viewModel: viewModel)
     }
 }

@@ -8,12 +8,15 @@
 import Foundation
 import UIKit
 import SwiftUI
+import Combine
 
 // MARK: - RecordDetailViewModel
 @MainActor
 final class RecordDetailViewModel: ObservableObject {
     
     // MARK: - Properties
+    private var cancellables = Set<AnyCancellable>()
+    
     @Published var selectedPhotos: [SelectedPhoto]
     @Published var currentPhotoIndex: Int = 0
     
@@ -52,6 +55,9 @@ final class RecordDetailViewModel: ObservableObject {
     init(selectedPhotos: [SelectedPhoto], navigationRouter: NavigationRouter) {
         self.selectedPhotos = selectedPhotos
         self.navigationRouter = navigationRouter
+        
+        // 태그 업데이트 구독
+        setupPhotoTagSubscription()
     }
     
     // MARK: - Methods
@@ -68,11 +74,6 @@ final class RecordDetailViewModel: ObservableObject {
         
         // 메인으로 돌아가기
         navigationRouter.navigateToRoot()
-    }
-    
-    func navigateToPhotoTag() {
-        guard let currentPhoto = currentPhoto else { return }
-        navigationRouter.navigate(to: .photoTag(photo: currentPhoto, allPhotos: selectedPhotos))
     }
     
     func dismissView() {
@@ -107,5 +108,24 @@ final class RecordDetailViewModel: ObservableObject {
         
         self.hashtags = foundHashtags
         self.attributedCaption = attributed
+    }
+
+    private func setupPhotoTagSubscription() {
+        PhotoTagViewModel.photoTagsUpdated
+            .sink { [weak self] (photoId, tags) in
+                self?.updatePhotoTags(for: photoId, tags: tags)
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func updatePhotoTags(for photoId: String, tags: [ClothTag]) {
+        if let index = selectedPhotos.firstIndex(where: { $0.id == photoId }) {
+            selectedPhotos[index].clothTags = tags
+        }
+    }
+    
+    func navigateToPhotoTag() {
+        guard let currentPhoto = currentPhoto else { return }
+        navigationRouter.navigate(to: .photoTag(photo: currentPhoto, allPhotos: selectedPhotos))
     }
 }

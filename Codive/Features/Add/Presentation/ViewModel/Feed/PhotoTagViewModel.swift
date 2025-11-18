@@ -7,22 +7,16 @@
 
 import Foundation
 import UIKit
-
-// MARK: - ClothTag Model
-struct ClothTag: Identifiable {
-    let id: UUID
-    let clothId: UUID
-    let brand: String
-    let name: String
-    var locationX: CGFloat
-    var locationY: CGFloat
-}
+import Combine
 
 // MARK: - PhotoTagViewModel
 @MainActor
 final class PhotoTagViewModel: ObservableObject {
     
     // MARK: - Properties
+    
+    static let photoTagsUpdated = PassthroughSubject<(photoId: String, tags: [ClothTag]), Never>()
+
     @Published var currentPhoto: SelectedPhoto
     @Published var searchText: String = ""
     @Published var selectedCategory: String = "전체"
@@ -49,15 +43,26 @@ final class PhotoTagViewModel: ObservableObject {
     }
     
     // MARK: - Initializer
-    init(photo: SelectedPhoto, allPhotos: [SelectedPhoto], navigationRouter: NavigationRouter) {
+    init(
+        photo: SelectedPhoto,
+        allPhotos: [SelectedPhoto],
+        navigationRouter: NavigationRouter
+    ) {
         self.currentPhoto = photo
         self.allPhotos = allPhotos
         self.navigationRouter = navigationRouter
+        
+        // 기존 태그가 있으면 불러오기
+        self.clothTags = photo.clothTags
+        // 기존 태그의 clothId들을 selectedProducts에 추가
+        self.selectedProducts = Set(photo.clothTags.map { $0.clothId })
     }
     
     // MARK: - Methods
     func completeTagging() {
-        // 이전 화면(RecordDetailView)으로 돌아가기
+        // 이벤트 발행
+        Self.photoTagsUpdated.send((photoId: currentPhoto.id, tags: clothTags))
+        // 이전 화면으로 돌아가기
         navigationRouter.navigateBack()
     }
     

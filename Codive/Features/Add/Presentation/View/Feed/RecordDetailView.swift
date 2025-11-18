@@ -61,10 +61,32 @@ private extension RecordDetailView {
         VStack(spacing: 0) {
             TabView(selection: $viewModel.currentPhotoIndex) {
                 ForEach(Array(viewModel.selectedPhotos.enumerated()), id: \.element.id) { index, photo in
-                    AnimatedPhotoCard(photo: photo) {
-                        viewModel.navigateToPhotoTag()
+                    if photo.clothTags.isEmpty {
+                        // 태그가 없으면 애니메이션 카드
+                        AnimatedPhotoCard(photo: photo) {
+                            viewModel.navigateToPhotoTag()
+                        }
+                        .tag(index)
+                    } else {
+                        // 태그가 있으면 태그 표시
+                        ZStack {
+                            TaggableImageView(
+                                image: photo.croppedImage,
+                                tags: .constant(photo.clothTags),
+                                onTagRemove: { _ in },
+                                isDraggable: false
+                            )
+                            .aspectRatio(3/4, contentMode: .fit)
+                            
+                            // 탭해서 태그 편집으로 이동
+                            Color.clear
+                                .contentShape(Rectangle())
+                                .onTapGesture {
+                                    viewModel.navigateToPhotoTag()
+                                }
+                        }
+                        .tag(index)
                     }
-                    .tag(index)
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
@@ -82,6 +104,7 @@ private extension RecordDetailView {
             .padding(.bottom, 24)
         }
     }
+    
     @ViewBuilder
     func multiSelectSection() -> some View {
         VStack(spacing: 24) {

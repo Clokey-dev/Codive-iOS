@@ -14,8 +14,22 @@ struct TaggableImageView: View {
     let image: UIImage
     @Binding var tags: [ClothTag]
     let onTagRemove: (UUID) -> Void
+    let isDraggable: Bool
     
     @State private var imageSize: CGSize = .zero
+    
+    // MARK: - Initializer
+    init(
+        image: UIImage,
+        tags: Binding<[ClothTag]>,
+        onTagRemove: @escaping (UUID) -> Void,
+        isDraggable: Bool = true
+    ) {
+        self.image = image
+        self._tags = tags
+        self.onTagRemove = onTagRemove
+        self.isDraggable = isDraggable
+    }
     
     // MARK: - Body
     var body: some View {
@@ -42,6 +56,7 @@ struct TaggableImageView: View {
                     DraggableTag(
                         tag: tag,
                         imageSize: imageSize,
+                        isDraggable: isDraggable,
                         onDrag: { newX, newY in
                             updateTagPosition(tag.id, x: newX, y: newY)
                         },
@@ -68,6 +83,7 @@ struct TaggableImageView: View {
 private struct DraggableTag: View {
     let tag: ClothTag
     let imageSize: CGSize
+    let isDraggable: Bool
     let onDrag: (CGFloat, CGFloat) -> Void
     let onRemove: () -> Void
     
@@ -84,12 +100,13 @@ private struct DraggableTag: View {
             y: tag.locationY * imageSize.height
         )
         .gesture(
-            DragGesture()
+            isDraggable ? DragGesture()
                 .onChanged { value in
                     let newX = value.location.x / imageSize.width
                     let newY = value.location.y / imageSize.height
                     onDrag(newX, newY)
                 }
+            : nil
         )
     }
 }
@@ -102,6 +119,7 @@ private struct DraggableTag: View {
             ClothTag(id: UUID(), clothId: UUID(), brand: "Nike", name: "에어포스 1", locationX: 0.3, locationY: 0.4),
             ClothTag(id: UUID(), clothId: UUID(), brand: "Adidas", name: "후디", locationX: 0.6, locationY: 0.7)
         ]),
-        onTagRemove: { _ in }
+        onTagRemove: { _ in },
+        isDraggable: true
     )
 }

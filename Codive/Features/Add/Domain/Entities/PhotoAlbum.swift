@@ -31,6 +31,7 @@ struct SelectedPhoto: Identifiable, Equatable, Hashable {
     let originalImage: UIImage
     var croppedImage: UIImage
     var order: Int
+    var clothTags: [ClothTag] = [] 
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
