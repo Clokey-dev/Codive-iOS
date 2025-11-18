@@ -17,9 +17,9 @@ struct SettingsEmptyView: View {
         VStack(spacing: 16) {
             Image(systemName: "exclamationmark.triangle")
                 .font(.system(size: 40))
-                .foregroundStyle(Color("main2"))
-            Text(title).font(.codive_title2).foregroundStyle(Color("Grayscale1"))
-            Text(message).font(.codive_body2_regular).foregroundStyle(Color("Grayscale3"))
+                .foregroundStyle(Color.Codive.main2)
+            Text(title).font(.codive_title2).foregroundStyle(Color.Codive.grayscale1)
+            Text(message).font(.codive_body2_regular).foregroundStyle(Color.Codive.grayscale3)
             CustomButton(text: actionTitle, widthType: .fixed, action: action)
                 .padding(.top, 8)
         }

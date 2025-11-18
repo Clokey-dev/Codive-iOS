@@ -44,10 +44,10 @@ struct SettingView: View {
         VStack(alignment: .leading) {
             Text("로그인/회원정보")
                 .font(.codive_title3)
-                .foregroundStyle(Color("Grayscale1"))
+                .foregroundStyle(Color.Codive.grayscale1)
 
             Divider()
-                .background(Color("Grayscale1"))
+                .background(Color.Codive.grayscale1)
                 .padding(.bottom, 16)
 
             HStack(spacing: 15) {
@@ -56,7 +56,7 @@ struct SettingView: View {
 
                 Text("email@xxxx.com")
                     .font(.codive_body1_regular)
-                    .foregroundStyle(Color("Grayscale1"))
+                    .foregroundStyle(Color.Codive.grayscale1)
             }
         }
     }
@@ -67,10 +67,10 @@ struct SettingView: View {
         VStack(alignment: .leading) {
             Text("계정")
                 .font(.codive_title3)
-                .foregroundStyle(Color("Grayscale1"))
+                .foregroundStyle(Color.Codive.grayscale1)
 
             Divider()
-                .background(Color("Grayscale1"))
+                .background(Color.Codive.grayscale1)
                 .padding(.bottom, 16)
 
             SettingRow(text: "좋아요 한 기록")
@@ -89,16 +89,16 @@ struct SettingView: View {
         VStack(alignment: .leading) {
             Text("알림")
                 .font(.codive_title3)
-                .foregroundStyle(Color("Grayscale1"))
+                .foregroundStyle(Color.Codive.grayscale1)
 
             Divider()
-                .background(Color("Grayscale1"))
+                .background(Color.Codive.grayscale1)
                 .padding(.bottom, 16)
 
             HStack {
                 Text("PUSH 알림")
                     .font(.codive_body1_regular)
-                    .foregroundStyle(Color("Grayscale1"))
+                    .foregroundStyle(Color.Codive.grayscale1)
 
                 Spacer()
 
@@ -115,7 +115,7 @@ struct SettingView: View {
             HStack {
                 Text("마케팅 알림 수신 동의")
                     .font(.codive_body1_regular)
-                    .foregroundStyle(Color("Grayscale1"))
+                    .foregroundStyle(Color.Codive.grayscale3)
 
                 Spacer()
 
@@ -135,22 +135,22 @@ struct SettingView: View {
         VStack(alignment: .leading) {
             Text("고객 지원")
                 .font(.codive_title3)
-                .foregroundStyle(Color("Grayscale1"))
+                .foregroundStyle(Color.Codive.grayscale3)
 
             Divider()
-                .background(Color("Grayscale1"))
+                .background(Color.Codive.grayscale3)
                 .padding(.bottom, 16)
 
             HStack {
                 Text("버전 정보")
                     .font(.codive_body1_regular)
-                    .foregroundStyle(Color("Grayscale1"))
+                    .foregroundStyle(Color.Codive.grayscale1)
 
                 Spacer()
 
                 Text("1.3.2")
                     .font(.codive_body1_regular)
-                    .foregroundStyle(Color("Grayscale3"))
+                    .foregroundStyle(Color.Codive.grayscale3)
             }
             .padding(.bottom, 12)
 
@@ -174,13 +174,13 @@ private struct SettingRow: View {
         HStack {
             Text(text)
                 .font(.codive_body1_regular)
-                .foregroundStyle(Color("Grayscale1"))
+                .foregroundStyle(Color.Codive.grayscale1)
 
             Spacer()
 
             Image("backSmall")
                 .frame(width: 6, height: 12)
-                .foregroundStyle(Color("main1"))
+                .foregroundStyle(Color.Codive.main1)
         }
     }
 }

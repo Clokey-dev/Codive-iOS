@@ -26,11 +26,16 @@ final class SettingsDataSource {
 
     // MARK: - Init (샘플 데이터)
     init() {
-        // 좋아요한 기록
-        likedRecordsStore = (1...25).map { i in
-            LikedRecord(
+        likedRecordsStore = (1...25).compactMap { i in
+            let urlString = "https://picsum.photos/id/\(i % 100)/200/200"
+            guard let url = URL(string: urlString) else {
+                assertionFailure("Stub URL invalid: \(urlString)")
+                return nil        // 잘못된 건 그냥 버림 (더미 데이터니까)
+            }
+
+            return LikedRecord(
                 postId: PostID(i),
-                thumbnailURL: URL(string: "https://picsum.photos/id/\(i % 100)/200/200")!,
+                thumbnailURL: url,
                 likedAt: Date().addingTimeInterval(TimeInterval(-i * 1_800))
             )
         }

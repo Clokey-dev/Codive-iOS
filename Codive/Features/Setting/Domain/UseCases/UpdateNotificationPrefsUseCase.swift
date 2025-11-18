@@ -7,7 +7,7 @@
 import Foundation
 
     // MARK: - UpdateNotificationPrefsUseCase
-final class  UpdateNotificationPrefsUseCase {
+final class UpdateNotificationPrefsUseCase {
 
     // MARK: - Properties
     private let repository: SettingRepository

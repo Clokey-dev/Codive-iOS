@@ -23,11 +23,11 @@ struct ReportDetailView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     Text("선택된 신고 사유")
                         .font(.codive_title2)
-                        .foregroundStyle(Color("Grayscale1"))
+                        .foregroundStyle(Color.Codive.grayscale1)
 
                     Text("· \(vm.selectedReason?.title ?? "")")
                         .font(.codive_body2_medium)
-                        .foregroundStyle(Color("Grayscale1"))
+                        .foregroundStyle(Color.Codive.grayscale1)
                         .padding(.vertical, 12)
                         .padding(.leading, 8)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -39,14 +39,14 @@ struct ReportDetailView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("문제가 된 부분을 구체적으로 작성해 주세요.")
                             .font(.codive_body1_bold)
-                            .foregroundStyle(Color("Grayscale1"))
+                            .foregroundStyle(Color.Codive.grayscale1)
 
                         ZStack(alignment: .topLeading) {
                             // Placeholder – 내용이 비어 있을 때만 보이도록
                             if vm.draftDetail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                                 Text("예시: 욕설을 사용한 특정 문장, 협박성 메시지 등")
                                     .font(.codive_body2_regular)
-                                    .foregroundStyle(Color("Grayscale3"))
+                                    .foregroundStyle(Color.Codive.grayscale3)
                                     .padding(.leading, 16)
                                     .padding(.top, 16)
                             }
@@ -58,13 +58,13 @@ struct ReportDetailView: View {
                                 )
                             )
                             .font(.codive_body2_regular)
-                            .foregroundStyle(Color("Grayscale1"))
+                            .foregroundStyle(Color.Codive.grayscale1)
                             .padding(.leading, 16)
                             .padding(.top, 16)
                             .frame(minHeight: 120, alignment: .topLeading)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color("main1"), lineWidth: 1)
+                                    .stroke(Color.Codive.grayscale1, lineWidth: 1)
                             )
                         }
                     }
@@ -95,10 +95,10 @@ struct ReportDetailView: View {
             HStack(alignment: .top, spacing: 12) {
                 Image(systemName: "exclamationmark.triangle")
                     .frame(width: 24, height: 24)
-                    .foregroundStyle(Color("Grayscale4"))
+                    .foregroundStyle(Color.Codive.grayscale4)
                 Text(text)
                     .font(.codive_body2_regular)
-                    .foregroundStyle(Color("Grayscale4"))
+                    .foregroundStyle(Color.Codive.grayscale4)
             }
         }
     }

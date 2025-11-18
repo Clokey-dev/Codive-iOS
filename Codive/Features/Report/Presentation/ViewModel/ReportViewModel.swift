@@ -64,11 +64,9 @@ final class ReportViewModel: ObservableObject {
     // 선택/입력 액션
     func select(reason: ReportReason) {
         draft.select(reason)
-        objectWillChange.send()
     }
     func updateDetail(_ text: String) {
         draft.updateDetail(text)
-        objectWillChange.send()
     }
 
     // 버튼 활성화

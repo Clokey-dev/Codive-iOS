@@ -39,7 +39,7 @@ struct ReportView: View {
         VStack(alignment: .leading) {
             Text("작성자")
                 .font(.codive_title2)
-                .foregroundStyle(Color("Grayscale1"))
+                .foregroundStyle(Color.Codive.grayscale1)
                 .padding(.bottom, 12)
                 .padding(.leading, 20)
 
@@ -55,11 +55,11 @@ struct ReportView: View {
                     VStack(alignment: .leading) {
                         Text(vm.authorName)
                             .font(.codive_body1_medium)
-                            .foregroundStyle(Color("Grayscale1"))
+                            .foregroundStyle(Color.Codive.grayscale1)
 
                         Text(vm.authorHandle)
                             .font(.codive_body3_medium)
-                            .foregroundStyle(Color("Grayscale3"))
+                            .foregroundStyle(Color.Codive.grayscale3)
                     }
                 }
             }
@@ -72,12 +72,12 @@ struct ReportView: View {
         VStack(alignment: .leading) {
             Text(vm.contentSectionTitle) // "기록 내용" / "댓글 내용"
                 .font(.codive_title2)
-                .foregroundStyle(Color("Grayscale1"))
+                .foregroundStyle(Color.Codive.grayscale1)
                 .padding(.bottom, 12)
 
             Text(vm.contentPreview)
                 .font(.codive_body3_regular)
-                .foregroundStyle(Color("Grayscale2"))
+                .foregroundStyle(Color.Codive.grayscale2)
                 .lineLimit(nil)
         }
         .padding(.horizontal, 20)
@@ -88,7 +88,7 @@ struct ReportView: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("신고 사유")
                 .font(.codive_title2)
-                .foregroundStyle(Color("Grayscale1"))
+                .foregroundStyle(Color.Codive.grayscale1)
 
             ForEach(vm.reasonList, id: \.self) { reason in
                 VStack(alignment: .leading, spacing: 16) {
@@ -96,12 +96,14 @@ struct ReportView: View {
                         Image(vm.selectedReason == reason ? "checked" : "unchecked")
                             .resizable()
                             .frame(width: 20, height: 20)
-                            .onTapGesture { vm.select(reason: reason) }
 
                         Text(reason.title)
                             .font(.codive_body2_regular)
-                            .foregroundStyle(Color("Grayscale1"))
-                            .onTapGesture { vm.select(reason: reason) }
+                            .foregroundStyle(Color.Codive.grayscale1)
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        vm.select(reason: reason)
                     }
 
                     // 보조 설명(디자인 유지용 간단 매핑)
@@ -112,10 +114,10 @@ struct ReportView: View {
                             }
                         }
                         .font(.codive_body3_regular)
-                        .foregroundStyle(Color("Grayscale1"))
+                        .foregroundStyle(Color.Codive.grayscale1)
                         .padding(.vertical, 12)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color("main6"))
+                        .background(Color.Codive.main6)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
 
@@ -129,10 +131,10 @@ struct ReportView: View {
                         )
                         .frame(minHeight: 88)
                         .padding(12)
-                        .background(Color("main6"))
+                        .background(Color.Codive.main6)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .font(.codive_body3_regular)
-                        .foregroundStyle(Color("Grayscale1"))
+                        .foregroundStyle(Color.Codive.grayscale1)
                     }
                 }
             }

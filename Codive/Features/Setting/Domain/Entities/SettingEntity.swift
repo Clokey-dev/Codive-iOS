@@ -15,7 +15,7 @@ public struct SimpleUser: Hashable, Sendable {
 }
 
 // 좋아요한 기록
-public struct LikedRecord: Hashable, Sendable /* Identifiable 선택지 */ {
+public struct LikedRecord: Hashable, Sendable, Identifiable {
     public let postId: PostID
     public let thumbnailURL: URL
     public let likedAt: Date
@@ -24,12 +24,12 @@ public struct LikedRecord: Hashable, Sendable /* Identifiable 선택지 */ {
         self.thumbnailURL = thumbnailURL
         self.likedAt = likedAt
     }
-    // Identifiable로 쓰고 싶으면 주석 해제
-    // public var id: PostID { postId }
+    public var id: PostID { postId }
 }
 
 // 내가 남긴 댓글
-public struct MyComment: Hashable, Sendable {
+public struct MyComment: Hashable, Sendable, Identifiable {
+    public var id: CommentID { commentId } 
     public let commentId: CommentID
     public let postId: PostID
     public let author: SimpleUser

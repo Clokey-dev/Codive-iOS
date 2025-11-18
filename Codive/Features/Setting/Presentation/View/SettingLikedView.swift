@@ -35,13 +35,17 @@ struct SettingLikedView: View {
             } else {
                 ScrollView {
                     LazyVGrid(columns: columns, spacing: 8) {
-                        ForEach(vm.items, id: \.postId) {item in
+                        ForEach(vm.items) { item in      // ← 여기만 ForEach로
                             AsyncImage(url: item.thumbnailURL) { phase in
                                 switch phase {
-                                case .success(let img): img.resizable().scaledToFill()
-                                case .empty: Color("main6")
-                                case .failure: Color("main6")
-                                @unknown default: Color("main6")
+                                case .success(let img):
+                                    img.resizable().scaledToFill()
+                                case .empty:
+                                    Color.Codive.main6
+                                case .failure:
+                                    Color.Codive.main6
+                                @unknown default:
+                                    Color.Codive.main6
                                 }
                             }
                             .frame(height: 110)

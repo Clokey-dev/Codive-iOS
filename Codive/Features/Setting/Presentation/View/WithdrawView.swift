@@ -21,7 +21,7 @@ struct WithdrawView: View {
                 
                 Text("탈퇴 전 아래 내용을 확인해주세요")
                     .font(.codive_title2)
-                    .foregroundStyle(Color("Grayscale1"))
+                    .foregroundStyle(Color.Codive.grayscale1)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.vertical, 32)

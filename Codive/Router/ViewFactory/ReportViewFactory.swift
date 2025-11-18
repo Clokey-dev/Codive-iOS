@@ -21,7 +21,7 @@ struct ReportViewFactory {
     }
 
     @MainActor
-    func makeReportDetailView(target: ReportTarget) -> ReportDetailView {
-        container.makeReportDetailView(target: target)
+    func makeReportDetailView(vm: ReportViewModel) -> ReportDetailView {
+        container.makeReportDetailView(viewModel: vm)
     }
 }

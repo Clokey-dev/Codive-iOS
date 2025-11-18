@@ -6,7 +6,7 @@
 //
 import Foundation
 
-// MARK: - GetLikedRecordsUseCase
+// MARK: - GetMyCommentsUseCase
 final class GetMyCommentsUseCase {
 
     // MARK: - Properties
