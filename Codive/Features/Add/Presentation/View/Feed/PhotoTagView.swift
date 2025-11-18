@@ -80,17 +80,12 @@ private extension PhotoTagView {
                     }
                 }
             
-            // Content Area (비어있음 - 나중에 구현)
-            ScrollView {
-                VStack {
-                    ForEach(0..<20) { index in
-                        Text("Content \(index)")
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                    }
-                }
-                .padding(.bottom, 40)
-            }
+            CustomProductBottomSheet(
+                searchText: $viewModel.searchText,
+                selectedCategory: $viewModel.selectedCategory,
+                selectedProducts: $viewModel.selectedProducts,
+                products: viewModel.mockClothItems
+            )
         }
         .frame(
             width: geometry.size.width,

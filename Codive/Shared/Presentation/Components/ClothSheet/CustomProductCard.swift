@@ -11,7 +11,7 @@ struct CustomProductCard: View {
     
     // MARK: - Properties
     let imageName: String
-    let label: String
+    let isTodayCloth: Bool  // 변경
     let isSelected: Bool
     let onTap: () -> Void
     
@@ -43,40 +43,21 @@ struct CustomProductCard: View {
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
                     
-                    // 좌상단 라벨
-                    Text(label)
-                        .font(.codive_body3_medium)
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 3)
-                        .padding(.vertical, 3)
-                        .background(Color.Codive.point2)
-                        .clipShape(RoundedRectangle(cornerRadius: 3))
-                        .padding(6)
+                    // 좌상단 라벨 (조건부)
+                    if isTodayCloth {
+                        Text("오늘의 코디")
+                            .font(.codive_body3_medium)
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 3)
+                            .padding(.vertical, 3)
+                            .background(Color.Codive.point2)
+                            .clipShape(RoundedRectangle(cornerRadius: 3))
+                            .padding(6)
+                    }
                 }
             }
             .aspectRatio(3/4, contentMode: .fit)
         }
         .buttonStyle(PlainButtonStyle())
     }
-}
-
-// MARK: - Preview
-#Preview {
-    HStack(spacing: 10) {
-        CustomProductCard(
-            imageName: "sampleImage",
-            label: "오늘의 코디",
-            isSelected: false,
-            onTap: { print("Tapped") }
-        )
-        
-        CustomProductCard(
-            imageName: "sampleImage",
-            label: "오늘의 코디",
-            isSelected: true,
-            onTap: { print("Tapped") }
-        )
-    }
-    .frame(width: 200)
-    .padding(20)
 }

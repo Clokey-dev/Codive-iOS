@@ -50,10 +50,10 @@ struct CustomProductBottomSheet: View {
             // 상품 그리드
             ScrollView {
                 LazyVGrid(columns: columns, spacing: 10) {
-                    ForEach(products) { product in
+                    ForEach(products.sorted { $0.isTodayCloth && !$1.isTodayCloth }) { product in
                         CustomProductCard(
                             imageName: product.imageName,
-                            label: product.label,
+                            isTodayCloth: product.isTodayCloth,
                             isSelected: selectedProducts.contains(product.id),
                             onTap: {
                                 if selectedProducts.contains(product.id) {
@@ -76,19 +76,5 @@ struct CustomProductBottomSheet: View {
 struct ProductItem: Identifiable {
     let id = UUID()
     let imageName: String
-    let label: String
-}
-
-// MARK: - Preview
-#Preview {
-    CustomProductBottomSheet(
-        searchText: .constant(""),
-        selectedCategory: .constant("전체"),
-        selectedProducts: .constant([]),
-        products: [
-            ProductItem(imageName: "sample1", label: "오늘의 코디"),
-            ProductItem(imageName: "sample2", label: "오늘의 코디"),
-            ProductItem(imageName: "sample3", label: "오늘의 코디")
-        ]
-    )
+    let isTodayCloth: Bool
 }
