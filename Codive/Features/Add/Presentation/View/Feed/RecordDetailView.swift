@@ -80,7 +80,7 @@ private extension RecordDetailView {
                         ZStack {
                             TaggableImageView(
                                 image: photo.croppedImage,
-                                tags: .constant(photo.clothTags),
+                                tags: $viewModel.selectedPhotos[index].clothTags,
                                 onTagRemove: { _ in },
                                 isDraggable: false
                             )

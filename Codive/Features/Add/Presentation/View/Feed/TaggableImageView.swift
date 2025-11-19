@@ -67,6 +67,8 @@ struct TaggableImageView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .coordinateSpace(name: "imageZStack")
+            .clipped()
         }
     }
     
@@ -100,7 +102,7 @@ private struct DraggableTag: View {
             y: tag.locationY * imageSize.height
         )
         .gesture(
-            isDraggable ? DragGesture()
+            isDraggable ? DragGesture(coordinateSpace: .named("imageZStack"))
                 .onChanged { value in
                     let newX = value.location.x / imageSize.width
                     let newY = value.location.y / imageSize.height
