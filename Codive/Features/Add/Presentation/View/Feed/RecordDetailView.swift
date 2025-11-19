@@ -151,7 +151,7 @@ private extension RecordDetailView {
             .frame(height: 158)
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .overlay(
-                RoundedRectangle(cornerRadius: 8)
+                RoundedRectangle(cornerRadius: 10)
                     .stroke(Color.Codive.grayscale5, lineWidth: 1)
             )
         }
