@@ -20,3 +20,12 @@ struct NewsEntity: Identifiable {
     let imageUrl: String
     let title: String
 }
+
+struct PostEntity: Identifiable {
+    let id: Int
+    let postImageUrl: String?
+    let profileImageUrl: String?
+    let nickname: String
+    let likes: Int
+    let date: Date 
+}

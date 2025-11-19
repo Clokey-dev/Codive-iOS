@@ -19,4 +19,8 @@ final class SearchRepositoryImpl: SearchRepository {
     func fetchRecommendedNews() -> [NewsEntity] {
         return datasource.fetchRecommendedNews()
     }
+    
+    func fetchPosts() -> [PostEntity] {
+        return datasource.fetchPosts()
+    }
 }

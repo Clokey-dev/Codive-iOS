@@ -32,4 +32,22 @@ final class SearchDataSource {
             )
         ]
     }
+    
+    private func createDate(year: Int, month: Int, day: Int) -> Date {
+        var components = DateComponents()
+        components.year = year
+        components.month = month
+        components.day = day
+        return Calendar.current.date(from: components)!
+    }
+    
+    func fetchPosts() -> [PostEntity] {
+        return [
+            // 최신순 정렬 테스트: 19일 > 18일 > 17일 순
+            PostEntity(id: 1, postImageUrl: "https://picsum.photos/id/1018/162/216", profileImageUrl: "https://picsum.photos/id/237/28/28", nickname: "유저A", likes: 150, date: createDate(year: 2025, month: 11, day: 19)),
+            PostEntity(id: 2, postImageUrl: "https://picsum.photos/id/1019/162/216", profileImageUrl: nil, nickname: "유저B", likes: 80, date: createDate(year: 2025, month: 11, day: 17)),
+            PostEntity(id: 3, postImageUrl: "https://picsum.photos/id/1020/162/216", profileImageUrl: "https://picsum.photos/id/100/28/28", nickname: "유저C", likes: 250, date: createDate(year: 2025, month: 11, day: 18)),
+            PostEntity(id: 4, postImageUrl: "https://picsum.photos/id/1021/162/216", profileImageUrl: nil, nickname: "유저D", likes: 50, date: createDate(year: 2025, month: 11, day: 19)),
+        ]
+    }
 }

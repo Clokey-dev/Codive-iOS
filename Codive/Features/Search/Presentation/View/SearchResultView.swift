@@ -15,6 +15,10 @@ struct SearchResultView: View {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
     
+    private var sortOptionsString: [String] {
+        viewModel.sortOptions.map { $0.displayName }
+    }
+    
     var body: some View {
         VStack {
             CustomSearchBar(
@@ -23,65 +27,39 @@ struct SearchResultView: View {
                     viewModel.handleBackTap()
                 }
             )
+            .zIndex(1)
             
             ScrollView {
                 VStack {
                     HStack {
-                        Text("총 6개")
+                        Text("총 \(viewModel.posts.count)개")
                             .font(Font.codive_body2_medium)
                             .foregroundStyle(Color.Codive.grayscale3)
                         Spacer()
                         
-                        Text("전체")
-                            .font(Font.codive_body2_medium)
-                            .foregroundStyle(Color.Codive.grayscale3)
+                        SortOption(
+                            mainText: "전체",
+                            options: sortOptionsString,
+                            selectedOption: $viewModel.currentSort
+                        )
+                        .zIndex(10)
                     }
                     .padding(.top, 18)
+                    .zIndex(10)
                     
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 11) {
-                        PostCard(
-                            postImageUrl: "https://picsum.photos/id/1018/162/216",
-                            profileImageUrl: "httpsum.photos/id/237/28/28",
-                            nickname: "닉네임"
-                        )
-                        PostCard(
-                            postImageUrl: "httpsum.photos/id/1019/162/216",
-                            profileImageUrl: nil,
-                            nickname: "긴닉네임테스트"
-                        )
-                        PostCard(
-                            postImageUrl: "https://picsum.photos/id/1018/162/216",
-                            profileImageUrl: "httpsum.photos/id/237/28/28",
-                            nickname: "닉네임"
-                        )
-                        PostCard(
-                            postImageUrl: "httpsum.photos/id/1019/162/216",
-                            profileImageUrl: nil,
-                            nickname: "긴닉네임테스트"
-                        )
-                        PostCard(
-                            postImageUrl: "https://picsum.photos/id/1018/162/216",
-                            profileImageUrl: "httpsum.photos/id/237/28/28",
-                            nickname: "닉네임"
-                        )
-                        PostCard(
-                            postImageUrl: "httpsum.photos/id/1019/162/216",
-                            profileImageUrl: nil,
-                            nickname: "긴닉네임테스트"
-                        )
-                        PostCard(
-                            postImageUrl: "https://picsum.photos/id/1018/162/216",
-                            profileImageUrl: "httpsum.photos/id/237/28/28",
-                            nickname: "닉네임"
-                        )
-                        PostCard(
-                            postImageUrl: "httpsum.photos/id/1019/162/216",
-                            profileImageUrl: nil,
-                            nickname: "긴닉네임테스트"
-                        )
+                        ForEach(viewModel.posts) { post in
+                            PostCard(
+                                postImageUrl: post.postImageUrl,
+                                profileImageUrl: post.profileImageUrl,
+                                nickname: post.nickname
+                            )
+                        }
                     }
                     .padding(.top, 18)
+                    .zIndex(1)
                 }
+                .padding(.bottom, 20)
             }
         }
         .navigationBarHidden(true)
