@@ -101,8 +101,12 @@ final class RecordDetailViewModel: ObservableObject {
 
     private func setupPhotoTagSubscription() {
         PhotoTagViewModel.photoTagsUpdated
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] photoId, tags in
-                self?.updatePhotoTags(for: photoId, tags: tags)
+                guard let self = self else { return }
+                // 현재 selectedPhotos에 포함된 사진만 업데이트
+                guard self.selectedPhotos.contains(where: { $0.id == photoId }) else { return }
+                self.updatePhotoTags(for: photoId, tags: tags)
             }
             .store(in: &cancellables)
     }
