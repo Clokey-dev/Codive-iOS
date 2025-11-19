@@ -30,7 +30,7 @@ final class PhotoTagViewModel: ObservableObject {
     
     // MARK: - Computed Properties
     var isCompleteEnabled: Bool {
-        return !clothTags.isEmpty
+        return true
     }
     
     // MARK: - Initializer
