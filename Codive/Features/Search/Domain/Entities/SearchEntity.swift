@@ -27,5 +27,6 @@ struct PostEntity: Identifiable {
     let profileImageUrl: String?
     let nickname: String
     let likes: Int
-    let date: Date 
+    let date: Date
+    let description: String?
 }

@@ -30,6 +30,17 @@ final class SearchViewModel: ObservableObject {
         self.recommendedNews = useCase.fetchRecommendedNews()
     }
     
+    func executeSearch(query: String) {
+        let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmedQuery.isEmpty {
+            print("검색어를 입력해 주세요.")
+            return
+        }
+        // query를 전달하도록 수정
+        navigationRouter.navigate(to: .searchResult(query: trimmedQuery))
+        print("검색 실행: \(trimmedQuery). SearchResultView로 이동 필요.")
+    }
+    
     func deleteTag(tag: SearchTagEntity) {
         if let index = recentSearchTags.firstIndex(where: { $0.id == tag.id }) {
             recentSearchTags.remove(at: index)
@@ -51,6 +62,7 @@ final class SearchViewModel: ObservableObject {
         navigationRouter.navigateBack()
     }
 }
+
 // MARK: - Preview Support
 extension SearchViewModel {
     static var preview: SearchViewModel {

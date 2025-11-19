@@ -19,9 +19,11 @@ final class SearchResultViewModel: ObservableObject {
     private let navigationRouter: NavigationRouter
     private let useCase: SearchUseCase
     private var allPosts: [PostEntity] = []
+    private var initialQuery: String
     
     @Published var posts: [PostEntity] = []
     @Published var currentSort: String = "전체"
+    @Published var searchBarText: String
     
     let sortOptions: [ViewModelSortOption] = [
         ViewModelSortOption(id: "전체", displayName: "전체"),
@@ -30,9 +32,11 @@ final class SearchResultViewModel: ObservableObject {
     ]
     
     // MARK: - Initializer
-    init(navigationRouter: NavigationRouter, useCase: SearchUseCase) {
+    init(navigationRouter: NavigationRouter, useCase: SearchUseCase, initialQuery: String) {
         self.navigationRouter = navigationRouter
         self.useCase = useCase
+        self.initialQuery = initialQuery
+        self.searchBarText = initialQuery
         loadPosts()
         
         $currentSort
@@ -46,8 +50,25 @@ final class SearchResultViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
 
     func loadPosts() {
-        self.allPosts = useCase.fetchPosts()
+        self.allPosts = useCase.fetchPosts(query: self.initialQuery)
         self.posts = self.allPosts
+        self.applySorting(newSort: self.currentSort)
+    }
+    
+    func executeNewSearch(query: String) {
+        let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmedQuery.isEmpty {
+            print("검색어를 입력해 주세요.")
+            return
+        }
+        
+        self.initialQuery = trimmedQuery
+        self.currentSort = "전체"
+        loadPosts()
+        
+        // 새로운 검색 결과 화면으로 이동
+        navigationRouter.navigate(to: .searchResult(query: trimmedQuery))
+        print("새로운 검색 실행: \(trimmedQuery)")
     }
     
     private func applySorting(newSort: String) {
@@ -80,7 +101,8 @@ extension SearchResultViewModel {
         
         return SearchResultViewModel(
             navigationRouter: mockRouter,
-            useCase: mockUseCase
+            useCase: mockUseCase,
+            initialQuery: "드뮤어룩"
         )
     }
 }

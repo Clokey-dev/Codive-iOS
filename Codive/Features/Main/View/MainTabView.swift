@@ -92,12 +92,13 @@ struct MainTabView: View {
         true
     }
     
-    // MARK: - Destination View Builder (추가)
     @ViewBuilder
     private func destinationView(for destination: AppDestination) -> some View {
         switch destination {
         case .search:
             searchDIContainer.makeSearchView()
+        case .searchResult(let query):
+            searchDIContainer.makeSearchResultView(initialQuery: query)
         case .notification:
             notificationDIContainer.makeNotificationView()
             

@@ -18,6 +18,7 @@ enum AppDestination: Hashable {
     case editCategory
     case codiBoard
     case search
+    case searchResult(query: String)
     case notification
     
     // MARK: - 하단 탭바
@@ -35,7 +36,7 @@ enum AppDestination: Hashable {
             return true
             
         // Search, Alarm Flow
-        case .search, .notification:
+        case .search, .searchResult, .notification:
             return true
             
         // 다른 플로우 전체 화면은 여기에 추가

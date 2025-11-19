@@ -22,6 +22,8 @@ final class SearchViewFactory {
         switch destination {
         case .search:
             searchDIContainer?.makeSearchView()
+        case .searchResult(let query):
+            searchDIContainer?.makeSearchResultView(initialQuery: query)
         default:
             EmptyView()
         }

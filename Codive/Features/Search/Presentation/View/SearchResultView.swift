@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SearchResultView: View {
     @StateObject private var viewModel: SearchResultViewModel
-    @State private var searchText: String = ""
+//    @State private var searchText: String = ""
     
     init(viewModel: SearchResultViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -22,12 +22,15 @@ struct SearchResultView: View {
     var body: some View {
         VStack {
             CustomSearchBar(
-                text: $searchText,
+                text: $viewModel.searchBarText,
                 type: .withBackButton {
                     viewModel.handleBackTap()
                 }
             )
             .zIndex(1)
+            .onSubmit {
+                viewModel.executeNewSearch(query: viewModel.searchBarText)
+            }
             
             ScrollView {
                 VStack {

@@ -30,7 +30,19 @@ final class SearchDIContainer {
         )
     }
     
+    func makeSearchResultViewModel(initialQuery: String) -> SearchResultViewModel {
+        return SearchResultViewModel(
+            navigationRouter: navigationRouter,
+            useCase: searchUseCase,
+            initialQuery: initialQuery
+        )
+    }
+    
     func makeSearchView() -> SearchView {
         return SearchView(viewModel: makeSearchViewModel())
-    } 
+    }
+    
+    func makeSearchResultView(initialQuery: String) -> SearchResultView {
+        return SearchResultView(viewModel: makeSearchResultViewModel(initialQuery: initialQuery))
+    }
 }

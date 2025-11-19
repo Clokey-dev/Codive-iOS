@@ -23,6 +23,9 @@ struct SearchView: View {
                     viewModel.handleBackTap()
                 }
             )
+            .onSubmit {
+                viewModel.executeSearch(query: searchText)
+            }
             
             ScrollView {
                 VStack {

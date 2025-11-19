@@ -20,7 +20,7 @@ final class SearchUseCase {
         return repository.fetchRecommendedNews()
     }
     
-    func fetchPosts() -> [PostEntity] {
-        return repository.fetchPosts()
+    func fetchPosts(query: String) -> [PostEntity] { 
+        return repository.fetchPosts(query: query)
     }
 }
