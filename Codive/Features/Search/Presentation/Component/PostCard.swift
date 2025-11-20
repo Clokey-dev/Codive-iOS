@@ -25,39 +25,58 @@ struct PostCard: View {
     
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            AsyncImage(url: URL(string: postImageUrl ?? "")) { phase in
-                if let image = phase.image {
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } else if phase.error != nil {
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.3))
-                        .overlay(Image(systemName: "photo").foregroundStyle(Color.gray))
-                } else {
-                    ProgressView()
-                }
-            }
-            .frame(width: cardWidth, height: cardHeight)
-            .clipped()
-            .cornerRadius(cornerRadius)
-       
-            HStack(spacing: 4) {
-                AsyncImage(url: URL(string: profileImageUrl ?? "")) { phase in
+            if let urlString = postImageUrl, let url = URL(string: urlString) {
+                AsyncImage(url: url) { phase in
                     if let image = phase.image {
                         image
                             .resizable()
                             .aspectRatio(contentMode: .fill)
+                    } else if phase.error != nil {
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.3))
+                            .overlay(Image(systemName: "photo").foregroundStyle(Color.gray))
                     } else {
-                        Image(systemName: "person.circle.fill")
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .foregroundStyle(Color.white.opacity(0.7))
+                        ProgressView()
                     }
                 }
-                .frame(width: profileImageSize, height: profileImageSize)
-                .clipShape(Circle())
-
+                .frame(width: cardWidth, height: cardHeight)
+                .clipped()
+                .cornerRadius(cornerRadius)
+            } else {
+                Rectangle()
+                    .fill(Color.gray.opacity(0.3))
+                    .overlay(Image(systemName: "photo").foregroundStyle(Color.gray))
+                    .frame(width: cardWidth, height: cardHeight)
+                    .clipped()
+                    .cornerRadius(cornerRadius)
+            }
+            HStack(spacing: 4) {
+                if let urlString = profileImageUrl, let url = URL(string: urlString) {
+                    AsyncImage(url: url) { phase in
+                        if let image = phase.image {
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                        } else if phase.error != nil {
+                            Image(systemName: "person.circle.fill")
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .foregroundStyle(Color.gray.opacity(0.3))
+                        } else {
+                            ProgressView()
+                        }
+                    }
+                    .frame(width: profileImageSize, height: profileImageSize)
+                    .clipShape(Circle())
+                } else {
+                    Image(systemName: "person.circle.fill")
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .foregroundStyle(Color.gray.opacity(0.3))
+                        .frame(width: profileImageSize, height: profileImageSize)
+                        .clipShape(Circle())
+                }
+                
                 Text(nickname)
                     .font(nicknameFont)
                     .foregroundStyle(nicknameColor)
