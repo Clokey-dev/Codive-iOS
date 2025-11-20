@@ -8,11 +8,6 @@
 import SwiftUI
 import Combine
 
-struct ViewModelSortOption: Identifiable, Hashable {
-    let id: String
-    let displayName: String
-}
-
 @MainActor
 final class SearchResultViewModel: ObservableObject {
     // MARK: - Properties
@@ -25,10 +20,10 @@ final class SearchResultViewModel: ObservableObject {
     @Published var currentSort: String = "전체"
     @Published var searchBarText: String
     
-    let sortOptions: [ViewModelSortOption] = [
-        ViewModelSortOption(id: "전체", displayName: "전체"),
-        ViewModelSortOption(id: "인기순", displayName: "인기순"),
-        ViewModelSortOption(id: "최신순", displayName: "최신순")
+    let sortOptions: [SortOptionEntity] = [
+        SortOptionEntity(id: "전체", displayName: "전체"),
+        SortOptionEntity(id: "인기순", displayName: "인기순"),
+        SortOptionEntity(id: "최신순", displayName: "최신순")
     ]
     
     // MARK: - Initializer

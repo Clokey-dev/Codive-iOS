@@ -31,3 +31,8 @@ struct PostEntity: Identifiable {
     let date: Date
     let description: String?
 }
+
+struct SortOptionEntity: Identifiable, Hashable {
+    let id: String
+    let displayName: String
+}
