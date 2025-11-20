@@ -64,7 +64,7 @@ struct NotificationView: View {
                     }
                     
                     if viewModel.unreadNotifications.isEmpty && viewModel.readNotifications.isEmpty {
-                        Text("새로운 알림이 없습니다.")
+                        Text(TextLiteral.Notification.noNewNoti)
                             .padding(.top, 50)
                             .foregroundStyle(Color.Codive.grayscale3)
                     }

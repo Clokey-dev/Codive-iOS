@@ -99,15 +99,15 @@ struct SearchView: View {
         .background(Color.white.ignoresSafeArea(.all))
         .padding(.horizontal, 20)
         .alert(
-            "최근 검색어를 모두 삭제하시겠습니까?",
+            TextLiteral.Search.alertTitle,
             isPresented: $viewModel.showingDeleteAlert
         ) {
-            Button("삭제", role: .destructive) {
+            Button(TextLiteral.Search.alertDelete, role: .destructive) {
                 viewModel.executeDeleteAll()
             }
-            Button("취소", role: .cancel) {}
+            Button(TextLiteral.Search.alertCancel, role: .cancel) {}
         } message: {
-            Text("한 번 삭제된 기록은 복구할 수 없습니다")
+            Text(TextLiteral.Search.noRestore)
         }
     }
 }

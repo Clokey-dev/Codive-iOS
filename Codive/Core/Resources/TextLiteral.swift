@@ -113,11 +113,16 @@ enum TextLiteral {
         static let deleteAll = "전체 삭제"
         static let noTag = "최근 검색어가 없습니다."
         static let recommendedNewsTitle = "님을 위한 추천 소식"
+        static let alertTitle = "최근 검색어를 모두 삭제하시겠습니까?"
+        static let alertDelete = "삭제"
+        static let alertCancel = "취소"
+        static let noRestore = "한 번 삭제된 기록은 복구할 수 없습니다."
     }
     
     enum Notification {
         static let title = "알림"
         static let read = "읽음"
         static let notRead = "읽지 않음"
+        static let noNewNoti = "새로운 알림이 없습니다."
     }
 }
