@@ -8,6 +8,7 @@
 import Foundation
 
 struct SearchEntity {
+    let username: String
 }
 
 struct SearchTagEntity: Identifiable {

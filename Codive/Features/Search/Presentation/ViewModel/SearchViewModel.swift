@@ -13,6 +13,7 @@ final class SearchViewModel: ObservableObject {
     private let navigationRouter: NavigationRouter
     private let useCase: SearchUseCase
     
+    @Published var username: String = ""
     @Published var recentSearchTags: [SearchTagEntity] = []
     @Published var recommendedNews: [NewsEntity] = []
     @Published var showingDeleteAlert: Bool = false
@@ -26,6 +27,7 @@ final class SearchViewModel: ObservableObject {
     }
     
     func loadData() {
+        self.username = useCase.fetchUserName().username
         self.recentSearchTags = useCase.fetchRecentSearchTags()
         self.recommendedNews = useCase.fetchRecommendedNews()
     }

@@ -72,7 +72,7 @@ struct SearchView: View {
                     
                     HStack {
                         Text(
-                            "00님을 위한 추천 소식"
+                            "\(viewModel.username)\(TextLiteral.Search.recommendedNewsTitle)"
                         )
                         .font(Font.codive_title2)
                         .foregroundStyle(Color.Codive.grayscale1)

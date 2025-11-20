@@ -9,6 +9,10 @@ import Foundation
 
 final class SearchDataSource {
     
+    func fetchUserName() -> SearchEntity {
+        return SearchEntity(username: "코디브")
+    }
+    
     func fetchRecentSearchTags() -> [SearchTagEntity] {
         return [
             SearchTagEntity(id: 1, text: "드뮤어룩"),

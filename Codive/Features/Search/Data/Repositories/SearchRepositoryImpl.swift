@@ -12,6 +12,10 @@ final class SearchRepositoryImpl: SearchRepository {
         self.datasource = datasource
     }
     
+    func fetchUserName() -> SearchEntity {
+        return datasource.fetchUserName()
+    }
+    
     func fetchRecentSearchTags() -> [SearchTagEntity] {
         return datasource.fetchRecentSearchTags()
     }

@@ -112,6 +112,7 @@ enum TextLiteral {
         static let recentSearch = "최근 검색어"
         static let deleteAll = "전체 삭제"
         static let noTag = "최근 검색어가 없습니다."
+        static let recommendedNewsTitle = "님을 위한 추천 소식"
     }
     
     enum Notification {

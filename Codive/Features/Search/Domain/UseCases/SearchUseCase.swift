@@ -12,6 +12,10 @@ final class SearchUseCase {
         self.repository = repository
     }
     
+    func fetchUserName() -> SearchEntity {
+        return repository.fetchUserName()
+    }
+    
     func fetchRecentSearchTags() -> [SearchTagEntity] {
         return repository.fetchRecentSearchTags()
     }
