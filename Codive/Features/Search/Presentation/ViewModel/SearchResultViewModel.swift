@@ -34,6 +34,12 @@ final class SearchResultViewModel: ObservableObject {
         self.searchBarText = initialQuery
         loadPosts()
         
+        setupBindings()
+    }
+    
+    private var cancellables = Set<AnyCancellable>()
+    
+    private func setupBindings() {
         $currentSort
             .removeDuplicates()
             .sink { [weak self] newSort in
@@ -41,8 +47,6 @@ final class SearchResultViewModel: ObservableObject {
             }
             .store(in: &cancellables)
     }
-    
-    private var cancellables = Set<AnyCancellable>()
 
     func loadPosts() {
         self.allPosts = useCase.fetchPosts(query: self.initialQuery)
