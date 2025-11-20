@@ -9,7 +9,6 @@ import SwiftUI
 
 struct SearchResultView: View {
     @StateObject private var viewModel: SearchResultViewModel
-//    @State private var searchText: String = ""
     
     init(viewModel: SearchResultViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)

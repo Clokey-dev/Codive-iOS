@@ -19,23 +19,32 @@ struct NotificationRow: View {
     
     var body: some View {
         HStack(spacing: 15) {
-            AsyncImage(url: URL(string: profileImageUrl ?? "")) { phase in
-                if let image = phase.image {
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } else if phase.error != nil {
-                    Image(systemName: "person.circle.fill")
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .foregroundStyle(Color.gray.opacity(0.3))
-                } else {
-                    ProgressView()
+            if let urlString = profileImageUrl, let url = URL(string: urlString) {
+                AsyncImage(url: url) { phase in
+                    if let image = phase.image {
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } else if phase.error != nil {
+                        Image(systemName: "person.circle.fill")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .foregroundStyle(Color.gray.opacity(0.3))
+                    } else {
+                        ProgressView()
+                    }
                 }
+                .frame(width: profileImageSize, height: profileImageSize)
+                .clipShape(Circle())
+            } else {
+                Image(systemName: "person.circle.fill")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .foregroundStyle(Color.gray.opacity(0.3))
+                    .frame(width: profileImageSize, height: profileImageSize)
+                    .clipShape(Circle())
             }
-            .frame(width: profileImageSize, height: profileImageSize)
-            .clipShape(Circle())
-
+            
             Text(message)
                 .font(messageFont)
                 .foregroundStyle(messageColor)
