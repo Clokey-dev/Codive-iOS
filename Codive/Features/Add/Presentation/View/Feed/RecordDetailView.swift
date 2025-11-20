@@ -46,6 +46,14 @@ struct RecordDetailView: View {
             }
             .navigationBarHidden(true)
             .background(Color.white)
+            .alert(TextLiteral.Add.exitAlertTitle, isPresented: $viewModel.showExitAlert) {
+                Button(TextLiteral.Add.exitAlertLeave, role: .destructive) {
+                    viewModel.confirmExit()
+                }
+                Button(TextLiteral.Common.cancel, role: .cancel) {}
+            } message: {
+                Text(TextLiteral.Add.exitAlertMessage)
+            }
         }
     }
 }
@@ -61,10 +69,32 @@ private extension RecordDetailView {
         VStack(spacing: 0) {
             TabView(selection: $viewModel.currentPhotoIndex) {
                 ForEach(Array(viewModel.selectedPhotos.enumerated()), id: \.element.id) { index, photo in
-                    AnimatedPhotoCard(photo: photo) {
-                        viewModel.navigateToPhotoTag()
+                    if photo.clothTags.isEmpty {
+                        // 태그가 없으면 애니메이션 카드
+                        AnimatedPhotoCard(photo: photo) {
+                            viewModel.navigateToPhotoTag()
+                        }
+                        .tag(index)
+                    } else {
+                        // 태그가 있으면 태그 표시
+                        ZStack {
+                            TaggableImageView(
+                                image: photo.croppedImage,
+                                tags: $viewModel.selectedPhotos[index].clothTags,
+                                onTagRemove: { _ in },
+                                isDraggable: false
+                            )
+                            .aspectRatio(3/4, contentMode: .fit)
+                            
+                            // 탭해서 태그 편집으로 이동
+                            Color.clear
+                                .contentShape(Rectangle())
+                                .onTapGesture {
+                                    viewModel.navigateToPhotoTag()
+                                }
+                        }
+                        .tag(index)
                     }
-                    .tag(index)
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
@@ -82,6 +112,7 @@ private extension RecordDetailView {
             .padding(.bottom, 24)
         }
     }
+    
     @ViewBuilder
     func multiSelectSection() -> some View {
         VStack(spacing: 24) {
@@ -104,43 +135,28 @@ private extension RecordDetailView {
         .padding(.bottom, 24)
     }
     
+    // TODO: 플레이스 홀더 문구 수정 필요
     @ViewBuilder
     func captionSection() -> some View {
-        TextEditor(text: $viewModel.captionText)
-            .font(.codive_body2_medium)
-            .foregroundStyle(Color.Codive.grayscale1)
+        VStack(alignment: .leading, spacing: 8) {            
+            // HashtagTextEditor
+            HashtagTextEditor(
+                text: $viewModel.captionText,
+                hashtagColor: UIColor(Color.Codive.point1),
+                font: UIFont.systemFont(ofSize: 15, weight: .medium),
+                textColor: UIColor.black,
+                placeholder: TextLiteral.Add.recordDetailCaptionPlaceholder,
+                placeholderColor: UIColor(Color.Codive.grayscale4)
+            )
             .frame(height: 158)
-            .padding(12)
-            .background(Color.Codive.grayscale7)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .clipShape(RoundedRectangle(cornerRadius: 10))
             .overlay(
-                RoundedRectangle(cornerRadius: 8)
+                RoundedRectangle(cornerRadius: 10)
                     .stroke(Color.Codive.grayscale5, lineWidth: 1)
             )
-            .overlay(alignment: .topLeading) {
-                if viewModel.captionText.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "pencil")
-                                .font(.system(size: 16))
-                                .foregroundStyle(Color.Codive.grayscale1)
-                            
-                            Text(TextLiteral.Add.recordDetailCaptionTitle)
-                                .font(.codive_body1_medium)
-                                .foregroundStyle(Color.Codive.grayscale1)
-                        }
-                        
-                        Text(TextLiteral.Add.recordDetailCaptionPlaceholder)
-                            .font(.codive_body2_medium)
-                            .foregroundStyle(Color.Codive.grayscale4)
-                    }
-                    .padding(.top, 20)
-                    .padding(.leading, 16)
-                    .allowsHitTesting(false)
-                }
-            }
-            .padding(.horizontal, 20)
-            .padding(.bottom, 40)
+        }
+        .padding(.horizontal, 20)
+        .padding(.bottom, 40)
     }
     
     @ViewBuilder

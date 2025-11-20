@@ -7,7 +7,7 @@
 
 import UIKit
 
-// MARK: - ProcessImageUseCase
+// TODO: - 나중에 Utils/Helper로 구분
 final class ProcessImageUseCase {
     
     // MARK: - Crop Image

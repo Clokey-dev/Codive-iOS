@@ -41,12 +41,16 @@ struct PhotoTagView: View {
                         }
                     )
                     
-                    // Photo
-                    Image(uiImage: viewModel.currentPhoto.croppedImage)
-                        .resizable()
-                        .aspectRatio(3/4, contentMode: .fit)
-                        .padding(.horizontal, 20)
-                        .padding(.top, 20)
+                    // Photo with Tags
+                    TaggableImageView(
+                        image: viewModel.currentPhoto.croppedImage,
+                        tags: $viewModel.clothTags
+                    ) { tagId in
+                        viewModel.removeClothTag(tagId: tagId)
+                    }
+                    .aspectRatio(3/4, contentMode: .fit)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 20)
                     
                     Spacer()
                 }
@@ -80,16 +84,13 @@ private extension PhotoTagView {
                     }
                 }
             
-            // Content Area (비어있음 - 나중에 구현)
-            ScrollView {
-                VStack {
-                    ForEach(0..<20) { index in
-                        Text("Content \(index)")
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                    }
-                }
-                .padding(.bottom, 40)
+            CustomProductBottomSheet(
+                searchText: $viewModel.searchText,
+                selectedCategory: $viewModel.selectedCategory,
+                selectedProducts: $viewModel.selectedProducts,
+                products: viewModel.clothItems
+            ) { product in
+                viewModel.handleProductSelection(product)
             }
         }
         .frame(
