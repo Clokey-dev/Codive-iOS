@@ -38,7 +38,7 @@ final class SearchDataSource {
         components.year = year
         components.month = month
         components.day = day
-        return Calendar.current.date(from: components)!
+        return Calendar.current.date(from: components) ?? Date()
     }
     
     private func getAllPosts() -> [PostEntity] {
