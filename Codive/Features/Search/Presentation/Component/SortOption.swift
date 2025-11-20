@@ -10,12 +10,10 @@ import SwiftUI
 struct SortOption: View {
     let options: [String]
     @Binding var selectedOption: String
-    let mainText: String
     
     @State private var isDropdownExpanded: Bool = false
 
     init(mainText: String, options: [String], selectedOption: Binding<String>) {
-        self.mainText = mainText
         self.options = options
         self._selectedOption = selectedOption
     }
