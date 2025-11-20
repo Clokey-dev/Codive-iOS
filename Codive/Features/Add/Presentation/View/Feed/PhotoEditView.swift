@@ -122,6 +122,14 @@ struct PhotoEditView: View {
                 )
             }
         }
+        .alert(TextLiteral.Add.exitAlertTitle, isPresented: $viewModel.showExitAlert) {
+            Button(TextLiteral.Add.exitAlertLeave, role: .destructive) {
+                viewModel.confirmExit()
+            }
+            Button(TextLiteral.Common.cancel, role: .cancel) {}
+        } message: {
+            Text(TextLiteral.Add.exitAlertMessage)
+        }
     }
 }
 

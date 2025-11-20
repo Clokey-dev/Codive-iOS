@@ -17,7 +17,8 @@ final class PhotoEditViewModel: ObservableObject {
     @Published var selectedPhotos: [SelectedPhoto]
     @Published var currentIndex: Int = 0
     @Published var isEditingMode: Bool = false
-    
+    @Published var showExitAlert: Bool = false
+
     private let navigationRouter: NavigationRouter
     private var cancellables = Set<AnyCancellable>()
     
@@ -80,6 +81,10 @@ final class PhotoEditViewModel: ObservableObject {
     }
     
     func dismissView() {
+        showExitAlert = true
+    }
+
+    func confirmExit() {
         navigationRouter.navigateBack()
     }
 }

@@ -79,7 +79,7 @@ final class PhotoRepositoryImpl: PhotoRepository {
         
         return PhotoAlbum(
             id: collection.localIdentifier,
-            title: collection.localizedTitle ?? "알 수 없음",
+            title: collection.localizedTitle ?? TextLiteral.Common.unknown,
             count: assets.count,
             collection: collection,
             thumbnail: assets.firstObject

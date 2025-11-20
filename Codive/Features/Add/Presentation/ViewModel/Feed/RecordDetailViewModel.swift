@@ -7,12 +7,16 @@
 
 import Foundation
 import UIKit
+import SwiftUI
+import Combine
 
 // MARK: - RecordDetailViewModel
 @MainActor
 final class RecordDetailViewModel: ObservableObject {
     
     // MARK: - Properties
+    private var cancellables = Set<AnyCancellable>()
+    
     @Published var selectedPhotos: [SelectedPhoto]
     @Published var currentPhotoIndex: Int = 0
     
@@ -22,12 +26,34 @@ final class RecordDetailViewModel: ObservableObject {
     
     // TextField Property
     @Published var captionText: String = ""
-    
+
+    // Alert Property
+    @Published var showExitAlert: Bool = false
+
     private let navigationRouter: NavigationRouter
     
     // MARK: - Options
-    let styleOptions = ["캐주얼", "러블리", "미니멀", "빈티지", "스포티", "스트릿", "시크", "오피스룩", "클래식", "하이틴"]
-    let situationOptions = ["데이트", "데일리", "여행", "운동", "축제", "출근복", "파티"]
+    let styleOptions = [
+        TextLiteral.Add.styleCasual,
+        TextLiteral.Add.styleLoving,
+        TextLiteral.Add.styleMinimal,
+        TextLiteral.Add.styleVintage,
+        TextLiteral.Add.styleSporty,
+        TextLiteral.Add.styleStreet,
+        TextLiteral.Add.styleChic,
+        TextLiteral.Add.styleOffice,
+        TextLiteral.Add.styleClassic,
+        TextLiteral.Add.styleHighteen
+    ]
+    let situationOptions = [
+        TextLiteral.Add.situationDate,
+        TextLiteral.Add.situationDaily,
+        TextLiteral.Add.situationTravel,
+        TextLiteral.Add.situationExercise,
+        TextLiteral.Add.situationFestival,
+        TextLiteral.Add.situationWork,
+        TextLiteral.Add.situationParty
+    ]
     
     // MARK: - Computed Properties
     var currentPhoto: SelectedPhoto? {
@@ -44,6 +70,9 @@ final class RecordDetailViewModel: ObservableObject {
     init(selectedPhotos: [SelectedPhoto], navigationRouter: NavigationRouter) {
         self.selectedPhotos = selectedPhotos
         self.navigationRouter = navigationRouter
+        
+        // 태그 업데이트 구독
+        setupPhotoTagSubscription()
     }
     
     // MARK: - Methods
@@ -62,12 +91,34 @@ final class RecordDetailViewModel: ObservableObject {
         navigationRouter.navigateToRoot()
     }
     
+    func dismissView() {
+        showExitAlert = true
+    }
+
+    func confirmExit() {
+        navigationRouter.navigateBack()
+    }
+
+    private func setupPhotoTagSubscription() {
+        PhotoTagViewModel.photoTagsUpdated
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] photoId, tags in
+                guard let self = self else { return }
+                // 현재 selectedPhotos에 포함된 사진만 업데이트
+                guard self.selectedPhotos.contains(where: { $0.id == photoId }) else { return }
+                self.updatePhotoTags(for: photoId, tags: tags)
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func updatePhotoTags(for photoId: String, tags: [ClothTag]) {
+        if let index = selectedPhotos.firstIndex(where: { $0.id == photoId }) {
+            selectedPhotos[index].clothTags = tags
+        }
+    }
+    
     func navigateToPhotoTag() {
         guard let currentPhoto = currentPhoto else { return }
         navigationRouter.navigate(to: .photoTag(photo: currentPhoto, allPhotos: selectedPhotos))
-    }
-    
-    func dismissView() {
-        navigationRouter.navigateBack()
     }
 }

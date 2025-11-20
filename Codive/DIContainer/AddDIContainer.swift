@@ -16,10 +16,15 @@ final class AddDIContainer {
     
     // MARK: - DataSources
     lazy var photoDataSource = PhotoDataSource()
+    lazy var clothDataSource = ClothDataSource()
     
     // MARK: - Repositories
     lazy var photoRepository: PhotoRepository = PhotoRepositoryImpl(
         dataSource: photoDataSource
+    )
+    
+    lazy var clothRepository: ClothRepository = ClothRepositoryImpl(
+        dataSource: clothDataSource
     )
     
     // MARK: - UseCases
@@ -28,6 +33,10 @@ final class AddDIContainer {
     )
     
     lazy var processImageUseCase = ProcessImageUseCase()
+    
+    lazy var fetchClothItemsUseCase = FetchClothItemsUseCase(
+        repository: clothRepository
+    )
     
     // MARK: - Initializer
     init(navigationRouter: NavigationRouter) {
@@ -54,6 +63,14 @@ final class AddDIContainer {
         return PhotoTagViewModel(
             photo: photo,
             allPhotos: allPhotos,
+            navigationRouter: navigationRouter,
+            fetchClothItemsUseCase: fetchClothItemsUseCase
+        )
+    }
+    
+    func makePhotoEditViewModel(selectedPhotos: [SelectedPhoto]) -> PhotoEditViewModel {
+        return PhotoEditViewModel(
+            selectedPhotos: selectedPhotos,
             navigationRouter: navigationRouter
         )
     }
@@ -70,8 +87,13 @@ final class AddDIContainer {
     }
     
     func makePhotoTagView(photo: SelectedPhoto, allPhotos: [SelectedPhoto]) -> PhotoTagView {
-        return PhotoTagView(
-            viewModel: makePhotoTagViewModel(photo: photo, allPhotos: allPhotos)
+        let viewModel = makePhotoTagViewModel(photo: photo, allPhotos: allPhotos)
+        return PhotoTagView(viewModel: viewModel)
+    }
+    
+    func makePhotoEditView(selectedPhotos: [SelectedPhoto]) -> PhotoEditView {
+        return PhotoEditView(
+            viewModel: makePhotoEditViewModel(selectedPhotos: selectedPhotos)
         )
     }
 }
