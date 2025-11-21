@@ -11,6 +11,7 @@ struct MainTabView: View {
     
     // MARK: - Properties
     @StateObject private var viewModel: MainTabViewModel
+    @ObservedObject private var navigationRouter: NavigationRouter
     @StateObject private var searchNavigationRouter: NavigationRouter
     @StateObject private var notificationNavigationRouter: NavigationRouter
     
@@ -25,6 +26,7 @@ struct MainTabView: View {
         self.appDIContainer = appDIContainer
         self.addDIContainer = appDIContainer.makeAddDIContainer()
         self.homeDIContainer = appDIContainer.makeHomeDIContainer()
+        self._navigationRouter = ObservedObject(wrappedValue: appDIContainer.navigationRouter)
         
         let searchContainer = appDIContainer.makeSearchDIContainer()
         let notificationContainer = appDIContainer.makeNotificationDIContainer()
@@ -70,7 +72,10 @@ struct MainTabView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
                 // MARK: - Tab Bar
-                TabBar(selectedTab: $viewModel.selectedTab)
+                if navigationRouter.currentDestination == nil ||
+                    navigationRouter.currentDestination?.shouldCoverTabBar == false {
+                    TabBar(selectedTab: $viewModel.selectedTab)
+                }
             }
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
@@ -108,7 +113,9 @@ struct MainTabView: View {
     
     // MARK: - Computed Properties
     private var shouldShowTopBar: Bool {
-        viewModel.selectedTab != .add
+        viewModel.selectedTab != .add &&
+        !(viewModel.selectedTab == .home &&
+        !navigationRouter.path.isEmpty)
     }
     
     private var showSearchButton: Bool {
