@@ -9,6 +9,8 @@ import Foundation
 
 final class SearchDataSource {
     
+    // MARK: - Fetch Methods
+    
     func fetchUserName() -> SearchEntity {
         return SearchEntity(username: "코디브")
     }
@@ -36,6 +38,24 @@ final class SearchDataSource {
             )
         ]
     }
+    
+    func fetchPosts(query: String) -> [PostEntity] {
+        let allPosts = getAllPosts()
+        
+        if query.isEmpty || query == "전체" {
+            return allPosts
+        }
+        
+        let lowercasedQuery = query.lowercased()
+
+        return allPosts.filter { post in
+            let matchNickname = post.nickname.lowercased().contains(lowercasedQuery)
+            let matchDescription = post.description?.lowercased().contains(lowercasedQuery) ?? false
+            return matchNickname || matchDescription
+        }
+    }
+    
+    // MARK: - Private Methods
     
     private func createDate(year: Int, month: Int, day: Int) -> Date {
         var components = DateComponents()
@@ -84,21 +104,5 @@ final class SearchDataSource {
                 description: "드뮤어룩 첼시부츠"
             )
         ]
-    }
-    
-    func fetchPosts(query: String) -> [PostEntity] {
-        let allPosts = getAllPosts()
-        
-        if query.isEmpty || query == "전체" {
-            return allPosts
-        }
-        
-        let lowercasedQuery = query.lowercased()
-
-        return allPosts.filter { post in
-            let matchNickname = post.nickname.lowercased().contains(lowercasedQuery)
-            let matchDescription = post.description?.lowercased().contains(lowercasedQuery) ?? false
-            return matchNickname || matchDescription
-        }
     }
 }

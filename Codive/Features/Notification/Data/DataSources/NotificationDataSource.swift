@@ -9,6 +9,8 @@ import Foundation
 
 final class NotificationDataSource {
     
+    // MARK: - Fetch Methods
+    
     func fetchNotifications() -> [NotificationEntity] {
         return [
             NotificationEntity(

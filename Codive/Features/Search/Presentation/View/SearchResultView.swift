@@ -8,16 +8,20 @@
 import SwiftUI
 
 struct SearchResultView: View {
+    // MARK: - Properties
     @StateObject private var viewModel: SearchResultViewModel
     
-    init(viewModel: SearchResultViewModel) {
-        _viewModel = StateObject(wrappedValue: viewModel)
-    }
-    
+    // MARK: - Computed Properties
     private var sortOptionsString: [String] {
         viewModel.sortOptions.map { $0.displayName }
     }
     
+    // MARK: - Initializer
+    init(viewModel: SearchResultViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
+    
+    // MARK: - Body
     var body: some View {
         VStack {
             CustomSearchBar(
@@ -70,6 +74,3 @@ struct SearchResultView: View {
     }
 }
 
-#Preview {
-    SearchResultView(viewModel: SearchResultViewModel.preview)
-}

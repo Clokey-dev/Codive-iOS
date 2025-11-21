@@ -26,6 +26,8 @@ final class SearchViewModel: ObservableObject {
         loadData()
     }
     
+    // MARK: - Methods
+    
     func loadData() {
         self.username = useCase.fetchUserName().username
         self.recentSearchTags = useCase.fetchRecentSearchTags()
@@ -62,20 +64,5 @@ final class SearchViewModel: ObservableObject {
     // MARK: - Navigation
     func handleBackTap() {
         navigationRouter.navigateBack()
-    }
-}
-
-// MARK: - Preview Support
-extension SearchViewModel {
-    static var preview: SearchViewModel {
-        let mockRouter = NavigationRouter()
-        let mockDataSource = SearchDataSource()
-        let mockRepository = SearchRepositoryImpl(datasource: mockDataSource)
-        let mockUseCase = SearchUseCase(repository: mockRepository)
-        
-        return SearchViewModel(
-            navigationRouter: mockRouter,
-            useCase: mockUseCase
-        )
     }
 }

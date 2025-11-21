@@ -8,13 +8,16 @@
 import SwiftUI
 
 struct SearchView: View {
+    // MARK: - Properties
     @StateObject private var viewModel: SearchViewModel
     @State private var searchText: String = ""
     
+    // MARK: - Initializer
     init(viewModel: SearchViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
     
+    // MARK: - Body
     var body: some View {
         VStack {
             CustomSearchBar(
@@ -29,6 +32,7 @@ struct SearchView: View {
             
             ScrollView {
                 VStack {
+                    // MARK: - Recent Search Tags Section
                     HStack {
                         Text(TextLiteral.Search.recentSearch)
                             .font(Font.codive_title2)
@@ -70,6 +74,7 @@ struct SearchView: View {
                         .padding(.top, 8)
                     }
                     
+                    // MARK: - Recommended News Section
                     HStack {
                         Text(
                             "\(viewModel.username)\(TextLiteral.Search.recommendedNewsTitle)"
@@ -98,6 +103,7 @@ struct SearchView: View {
         .navigationBarHidden(true)
         .background(Color.white.ignoresSafeArea(.all))
         .padding(.horizontal, 20)
+        // MARK: - Alert
         .alert(
             TextLiteral.Search.alertTitle,
             isPresented: $viewModel.showingDeleteAlert
@@ -110,8 +116,4 @@ struct SearchView: View {
             Text(TextLiteral.Search.noRestore)
         }
     }
-}
-
-#Preview {
-    SearchView(viewModel: SearchViewModel.preview)
 }

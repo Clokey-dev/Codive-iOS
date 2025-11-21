@@ -6,11 +6,15 @@
 //
 
 final class SearchUseCase {
+    // MARK: - Properties
     private let repository: SearchRepository
     
+    // MARK: - Initializer
     init(repository: SearchRepository) {
         self.repository = repository
     }
+    
+    // MARK: - Fetch Methods
     
     func fetchUserName() -> SearchEntity {
         return repository.fetchUserName()
@@ -24,7 +28,7 @@ final class SearchUseCase {
         return repository.fetchRecommendedNews()
     }
     
-    func fetchPosts(query: String) -> [PostEntity] { 
+    func fetchPosts(query: String) -> [PostEntity] {
         return repository.fetchPosts(query: query)
     }
 }

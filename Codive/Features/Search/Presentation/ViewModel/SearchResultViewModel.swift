@@ -26,6 +26,8 @@ final class SearchResultViewModel: ObservableObject {
         SortOptionEntity(id: "최신순", displayName: "최신순")
     ]
     
+    private var cancellables = Set<AnyCancellable>()
+    
     // MARK: - Initializer
     init(navigationRouter: NavigationRouter, useCase: SearchUseCase, initialQuery: String) {
         self.navigationRouter = navigationRouter
@@ -37,7 +39,7 @@ final class SearchResultViewModel: ObservableObject {
         setupBindings()
     }
     
-    private var cancellables = Set<AnyCancellable>()
+    // MARK: - Private Methods
     
     private func setupBindings() {
         $currentSort
@@ -48,6 +50,22 @@ final class SearchResultViewModel: ObservableObject {
             .store(in: &cancellables)
     }
 
+    private func applySorting(newSort: String) {
+        switch newSort {
+        case "인기순":
+            self.posts = self.allPosts.sorted { $0.likes > $1.likes }
+        case "최신순":
+            self.posts = self.allPosts.sorted { $0.date > $1.date }
+        case "전체":
+            self.posts = self.allPosts
+        default:
+            break
+        }
+        print("정렬 적용 완료: \(newSort), 결과 \(self.posts.count)개")
+    }
+    
+    // MARK: - Public Methods
+    
     func loadPosts() {
         self.allPosts = useCase.fetchPosts(query: self.initialQuery)
         self.posts = self.allPosts
@@ -65,43 +83,12 @@ final class SearchResultViewModel: ObservableObject {
         self.currentSort = "전체"
         loadPosts()
         
-        // 새로운 검색 결과 화면으로 이동
         navigationRouter.navigate(to: .searchResult(query: trimmedQuery))
         print("새로운 검색 실행: \(trimmedQuery)")
-    }
-    
-    private func applySorting(newSort: String) {
-        switch newSort {
-        case "인기순":
-            self.posts = self.allPosts.sorted { $0.likes > $1.likes }
-        case "최신순":
-            self.posts = self.allPosts.sorted { $0.date > $1.date }
-        case "전체":
-            self.posts = self.allPosts
-        default:
-            break
-        }
-        print("정렬 적용 완료: \(newSort), 결과 \(self.posts.count)개")
     }
     
     // MARK: - Navigation
     func handleBackTap() {
         navigationRouter.navigateBack()
-    }
-}
-
-// MARK: - Preview Support
-extension SearchResultViewModel {
-    static var preview: SearchResultViewModel {
-        let mockRouter = NavigationRouter()
-        let mockDataSource = SearchDataSource()
-        let mockRepository = SearchRepositoryImpl(datasource: mockDataSource)
-        let mockUseCase = SearchUseCase(repository: mockRepository)
-        
-        return SearchResultViewModel(
-            navigationRouter: mockRouter,
-            useCase: mockUseCase,
-            initialQuery: "드뮤어룩"
-        )
     }
 }

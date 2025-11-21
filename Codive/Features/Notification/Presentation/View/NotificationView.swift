@@ -8,12 +8,15 @@
 import SwiftUI
 
 struct NotificationView: View {
+    // MARK: - Properties
     @StateObject private var viewModel: NotificationViewModel
     
+    // MARK: - Initializer
     init(viewModel: NotificationViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
     
+    // MARK: - Body
     var body: some View {
         VStack {
             CustomNavigationBar(
@@ -23,6 +26,7 @@ struct NotificationView: View {
             
             ScrollView {
                 VStack {
+                    // MARK: - Notification Sections
                     notificationSection(
                         title: TextLiteral.Notification.notRead,
                         notifications: viewModel.unreadNotifications
@@ -45,6 +49,7 @@ struct NotificationView: View {
         .background(Color.white.ignoresSafeArea(.all))
     }
     
+    // MARK: - View Builders
     @ViewBuilder
     private func notificationSection(title: String, notifications: [NotificationEntity]) -> some View {
         if !notifications.isEmpty {
@@ -67,8 +72,4 @@ struct NotificationView: View {
             .padding(.top, 12)
         }
     }
-}
-
-#Preview {
-    NotificationView(viewModel: NotificationViewModel.preview)
 }

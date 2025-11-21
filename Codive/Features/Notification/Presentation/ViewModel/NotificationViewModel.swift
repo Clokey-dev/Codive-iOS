@@ -16,6 +16,7 @@ final class NotificationViewModel: ObservableObject {
     @Published var unreadNotifications: [NotificationEntity] = []
     @Published var readNotifications: [NotificationEntity] = []
     
+    // MARK: - Initializer
     init(navigationRouter: NavigationRouter, useCase: NotificationUseCase) {
         self.navigationRouter = navigationRouter
         self.useCase = useCase
@@ -23,6 +24,7 @@ final class NotificationViewModel: ObservableObject {
         loadData()
     }
     
+    // MARK: - Methods
     func loadData() {
         let allNotifications = useCase.fetchNotifications()
         
@@ -34,19 +36,5 @@ final class NotificationViewModel: ObservableObject {
     // MARK: - Navigation
     func handleBackTap() {
         navigationRouter.navigateBack()
-    }
-}
-
-extension NotificationViewModel {
-    static var preview: NotificationViewModel {
-        let mockRouter = NavigationRouter()
-        let mockDataSource = NotificationDataSource()
-        let mockRepository = NotificationRepositoryImpl(datasource: mockDataSource)
-        let mockUseCase = NotificationUseCase(repository: mockRepository)
-        
-        return NotificationViewModel(
-            navigationRouter: mockRouter,
-            useCase: mockUseCase
-        )
     }
 }
