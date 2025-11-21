@@ -40,15 +40,15 @@ struct TopNavigationBar: View {
             Spacer()
                         
             HStack(spacing: 16) {
-                // Search Button
                 if showSearchButton {
                     Button {
                         onSearchTap?()
                     } label: {
-                        Image(systemName: "magnifyingglass")
+                        Image("search")
                             .renderingMode(.template)
+                            .resizable()
                             .foregroundStyle(Color.Codive.grayscale1)
-                            .frame(width: 24, height: 24)
+                            .frame(width: 20, height: 20)
                     }
                 }
                 
@@ -58,10 +58,11 @@ struct TopNavigationBar: View {
                         onNotificationTap?()
                     } label: {
                         ZStack(alignment: .topTrailing) {
-                            Image(systemName: "bell")
+                            Image("alert_off")
                                 .renderingMode(.template)
+                                .resizable()
                                 .foregroundStyle(Color.Codive.grayscale1)
-                                .frame(width: 24, height: 24)
+                                .frame(width: 18, height: 21)
                         }
                     }
                 }
