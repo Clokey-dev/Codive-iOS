@@ -34,7 +34,6 @@ final class SearchResultViewModel: ObservableObject {
         self.useCase = useCase
         self.initialQuery = initialQuery
         self.searchBarText = initialQuery
-        loadPosts()
         
         setupBindings()
     }

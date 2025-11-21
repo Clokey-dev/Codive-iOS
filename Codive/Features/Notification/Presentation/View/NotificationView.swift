@@ -47,6 +47,10 @@ struct NotificationView: View {
         }
         .navigationBarHidden(true)
         .background(Color.white.ignoresSafeArea(.all))
+        // MARK: - Data Loading Trigger
+        .onAppear {
+            viewModel.loadData()
+        }
     }
     
     // MARK: - View Builders

@@ -22,8 +22,6 @@ final class SearchViewModel: ObservableObject {
     init(navigationRouter: NavigationRouter, useCase: SearchUseCase) {
         self.navigationRouter = navigationRouter
         self.useCase = useCase
-        
-        loadData()
     }
     
     // MARK: - Methods

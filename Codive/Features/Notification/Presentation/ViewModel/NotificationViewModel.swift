@@ -20,8 +20,6 @@ final class NotificationViewModel: ObservableObject {
     init(navigationRouter: NavigationRouter, useCase: NotificationUseCase) {
         self.navigationRouter = navigationRouter
         self.useCase = useCase
-        
-        loadData()
     }
     
     // MARK: - Methods

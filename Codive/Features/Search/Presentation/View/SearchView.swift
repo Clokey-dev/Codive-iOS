@@ -103,6 +103,10 @@ struct SearchView: View {
         .navigationBarHidden(true)
         .background(Color.white.ignoresSafeArea(.all))
         .padding(.horizontal, 20)
+        // MARK: - Data Loading Trigger
+        .onAppear {
+            viewModel.loadData()
+        }
         // MARK: - Alert
         .alert(
             TextLiteral.Search.alertTitle,

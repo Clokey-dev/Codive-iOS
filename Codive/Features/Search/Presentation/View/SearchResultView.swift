@@ -71,6 +71,9 @@ struct SearchResultView: View {
         .navigationBarHidden(true)
         .background(Color.white.ignoresSafeArea(.all))
         .padding(.horizontal, 20)
+        // MARK: - Data Loading Trigger
+        .onAppear {
+            viewModel.loadPosts()
+        }
     }
 }
-
