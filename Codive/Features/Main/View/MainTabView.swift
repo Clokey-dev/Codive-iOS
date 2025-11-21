@@ -2,7 +2,7 @@
 //  MainTabView.swift
 //  Codive
 //
-//  Created by 황상환 on 9/22/25.
+//  Created by í™©ìƒí™˜ on 9/22/25.
 //
 
 import SwiftUI
@@ -11,7 +11,6 @@ struct MainTabView: View {
     
     // MARK: - Properties
     @StateObject private var viewModel: MainTabViewModel
-    @ObservedObject private var navigationRouter: NavigationRouter
     private let appDIContainer: AppDIContainer
     private let addDIContainer: AddDIContainer
     private let homeDIContainer: HomeDIContainer
@@ -26,8 +25,7 @@ struct MainTabView: View {
         self.searchDIContainer = appDIContainer.makeSearchDIContainer()
         self.notificationDIContainer = appDIContainer.makeNotificationDIContainer()
         
-        self._navigationRouter = ObservedObject(wrappedValue: appDIContainer.navigationRouter)
-        let viewModel = MainTabViewModel(navigationRouter: appDIContainer.navigationRouter)
+        let viewModel = MainTabViewModel()
         self._viewModel = StateObject(wrappedValue: viewModel)
     }
     
@@ -61,27 +59,35 @@ struct MainTabView: View {
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .overlay {
-                    if let destination = navigationRouter.currentDestination {
-                        destinationView(for: destination)
-                            .transition(.move(edge: .trailing))
-                    }
-                }
                 
                 // MARK: - Tab Bar
-                if navigationRouter.currentDestination == nil ||
-                    navigationRouter.currentDestination?.shouldCoverTabBar == false {
-                    TabBar(selectedTab: $viewModel.selectedTab)
-                }
+                TabBar(selectedTab: $viewModel.selectedTab)
             }
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
+        // MARK: - Search FullScreenCover
+        .fullScreenCover(isPresented: $viewModel.showSearch) {
+            NavigationStack {
+                searchDIContainer.makeSearchView()
+                    .navigationDestination(for: AppDestination.self) { destination in
+                        searchDIContainer.searchViewFactory.makeView(for: destination)
+                    }
+            }
+        }
+        // MARK: - Notification FullScreenCover
+        .fullScreenCover(isPresented: $viewModel.showNotification) {
+            NavigationStack {
+                notificationDIContainer.makeNotificationView()
+                    .navigationDestination(for: AppDestination.self) { destination in
+                        notificationDIContainer.notificationViewFactory.makeView(for: destination)
+                    }
+            }
+        }
     }
     
     // MARK: - Computed Properties
     private var shouldShowTopBar: Bool {
-        viewModel.selectedTab != .add &&
-        !(viewModel.selectedTab == .home && !navigationRouter.path.isEmpty)
+        viewModel.selectedTab != .add
     }
     
     private var showSearchButton: Bool {
@@ -90,20 +96,5 @@ struct MainTabView: View {
     
     private var showNotificationButton: Bool {
         true
-    }
-    
-    @ViewBuilder
-    private func destinationView(for destination: AppDestination) -> some View {
-        switch destination {
-        case .search:
-            searchDIContainer.makeSearchView()
-        case .searchResult(let query):
-            searchDIContainer.makeSearchResultView(initialQuery: query)
-        case .notification:
-            notificationDIContainer.makeNotificationView()
-            
-        default:
-            EmptyView()
-        }
     }
 }
