@@ -9,6 +9,7 @@ import SwiftUI
 
 struct NotificationView: View {
     // MARK: - Properties
+    @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel: NotificationViewModel
     
     // MARK: - Initializer
@@ -21,7 +22,7 @@ struct NotificationView: View {
         VStack {
             CustomNavigationBar(
                 title: TextLiteral.Notification.title) {
-                    viewModel.handleBackTap()
+                    dismiss()
                 }
             
             ScrollView {

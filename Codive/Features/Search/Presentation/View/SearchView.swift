@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SearchView: View {
     // MARK: - Properties
+    @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel: SearchViewModel
     @State private var searchText: String = ""
     
@@ -23,7 +24,7 @@ struct SearchView: View {
             CustomSearchBar(
                 text: $searchText,
                 type: .withBackButton {
-                    viewModel.handleBackTap()
+                    dismiss()
                 }
             )
             .onSubmit {

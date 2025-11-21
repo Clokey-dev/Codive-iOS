@@ -74,6 +74,9 @@ struct MainTabView: View {
                     }
             }
         }
+        .transaction { transaction in
+            transaction.disablesAnimations = true
+        }
         // MARK: - Notification FullScreenCover
         .fullScreenCover(isPresented: $viewModel.showNotification) {
             NavigationStack {
@@ -82,6 +85,9 @@ struct MainTabView: View {
                         notificationDIContainer.notificationViewFactory.makeView(for: destination)
                     }
             }
+        }
+        .transaction { transaction in
+            transaction.disablesAnimations = true
         }
     }
     
