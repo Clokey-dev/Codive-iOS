@@ -2,7 +2,7 @@
 //  MainTabView.swift
 //  Codive
 //
-//  Created by í™©ìƒí™˜ on 9/22/25.
+//  Created by 황상환 on 9/22/25.
 //
 
 import SwiftUI
@@ -11,6 +11,9 @@ struct MainTabView: View {
     
     // MARK: - Properties
     @StateObject private var viewModel: MainTabViewModel
+    @StateObject private var searchNavigationRouter: NavigationRouter
+    @StateObject private var notificationNavigationRouter: NavigationRouter
+    
     private let appDIContainer: AppDIContainer
     private let addDIContainer: AddDIContainer
     private let homeDIContainer: HomeDIContainer
@@ -22,13 +25,19 @@ struct MainTabView: View {
         self.appDIContainer = appDIContainer
         self.addDIContainer = appDIContainer.makeAddDIContainer()
         self.homeDIContainer = appDIContainer.makeHomeDIContainer()
-        self.searchDIContainer = appDIContainer.makeSearchDIContainer()
-        self.notificationDIContainer = appDIContainer.makeNotificationDIContainer()
+        
+        let searchContainer = appDIContainer.makeSearchDIContainer()
+        let notificationContainer = appDIContainer.makeNotificationDIContainer()
+        
+        self.searchDIContainer = searchContainer
+        self.notificationDIContainer = notificationContainer
         
         let viewModel = MainTabViewModel()
         self._viewModel = StateObject(wrappedValue: viewModel)
+        
+        self._searchNavigationRouter = StateObject(wrappedValue: searchContainer.navigationRouter)
+        self._notificationNavigationRouter = StateObject(wrappedValue: notificationContainer.navigationRouter)
     }
-    
     // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
@@ -66,29 +75,35 @@ struct MainTabView: View {
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
         // MARK: - Search FullScreenCover
-        .fullScreenCover(isPresented: $viewModel.showSearch) {
-            NavigationStack {
-                searchDIContainer.makeSearchView()
-                    .navigationDestination(for: AppDestination.self) { destination in
-                        searchDIContainer.searchViewFactory.makeView(for: destination)
-                    }
+        .fullScreenCover(
+            isPresented: $viewModel.showSearch,
+            onDismiss: {
+                searchNavigationRouter.navigateToRoot()
+            },
+            content: {
+                NavigationStack(path: $searchNavigationRouter.path) {
+                    searchDIContainer.makeSearchView()
+                        .navigationDestination(for: AppDestination.self) { destination in
+                            searchDIContainer.searchViewFactory.makeView(for: destination)
+                        }
+                }
             }
-        }
-        .transaction { transaction in
-            transaction.disablesAnimations = true
-        }
+        )
         // MARK: - Notification FullScreenCover
-        .fullScreenCover(isPresented: $viewModel.showNotification) {
-            NavigationStack {
-                notificationDIContainer.makeNotificationView()
-                    .navigationDestination(for: AppDestination.self) { destination in
-                        notificationDIContainer.notificationViewFactory.makeView(for: destination)
-                    }
+        .fullScreenCover(
+            isPresented: $viewModel.showNotification,
+            onDismiss: {
+                notificationNavigationRouter.navigateToRoot()
+            },
+            content: {
+                NavigationStack(path: $notificationNavigationRouter.path) {
+                    notificationDIContainer.makeNotificationView()
+                        .navigationDestination(for: AppDestination.self) { destination in
+                            notificationDIContainer.notificationViewFactory.makeView(for: destination)
+                        }
+                }
             }
-        }
-        .transaction { transaction in
-            transaction.disablesAnimations = true
-        }
+        )
     }
     
     // MARK: - Computed Properties

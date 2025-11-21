@@ -14,7 +14,7 @@ final class SearchResultViewModel: ObservableObject {
     private let navigationRouter: NavigationRouter
     private let useCase: SearchUseCase
     private var allPosts: [PostEntity] = []
-    private var initialQuery: String
+    private var currentQuery: String
     
     @Published var posts: [PostEntity] = []
     @Published var currentSort: String = "전체"
@@ -32,7 +32,7 @@ final class SearchResultViewModel: ObservableObject {
     init(navigationRouter: NavigationRouter, useCase: SearchUseCase, initialQuery: String) {
         self.navigationRouter = navigationRouter
         self.useCase = useCase
-        self.initialQuery = initialQuery
+        self.currentQuery = initialQuery
         self.searchBarText = initialQuery
         
         setupBindings()
@@ -66,7 +66,7 @@ final class SearchResultViewModel: ObservableObject {
     // MARK: - Public Methods
     
     func loadPosts() {
-        self.allPosts = useCase.fetchPosts(query: self.initialQuery)
+        self.allPosts = useCase.fetchPosts(query: self.currentQuery)
         self.posts = self.allPosts
         self.applySorting(newSort: self.currentSort)
     }
@@ -78,11 +78,18 @@ final class SearchResultViewModel: ObservableObject {
             return
         }
         
-        self.initialQuery = trimmedQuery
+        // 같은 검색어면 다시 검색하지 않음
+        if trimmedQuery == currentQuery {
+            print("동일한 검색어입니다.")
+            return
+        }
+        
+        // 검색어 업데이트 및 데이터 새로 로드
+        self.currentQuery = trimmedQuery
+        self.searchBarText = trimmedQuery
         self.currentSort = "전체"
         loadPosts()
         
-        navigationRouter.navigate(to: .searchResult(query: trimmedQuery))
         print("새로운 검색 실행: \(trimmedQuery)")
     }
     

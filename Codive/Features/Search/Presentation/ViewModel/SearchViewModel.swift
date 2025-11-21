@@ -38,9 +38,11 @@ final class SearchViewModel: ObservableObject {
             print("검색어를 입력해 주세요.")
             return
         }
-        // query를 전달하도록 수정
+        
+        // 최근 검색어에 추가
+        addRecentSearchTag(query: trimmedQuery)
+        
         navigationRouter.navigate(to: .searchResult(query: trimmedQuery))
-        print("검색 실행: \(trimmedQuery). SearchResultView로 이동 필요.")
     }
     
     func deleteTag(tag: SearchTagEntity) {
@@ -59,8 +61,20 @@ final class SearchViewModel: ObservableObject {
         self.recentSearchTags = []
     }
     
-    // MARK: - Navigation
-    func handleBackTap() {
-        navigationRouter.navigateBack()
+    func handleTagTap(tag: SearchTagEntity) {
+        // 태그 클릭 시 해당 검색어로 검색 실행
+        executeSearch(query: tag.text)
+    }
+    
+    // MARK: - Private Methods
+    
+    private func addRecentSearchTag(query: String) {
+        // 중복 검색어 제거
+        recentSearchTags.removeAll { $0.text == query }
+        
+        // 새 검색어를 맨 앞에 추가
+        let newId = (recentSearchTags.map { $0.id }.max() ?? 0) + 1
+        let newTag = SearchTagEntity(id: newId, text: query)
+        recentSearchTags.insert(newTag, at: 0)
     }
 }

@@ -11,6 +11,7 @@ struct SearchTagView: View {
     // MARK: - Properties
     let text: String // 표시할 검색어
     let onDelete: () -> Void // 삭제 버튼이 눌렸을 때 실행할 클로저
+    let onTap: (() -> Void)?
     
     // MARK: - Constants (디자인 값)
     private let horizontalPadding: CGFloat = 16
@@ -19,6 +20,13 @@ struct SearchTagView: View {
     private let borderColor = Color.Codive.grayscale3
     private let textColor = Color.Codive.grayscale3
     private let iconSize: CGFloat = 6
+
+    // MARK: - Initializer
+    init(text: String, onDelete: @escaping () -> Void, onTap: (() -> Void)? = nil) {
+        self.text = text
+        self.onDelete = onDelete
+        self.onTap = onTap
+    }
 
     var body: some View {
         HStack(spacing: 8) {
@@ -39,6 +47,9 @@ struct SearchTagView: View {
             RoundedRectangle(cornerRadius: cornerRadius)
                 .stroke(borderColor, lineWidth: 1)
         )
+        .onTapGesture {
+            onTap?()
+        }
     }
 }
 
@@ -46,6 +57,8 @@ struct SearchTagView: View {
 #Preview {
     SearchTagView(text: "드뮤어룩") {
         print("드뮤어룩 태그 삭제")
+    } onTap: {
+        print("드뮤어룩 태그 탭")
     }
     .padding()
 }

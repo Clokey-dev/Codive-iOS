@@ -66,9 +66,15 @@ struct SearchView: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 16) {
                                 ForEach(viewModel.recentSearchTags) { tag in
-                                    SearchTagView(text: tag.text) {
-                                        viewModel.deleteTag(tag: tag)
-                                    }
+                                    SearchTagView(
+                                        text: tag.text,
+                                        onDelete: {
+                                            viewModel.deleteTag(tag: tag)
+                                        },
+                                        onTap: {
+                                            viewModel.handleTagTap(tag: tag)
+                                        }
+                                    )
                                 }
                             }
                         }
