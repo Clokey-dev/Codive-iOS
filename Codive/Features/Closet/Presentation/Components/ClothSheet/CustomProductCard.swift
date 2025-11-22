@@ -11,7 +11,7 @@ struct CustomProductCard: View {
     
     // MARK: - Properties
     let imageName: String
-    let isTodayCloth: Bool  // 변경
+    let isTodayCloth: Bool
     let isSelected: Bool
     let onTap: () -> Void
     

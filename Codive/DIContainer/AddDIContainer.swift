@@ -11,43 +11,31 @@ import Foundation
 final class AddDIContainer {
     
     // MARK: - Properties
+    private let feedDIContainer: FeedDIContainer
+    private let closetDIContainer: ClosetDIContainer
+    private let sharedDIContainer: SharedDIContainer
+    
     let navigationRouter: NavigationRouter
     lazy var addViewFactory = AddViewFactory(addDIContainer: self)
     
-    // MARK: - DataSources
-    lazy var photoDataSource = PhotoDataSource()
-    lazy var clothDataSource = ClothDataSource()
-    
-    // MARK: - Repositories
-    lazy var photoRepository: PhotoRepository = PhotoRepositoryImpl(
-        dataSource: photoDataSource
-    )
-    
-    lazy var clothRepository: ClothRepository = ClothRepositoryImpl(
-        dataSource: clothDataSource
-    )
-    
-    // MARK: - UseCases
-    lazy var fetchPhotosUseCase = FetchPhotosUseCase(
-        repository: photoRepository
-    )
-    
-    lazy var processImageUseCase = ProcessImageUseCase()
-    
-    lazy var fetchClothItemsUseCase = FetchClothItemsUseCase(
-        repository: clothRepository
-    )
-    
     // MARK: - Initializer
-    init(navigationRouter: NavigationRouter) {
+    init(
+        navigationRouter: NavigationRouter,
+        feedDIContainer: FeedDIContainer,
+        closetDIContainer: ClosetDIContainer,
+        sharedDIContainer: SharedDIContainer
+    ) {
         self.navigationRouter = navigationRouter
+        self.feedDIContainer = feedDIContainer
+        self.closetDIContainer = closetDIContainer
+        self.sharedDIContainer = sharedDIContainer
     }
     
     // MARK: - ViewModels
     func makeRecordAddViewModel() -> RecordAddViewModel {
         return RecordAddViewModel(
-            fetchPhotosUseCase: fetchPhotosUseCase,
-            processImageUseCase: processImageUseCase,
+            fetchPhotosUseCase: sharedDIContainer.makeFetchPhotosUseCase(),
+            processImageUseCase: sharedDIContainer.makeProcessImageUseCase(),
             navigationRouter: navigationRouter
         )
     }
@@ -64,7 +52,7 @@ final class AddDIContainer {
             photo: photo,
             allPhotos: allPhotos,
             navigationRouter: navigationRouter,
-            fetchClothItemsUseCase: fetchClothItemsUseCase
+            fetchClothItemsUseCase: closetDIContainer.makeFetchClothItemsUseCase()
         )
     }
     

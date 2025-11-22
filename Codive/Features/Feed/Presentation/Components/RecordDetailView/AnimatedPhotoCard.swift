@@ -22,27 +22,22 @@ struct AnimatedPhotoCard: View {
     // MARK: - Body
     var body: some View {
         ZStack {
-            // Background Image
             Image(uiImage: photo.croppedImage)
                 .resizable()
                 .aspectRatio(3/4, contentMode: .fit)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             
-            // Dark Overlay
             Color.black.opacity(0.5)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             
-            // Animated Circle with Text
             VStack(spacing: 14) {
                 ZStack {
-                    // Animated Expanding Circle
                     Circle()
                         .fill(Color.Codive.grayscale4)
                         .frame(width: 49, height: 49)
                         .scaleEffect(scale)
                         .opacity(opacity)
                     
-                    // Static Base Circle
                     Circle()
                         .fill(Color.Codive.grayscale5)
                         .overlay(

@@ -8,6 +8,7 @@
 import Foundation
 import Photos
 import UIKit
+import Combine
 
 // MARK: - RecordAddViewModel
 @MainActor
@@ -25,7 +26,7 @@ final class RecordAddViewModel: ObservableObject {
 
     private let fetchPhotosUseCase: FetchPhotosUseCase
     private let processImageUseCase: ProcessImageUseCase
-    let navigationRouter: NavigationRouter
+    private let navigationRouter: NavigationRouter
     
     // MARK: - Computed Properties
     var isCompleteEnabled: Bool {
@@ -38,14 +39,14 @@ final class RecordAddViewModel: ObservableObject {
     
     // MARK: - Initializer
     init(
-            fetchPhotosUseCase: FetchPhotosUseCase,
-            processImageUseCase: ProcessImageUseCase,
-            navigationRouter: NavigationRouter
-        ) {
-            self.fetchPhotosUseCase = fetchPhotosUseCase
-            self.processImageUseCase = processImageUseCase
-            self.navigationRouter = navigationRouter
-        }
+        fetchPhotosUseCase: FetchPhotosUseCase,
+        processImageUseCase: ProcessImageUseCase,
+        navigationRouter: NavigationRouter
+    ) {
+        self.fetchPhotosUseCase = fetchPhotosUseCase
+        self.processImageUseCase = processImageUseCase
+        self.navigationRouter = navigationRouter
+    }
     
     // MARK: - Image Loading
     func loadThumbnail(for asset: PHAsset, size: CGSize) async -> UIImage? {
@@ -83,12 +84,10 @@ final class RecordAddViewModel: ObservableObject {
             updatedPhoto.isSelected.toggle()
             
             if updatedPhoto.isSelected {
-                // 선택됨 - 순서 부여
                 let order = selectedPhotos.count + 1
                 updatedPhoto.selectionOrder = order
                 selectedPhotos.append(updatedPhoto)
             } else {
-                // 선택 해제 - 순서 재정렬
                 selectedPhotos.removeAll { $0.id == photo.id }
                 updatedPhoto.selectionOrder = nil
                 reorderSelection()
@@ -105,7 +104,6 @@ final class RecordAddViewModel: ObservableObject {
             return updatedPhoto
         }
         
-        // photos 배열도 업데이트
         for (index, photo) in selectedPhotos.enumerated() {
             if let photoIndex = photos.firstIndex(where: { $0.id == photo.id }) {
                 photos[photoIndex].selectionOrder = index + 1
@@ -122,12 +120,9 @@ final class RecordAddViewModel: ObservableObject {
     }
     
     func handleCameraCapture(image: UIImage) {
-        // 사진을 포토 라이브러리에 저장
         Task {
             await saveImageToPhotoLibrary(image)
-            // 선택 상태 초기화
             selectedPhotos.removeAll()
-            // 저장 후 갤러리 새로고침
             await loadAlbums()
         }
     }
@@ -138,7 +133,7 @@ final class RecordAddViewModel: ObservableObject {
                 PHAssetChangeRequest.creationRequestForAsset(from: image)
             }
         } catch {
-            print("\(TextLiteral.Add.recordPhotoSaveFailure)\(error)")
+            print("사진 저장 실패: \(error)")
         }
     }
     
@@ -148,7 +143,6 @@ final class RecordAddViewModel: ObservableObject {
             
             var selectedPhotoItems: [SelectedPhoto] = []
             
-            // 임시로 사진 순서 저장
             let photosToProcess = selectedPhotos
             let targetSize = CGSize(width: 1200, height: 1200)
             
@@ -171,7 +165,6 @@ final class RecordAddViewModel: ObservableObject {
             
             navigationRouter.navigate(to: .photoEdit(photos: selectedPhotoItems))
                     
-            // 처리 완료 후 리셋
             resetSelection()
             isCompletingSelection = false
         }
