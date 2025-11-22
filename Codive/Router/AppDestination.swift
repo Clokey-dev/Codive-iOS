@@ -20,6 +20,7 @@ enum AppDestination: Hashable {
     case search
     case searchResult(query: String)
     case notification
+    case lookbook
     
     // MARK: - 하단 탭바
     /// 이 화면이 탭바를 덮어야 하는가?
@@ -37,6 +38,10 @@ enum AppDestination: Hashable {
             
         // Search, Alarm Flow
         case .search, .searchResult, .notification:
+            return true
+            
+        // LookBook
+        case .lookbook:
             return true
             
         // 다른 플로우 전체 화면은 여기에 추가
