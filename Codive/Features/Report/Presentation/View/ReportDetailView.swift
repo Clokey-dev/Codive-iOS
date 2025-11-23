@@ -84,6 +84,7 @@ struct ReportDetailView: View {
                     .padding(.top, 125)
                     .disabled(!vm.isNextEnabled || vm.isSubmitting)
                 }
+                .padding(.horizontal, 20)   // 여기서부터 아래 내용 전체 좌우 20
             }
         }
     }

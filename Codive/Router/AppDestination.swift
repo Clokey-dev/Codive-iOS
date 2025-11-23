@@ -20,8 +20,8 @@ enum AppDestination: Hashable {
     case settingMyComments
     case settingBlockedUsers
     case settingWithdraw
-    case report
-    case reportDetail
+    case report(target: ReportTarget)
+    case reportDetail(target: ReportTarget)
     case editCategory
     case codiBoard
     
@@ -38,6 +38,7 @@ enum AppDestination: Hashable {
         // 다른 플로우 전체 화면은 여기에 추가
         // case .closetEdit, .feedCreate:
         //     return true
+            
             
         default:
             return false

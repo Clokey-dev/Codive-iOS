@@ -6,31 +6,36 @@
 //
 import SwiftUI
 
+@MainActor
 final class SettingViewFactory {
 
-    private unowned let container: SettingDIContainer
+    // MARK: - Properties
+    private weak var settingDIContainer: SettingDIContainer?
 
+    // MARK: - Init
     init(settingDIContainer: SettingDIContainer) {
-        self.container = settingDIContainer
+        self.settingDIContainer = settingDIContainer
     }
 
-    @MainActor
-    func makeSettingView() -> SettingView {
-        container.makeSettingView()
-    }
+    // MARK: - Destination → View 매핑
+    @ViewBuilder
+    func makeView(for destination: AppDestination) -> some View {
+        switch destination {
 
-    @MainActor
-    func makeSettingLikedView() -> SettingLikedView {
-        container.makeSettingLikedView()
-    }
+        case .settings:
+            settingDIContainer?.makeSettingView()
 
-    @MainActor
-    func makeSettingCommentView() -> SettingCommentView {
-        container.makeSettingCommentView()
-    }
+        case .settingLikedRecords:
+            settingDIContainer?.makeSettingLikedView()
 
-    @MainActor
-    func makeSettingBlockedView() -> SettingBlockedView {
-        container.makeSettingBlockedView()
+        case .settingMyComments:
+            settingDIContainer?.makeSettingCommentView()
+
+        case .settingBlockedUsers:
+            settingDIContainer?.makeSettingBlockedView()
+
+        default:
+            EmptyView()
+        }
     }
 }

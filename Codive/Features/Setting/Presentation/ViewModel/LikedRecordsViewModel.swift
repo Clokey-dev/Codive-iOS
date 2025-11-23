@@ -14,10 +14,16 @@ final class LikedRecordsViewModel: ObservableObject {
     @Published private(set) var isLoading = false
     @Published private(set) var error: Error?
 
+    private let navigationRouter: NavigationRouter
     private let getLikedUC: GetLikedRecordsUseCase
     private let pageSize: Int
 
-    init(getLikedUC: GetLikedRecordsUseCase, pageSize: Int = 500) {
+    init(
+        navigationRouter: NavigationRouter,
+        getLikedUC: GetLikedRecordsUseCase,
+        pageSize: Int = 500
+    ) {
+        self.navigationRouter = navigationRouter
         self.getLikedUC = getLikedUC
         self.pageSize = pageSize
     }

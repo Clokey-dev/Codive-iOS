@@ -30,7 +30,7 @@ final class SettingDIContainer {
         // 인메모리 스텁 + 레포지토리 연결
         let dataSource = SettingsDataSource()
         self.dataSource = dataSource
-        self.repository = SettingsRepositoryImpl(dataSource: dataSource) // 여기에 그냥 repository인지 Impl이 와여하는건지 잘 모르겠음
+        self.repository = SettingsRepositoryImpl(dataSource: dataSource) 
     }
 
     // MARK: - UseCases
@@ -74,20 +74,23 @@ final class SettingDIContainer {
 
     func makeLikedRecordsViewModel() -> LikedRecordsViewModel {
         LikedRecordsViewModel(
+            navigationRouter: navigationRouter,
             getLikedUC: makeGetLikedRecordsUseCase()
         )
     }
 
     func makeMyCommentsViewModel() -> MyCommentsViewModel {
         MyCommentsViewModel(
+            navigationRouter: navigationRouter,
             getCommentsUC: makeGetMyCommentsUseCase()
         )
     }
 
     func makeBlockedUsersViewModel() -> BlockedUsersViewModel {
         BlockedUsersViewModel(
-            getBlocked: makeGetBlockedUsersUseCase(),
-            unblock: makeUnblockUserUseCase()
+            navigationRouter: navigationRouter,
+            getBlockedUC: makeGetBlockedUsersUseCase(),
+            unblockUC: makeUnblockUserUseCase()
         )
     }
 

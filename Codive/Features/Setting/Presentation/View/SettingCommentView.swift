@@ -16,7 +16,6 @@ struct SettingCommentView: View {
                 // 1) 로딩만 있는 상태
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-
             } else if let error = vm.error, vm.items.isEmpty {
                 // 2) 에러 + 데이터 없음
                 VStack(spacing: 12) {
@@ -30,7 +29,6 @@ struct SettingCommentView: View {
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-
             } else if vm.items.isEmpty {
                 // 3) 정상인데 리스트가 비어 있음
                 SettingsEmptyView(
@@ -40,11 +38,10 @@ struct SettingCommentView: View {
                 ) {
                     // 라우팅
                 }
-
             } else {
                 // 4) 정상 리스트
                 List {
-                    ForEach(vm.items, id: \.id) { comment in
+                    ForEach(vm.items) { (comment: MyComment) in  // 파라미터 타입 명시
                         VStack(alignment: .leading, spacing: 6) {
                             HStack(spacing: 8) {
                                 Text(comment.author.nickname)
@@ -58,7 +55,7 @@ struct SettingCommentView: View {
                                         time: .omitted
                                     )
                                 )
-                                .font(.codive_caption)
+                                .font(.codive_body2_regular)
                                 .foregroundStyle(Color.Codive.grayscale4)
                             }
 

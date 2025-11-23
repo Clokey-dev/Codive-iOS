@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ReportView: View {
     @ObservedObject var vm: ReportViewModel
-    var onSubmit: (() -> Void)?   // 필요 시 제출 액션 주입
+    var onSubmit: (() -> Void)?
 
     var body: some View {
         ScrollView {
@@ -22,14 +22,15 @@ struct ReportView: View {
                 reportingContent
                 Divider()
                 reportingReasons
-
-                CustomButton(text: "다음", widthType: .fixed) {
-                    onSubmit?()
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 56)
-                .disabled(!vm.isNextEnabled || vm.isSubmitting)
             }
+        }
+        .safeAreaInset(edge: .bottom) {
+            CustomButton(text: "다음", widthType: .fixed) {
+                onSubmit?()
+            }
+            .disabled(!vm.isNextEnabled || vm.isSubmitting)
+            .padding(.horizontal, 20)
+            .padding(.bottom, 48)
         }
         .task { await vm.loadContext() }
     }
@@ -116,6 +117,7 @@ struct ReportView: View {
                         .font(.codive_body3_regular)
                         .foregroundStyle(Color.Codive.grayscale1)
                         .padding(.vertical, 12)
+                        .padding(.leading, 8)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Color.Codive.main6)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -125,8 +127,8 @@ struct ReportView: View {
                     if reason.isEtc, vm.selectedReason == reason {
                         TextEditor(
                             text: Binding(
-                                get: { vm.draftDetail },       // VM에 읽기용 computed 준비
-                                set: { vm.updateDetail($0) }   // VM 메서드로 반영
+                                get: { vm.draftDetail },
+                                set: { vm.updateDetail($0) }
                             )
                         )
                         .frame(minHeight: 88)
@@ -153,6 +155,7 @@ struct ReportView: View {
                 ]
             }
             return nil
+
         case .comment(let r):
             if r == .discrim {
                 return [

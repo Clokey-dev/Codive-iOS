@@ -14,12 +14,18 @@ final class BlockedUsersViewModel: ObservableObject {
     @Published private(set) var isLoading = false
     @Published private(set) var error: Error?
 
+    private let navigationRouter: NavigationRouter
     private let getBlockedUC: GetBlockedUsersUseCase
     private let unblockUC: UnblockUserUseCase
 
-    init(getBlocked: GetBlockedUsersUseCase, unblock: UnblockUserUseCase) {
-        self.getBlockedUC = getBlocked
-        self.unblockUC = unblock
+    init(
+        navigationRouter: NavigationRouter,
+        getBlockedUC: GetBlockedUsersUseCase,
+        unblockUC: UnblockUserUseCase
+    ) {
+        self.navigationRouter = navigationRouter
+        self.getBlockedUC = getBlockedUC
+        self.unblockUC = unblockUC
     }
 
     var isEmpty: Bool { !isLoading && items.isEmpty && error == nil }
@@ -46,4 +52,5 @@ final class BlockedUsersViewModel: ObservableObject {
             self.error = error
         }
     }
+
 }

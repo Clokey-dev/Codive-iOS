@@ -9,10 +9,10 @@ import SwiftUI
 
 struct SettingView: View {
 
-    @StateObject private var vm: SettingViewModel
+    @ObservedObject private var vm: SettingViewModel
 
     init(viewModel: SettingViewModel) {
-        _vm = StateObject(wrappedValue: viewModel)
+        self.vm = viewModel
     }
 
     var body: some View {

@@ -55,11 +55,14 @@ final class ReportDIContainer {
     // MARK: - Views
     
     func makeReportView(target: ReportTarget) -> ReportView {
-        ReportView(vm: makeReportViewModel(target: target))
+        let vm = makeReportViewModel(target: target)
+        return ReportView(vm: vm) { [weak navigationRouter] in
+            navigationRouter?.navigate(to: .reportDetail(target: target))
+        }
     }
-    
-    // DetailView에 대하여 새 ViewModel을 만들지 않고, 이미 있는 걸 받도록 정의
-    func makeReportDetailView(viewModel: ReportViewModel) -> ReportDetailView {
-        ReportDetailView(vm: viewModel)
+
+    func makeReportDetailView(target: ReportTarget) -> ReportDetailView {
+        let vm = makeReportViewModel(target: target)
+          return ReportDetailView(vm: vm)
     }
 }
