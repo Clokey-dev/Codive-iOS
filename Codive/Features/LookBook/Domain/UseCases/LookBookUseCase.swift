@@ -13,4 +13,8 @@ final class LookBookUseCase {
     init(repository: LookBookRepository) {
         self.repository = repository
     }
+    
+    func fetchLookBookList() async throws -> [LookBookEntity] {
+        return try await repository.fetchLookBookList()
+    }
 }

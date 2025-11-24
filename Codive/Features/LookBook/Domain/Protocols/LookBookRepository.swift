@@ -6,5 +6,5 @@
 //
 
 protocol LookBookRepository {
-    
+    func fetchLookBookList() async throws -> [LookBookEntity]
 }

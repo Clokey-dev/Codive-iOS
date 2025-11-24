@@ -7,6 +7,8 @@
 
 import Foundation
 
-struct LookBookEntity {
-    
+struct LookBookEntity: Identifiable {
+    let id: String
+    let imageURL: String
+    let cardTitle: String
 }

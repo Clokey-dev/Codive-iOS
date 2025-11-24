@@ -74,6 +74,7 @@ struct CustomNavigationBar: View {
                 Image(systemName: systemName)
                     .font(.system(size: 20, weight: .medium))
                     .foregroundStyle(isEnabled ? Color.Codive.grayscale3 : Color.Codive.grayscale5)
+                    .rotationEffect(.degrees(90))
             }
             .disabled(!isEnabled)
         }

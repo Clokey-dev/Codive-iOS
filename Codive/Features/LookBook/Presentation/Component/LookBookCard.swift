@@ -1,0 +1,108 @@
+//
+//  LookBookCard.swift
+//  Codive
+//
+//  Created by 한금준 on 11/24/25.
+//
+
+import SwiftUI
+
+enum CardIconType {
+    case heart
+    case checkmark
+    case none
+}
+
+struct LookBookCard: View {
+    // 외부에서 받을 데이터
+    let imageURL: String
+    let cardTitle: String
+    let iconType: CardIconType
+
+    @State private var isSelected: Bool = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            
+            ZStack(alignment: .topTrailing) {
+                AsyncImage(url: URL(string: imageURL)) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    case .failure:
+                        Rectangle()
+                            .fill(Color(.systemGray3))
+                    default:
+                        Rectangle()
+                            .fill(Color(.systemGray5))
+                    }
+                }
+                .frame(width: 160, height: 160)
+                .cornerRadius(16)
+                .clipped()
+    
+                if iconType != .none {
+                    iconButton
+                        .padding(12)
+                }
+            }
+            
+            Text(cardTitle)
+                .font(.system(size: 14, weight: .medium))
+                .lineLimit(1)
+        }
+        .frame(width: 160)
+    }
+    
+    private var iconButton: some View {
+        Button {
+            isSelected.toggle()
+        } label: {
+            Group {
+                switch iconType {
+                case .heart:
+                    Image(isSelected ? "heart_on" : "heart_off")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 20, height: 20)
+                        .foregroundStyle(.white)
+                        .padding(5)
+                case .checkmark:
+                    Image(isSelected ? "check_on" : "check_off")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 20, height: 20)
+                        .foregroundStyle(.white)
+                        .padding(4)
+                default:
+                    EmptyView()
+                }
+            }
+            .font(.system(size: 20))
+        }
+    }
+}
+
+struct LookBookCard_Previews: PreviewProvider {
+    static var previews: some View {
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: 2), spacing: 16) {
+            LookBookCard(
+                imageURL: "https://via.placeholder.com/160/F08080/FFFFFF?text=Date+Look",
+                cardTitle: "영화관 데이트",
+                iconType: .heart
+            )
+            LookBookCard(
+                imageURL: "https://via.placeholder.com/160/ADD8E6/000000?text=Daily+Look",
+                cardTitle: "데일리 코디",
+                iconType: .checkmark
+            )
+            LookBookCard(
+                imageURL: "https://via.placeholder.com/160/90EE90/000000?text=Basic+Look",
+                cardTitle: "기본 스타일링",
+                iconType: .none
+            )
+        }
+    }
+}

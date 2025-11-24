@@ -13,4 +13,8 @@ final class LookBookRepositoryImpl: LookBookRepository {
     init(datasource: LookBookDataSource) {
         self.datasource = datasource
     }
+    
+    func fetchLookBookList() async throws -> [LookBookEntity] {
+        return try await datasource.fetchLookBookList()
+    }
 }
