@@ -7,14 +7,6 @@
 
 import SwiftUI
 
-enum Season: String, CaseIterable, Identifiable {
-    case spring = "봄"
-    case summer = "여름"
-    case autumn = "가을"
-    case winter = "겨울"
-    var id: String { rawValue }
-}
-
 struct CustomSeasonSheet: View {
     @State private var selected: Set<Season> = []
 
