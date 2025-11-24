@@ -54,7 +54,7 @@ final class EditCategoryViewModel: ObservableObject {
             var defaultCategories = Self.allCategories
             for i in defaultCategories.indices {
                 let category = defaultCategories[i]
-                if category.title == "상의" || category.title == "바지" || category.title == "신발" {
+                if [1, 2, 5].contains(category.id) {
                     defaultCategories[i].itemCount = 1
                 }
             }
