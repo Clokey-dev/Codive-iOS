@@ -53,7 +53,11 @@ final class HomeViewModel: ObservableObject {
             allCategories = [
                 CategoryEntity(id: 1, title: "상의", itemCount: 1),
                 CategoryEntity(id: 2, title: "바지", itemCount: 1),
-                CategoryEntity(id: 5, title: "신발", itemCount: 1)
+                CategoryEntity(id: 3, title: "스커트", itemCount: 0),
+                CategoryEntity(id: 4, title: "아우터", itemCount: 0),
+                CategoryEntity(id: 5, title: "신발", itemCount: 1),
+                CategoryEntity(id: 6, title: "가방", itemCount: 0),
+                CategoryEntity(id: 7, title: "패션 소품", itemCount: 0)
             ]
         }
         
