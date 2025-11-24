@@ -39,7 +39,7 @@ struct WithdrawView: View {
             Spacer()
             
             CustomButton(text: "계정 탈퇴하기", widthType: .fixed) {
-                print("신고 lets go")
+                print("계정 탈퇴하기")
             }
             .padding(.horizontal, 20)
         }

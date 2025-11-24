@@ -52,5 +52,4 @@ final class BlockedUsersViewModel: ObservableObject {
             self.error = error
         }
     }
-
 }

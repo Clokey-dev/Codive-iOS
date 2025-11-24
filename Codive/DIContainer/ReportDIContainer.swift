@@ -12,9 +12,8 @@ final class ReportDIContainer {
     lazy var reportViewFactory = ReportViewFactory(reportDIContainer: self)
     
     // MARK: - Data / Repository
-    private let dataSource: ReportDataSource
-    private let repository: any ReportRepository          // 신고 제출용
-    private let contextProvider: any ReportContextProvider // 미리보기/컨텍스트용
+    private let repository: any ReportRepository
+    private let contextProvider: any ReportContextProvider
     
     // MARK: - Init
     init(
@@ -24,12 +23,12 @@ final class ReportDIContainer {
         self.appRouter = appRouter
         self.navigationRouter = navigationRouter
         
+        // 지역 변수로만 생성해서 Repo에 주입
         let dataSource = ReportDataSource()
         let repoImpl = ReportRepositoryImpl(dataSource: dataSource)
         
-        self.dataSource = dataSource
-        self.repository = repoImpl          // ReportRepository 로 사용
-        self.contextProvider = repoImpl     // ReportContextProvider 로도 사용
+        self.repository = repoImpl      
+        self.contextProvider = repoImpl
     }
     
     // MARK: - UseCases
@@ -53,7 +52,6 @@ final class ReportDIContainer {
     }
     
     // MARK: - Views
-    
     func makeReportView(target: ReportTarget) -> ReportView {
         let vm = makeReportViewModel(target: target)
         return ReportView(vm: vm) { [weak navigationRouter] in
@@ -63,6 +61,6 @@ final class ReportDIContainer {
 
     func makeReportDetailView(target: ReportTarget) -> ReportDetailView {
         let vm = makeReportViewModel(target: target)
-          return ReportDetailView(vm: vm)
+        return ReportDetailView(vm: vm)
     }
 }

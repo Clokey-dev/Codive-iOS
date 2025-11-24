@@ -19,18 +19,16 @@ final class SettingDIContainer {
     lazy var settingViewFactory = SettingViewFactory(settingDIContainer: self)
     
     // Data / Repository
-    private let dataSource: SettingsDataSource
-    private let repository: SettingRepository    // ← 프로토콜 타입으로 보관
+    private let repository: SettingRepository
 
     // MARK: - Init
     init(appRouter: AppRouter, navigationRouter: NavigationRouter) {
         self.appRouter = appRouter
         self.navigationRouter = navigationRouter
 
-        // 인메모리 스텁 + 레포지토리 연결
         let dataSource = SettingsDataSource()
-        self.dataSource = dataSource
-        self.repository = SettingsRepositoryImpl(dataSource: dataSource) 
+        let repo = SettingsRepositoryImpl(dataSource: dataSource)
+        self.repository = repo
     }
 
     // MARK: - UseCases
