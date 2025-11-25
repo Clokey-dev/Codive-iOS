@@ -161,12 +161,16 @@ enum TextLiteral {
         static let beforeCodi = "이전 코디"
         static let editCodi = "편집하기"
         static let codiNameTitle = "코디 명"
+        static let hintCodiNameTitle = "코디 명을 입력하세요"
         static let hintNameTitle = "영화관 데이트"
         static let memoTitle = "개인 메모"
+        static let hintMemo = "코디와 관련된 메모를 남겨보세요"
         static let hintMemoTitle = "1주년이니까 오빠가 사준 신발 신고가야됨"
         static let complete = "코디를 완성했어요!"
         static let addLookBookTitle = "룩북 만들기"
         static let hintAddLookBookTitle = "룩북명을 입력해주세요(10자 이내)"
         static let addLookBookButtonTitle = "등록하기"
+        static let addCodiCompleteButton = "코디 완성하기"
+        static let codiUpload = "코디 업로드"
     }
 }
