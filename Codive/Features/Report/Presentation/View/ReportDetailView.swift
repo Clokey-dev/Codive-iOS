@@ -77,15 +77,17 @@ struct ReportDetailView: View {
                         NoticeRow(text: "신고가 누적 3회 이상일 경우 계정이 정지되며, 허위 신고가 3회 적발될 경우에도 동일하게 제재가 집행됩니다.")
                     }
                     .padding(.top, 12)
-
-                    CustomButton(text: "신고하기", widthType: .fixed) {
-                        onSubmit?()
-                    }
-                    .padding(.top, 125)
-                    .disabled(!vm.isNextEnabled || vm.isSubmitting)
                 }
-                .padding(.horizontal, 20) 
+                .padding(.horizontal, 20)
             }
+        }
+        .safeAreaInset(edge: .bottom) {
+            CustomButton(text: "신고하기", widthType: .fixed) {
+                onSubmit?()
+            }
+            .disabled(!vm.isNextEnabled || vm.isSubmitting)
+            .padding(.horizontal, 20)
+            .padding(.bottom, 48)
         }
     }
 
@@ -97,6 +99,7 @@ struct ReportDetailView: View {
                 Image(systemName: "exclamationmark.triangle")
                     .frame(width: 24, height: 24)
                     .foregroundStyle(Color.Codive.grayscale4)
+
                 Text(text)
                     .font(.codive_body2_regular)
                     .foregroundStyle(Color.Codive.grayscale4)
