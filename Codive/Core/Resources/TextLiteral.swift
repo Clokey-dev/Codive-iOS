@@ -165,5 +165,8 @@ enum TextLiteral {
         static let memoTitle = "개인 메모"
         static let hintMemoTitle = "1주년이니까 오빠가 사준 신발 신고가야됨"
         static let complete = "코디를 완성했어요!"
+        static let addLookBookTitle = "룩북 만들기"
+        static let hintAddLookBookTitle = "룩북명을 입력해주세요(10자 이내)"
+        static let addLookBookButtonTitle = "등록하기"
     }
 }
