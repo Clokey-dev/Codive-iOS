@@ -17,6 +17,9 @@ final class AddCodiViewModel: ObservableObject {
     @Published var codiName: String = ""
     @Published var memo: String = ""
     
+    // MARK: - UI State
+    @Published var isShowingBottomSheet: Bool = false
+    
     // MARK: - Computed Properties (Button Activation)
     var isButtonEnabled: Bool {
         !codiName.isEmpty
@@ -34,7 +37,7 @@ final class AddCodiViewModel: ObservableObject {
     }
     
     func handleCodiUploadTap() {
-        print("코디 업로드 버튼 클릭")
+        isShowingBottomSheet = true
     }
     
     func handleCompleteTap() {
