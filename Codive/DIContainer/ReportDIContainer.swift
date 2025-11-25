@@ -23,7 +23,6 @@ final class ReportDIContainer {
         self.appRouter = appRouter
         self.navigationRouter = navigationRouter
         
-        // 지역 변수로만 생성해서 Repo에 주입
         let dataSource = ReportDataSource()
         let repoImpl = ReportRepositoryImpl(dataSource: dataSource)
         

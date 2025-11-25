@@ -20,7 +20,7 @@ final class ReportViewModel: ObservableObject {
 
     // 화면 상태
     @Published private(set) var draft: ReportDraft
-    @Published var context: ReportContext?          // 작성자/미리보기
+    @Published var context: ReportContext?        
     @Published var isLoading: Bool = false
     @Published var isSubmitting: Bool = false
     @Published var errorMessage: String?

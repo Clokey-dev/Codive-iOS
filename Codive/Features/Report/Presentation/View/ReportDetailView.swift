@@ -16,7 +16,7 @@ struct ReportDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 CustomNavigationBar(title: vm.navTitle) {
-                    // 뒤로가기 액션은 상위에서 주입 권장
+                    // 뒤로가기 액션
                 }
 
                 // MARK: 선택된 신고 사유
@@ -84,7 +84,7 @@ struct ReportDetailView: View {
                     .padding(.top, 125)
                     .disabled(!vm.isNextEnabled || vm.isSubmitting)
                 }
-                .padding(.horizontal, 20)   // 여기서부터 아래 내용 전체 좌우 20
+                .padding(.horizontal, 20) 
             }
         }
     }

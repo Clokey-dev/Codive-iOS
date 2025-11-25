@@ -35,7 +35,7 @@ struct SettingLikedView: View {
             } else {
                 ScrollView {
                     LazyVGrid(columns: columns, spacing: 8) {
-                        ForEach(vm.items) { item in      // ← 여기만 ForEach로
+                        ForEach(vm.items) { item in
                             AsyncImage(url: item.thumbnailURL) { phase in
                                 switch phase {
                                 case .success(let img):
@@ -52,7 +52,7 @@ struct SettingLikedView: View {
                             .clipped()
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                             .onTapGesture {
-                                // 게시글 상세로 이동 등
+                                // 게시글 상세로 이동
                             }
                         }
                     }

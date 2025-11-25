@@ -41,7 +41,7 @@ struct SettingCommentView: View {
             } else {
                 // 4) 정상 리스트
                 List {
-                    ForEach(vm.items) { (comment: MyComment) in  // 파라미터 타입 명시
+                    ForEach(vm.items) { (comment: MyComment) in 
                         VStack(alignment: .leading, spacing: 6) {
                             HStack(spacing: 8) {
                                 Text(comment.author.nickname)

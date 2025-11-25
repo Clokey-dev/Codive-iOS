@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+//설정에서 사용할 타원모양 컴포넌트
 struct PillToggle: View {
     @Binding var isOn: Bool
     var onColor: Color = Color("point1")
@@ -23,15 +24,13 @@ struct PillToggle: View {
             }
         } label: {
             ZStack(alignment: isOn ? .trailing : .leading) {
-                // 배경 (켜짐: 채움 / 꺼짐: 흰색 + 테두리)
                 Capsule()
                     .fill(isOn ? onColor : offColor)
                     .overlay(
                         Capsule().stroke(onColor, lineWidth: 2)
-                            .opacity(isOn ? 0 : 1)  // 꺼짐일 때만 테두리 보이게
+                            .opacity(isOn ? 0 : 1)
                     )
 
-                // 손잡이
                 Circle()
                     .fill(isOn ? Color.white : onColor)
                     .frame(width: knobSize, height: knobSize)

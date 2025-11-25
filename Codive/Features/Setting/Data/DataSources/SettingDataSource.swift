@@ -40,7 +40,7 @@ final class SettingsDataSource {
             )
         }
 
-        // 내가 남긴 댓글 (엔티티 시그니처에 맞춰 author/preview 포함)
+        // 내가 남긴 댓글 
         myCommentsStore = (1...17).map { i in
             let author = SimpleUser(
                 userId: UserID(300 + i),

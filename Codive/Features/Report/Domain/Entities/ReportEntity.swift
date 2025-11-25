@@ -28,9 +28,9 @@ public enum ReportTarget: Identifiable, Equatable, Hashable, Sendable, Codable {
 // 작성자 표시용 스냅샷
 public struct AuthorSnapshot: Sendable, Equatable, Hashable {
     public let userId: UserID
-    public let nickname: String          // 닉네임
-    public let handle: String           // 표기용 아이디
-    public let avatarURL: URL?           // 프로필 이미지 URL
+    public let nickname: String
+    public let handle: String
+    public let avatarURL: URL?
 
     public init(userId: UserID, nickname: String, handle: String, avatarURL: URL?) {
         self.userId = userId
@@ -42,9 +42,9 @@ public struct AuthorSnapshot: Sendable, Equatable, Hashable {
 
 // 신고 화면에 필요한 최소 표시 정보
 public struct ReportContext: Sendable, Equatable {
-    public let target: ReportTarget       // post:123 / comment:45
-    public let author: AuthorSnapshot     // 작성자 스냅샷
-    public let previewText: String        // 본문/댓글 미리보기
+    public let target: ReportTarget
+    public let author: AuthorSnapshot
+    public let previewText: String
 
     public init(target: ReportTarget,
                 author: AuthorSnapshot,
@@ -57,12 +57,12 @@ public struct ReportContext: Sendable, Equatable {
 
 // MARK: - 게시글 신고 사유
 public enum PostReportReason: Int, CaseIterable, Codable, Sendable {
-    case sexual      // 선정성/음란
-    case violence    // 폭력/불법
-    case harmful     // 청소년 유해
-    case privacy     // 개인정보 침해
-    case hate        // 악의적/불쾌감 유발
-    case etc         // 기타
+    case sexual
+    case violence
+    case harmful
+    case privacy
+    case hate
+    case etc
 
     public var title: String {
         switch self {
@@ -78,12 +78,12 @@ public enum PostReportReason: Int, CaseIterable, Codable, Sendable {
 
 // MARK: - 댓글 신고 사유
 public enum CommentReportReason: Int, CaseIterable, Codable, Sendable {
-    case abuse       // 욕설/비방
-    case discrim     // 혐오/차별
-    case spam        // 스팸/광고/도배
-    case privacy     // 사적 정보 공개
-    case hate        // 불쾌감 유발
-    case etc         // 기타
+    case abuse
+    case discrim
+    case spam
+    case privacy
+    case hate
+    case etc
 
     public var title: String {
         switch self {
@@ -136,7 +136,7 @@ public struct ReportValidation: Equatable, Sendable {
 
 // MARK: - 신고 작성 초안 엔티티
 public struct ReportDraft: Identifiable, Equatable, Hashable, Sendable {
-    public let id: String            // "draft:post:123"
+    public let id: String
     public let target: ReportTarget
     public private(set) var selectedReason: ReportReason? = nil
     public private(set) var detail: String = ""
@@ -150,7 +150,7 @@ public struct ReportDraft: Identifiable, Equatable, Hashable, Sendable {
 
     public mutating func select(_ reason: ReportReason) {
         selectedReason = reason
-        if !reason.isEtc { detail = "" }   // 기타가 아니면 상세 입력 초기화
+        if !reason.isEtc { detail = "" }
     }
 
     public mutating func updateDetail(_ text: String) {
@@ -174,7 +174,7 @@ public struct ReportDraft: Identifiable, Equatable, Hashable, Sendable {
 
 // MARK: - 최종 신고 엔티티
 public struct Report: Identifiable, Equatable, Hashable, Codable, Sendable {
-    public let id: String            // "report:post:123:1731212345"
+    public let id: String           
     public let target: ReportTarget
     public let reason: ReportReason
     public let detail: String?

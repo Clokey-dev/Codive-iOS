@@ -39,7 +39,6 @@ enum AppDestination: Hashable {
         // case .closetEdit, .feedCreate:
         //     return true
             
-            
         default:
             return false
         }

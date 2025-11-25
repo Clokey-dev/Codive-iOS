@@ -15,7 +15,7 @@ struct ReportView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 CustomNavigationBar(title: vm.navTitle) {
-                    // 뒤로가기 액션은 상위에서 주입 권장
+                    // 뒤로가기 액션
                 }
 
                 reportingUser
@@ -46,7 +46,7 @@ struct ReportView: View {
 
             Group {
                 HStack {
-                    // 실제 프로필 이미지는 AsyncImage/Kingfisher로 교체
+                    // 후에 실제 프로필 이미지 주입
                     Image("CustomProfile")
                         .resizable()
                         .scaledToFill()
@@ -107,7 +107,7 @@ struct ReportView: View {
                         vm.select(reason: reason)
                     }
 
-                    // 보조 설명(디자인 유지용 간단 매핑)
+                    // 보조 설명
                     if let sub = helperLines(for: reason), vm.selectedReason == reason {
                         VStack(alignment: .leading) {
                             ForEach(sub, id: \.self) { line in

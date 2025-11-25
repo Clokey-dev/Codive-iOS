@@ -18,7 +18,7 @@ struct SettingView: View {
     var body: some View {
         VStack(spacing: 0) {
             CustomNavigationBar(title: "설정") {
-                // 뒤로가기 액션은 나중에 Router 연결
+                // 뒤로가기 액션
                 print("뒤로가기")
             }
 
