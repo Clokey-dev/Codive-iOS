@@ -16,28 +16,43 @@ final class ProcessImageUseCase {
     /// - Parameter image: 원본 이미지
     /// - Returns: 크롭된 이미지
     func cropTo3_4Ratio(_ image: UIImage) -> UIImage {
-        let targetRatio: CGFloat = 3.0 / 4.0
+        return cropToRatio(image, ratio: 3.0 / 4.0)
+    }
+
+    /// 이미지를 1:1 비율로 크롭합니다
+    /// - Parameter image: 원본 이미지
+    /// - Returns: 크롭된 이미지
+    func cropTo1_1Ratio(_ image: UIImage) -> UIImage {
+        return cropToRatio(image, ratio: 1.0)
+    }
+
+    /// 이미지를 지정된 비율로 크롭합니다
+    /// - Parameters:
+    ///   - image: 원본 이미지
+    ///   - ratio: 목표 비율 (width / height)
+    /// - Returns: 크롭된 이미지
+    private func cropToRatio(_ image: UIImage, ratio: CGFloat) -> UIImage {
         let imageSize = image.size
         let currentRatio = imageSize.width / imageSize.height
-        
+
         var cropRect: CGRect
-        
-        if currentRatio > targetRatio {
+
+        if currentRatio > ratio {
             // 이미지가 더 넓음 - 너비를 자름
-            let targetWidth = imageSize.height * targetRatio
+            let targetWidth = imageSize.height * ratio
             let x = (imageSize.width - targetWidth) / 2
             cropRect = CGRect(x: x, y: 0, width: targetWidth, height: imageSize.height)
         } else {
             // 이미지가 더 높음 - 높이를 자름
-            let targetHeight = imageSize.width / targetRatio
+            let targetHeight = imageSize.width / ratio
             let y = (imageSize.height - targetHeight) / 2
             cropRect = CGRect(x: 0, y: y, width: imageSize.width, height: targetHeight)
         }
-        
+
         guard let cgImage = image.cgImage?.cropping(to: cropRect) else {
             return image
         }
-        
+
         return UIImage(cgImage: cgImage, scale: image.scale, orientation: image.imageOrientation)
     }
     

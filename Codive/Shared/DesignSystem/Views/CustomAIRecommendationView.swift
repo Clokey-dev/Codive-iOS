@@ -42,27 +42,50 @@ struct ClothingItem: Identifiable {
 
 // MARK: - CustomAIRecommendationView
 struct CustomAIRecommendationView: View {
-    
+
     // MARK: - Properties
     let title: String
     let items: [ClothingItem]
     @Binding var selectedItemIndex: Int
     let onCategoryTap: () -> Void
     let onSeasonTap: () -> Void
-        
+
+    // 버튼 관련 (옵션)
+    let onPrevious: (() -> Void)?
+    let onNext: (() -> Void)?
+    let onComplete: (() -> Void)?
+    let isFormValid: Bool
+    let isSinglePhoto: Bool
+    let isFirstPhoto: Bool
+    let isLastPhoto: Bool
+
     // MARK: - Initializer
     init(
         title: String = "AI가 옷 정보를 불러왔어요",
         items: [ClothingItem],
         selectedItemIndex: Binding<Int>,
         onCategoryTap: @escaping () -> Void,
-        onSeasonTap: @escaping () -> Void
+        onSeasonTap: @escaping () -> Void,
+        onPrevious: (() -> Void)? = nil,
+        onNext: (() -> Void)? = nil,
+        onComplete: (() -> Void)? = nil,
+        isFormValid: Bool = false,
+        isSinglePhoto: Bool = false,
+        isFirstPhoto: Bool = false,
+        isLastPhoto: Bool = false
     ) {
         self.title = title
         self.items = items
         self._selectedItemIndex = selectedItemIndex
         self.onCategoryTap = onCategoryTap
         self.onSeasonTap = onSeasonTap
+        self.onPrevious = onPrevious
+        self.onNext = onNext
+        self.onComplete = onComplete
+        self.isFormValid = isFormValid
+        self.isSinglePhoto = isSinglePhoto
+        self.isFirstPhoto = isFirstPhoto
+        self.isLastPhoto = isLastPhoto
     }
     
     // 안전한 currentItem 접근
@@ -97,6 +120,11 @@ struct CustomAIRecommendationView: View {
         VStack(alignment: .leading, spacing: 0) {
             imageSection(for: item)
             formFieldsSection(for: item)
+
+            // 버튼이 있을 때만 표시
+            if onComplete != nil {
+                buttonSection()
+            }
         }
     }
     
@@ -234,7 +262,78 @@ struct CustomAIRecommendationView: View {
         .padding(.horizontal, 20)
         .padding(.top, 16)
     }
-    
+
+    // MARK: - Button Section
+    @ViewBuilder
+    private func buttonSection() -> some View {
+        if isSinglePhoto {
+            // 1장일 때: 등록하기 버튼만
+            CustomButton(
+                text: "등록하기",
+                widthType: .fixed,
+                isEnabled: isFormValid
+            ) {
+                onComplete?()
+            }
+            .padding(.top, 40)
+        } else {
+            // 여러 장일 때
+            if isFirstPhoto {
+                // 첫 번째: 다음으로 버튼만
+                CustomButton(
+                    text: "다음으로",
+                    widthType: .fixed,
+                    isEnabled: isFormValid
+                ) {
+                    onNext?()
+                }
+                .padding(.top, 40)
+            } else if isLastPhoto {
+                // 마지막: 이전으로 + 등록하기
+                HStack(spacing: 9) {
+                    CustomButton(
+                        text: "이전으로",
+                        widthType: .half,
+                        styleType: .border
+                    ) {
+                        onPrevious?()
+                    }
+
+                    CustomButton(
+                        text: "등록하기",
+                        widthType: .half,
+                        isEnabled: isFormValid
+                    ) {
+                        onComplete?()
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 40)
+            } else {
+                // 중간: 이전으로 + 다음으로
+                HStack(spacing: 9) {
+                    CustomButton(
+                        text: "이전으로",
+                        widthType: .half,
+                        styleType: .border
+                    ) {
+                        onPrevious?()
+                    }
+
+                    CustomButton(
+                        text: "다음으로",
+                        widthType: .half,
+                        isEnabled: isFormValid
+                    ) {
+                        onNext?()
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 40)
+            }
+        }
+    }
+
     // MARK: - Empty State View
     private var emptyStateView: some View {
         VStack(spacing: 16) {

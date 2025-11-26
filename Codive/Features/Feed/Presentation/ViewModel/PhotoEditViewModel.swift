@@ -42,6 +42,15 @@ final class PhotoEditViewModel: ObservableObject {
     var canMoveForward: Bool {
         currentIndex < selectedPhotos.count - 1
     }
+
+    var aspectRatio: CGFloat {
+        switch flowType {
+        case .record:
+            return 3.0 / 4.0
+        case .cloth:
+            return 1.0
+        }
+    }
     
     // MARK: - Initializer
     init(

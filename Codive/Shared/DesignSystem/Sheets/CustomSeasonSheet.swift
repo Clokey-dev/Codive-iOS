@@ -55,7 +55,7 @@ struct CustomSeasonSheet: View {
                             }
                             .padding(.leading, 100)
                             // 중앙 텍스트
-                            Text(season.rawValue)
+                            Text(season.displayName)
                                 .font(.codive_title3)
                                 .foregroundStyle(Color("Grayscale1"))
                                 .frame(maxWidth: .infinity)

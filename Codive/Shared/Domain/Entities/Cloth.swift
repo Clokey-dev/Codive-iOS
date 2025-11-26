@@ -41,6 +41,19 @@ public enum Season: String, Codable, CaseIterable, Identifiable {
     case summer = "SUMMER"
     case fall = "FALL"
     case winter = "WINTER"
-    
+
     public var id: String { self.rawValue }
+
+    public var displayName: String {
+        switch self {
+        case .spring:
+            return "봄"
+        case .summer:
+            return "여름"
+        case .fall:
+            return "가을"
+        case .winter:
+            return "겨울"
+        }
+    }
 }

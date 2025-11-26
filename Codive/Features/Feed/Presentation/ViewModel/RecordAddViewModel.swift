@@ -154,8 +154,14 @@ final class RecordAddViewModel: ObservableObject {
                     for: photo.asset,
                     size: targetSize
                 ) {
-                    let croppedImage = processImageUseCase.cropTo3_4Ratio(image)
-                    
+                    let croppedImage: UIImage
+                    switch flowType {
+                    case .record:
+                        croppedImage = processImageUseCase.cropTo3_4Ratio(image)
+                    case .cloth:
+                        croppedImage = processImageUseCase.cropTo1_1Ratio(image)
+                    }
+
                     let selectedPhoto = SelectedPhoto(
                         id: photo.id,
                         originalImage: image,

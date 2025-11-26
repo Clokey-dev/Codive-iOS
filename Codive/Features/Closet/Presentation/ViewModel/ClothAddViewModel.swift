@@ -60,7 +60,23 @@ final class ClothAddViewModel: ObservableObject {
         if currentForm.selectedSeasons.isEmpty {
             return ""
         }
-        return currentForm.selectedSeasons.map { $0.rawValue }.joined(separator: ", ")
+        return currentForm.selectedSeasons.map { $0.displayName }.joined(separator: ", ")
+    }
+
+    var isCurrentFormValid: Bool {
+        return currentForm.category != nil && !currentForm.selectedSeasons.isEmpty
+    }
+
+    var isFirstPhoto: Bool {
+        return currentIndex == 0
+    }
+
+    var isLastPhoto: Bool {
+        return currentIndex == selectedPhotos.count - 1
+    }
+
+    var isSinglePhoto: Bool {
+        return selectedPhotos.count == 1
     }
 
     // MARK: - Initializer
@@ -106,6 +122,18 @@ final class ClothAddViewModel: ObservableObject {
     func selectSeasons(_ seasons: Set<Season>) {
         clothForms[currentIndex].selectedSeasons = seasons
         isSeasonSheetPresented = false
+    }
+
+    func moveToPrevious() {
+        if currentIndex > 0 {
+            currentIndex -= 1
+        }
+    }
+
+    func moveToNext() {
+        if currentIndex < selectedPhotos.count - 1 {
+            currentIndex += 1
+        }
     }
 
     func dismissView() {

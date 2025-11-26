@@ -51,14 +51,14 @@ struct CustomCategoryBottomSheet: View {
                                     .background(
                                         selectedCategory == category
                                         ? Color("Grayscale6")
-                                        : Color("Grayscale7")
+                                        : Color.white
                                     )
                             }
                         }
                     }
                 }
                 .frame(width: 100)
-                .background(Color("Grayscale7"))
+                .background(Color.white)
 
                 // 가운데 세로 Divider
                 Divider()
@@ -83,16 +83,17 @@ struct CustomCategoryBottomSheet: View {
                                     .background(
                                         selectedSubcategory == sub
                                         ? Color("Grayscale6")
-                                        : Color("Grayscale7")
+                                        : Color.white
                                     )
                             }
                             Divider()
                         }
                     }
                 }
+                .background(Color.white)
             }
         }
-        .background(Color("Grayscale7"))
+        .background(Color.white)
         .clipShape(RoundedCorner(radius: 24, corners: [.topLeft, .topRight]))
         .onAppear {
             // 뷰가 나타날 때, 만약 외부에서 선택된 카테고리가 없다면 첫 번째 항목을 기본값으로 설정

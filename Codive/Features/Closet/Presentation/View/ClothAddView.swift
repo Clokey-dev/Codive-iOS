@@ -26,12 +26,6 @@ struct ClothAddView: View {
                 title: "옷 추가",
                 onBack: {
                     viewModel.dismissView()
-                },
-                rightButton: .text(
-                    title: TextLiteral.Common.complete,
-                    isEnabled: true
-                ) {
-                    viewModel.completeAdding()
                 }
             )
 
@@ -45,7 +39,20 @@ struct ClothAddView: View {
                     },
                     onSeasonTap: {
                         viewModel.showSeasonSheet()
-                    }
+                    },
+                    onPrevious: {
+                        viewModel.moveToPrevious()
+                    },
+                    onNext: {
+                        viewModel.moveToNext()
+                    },
+                    onComplete: {
+                        viewModel.completeAdding()
+                    },
+                    isFormValid: viewModel.isCurrentFormValid,
+                    isSinglePhoto: viewModel.isSinglePhoto,
+                    isFirstPhoto: viewModel.isFirstPhoto,
+                    isLastPhoto: viewModel.isLastPhoto
                 )
             }
         }
@@ -61,7 +68,8 @@ struct ClothAddView: View {
             ) { category, subcategory in
                 viewModel.selectCategory(category, subcategory: subcategory)
             }
-            .presentationDetents([.large])
+            .presentationDetents([.height(404)])
+            .presentationDragIndicator(.hidden)
         }
         .sheet(isPresented: $viewModel.isSeasonSheetPresented) {
             CustomSeasonSheet(
@@ -72,7 +80,8 @@ struct ClothAddView: View {
                     viewModel.selectSeasons(seasons)
                 }
             )
-            .presentationDetents([.medium])
+            .presentationDetents([.height(358)])
+            .presentationDragIndicator(.hidden)
         }
     }
 
@@ -83,7 +92,7 @@ struct ClothAddView: View {
 
             let seasonText = form.selectedSeasons.isEmpty
                 ? ""
-                : form.selectedSeasons.map { $0.rawValue }.joined(separator: ", ")
+                : form.selectedSeasons.map { $0.displayName }.joined(separator: ", ")
 
             return ClothingItem(
                 image: photo.croppedImage,
