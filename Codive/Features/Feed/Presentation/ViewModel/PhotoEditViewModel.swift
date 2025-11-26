@@ -9,10 +9,16 @@ import Foundation
 import UIKit
 import Combine
 
+// MARK: - PhotoEditFlowType
+enum PhotoEditFlowType {
+    case record  // 기록 추가 플로우
+    case cloth   // 옷 추가 플로우
+}
+
 // MARK: - PhotoEditViewModel
 @MainActor
 final class PhotoEditViewModel: ObservableObject {
-    
+
     // MARK: - Properties
     @Published var selectedPhotos: [SelectedPhoto]
     @Published var currentIndex: Int = 0
@@ -20,6 +26,7 @@ final class PhotoEditViewModel: ObservableObject {
     @Published var showExitAlert: Bool = false
 
     private let navigationRouter: NavigationRouter
+    private let flowType: PhotoEditFlowType
     private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Computed Properties
@@ -37,9 +44,14 @@ final class PhotoEditViewModel: ObservableObject {
     }
     
     // MARK: - Initializer
-    init(selectedPhotos: [SelectedPhoto], navigationRouter: NavigationRouter) {
+    init(
+        selectedPhotos: [SelectedPhoto],
+        navigationRouter: NavigationRouter,
+        flowType: PhotoEditFlowType = .record
+    ) {
         self.selectedPhotos = selectedPhotos.sorted { $0.order < $1.order }
         self.navigationRouter = navigationRouter
+        self.flowType = flowType
     }
     
     // MARK: - Methods
@@ -77,7 +89,12 @@ final class PhotoEditViewModel: ObservableObject {
     }
     
     func completeEditing() {
-        navigationRouter.navigate(to: .recordDetail(photos: selectedPhotos))
+        switch flowType {
+        case .record:
+            navigationRouter.navigate(to: .recordDetail(photos: selectedPhotos))
+        case .cloth:
+            navigationRouter.navigate(to: .clothAdd(photos: selectedPhotos))
+        }
     }
     
     func dismissView() {

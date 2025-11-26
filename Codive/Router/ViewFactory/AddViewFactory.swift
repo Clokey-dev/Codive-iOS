@@ -23,9 +23,15 @@ final class AddViewFactory {
     func makeView(for destination: AppDestination) -> some View {
         switch destination {
         case .recordAdd:
-            addDIContainer?.makeRecordAddView()
+            addDIContainer?.makeRecordAddView(flowType: .record)
+        case .clothPhotoSelect:
+            addDIContainer?.makeRecordAddView(flowType: .cloth)
+        case .clothAdd(let photos):
+            addDIContainer?.makeClothAddView(selectedPhotos: photos)
         case .photoEdit(let photos):
-            addDIContainer?.makePhotoEditView(selectedPhotos: photos)
+            addDIContainer?.makePhotoEditView(selectedPhotos: photos, flowType: .record)
+        case .photoEditForCloth(let photos):
+            addDIContainer?.makePhotoEditView(selectedPhotos: photos, flowType: .cloth)
         case .recordDetail(let photos):
             addDIContainer?.makeRecordDetailView(selectedPhotos: photos)
         case .photoTag(let photo, let allPhotos):

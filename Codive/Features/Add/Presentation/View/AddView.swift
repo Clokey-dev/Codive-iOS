@@ -60,7 +60,7 @@ struct AddView: View {
                                     title: TextLiteral.Add.clothesManualTitle,
                                     description: TextLiteral.Add.clothesManualDescription
                                 ) {
-                                    // TODO: 직접 추가 액션
+                                    navigationRouter.navigate(to: AppDestination.clothPhotoSelect)
                                 }
                             }
                             .padding(.horizontal, 20)

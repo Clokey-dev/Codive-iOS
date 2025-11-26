@@ -32,11 +32,12 @@ final class AddDIContainer {
     }
     
     // MARK: - ViewModels
-    func makeRecordAddViewModel() -> RecordAddViewModel {
+    func makeRecordAddViewModel(flowType: PhotoEditFlowType = .record) -> RecordAddViewModel {
         return RecordAddViewModel(
             fetchPhotosUseCase: sharedDIContainer.makeFetchPhotosUseCase(),
             processImageUseCase: sharedDIContainer.makeProcessImageUseCase(),
-            navigationRouter: navigationRouter
+            navigationRouter: navigationRouter,
+            flowType: flowType
         )
     }
     
@@ -56,16 +57,24 @@ final class AddDIContainer {
         )
     }
     
-    func makePhotoEditViewModel(selectedPhotos: [SelectedPhoto]) -> PhotoEditViewModel {
+    func makePhotoEditViewModel(selectedPhotos: [SelectedPhoto], flowType: PhotoEditFlowType = .record) -> PhotoEditViewModel {
         return PhotoEditViewModel(
+            selectedPhotos: selectedPhotos,
+            navigationRouter: navigationRouter,
+            flowType: flowType
+        )
+    }
+
+    func makeClothAddViewModel(selectedPhotos: [SelectedPhoto]) -> ClothAddViewModel {
+        return ClothAddViewModel(
             selectedPhotos: selectedPhotos,
             navigationRouter: navigationRouter
         )
     }
     
     // MARK: - Views
-    func makeRecordAddView() -> RecordAddView {
-        return RecordAddView(viewModel: makeRecordAddViewModel())
+    func makeRecordAddView(flowType: PhotoEditFlowType = .record) -> RecordAddView {
+        return RecordAddView(viewModel: makeRecordAddViewModel(flowType: flowType))
     }
     
     func makeRecordDetailView(selectedPhotos: [SelectedPhoto]) -> RecordDetailView {
@@ -79,9 +88,15 @@ final class AddDIContainer {
         return PhotoTagView(viewModel: viewModel)
     }
     
-    func makePhotoEditView(selectedPhotos: [SelectedPhoto]) -> PhotoEditView {
+    func makePhotoEditView(selectedPhotos: [SelectedPhoto], flowType: PhotoEditFlowType = .record) -> PhotoEditView {
         return PhotoEditView(
-            viewModel: makePhotoEditViewModel(selectedPhotos: selectedPhotos)
+            viewModel: makePhotoEditViewModel(selectedPhotos: selectedPhotos, flowType: flowType)
+        )
+    }
+
+    func makeClothAddView(selectedPhotos: [SelectedPhoto]) -> ClothAddView {
+        return ClothAddView(
+            viewModel: makeClothAddViewModel(selectedPhotos: selectedPhotos)
         )
     }
 }

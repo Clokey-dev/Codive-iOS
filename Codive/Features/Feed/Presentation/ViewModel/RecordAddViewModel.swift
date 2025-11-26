@@ -13,7 +13,7 @@ import Combine
 // MARK: - RecordAddViewModel
 @MainActor
 final class RecordAddViewModel: ObservableObject {
-    
+
     // MARK: - Properties
     @Published var albums: [PhotoAlbum] = []
     @Published var selectedAlbum: PhotoAlbum?
@@ -27,6 +27,7 @@ final class RecordAddViewModel: ObservableObject {
     private let fetchPhotosUseCase: FetchPhotosUseCase
     private let processImageUseCase: ProcessImageUseCase
     private let navigationRouter: NavigationRouter
+    private let flowType: PhotoEditFlowType
     
     // MARK: - Computed Properties
     var isCompleteEnabled: Bool {
@@ -41,11 +42,13 @@ final class RecordAddViewModel: ObservableObject {
     init(
         fetchPhotosUseCase: FetchPhotosUseCase,
         processImageUseCase: ProcessImageUseCase,
-        navigationRouter: NavigationRouter
+        navigationRouter: NavigationRouter,
+        flowType: PhotoEditFlowType = .record
     ) {
         self.fetchPhotosUseCase = fetchPhotosUseCase
         self.processImageUseCase = processImageUseCase
         self.navigationRouter = navigationRouter
+        self.flowType = flowType
     }
     
     // MARK: - Image Loading
@@ -163,7 +166,12 @@ final class RecordAddViewModel: ObservableObject {
                 }
             }
             
-            navigationRouter.navigate(to: .photoEdit(photos: selectedPhotoItems))
+            switch flowType {
+            case .record:
+                navigationRouter.navigate(to: .photoEdit(photos: selectedPhotoItems))
+            case .cloth:
+                navigationRouter.navigate(to: .photoEditForCloth(photos: selectedPhotoItems))
+            }
                     
             resetSelection()
             isCompletingSelection = false

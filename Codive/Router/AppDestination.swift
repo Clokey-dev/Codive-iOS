@@ -12,7 +12,10 @@ enum AppDestination: Hashable {
     case signup
     case main
     case recordAdd
+    case clothPhotoSelect  // 옷 추가를 위한 사진 선택
+    case clothAdd(photos: [SelectedPhoto])
     case photoEdit(photos: [SelectedPhoto])
+    case photoEditForCloth(photos: [SelectedPhoto])
     case recordDetail(photos: [SelectedPhoto])
     case photoTag(photo: SelectedPhoto, allPhotos: [SelectedPhoto])
     case editCategory
@@ -28,7 +31,7 @@ enum AppDestination: Hashable {
     var shouldCoverTabBar: Bool {
         switch self {
         // Add Flow - 기록 추가 관련 전체 화면
-        case .recordAdd, .photoEdit, .recordDetail, .photoTag:
+        case .recordAdd, .clothPhotoSelect, .clothAdd, .photoEdit, .photoEditForCloth, .recordDetail, .photoTag:
             return true
         
         // Home Flow

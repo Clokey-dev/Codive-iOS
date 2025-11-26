@@ -10,13 +10,34 @@ import SwiftUI
 // MARK: - 옷 정보 모델
 struct ClothingItem: Identifiable {
     let id = UUID()
-    let imageName: String
+    let imageName: String?
+    let image: UIImage?
     let category: String
     let subcategory: String
     let season: String
     let name: String
     let brand: String
     let purchaseUrl: String
+
+    init(
+        imageName: String? = nil,
+        image: UIImage? = nil,
+        category: String,
+        subcategory: String,
+        season: String,
+        name: String,
+        brand: String,
+        purchaseUrl: String
+    ) {
+        self.imageName = imageName
+        self.image = image
+        self.category = category
+        self.subcategory = subcategory
+        self.season = season
+        self.name = name
+        self.brand = brand
+        self.purchaseUrl = purchaseUrl
+    }
 }
 
 // MARK: - CustomAIRecommendationView
@@ -97,13 +118,23 @@ struct CustomAIRecommendationView: View {
     private func mainImageView(for item: ClothingItem) -> some View {
         GeometryReader { geometry in
             ZStack(alignment: .topTrailing) {
-                Image(item.imageName)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: geometry.size.width)
-                    .background(Color.Codive.grayscale6)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                if let image = item.image {
+                    Image(uiImage: image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: geometry.size.width)
+                        .background(Color.Codive.grayscale6)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                } else if let imageName = item.imageName {
+                    Image(imageName)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: geometry.size.width)
+                        .background(Color.Codive.grayscale6)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
                 editButton
             }
         }
@@ -140,19 +171,27 @@ struct CustomAIRecommendationView: View {
                 selectedItemIndex = index
             }
         } label: {
-            Image(item.imageName)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: 65, height: 65)
-                .background(Color.Codive.grayscale6)
-                .clipShape(RoundedRectangle(cornerRadius: 5))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 5)
-                        .stroke(
-                            selectedItemIndex == index ? Color.Codive.grayscale3 : Color.Codive.grayscale5,
-                            lineWidth: selectedItemIndex == index ? 2 : 1
-                        )
-                )
+            Group {
+                if let image = item.image {
+                    Image(uiImage: image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } else if let imageName = item.imageName {
+                    Image(imageName)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                }
+            }
+            .frame(width: 65, height: 65)
+            .background(Color.Codive.grayscale6)
+            .clipShape(RoundedRectangle(cornerRadius: 5))
+            .overlay(
+                RoundedRectangle(cornerRadius: 5)
+                    .stroke(
+                        selectedItemIndex == index ? Color.Codive.grayscale3 : Color.Codive.grayscale5,
+                        lineWidth: selectedItemIndex == index ? 2 : 1
+                    )
+            )
         }
     }
     
