@@ -68,7 +68,8 @@ final class AddDIContainer {
     func makeClothAddViewModel(selectedPhotos: [SelectedPhoto]) -> ClothAddViewModel {
         return ClothAddViewModel(
             selectedPhotos: selectedPhotos,
-            navigationRouter: navigationRouter
+            navigationRouter: navigationRouter,
+            addClothUseCase: closetDIContainer.makeAddClothUseCase()
         )
     }
     

@@ -6,8 +6,10 @@
 //
 
 import Foundation
+import UIKit
 
 // MARK: - ClothRepository
 protocol ClothRepository {
     func fetchClothItems(category: String?) async throws -> [ProductItem]
+    func saveClothes(_ clothForms: [ClothFormData], images: [UIImage]) async throws -> [Cloth]
 }

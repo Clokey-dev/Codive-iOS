@@ -8,19 +8,23 @@
 import Foundation
 
 final class ClosetDIContainer {
-    
+
     // MARK: - DataSources
     private lazy var clothDataSource: ClothDataSource = {
-        return ClothDataSource()
+        return DefaultClothDataSource()
     }()
-    
+
     // MARK: - Repositories
     private lazy var clothRepository: ClothRepository = {
         return ClothRepositoryImpl(dataSource: clothDataSource)
     }()
-    
+
     // MARK: - UseCases
     func makeFetchClothItemsUseCase() -> FetchClothItemsUseCase {
         return FetchClothItemsUseCase(repository: clothRepository)
+    }
+
+    func makeAddClothUseCase() -> AddClothUseCase {
+        return AddClothUseCase(repository: clothRepository)
     }
 }

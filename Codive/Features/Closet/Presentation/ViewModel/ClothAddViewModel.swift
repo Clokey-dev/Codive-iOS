@@ -20,6 +20,7 @@ struct ClothFormData {
 }
 
 // MARK: - ClothAddViewModelInput
+@MainActor
 protocol ClothAddViewModelInput {
     func updateName(_ name: String)
     func updateBrand(_ brand: String)
@@ -35,6 +36,7 @@ protocol ClothAddViewModelInput {
 }
 
 // MARK: - ClothAddViewModelOutput
+@MainActor
 protocol ClothAddViewModelOutput {
     var selectedPhotos: [SelectedPhoto] { get }
     var currentIndex: Int { get }
@@ -69,6 +71,7 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
 
     // MARK: - Dependencies
     private let navigationRouter: NavigationRouter
+    private let addClothUseCase: AddClothUseCase
 
     // MARK: - Computed Properties
     var currentPhoto: SelectedPhoto? {
@@ -118,10 +121,12 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
     // MARK: - Initializer
     init(
         selectedPhotos: [SelectedPhoto],
-        navigationRouter: NavigationRouter
+        navigationRouter: NavigationRouter,
+        addClothUseCase: AddClothUseCase
     ) {
         self.selectedPhotos = selectedPhotos
         self.navigationRouter = navigationRouter
+        self.addClothUseCase = addClothUseCase
 
         // 각 사진마다 빈 폼 데이터 초기화
         self.clothForms = Array(repeating: ClothFormData(), count: selectedPhotos.count)
@@ -178,7 +183,26 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
     }
 
     func completeAdding() {
-        // TODO: 옷 추가 완료 로직
-        // 현재는 아무 동작 없음
+        Task {
+            do {
+                // 이미지 배열 추출
+                let images = selectedPhotos.map { $0.croppedImage }
+
+                // UseCase 실행
+                let savedClothes = try await addClothUseCase.execute(
+                    clothForms: clothForms,
+                    images: images
+                )
+
+                // 성공 처리
+                print("옷 \(savedClothes.count)개 저장 완료")
+
+                // TODO: 성공 후 화면 전환 또는 토스트 메시지 표시
+            } catch {
+                // 에러 처리
+                print("옷 저장 실패: \(error.localizedDescription)")
+                // TODO: 에러 알럿 표시
+            }
+        }
     }
 }
