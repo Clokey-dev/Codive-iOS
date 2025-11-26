@@ -19,11 +19,45 @@ struct ClothFormData {
     var selectedSeasons: Set<Season> = []
 }
 
+// MARK: - ClothAddViewModelInput
+protocol ClothAddViewModelInput {
+    func updateName(_ name: String)
+    func updateBrand(_ brand: String)
+    func updatePurchaseUrl(_ url: String)
+    func showCategorySheet()
+    func showSeasonSheet()
+    func selectCategory(_ category: CategoryItem, subcategory: String)
+    func selectSeasons(_ seasons: Set<Season>)
+    func moveToPrevious()
+    func moveToNext()
+    func dismissView()
+    func completeAdding()
+}
+
+// MARK: - ClothAddViewModelOutput
+protocol ClothAddViewModelOutput {
+    var selectedPhotos: [SelectedPhoto] { get }
+    var currentIndex: Int { get }
+    var clothForms: [ClothFormData] { get }
+    var isCategorySheetPresented: Bool { get set }
+    var isSeasonSheetPresented: Bool { get set }
+    var tempSelectedCategory: CategoryItem? { get set }
+
+    var currentPhoto: SelectedPhoto? { get }
+    var currentForm: ClothFormData { get }
+    var categoryDisplayText: String { get }
+    var seasonDisplayText: String { get }
+    var isCurrentFormValid: Bool { get }
+    var isFirstPhoto: Bool { get }
+    var isLastPhoto: Bool { get }
+    var isSinglePhoto: Bool { get }
+}
+
 // MARK: - ClothAddViewModel
 @MainActor
-final class ClothAddViewModel: ObservableObject {
+final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAddViewModelOutput {
 
-    // MARK: - Properties
+    // MARK: - Output Properties
     @Published var selectedPhotos: [SelectedPhoto]
     @Published var currentIndex: Int = 0
     @Published var clothForms: [ClothFormData] = []
@@ -33,6 +67,7 @@ final class ClothAddViewModel: ObservableObject {
     @Published var isSeasonSheetPresented = false
     @Published var tempSelectedCategory: CategoryItem?
 
+    // MARK: - Dependencies
     private let navigationRouter: NavigationRouter
 
     // MARK: - Computed Properties
@@ -92,7 +127,7 @@ final class ClothAddViewModel: ObservableObject {
         self.clothForms = Array(repeating: ClothFormData(), count: selectedPhotos.count)
     }
 
-    // MARK: - Methods
+    // MARK: - Input Methods
 
     func updateName(_ name: String) {
         clothForms[currentIndex].name = name

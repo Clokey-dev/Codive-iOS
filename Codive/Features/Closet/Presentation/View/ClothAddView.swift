@@ -11,6 +11,7 @@ import SwiftUI
 struct ClothAddView: View {
 
     // MARK: - Properties
+    /// ViewModel (Input: 액션 전달, Output: 상태 관찰)
     @StateObject private var viewModel: ClothAddViewModel
 
     // MARK: - Initializer
