@@ -240,14 +240,16 @@ struct CustomAIRecommendationView: View {
         VStack(spacing: 16) {
             CustomTextFieldButton(
                 title: "카테고리",
-                value: "\(item.category) > \(item.subcategory)",
+                value: item.category.isEmpty ? "" : "\(item.category) > \(item.subcategory)",
+                placeholder: "카테고리를 선택하세요",
                 showRequiredMark: true,
                 action: onCategoryTap
             )
-            
+
             CustomTextFieldButton(
                 title: "계절",
                 value: item.season,
+                placeholder: "착용 계절을 선택하세요",
                 showRequiredMark: true,
                 action: onSeasonTap
             )
@@ -377,9 +379,24 @@ struct CustomAIRecommendationView: View {
 struct CustomTextFieldButton: View {
     let title: String
     let value: String
+    let placeholder: String
     let showRequiredMark: Bool
     let action: () -> Void
-    
+
+    init(
+        title: String,
+        value: String,
+        placeholder: String = "",
+        showRequiredMark: Bool = false,
+        action: @escaping () -> Void
+    ) {
+        self.title = title
+        self.value = value
+        self.placeholder = placeholder
+        self.showRequiredMark = showRequiredMark
+        self.action = action
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             // Title
@@ -387,7 +404,7 @@ struct CustomTextFieldButton: View {
                 Text(title)
                     .font(.codive_title2)
                     .foregroundStyle(Color.Codive.grayscale1)
-                
+
                 if showRequiredMark {
                     Text("*")
                         .font(.codive_title2)
@@ -395,16 +412,16 @@ struct CustomTextFieldButton: View {
                         .offset(x: -4, y: -4)
                 }
             }
-            
+
             // Button (TextField 스타일)
             Button(action: action) {
                 HStack {
-                    Text(value)
+                    Text(value.isEmpty ? placeholder : value)
                         .font(.codive_body1_regular)
-                        .foregroundStyle(Color.Codive.grayscale1)
-                    
+                        .foregroundStyle(value.isEmpty ? Color.Codive.grayscale4 : Color.Codive.grayscale1)
+
                     Spacer()
-                    
+
                     Image(systemName: "chevron.right")
                         .font(.system(size: 14))
                         .foregroundStyle(Color.Codive.grayscale3)
@@ -419,50 +436,5 @@ struct CustomTextFieldButton: View {
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             }
         }
-    }
-}
-
-// MARK: - Preview
-#Preview {
-    ScrollView {
-        CustomAIRecommendationView(
-            items: [
-                ClothingItem(
-                    imageName: "sample_clothes1",
-                    category: "상의",
-                    subcategory: "블라우스",
-                    season: "봄",
-                    name: "핑크 블라우스",
-                    brand: "",
-                    purchaseUrl: ""
-                ),
-                ClothingItem(
-                    imageName: "sample_clothes2",
-                    category: "상의",
-                    subcategory: "반팔티",
-                    season: "봄, 여름, 가을",
-                    name: "블랙 티셔츠",
-                    brand: "",
-                    purchaseUrl: ""
-                ),
-                ClothingItem(
-                    imageName: "sample_clothes3",
-                    category: "아우터",
-                    subcategory: "점퍼/바람막이",
-                    season: "봄, 가을",
-                    name: "민트 셔츠 재킷",
-                    brand: "",
-                    purchaseUrl: ""
-                )
-            ],
-            selectedItemIndex: .constant(0),
-            onCategoryTap: {
-                print("카테고리 선택")
-            },
-            onSeasonTap: {
-                print("계절 선택")
-            }
-        )
-        .background(Color.white)
     }
 }
