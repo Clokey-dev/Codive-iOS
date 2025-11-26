@@ -99,7 +99,10 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
         if currentForm.selectedSeasons.isEmpty {
             return ""
         }
-        return currentForm.selectedSeasons.map { $0.displayName }.joined(separator: ", ")
+        // 봄 → 여름 → 가을 → 겨울 순서로 정렬
+        let orderedSeasons: [Season] = [.spring, .summer, .fall, .winter]
+        let sortedSeasons = orderedSeasons.filter { currentForm.selectedSeasons.contains($0) }
+        return sortedSeasons.map { $0.displayName }.joined(separator: ", ")
     }
 
     var isCurrentFormValid: Bool {
