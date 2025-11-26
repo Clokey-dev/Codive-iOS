@@ -31,6 +31,7 @@ final class ClothAddViewModel: ObservableObject {
     // Sheet states
     @Published var isCategorySheetPresented = false
     @Published var isSeasonSheetPresented = false
+    @Published var tempSelectedCategory: CategoryItem?
 
     private let navigationRouter: NavigationRouter
 
@@ -106,6 +107,7 @@ final class ClothAddViewModel: ObservableObject {
     }
 
     func showCategorySheet() {
+        tempSelectedCategory = currentForm.category ?? CategoryConstants.all.first
         isCategorySheetPresented = true
     }
 

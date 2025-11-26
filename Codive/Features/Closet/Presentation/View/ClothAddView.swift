@@ -31,7 +31,7 @@ struct ClothAddView: View {
 
             ScrollView {
                 CustomAIRecommendationView(
-                    title: "옷 정보를 입력해주세요",
+                    title: "선택하신 옷을 불러왔어요",
                     items: convertToClothingItems(),
                     selectedItemIndex: $viewModel.currentIndex,
                     onCategoryTap: {
@@ -52,27 +52,37 @@ struct ClothAddView: View {
                     isFormValid: viewModel.isCurrentFormValid,
                     isSinglePhoto: viewModel.isSinglePhoto,
                     isFirstPhoto: viewModel.isFirstPhoto,
-                    isLastPhoto: viewModel.isLastPhoto
+                    isLastPhoto: viewModel.isLastPhoto,
+                    onNameChanged: { name in
+                        viewModel.updateName(name)
+                    },
+                    onBrandChanged: { brand in
+                        viewModel.updateBrand(brand)
+                    },
+                    onPurchaseUrlChanged: { url in
+                        viewModel.updatePurchaseUrl(url)
+                    }
                 )
             }
+            .padding(.top, 10)
         }
         .navigationBarHidden(true)
         .background(Color.white)
         .sheet(isPresented: $viewModel.isCategorySheetPresented) {
             CustomCategoryBottomSheet(
                 allCategories: CategoryConstants.all,
-                selectedCategory: Binding(
-                    get: { viewModel.currentForm.category },
-                    set: { _ in }
-                )
-            ) { category, subcategory in
-                viewModel.selectCategory(category, subcategory: subcategory)
-            }
+                selectedCategory: $viewModel.tempSelectedCategory,
+                onApply: { category, subcategory in
+                    viewModel.selectCategory(category, subcategory: subcategory)
+                },
+                initialSubcategory: viewModel.currentForm.subcategory
+            )
             .presentationDetents([.height(404)])
             .presentationDragIndicator(.hidden)
         }
         .sheet(isPresented: $viewModel.isSeasonSheetPresented) {
             CustomSeasonSheet(
+                initialSelected: viewModel.currentForm.selectedSeasons,
                 onClose: {
                     viewModel.isSeasonSheetPresented = false
                 },

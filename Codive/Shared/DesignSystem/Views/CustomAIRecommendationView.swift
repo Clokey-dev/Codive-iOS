@@ -59,6 +59,11 @@ struct CustomAIRecommendationView: View {
     let isFirstPhoto: Bool
     let isLastPhoto: Bool
 
+    // 텍스트 필드 업데이트 콜백 (옵션)
+    let onNameChanged: ((String) -> Void)?
+    let onBrandChanged: ((String) -> Void)?
+    let onPurchaseUrlChanged: ((String) -> Void)?
+
     // MARK: - Initializer
     init(
         title: String = "AI가 옷 정보를 불러왔어요",
@@ -72,7 +77,10 @@ struct CustomAIRecommendationView: View {
         isFormValid: Bool = false,
         isSinglePhoto: Bool = false,
         isFirstPhoto: Bool = false,
-        isLastPhoto: Bool = false
+        isLastPhoto: Bool = false,
+        onNameChanged: ((String) -> Void)? = nil,
+        onBrandChanged: ((String) -> Void)? = nil,
+        onPurchaseUrlChanged: ((String) -> Void)? = nil
     ) {
         self.title = title
         self.items = items
@@ -86,6 +94,9 @@ struct CustomAIRecommendationView: View {
         self.isSinglePhoto = isSinglePhoto
         self.isFirstPhoto = isFirstPhoto
         self.isLastPhoto = isLastPhoto
+        self.onNameChanged = onNameChanged
+        self.onBrandChanged = onBrandChanged
+        self.onPurchaseUrlChanged = onPurchaseUrlChanged
     }
     
     // 안전한 currentItem 접근
@@ -244,19 +255,28 @@ struct CustomAIRecommendationView: View {
             CustomTextField1(
                 title: "옷 이름",
                 placeholder: "옷 이름을 입력해주세요.",
-                text: .constant(item.name)
+                text: Binding(
+                    get: { item.name },
+                    set: { onNameChanged?($0) }
+                )
             )
-            
+
             CustomTextField1(
                 title: "브랜드",
                 placeholder: "브랜드를 입력해주세요.",
-                text: .constant(item.brand)
+                text: Binding(
+                    get: { item.brand },
+                    set: { onBrandChanged?($0) }
+                )
             )
-            
+
             CustomTextField1(
                 title: "구매 url",
                 placeholder: "구매 url을 입력해주세요.",
-                text: .constant(item.purchaseUrl)
+                text: Binding(
+                    get: { item.purchaseUrl },
+                    set: { onPurchaseUrlChanged?($0) }
+                )
             )
         }
         .padding(.horizontal, 20)
@@ -276,6 +296,7 @@ struct CustomAIRecommendationView: View {
                 onComplete?()
             }
             .padding(.top, 40)
+            .padding(.horizontal, 20)
         } else {
             // 여러 장일 때
             if isFirstPhoto {
@@ -288,6 +309,7 @@ struct CustomAIRecommendationView: View {
                     onNext?()
                 }
                 .padding(.top, 40)
+                .padding(.horizontal, 20)
             } else if isLastPhoto {
                 // 마지막: 이전으로 + 등록하기
                 HStack(spacing: 9) {

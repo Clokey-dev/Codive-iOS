@@ -8,10 +8,20 @@
 import SwiftUI
 
 struct CustomSeasonSheet: View {
-    @State private var selected: Set<Season> = []
+    @State private var selected: Set<Season>
 
     var onClose: () -> Void = {}
     var onApply: (_ selected: Set<Season>) -> Void = { _ in }
+
+    init(
+        initialSelected: Set<Season> = [],
+        onClose: @escaping () -> Void = {},
+        onApply: @escaping (_ selected: Set<Season>) -> Void = { _ in }
+    ) {
+        self._selected = State(initialValue: initialSelected)
+        self.onClose = onClose
+        self.onApply = onApply
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -84,7 +94,10 @@ struct CustomSeasonSheet: View {
             .padding(.horizontal, 20)
             .padding(.vertical, 16)
         }
-        .background(Color.white)
+        .background(
+            Color.white
+                .ignoresSafeArea()
+        )
         .clipShape(RoundedCorner(radius: 24, corners: [.topLeft, .topRight]))
     }
 
@@ -102,6 +115,7 @@ struct CustomSeasonSheet: View {
     ZStack {
         Color.gray.opacity(0.2).ignoresSafeArea()
         CustomSeasonSheet(
+            initialSelected: [],
             onClose: { print("닫기") },
             onApply: { print("적용:", $0.map(\.rawValue)) }
         )
