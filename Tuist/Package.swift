@@ -17,7 +17,6 @@ let package = Package(
     dependencies: [
         // 카카오 SDK
         .package(url: "https://github.com/kakao/kakao-ios-sdk", from: "2.22.5"),
-        .package(url: "https://github.com/Moya/Moya.git", from: "15.0.0"),
-        .package(url: "https://github.com/benedom/SwiftyCrop.git", from: "2.0.0")
+        .package(url: "https://github.com/Moya/Moya.git", from: "15.0.0")
     ]
 )

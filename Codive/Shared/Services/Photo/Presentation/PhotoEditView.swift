@@ -113,6 +113,7 @@ struct PhotoEditView: View {
             if let currentPhoto = viewModel.currentPhoto {
                 ImageCropView(
                     image: currentPhoto.originalImage,
+                    aspectRatio: viewModel.aspectRatio,
                     onComplete: { croppedImage in
                         viewModel.updateCroppedImage(croppedImage)
                         viewModel.isEditingMode = false
