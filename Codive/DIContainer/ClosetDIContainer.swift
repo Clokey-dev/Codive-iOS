@@ -25,6 +25,6 @@ final class ClosetDIContainer {
     }
 
     func makeAddClothUseCase() -> AddClothUseCase {
-        return AddClothUseCase(repository: clothRepository)
+        return DefaultAddClothUseCase(repository: clothRepository)
     }
 }

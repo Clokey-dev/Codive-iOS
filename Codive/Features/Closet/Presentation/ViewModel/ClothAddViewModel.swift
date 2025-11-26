@@ -2,7 +2,7 @@
 //  ClothAddViewModel.swift
 //  Codive
 //
-//  Created by Claude on 11/26/25.
+//  Created by 황상환 on 11/26/25.
 //
 
 import Foundation
@@ -185,24 +185,54 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
     func completeAdding() {
         Task {
             do {
-                // 이미지 배열 추출
-                let images = selectedPhotos.map { $0.croppedImage }
+                // UIImage → Data 변환
+                let imageDatas = try selectedPhotos.map { photo -> Data in
+                    guard let data = photo.croppedImage.jpegData(compressionQuality: 0.8) else {
+                        throw ClothAddError.imageConversionFailed
+                    }
+                    return data
+                }
+
+                // ClothFormData → ClothInput 변환
+                let inputs = clothForms.map { form in
+                    ClothInput(
+                        name: form.name,
+                        brand: form.brand,
+                        purchaseUrl: form.purchaseUrl,
+                        categoryId: nil, // TODO: 서버 연결 시 category name → server ID 매핑 필요
+                        seasons: form.selectedSeasons
+                    )
+                }
 
                 // UseCase 실행
                 let savedClothes = try await addClothUseCase.execute(
-                    clothForms: clothForms,
-                    images: images
+                    inputs: inputs,
+                    images: imageDatas
                 )
 
                 // 성공 처리
                 print("옷 \(savedClothes.count)개 저장 완료")
 
-                // TODO: 성공 후 화면 전환 또는 토스트 메시지 표시
+                // 성공 후 화면 전환
+                navigationRouter.navigateBack()
+
             } catch {
                 // 에러 처리
                 print("옷 저장 실패: \(error.localizedDescription)")
                 // TODO: 에러 알럿 표시
             }
+        }
+    }
+}
+
+// MARK: - ClothAddError
+enum ClothAddError: LocalizedError {
+    case imageConversionFailed
+
+    var errorDescription: String? {
+        switch self {
+        case .imageConversionFailed:
+            return "이미지 변환에 실패했습니다."
         }
     }
 }

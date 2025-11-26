@@ -2,7 +2,7 @@
 //  ClothAddView.swift
 //  Codive
 //
-//  Created by Claude on 11/26/25.
+//  Created by 황상환 on 11/26/25.
 //
 
 import SwiftUI
