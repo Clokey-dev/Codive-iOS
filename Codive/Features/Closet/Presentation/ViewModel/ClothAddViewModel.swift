@@ -50,6 +50,7 @@ protocol ClothAddViewModelOutput {
     var categoryDisplayText: String { get }
     var seasonDisplayText: String { get }
     var isCurrentFormValid: Bool { get }
+    var isAllFormsValid: Bool { get }
     var isFirstPhoto: Bool { get }
     var isLastPhoto: Bool { get }
     var isSinglePhoto: Bool { get }
@@ -107,6 +108,12 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
 
     var isCurrentFormValid: Bool {
         return currentForm.category != nil && !currentForm.selectedSeasons.isEmpty
+    }
+
+    var isAllFormsValid: Bool {
+        return clothForms.allSatisfy { form in
+            form.category != nil && !form.selectedSeasons.isEmpty
+        }
     }
 
     var isFirstPhoto: Bool {
@@ -216,9 +223,7 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
                 // 성공 처리
                 print("옷 \(savedClothes.count)개 저장 완료")
 
-                // 성공 후 화면 전환
-                navigationRouter.navigateBack()
-
+                // TODO: 성공 후 화면 전환
             } catch {
                 // 에러 처리
                 print("옷 저장 실패: \(error.localizedDescription)")

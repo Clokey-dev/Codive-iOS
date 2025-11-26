@@ -131,11 +131,6 @@ struct CustomAIRecommendationView: View {
         VStack(alignment: .leading, spacing: 0) {
             imageSection(for: item)
             formFieldsSection(for: item)
-
-            // 버튼이 있을 때만 표시
-            if onComplete != nil {
-                buttonSection()
-            }
         }
     }
     
@@ -283,79 +278,6 @@ struct CustomAIRecommendationView: View {
         }
         .padding(.horizontal, 20)
         .padding(.top, 16)
-    }
-
-    // MARK: - Button Section
-    @ViewBuilder
-    private func buttonSection() -> some View {
-        if isSinglePhoto {
-            // 1장일 때: 등록하기 버튼만
-            CustomButton(
-                text: "등록하기",
-                widthType: .fixed,
-                isEnabled: isFormValid
-            ) {
-                onComplete?()
-            }
-            .padding(.top, 40)
-            .padding(.horizontal, 20)
-        } else {
-            // 여러 장일 때
-            if isFirstPhoto {
-                // 첫 번째: 다음으로 버튼만
-                CustomButton(
-                    text: "다음으로",
-                    widthType: .fixed,
-                    isEnabled: isFormValid
-                ) {
-                    onNext?()
-                }
-                .padding(.top, 40)
-                .padding(.horizontal, 20)
-            } else if isLastPhoto {
-                // 마지막: 이전으로 + 등록하기
-                HStack(spacing: 9) {
-                    CustomButton(
-                        text: "이전으로",
-                        widthType: .half,
-                        styleType: .border
-                    ) {
-                        onPrevious?()
-                    }
-
-                    CustomButton(
-                        text: "등록하기",
-                        widthType: .half,
-                        isEnabled: isFormValid
-                    ) {
-                        onComplete?()
-                    }
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 40)
-            } else {
-                // 중간: 이전으로 + 다음으로
-                HStack(spacing: 9) {
-                    CustomButton(
-                        text: "이전으로",
-                        widthType: .half,
-                        styleType: .border
-                    ) {
-                        onPrevious?()
-                    }
-
-                    CustomButton(
-                        text: "다음으로",
-                        widthType: .half,
-                        isEnabled: isFormValid
-                    ) {
-                        onNext?()
-                    }
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 40)
-            }
-        }
     }
 
     // MARK: - Empty State View

@@ -27,6 +27,12 @@ struct ClothAddView: View {
                 title: "옷 추가",
                 onBack: {
                     viewModel.dismissView()
+                },
+                rightButton: .text(
+                    title: "완료",
+                    isEnabled: viewModel.isAllFormsValid
+                ) {
+                    viewModel.completeAdding()
                 }
             )
 
@@ -41,19 +47,6 @@ struct ClothAddView: View {
                     onSeasonTap: {
                         viewModel.showSeasonSheet()
                     },
-                    onPrevious: {
-                        viewModel.moveToPrevious()
-                    },
-                    onNext: {
-                        viewModel.moveToNext()
-                    },
-                    onComplete: {
-                        viewModel.completeAdding()
-                    },
-                    isFormValid: viewModel.isCurrentFormValid,
-                    isSinglePhoto: viewModel.isSinglePhoto,
-                    isFirstPhoto: viewModel.isFirstPhoto,
-                    isLastPhoto: viewModel.isLastPhoto,
                     onNameChanged: { name in
                         viewModel.updateName(name)
                     },
