@@ -220,9 +220,6 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
                     images: imageDatas
                 )
 
-                // 성공 처리
-                print("옷 \(savedClothes.count)개 저장 완료")
-
                 // TODO: 성공 후 화면 전환
             } catch {
                 // 에러 처리
