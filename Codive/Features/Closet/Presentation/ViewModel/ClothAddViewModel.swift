@@ -215,7 +215,7 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
                 }
 
                 // UseCase 실행
-                let savedClothes = try await addClothUseCase.execute(
+                _ = try await addClothUseCase.execute(
                     inputs: inputs,
                     images: imageDatas
                 )
