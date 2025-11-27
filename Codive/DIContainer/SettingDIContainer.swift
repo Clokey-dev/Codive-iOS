@@ -1,0 +1,111 @@
+//
+//  SettingDIContainer.swift
+//  Codive
+//
+//  Created by 한태빈 on 11/14/25.
+//
+
+import Foundation
+import SwiftUI
+
+@MainActor
+final class SettingDIContainer {
+
+    // MARK: - Dependencies
+    private let appRouter: AppRouter
+    private let navigationRouter: NavigationRouter
+
+    // ViewFactory
+    lazy var settingViewFactory = SettingViewFactory(settingDIContainer: self)
+    
+    // Data / Repository
+    private let repository: SettingRepository
+
+    // MARK: - Init
+    init(appRouter: AppRouter, navigationRouter: NavigationRouter) {
+        self.appRouter = appRouter
+        self.navigationRouter = navigationRouter
+
+        let dataSource = SettingsDataSource()
+        let repo = SettingsRepositoryImpl(dataSource: dataSource)
+        self.repository = repo
+    }
+
+    // MARK: - UseCases
+    func makeGetNotificationPrefsUseCase() -> GetNotificationPrefsUseCase {
+        GetNotificationPrefsUseCase(repository: repository)
+    }
+
+    func makeUpdateNotificationPrefsUseCase() -> UpdateNotificationPrefsUseCase {
+        UpdateNotificationPrefsUseCase(repository: repository)
+    }
+
+    func makeGetLikedRecordsUseCase() -> GetLikedRecordsUseCase {
+        GetLikedRecordsUseCase(repository: repository)
+    }
+
+    func makeGetMyCommentsUseCase() -> GetMyCommentsUseCase {
+        GetMyCommentsUseCase(repository: repository)
+    }
+
+    func makeGetBlockedUsersUseCase() -> GetBlockedUsersUseCase {
+        GetBlockedUsersUseCase(repository: repository)
+    }
+
+    func makeUnblockUserUseCase() -> UnblockUserUseCase {
+        UnblockUserUseCase(repository: repository)
+    }
+
+    func makeGetWithdrawNoticesUseCase() -> GetWithdrawNoticesUseCase {
+        GetWithdrawNoticesUseCase(repository: repository)
+    }
+
+    // MARK: - ViewModels
+    func makeSettingViewModel() -> SettingViewModel {
+        SettingViewModel(
+            appRouter: appRouter,
+            navigationRouter: navigationRouter,
+            getPrefsUC: makeGetNotificationPrefsUseCase(),
+            updatePrefsUC: makeUpdateNotificationPrefsUseCase()
+        )
+    }
+
+    func makeLikedRecordsViewModel() -> LikedRecordsViewModel {
+        LikedRecordsViewModel(
+            navigationRouter: navigationRouter,
+            getLikedUC: makeGetLikedRecordsUseCase()
+        )
+    }
+
+    func makeMyCommentsViewModel() -> MyCommentsViewModel {
+        MyCommentsViewModel(
+            navigationRouter: navigationRouter,
+            getCommentsUC: makeGetMyCommentsUseCase()
+        )
+    }
+
+    func makeBlockedUsersViewModel() -> BlockedUsersViewModel {
+        BlockedUsersViewModel(
+            navigationRouter: navigationRouter,
+            getBlockedUC: makeGetBlockedUsersUseCase(),
+            unblockUC: makeUnblockUserUseCase()
+        )
+    }
+
+    // MARK: - Views
+    func makeSettingView() -> SettingView {
+        SettingView(viewModel: self.makeSettingViewModel())
+    }
+
+    func makeSettingLikedView() -> SettingLikedView {
+        SettingLikedView(vm: self.makeLikedRecordsViewModel())
+    }
+
+    func makeSettingCommentView() -> SettingCommentView {
+        SettingCommentView(vm: self.makeMyCommentsViewModel())
+    }
+
+    func makeSettingBlockedView() -> SettingBlockedView {
+        SettingBlockedView(vm: self.makeBlockedUsersViewModel())
+    }
+}
