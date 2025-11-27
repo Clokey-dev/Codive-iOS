@@ -38,13 +38,13 @@ struct SearchResultView: View {
             ScrollView {
                 VStack {
                     HStack {
-                        Text("총 \(viewModel.posts.count)개")
+                        Text("\(TextLiteral.Search.totalCount) \(viewModel.posts.count)\(TextLiteral.Search.countUnit)")
                             .font(Font.codive_body2_medium)
                             .foregroundStyle(Color.Codive.grayscale3)
                         Spacer()
-                        
+
                         SortOption(
-                            mainText: "전체",
+                            mainText: TextLiteral.Search.sortAll,
                             options: sortOptionsString,
                             selectedOption: $viewModel.currentSort
                         )

@@ -19,12 +19,12 @@ struct SettingCommentView: View {
             } else if let error = vm.error, vm.items.isEmpty {
                 // 2) 에러 + 데이터 없음
                 VStack(spacing: 12) {
-                    Text("불러오지 못했어요")
+                    Text(TextLiteral.Setting.loadFailed)
                         .font(.codive_title2)
                     Text(error.localizedDescription)
                         .font(.codive_body2_regular)
                         .foregroundStyle(.secondary)
-                    CustomButton(text: "다시 시도", widthType: .fixed) {
+                    CustomButton(text: TextLiteral.Setting.retry, widthType: .fixed) {
                         Task { await vm.refresh() }
                     }
                 }
@@ -32,9 +32,9 @@ struct SettingCommentView: View {
             } else if vm.items.isEmpty {
                 // 3) 정상인데 리스트가 비어 있음
                 SettingsEmptyView(
-                    title: "아직 남긴 댓글이 없어요!",
-                    message: "지금 하나 써볼까요?",
-                    actionTitle: "피드로 이동하기"
+                    title: TextLiteral.Setting.myCommentsEmpty,
+                    message: TextLiteral.Setting.myCommentsEmptyMessage,
+                    actionTitle: TextLiteral.Setting.goToFeed
                 ) {
                     // 라우팅
                 }
@@ -70,7 +70,7 @@ struct SettingCommentView: View {
                 .listStyle(.plain)
             }
         }
-        .navigationTitle("내가 남긴 댓글")
+        .navigationTitle(TextLiteral.Setting.myComments)
         .navigationBarTitleDisplayMode(.inline)
         .task { await vm.refresh() }
         .refreshable { await vm.refresh() }

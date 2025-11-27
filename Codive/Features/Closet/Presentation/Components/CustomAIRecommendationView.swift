@@ -66,7 +66,7 @@ struct CustomAIRecommendationView: View {
 
     // MARK: - Initializer
     init(
-        title: String = "AI가 옷 정보를 불러왔어요",
+        title: String = TextLiteral.Closet.aiRecommendationTitle,
         items: [ClothingItem],
         selectedItemIndex: Binding<Int>,
         onCategoryTap: @escaping () -> Void,
@@ -234,24 +234,24 @@ struct CustomAIRecommendationView: View {
     private func formFieldsSection(for item: ClothingItem) -> some View {
         VStack(spacing: 16) {
             CustomTextFieldButton(
-                title: "카테고리",
+                title: TextLiteral.Closet.category,
                 value: item.category.isEmpty ? "" : "\(item.category) > \(item.subcategory)",
-                placeholder: "카테고리를 선택하세요",
+                placeholder: TextLiteral.Closet.categoryPlaceholder,
                 showRequiredMark: true,
                 action: onCategoryTap
             )
 
             CustomTextFieldButton(
-                title: "계절",
+                title: TextLiteral.Closet.season,
                 value: item.season,
-                placeholder: "착용 계절을 선택하세요",
+                placeholder: TextLiteral.Closet.seasonPlaceholder,
                 showRequiredMark: true,
                 action: onSeasonTap
             )
-            
+
             CustomTextField1(
-                title: "옷 이름",
-                placeholder: "옷 이름을 입력해주세요.",
+                title: TextLiteral.Closet.clothName,
+                placeholder: TextLiteral.Closet.clothNamePlaceholder,
                 text: Binding(
                     get: { item.name },
                     set: { onNameChanged?($0) }
@@ -259,8 +259,8 @@ struct CustomAIRecommendationView: View {
             )
 
             CustomTextField1(
-                title: "브랜드",
-                placeholder: "브랜드를 입력해주세요.",
+                title: TextLiteral.Closet.brand,
+                placeholder: TextLiteral.Closet.brandPlaceholder,
                 text: Binding(
                     get: { item.brand },
                     set: { onBrandChanged?($0) }
@@ -268,8 +268,8 @@ struct CustomAIRecommendationView: View {
             )
 
             CustomTextField1(
-                title: "구매 url",
-                placeholder: "구매 url을 입력해주세요.",
+                title: TextLiteral.Closet.purchaseUrl,
+                placeholder: TextLiteral.Closet.purchaseUrlPlaceholder,
                 text: Binding(
                     get: { item.purchaseUrl },
                     set: { onPurchaseUrlChanged?($0) }
@@ -286,8 +286,8 @@ struct CustomAIRecommendationView: View {
             Image(systemName: "tshirt")
                 .font(.system(size: 60))
                 .foregroundStyle(Color.Codive.grayscale4)
-            
-            Text("옷 정보가 없습니다")
+
+            Text(TextLiteral.Closet.noClothInfo)
                 .font(.codive_body1_regular)
                 .foregroundStyle(Color.Codive.grayscale3)
         }

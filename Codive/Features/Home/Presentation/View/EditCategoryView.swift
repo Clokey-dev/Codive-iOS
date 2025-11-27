@@ -22,7 +22,7 @@ struct EditCategoryView: View {
             
             ScrollView {
                 VStack {
-                    Text("현재 카테고리 (\(viewModel.totalCount)/10)")
+                    Text("\(TextLiteral.Home.currentCategoryCount) (\(viewModel.totalCount)/10)")
                         .font(Font.codive_title2)
                         .foregroundStyle(Color.Codive.grayscale1)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -65,15 +65,15 @@ struct EditCategoryView: View {
         .background(alignment: .center) {
             Color.white
         }
-        .alert("변경사항이 있습니다", isPresented: $viewModel.showExitAlert) {
-            Button("취소", role: .cancel) {
+        .alert(TextLiteral.Home.changeAlertTitle, isPresented: $viewModel.showExitAlert) {
+            Button(TextLiteral.Common.cancel, role: .cancel) {
                 viewModel.cancelExit()
             }
-            Button("나가기", role: .destructive) {
+            Button(TextLiteral.Home.leave, role: .destructive) {
                 viewModel.confirmExit()
             }
         } message: {
-            Text("변경사항을 저장하지 않고 나가시겠습니까?")
+            Text(TextLiteral.Home.changeAlertMessage)
         }
     }
 }

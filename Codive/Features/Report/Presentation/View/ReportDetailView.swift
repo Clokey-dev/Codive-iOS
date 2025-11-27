@@ -21,7 +21,7 @@ struct ReportDetailView: View {
 
                 // MARK: 선택된 신고 사유
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("선택된 신고 사유")
+                    Text(TextLiteral.Report.selectedReasonSection)
                         .font(.codive_title2)
                         .foregroundStyle(Color.Codive.grayscale1)
 
@@ -37,14 +37,14 @@ struct ReportDetailView: View {
 
                     // 상세 이유 작성
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("문제가 된 부분을 구체적으로 작성해 주세요.")
+                        Text(TextLiteral.Report.detailSection)
                             .font(.codive_body1_bold)
                             .foregroundStyle(Color.Codive.grayscale1)
 
                         ZStack(alignment: .topLeading) {
                             // Placeholder – 내용이 비어 있을 때만 보이도록
                             if vm.draftDetail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                                Text("예시: 욕설을 사용한 특정 문장, 협박성 메시지 등")
+                                Text(TextLiteral.Report.detailPlaceholder)
                                     .font(.codive_body2_regular)
                                     .foregroundStyle(Color.Codive.grayscale3)
                                     .padding(.leading, 16)
@@ -82,7 +82,7 @@ struct ReportDetailView: View {
             }
         }
         .safeAreaInset(edge: .bottom) {
-            CustomButton(text: "신고하기", widthType: .fixed) {
+            CustomButton(text: TextLiteral.Report.submit, widthType: .fixed) {
                 onSubmit?()
             }
             .disabled(!vm.isNextEnabled || vm.isSubmitting)

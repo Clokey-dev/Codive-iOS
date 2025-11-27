@@ -24,12 +24,12 @@ struct ClothAddView: View {
         VStack(spacing: 0) {
             // Navigation Bar
             CustomNavigationBar(
-                title: "옷 추가",
+                title: TextLiteral.Closet.clothAddTitle,
                 onBack: {
                     viewModel.dismissView()
                 },
                 rightButton: .text(
-                    title: "완료",
+                    title: TextLiteral.Common.complete,
                     isEnabled: viewModel.isAllFormsValid
                 ) {
                     viewModel.completeAdding()
@@ -38,7 +38,7 @@ struct ClothAddView: View {
 
             ScrollView {
                 CustomAIRecommendationView(
-                    title: "선택하신 옷을 불러왔어요",
+                    title: TextLiteral.Closet.clothLoadedTitle,
                     items: convertToClothingItems(),
                     selectedItemIndex: $viewModel.currentIndex,
                     onCategoryTap: {

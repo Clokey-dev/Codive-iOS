@@ -14,8 +14,8 @@ struct ReportCompleteView: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 50, height: 50)
-            
-            Text("신고가 접수되었습니다.")
+
+            Text(TextLiteral.Report.complete)
                 .font(Font.codive_title1)
                 .foregroundStyle(Color.Codive.grayscale1)
         }

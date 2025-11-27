@@ -17,7 +17,7 @@ struct SettingView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            CustomNavigationBar(title: "설정") {
+            CustomNavigationBar(title: TextLiteral.Setting.title) {
                 // 뒤로가기 액션
                 print("뒤로가기")
             }
@@ -42,7 +42,7 @@ struct SettingView: View {
 
     private var loginInfo: some View {
         VStack(alignment: .leading) {
-            Text("로그인/회원정보")
+            Text(TextLiteral.Setting.loginInfo)
                 .font(.codive_title3)
                 .foregroundStyle(Color.Codive.grayscale1)
 
@@ -65,7 +65,7 @@ struct SettingView: View {
 
     private var accountInfo: some View {
         VStack(alignment: .leading) {
-            Text("계정")
+            Text(TextLiteral.Setting.account)
                 .font(.codive_title3)
                 .foregroundStyle(Color.Codive.grayscale1)
 
@@ -73,13 +73,13 @@ struct SettingView: View {
                 .background(Color.Codive.grayscale1)
                 .padding(.bottom, 16)
 
-            SettingRow(text: "좋아요 한 기록")
+            SettingRow(text: TextLiteral.Setting.likedRecords)
                 .padding(.bottom, 12)
 
-            SettingRow(text: "내가 남긴 댓글")
+            SettingRow(text: TextLiteral.Setting.myComments)
                 .padding(.bottom, 12)
 
-            SettingRow(text: "차단한 계정")
+            SettingRow(text: TextLiteral.Setting.blockedUsers)
         }
     }
 
@@ -87,7 +87,7 @@ struct SettingView: View {
 
     private var notificationSection: some View {
         VStack(alignment: .leading) {
-            Text("알림")
+            Text(TextLiteral.Setting.notification)
                 .font(.codive_title3)
                 .foregroundStyle(Color.Codive.grayscale1)
 
@@ -96,7 +96,7 @@ struct SettingView: View {
                 .padding(.bottom, 16)
 
             HStack {
-                Text("PUSH 알림")
+                Text(TextLiteral.Setting.pushNotification)
                     .font(.codive_body1_regular)
                     .foregroundStyle(Color.Codive.grayscale1)
 
@@ -113,7 +113,7 @@ struct SettingView: View {
             .padding(.bottom, 12)
 
             HStack {
-                Text("마케팅 알림 수신 동의")
+                Text(TextLiteral.Setting.marketingConsent)
                     .font(.codive_body1_regular)
                     .foregroundStyle(Color.Codive.grayscale3)
 
@@ -133,7 +133,7 @@ struct SettingView: View {
 
     private var helpCustomer: some View {
         VStack(alignment: .leading) {
-            Text("고객 지원")
+            Text(TextLiteral.Setting.customerSupport)
                 .font(.codive_title3)
                 .foregroundStyle(Color.Codive.grayscale3)
 
@@ -142,7 +142,7 @@ struct SettingView: View {
                 .padding(.bottom, 16)
 
             HStack {
-                Text("버전 정보")
+                Text(TextLiteral.Setting.versionInfo)
                     .font(.codive_body1_regular)
                     .foregroundStyle(Color.Codive.grayscale1)
 
@@ -154,13 +154,13 @@ struct SettingView: View {
             }
             .padding(.bottom, 12)
 
-            SettingRow(text: "문의하기")
+            SettingRow(text: TextLiteral.Setting.inquiry)
                 .padding(.bottom, 12)
 
-            SettingRow(text: "로그아웃")
+            SettingRow(text: TextLiteral.Setting.logout)
                 .padding(.bottom, 12)
 
-            SettingRow(text: "계정 탈퇴")
+            SettingRow(text: TextLiteral.Setting.withdraw)
         }
     }
 }

@@ -72,7 +72,7 @@ struct OnboardingView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.white.ignoresSafeArea())
         .alert("로그인 오류", isPresented: .constant(viewModel.errorMessage != nil)) {
-            Button("확인") {
+            Button(TextLiteral.Common.confirm) {
                 viewModel.clearError()
             }
         } message: {

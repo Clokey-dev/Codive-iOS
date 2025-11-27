@@ -25,7 +25,7 @@ struct ReportView: View {
             }
         }
         .safeAreaInset(edge: .bottom) {
-            CustomButton(text: "다음", widthType: .fixed) {
+            CustomButton(text: TextLiteral.Report.next, widthType: .fixed) {
                 onSubmit?()
             }
             .disabled(!vm.isNextEnabled || vm.isSubmitting)
@@ -38,7 +38,7 @@ struct ReportView: View {
     // MARK: 작성자
     private var reportingUser: some View {
         VStack(alignment: .leading) {
-            Text("작성자")
+            Text(TextLiteral.Report.authorSection)
                 .font(.codive_title2)
                 .foregroundStyle(Color.Codive.grayscale1)
                 .padding(.bottom, 12)
@@ -87,7 +87,7 @@ struct ReportView: View {
     // MARK: 신고 사유
     private var reportingReasons: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("신고 사유")
+            Text(TextLiteral.Report.reasonSection)
                 .font(.codive_title2)
                 .foregroundStyle(Color.Codive.grayscale1)
 
