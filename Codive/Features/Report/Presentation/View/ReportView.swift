@@ -94,7 +94,7 @@ struct ReportView: View {
             ForEach(vm.reasonList, id: \.self) { reason in
                 VStack(alignment: .leading, spacing: 16) {
                     HStack(spacing: 8) {
-                        Image(vm.selectedReason == reason ? "checked" : "unchecked")
+                        Image(vm.selectedReason == reason ? "check_bt" : "Radio_button unchecked")
                             .resizable()
                             .frame(width: 20, height: 20)
 

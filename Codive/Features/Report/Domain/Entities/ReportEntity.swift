@@ -138,7 +138,7 @@ public struct ReportValidation: Equatable, Sendable {
 public struct ReportDraft: Identifiable, Equatable, Hashable, Sendable {
     public let id: String
     public let target: ReportTarget
-    public private(set) var selectedReason: ReportReason? = nil
+    public private(set) var selectedReason: ReportReason?
     public private(set) var detail: String = ""
 
     public static let maxDetailLength = 500

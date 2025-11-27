@@ -14,7 +14,7 @@ struct WithdrawView: View {
         }
         VStack {
             HStack {
-                Image("warning")
+                Image("orangeWarning")
                     .resizable()
                     .frame(width: 24, height: 24)
                     .padding(.leading, 20)

@@ -20,7 +20,7 @@ struct ReportPopupView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 10))
 
             Button(action: onClose) {
-                Image(systemName: "xmark")
+                Image(systemName: "cancel")
                     .frame(width: 15, height: 15)
                     .foregroundStyle(Color.Codive.main1)
                     .padding(22)
@@ -31,7 +31,7 @@ struct ReportPopupView: View {
 
     private var content: some View {
         VStack(alignment: .center, spacing: 16) {
-            Image("warning")
+            Image("orangeWarning")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 50, height: 50)

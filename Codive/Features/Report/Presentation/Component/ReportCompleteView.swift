@@ -10,7 +10,7 @@ import SwiftUI
 struct ReportCompleteView: View {
     var body: some View {
         VStack(alignment: .center, spacing: 16) {
-            Image("check")
+            Image("check_bt")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 50, height: 50)

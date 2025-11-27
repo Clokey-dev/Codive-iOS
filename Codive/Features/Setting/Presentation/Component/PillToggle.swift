@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-//설정에서 사용할 타원모양 컴포넌트
+// 설정에서 사용할 타원모양 컴포넌트
 struct PillToggle: View {
     @Binding var isOn: Bool
     var onColor: Color = Color("point1")
