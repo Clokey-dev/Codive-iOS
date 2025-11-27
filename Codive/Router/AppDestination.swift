@@ -15,6 +15,13 @@ enum AppDestination: Hashable {
     case photoEdit(photos: [SelectedPhoto])
     case recordDetail(photos: [SelectedPhoto])
     case photoTag(photo: SelectedPhoto, allPhotos: [SelectedPhoto])
+    case settings
+    case settingLikedRecords
+    case settingMyComments
+    case settingBlockedUsers
+    case settingWithdraw
+    case report(target: ReportTarget)
+    case reportDetail(target: ReportTarget)
     case editCategory
     case codiBoard
     case search

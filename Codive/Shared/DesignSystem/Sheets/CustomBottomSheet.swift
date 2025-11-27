@@ -64,8 +64,8 @@ struct CustomBottomSheet: View {
 
 #Preview {
     CustomBottomSheet(
-        iconName1: "addCodi",
-        iconName2: "recallCodi",
+        iconName1: "plus",
+        iconName2: "clo_selected",
         title1: "새로운 코디 추가하기",
         title2: "이전 코디 불러오기"
     )
