@@ -11,34 +11,31 @@ import Foundation
 final class AddDIContainer {
     
     // MARK: - Properties
+    private let feedDIContainer: FeedDIContainer
+    private let closetDIContainer: ClosetDIContainer
+    private let sharedDIContainer: SharedDIContainer
+    
     let navigationRouter: NavigationRouter
     lazy var addViewFactory = AddViewFactory(addDIContainer: self)
     
-    // MARK: - DataSources
-    lazy var photoDataSource = PhotoDataSource()
-    
-    // MARK: - Repositories
-    lazy var photoRepository: PhotoRepository = PhotoRepositoryImpl(
-        dataSource: photoDataSource
-    )
-    
-    // MARK: - UseCases
-    lazy var fetchPhotosUseCase = FetchPhotosUseCase(
-        repository: photoRepository
-    )
-    
-    lazy var processImageUseCase = ProcessImageUseCase()
-    
     // MARK: - Initializer
-    init(navigationRouter: NavigationRouter) {
+    init(
+        navigationRouter: NavigationRouter,
+        feedDIContainer: FeedDIContainer,
+        closetDIContainer: ClosetDIContainer,
+        sharedDIContainer: SharedDIContainer
+    ) {
         self.navigationRouter = navigationRouter
+        self.feedDIContainer = feedDIContainer
+        self.closetDIContainer = closetDIContainer
+        self.sharedDIContainer = sharedDIContainer
     }
     
     // MARK: - ViewModels
     func makeRecordAddViewModel() -> RecordAddViewModel {
         return RecordAddViewModel(
-            fetchPhotosUseCase: fetchPhotosUseCase,
-            processImageUseCase: processImageUseCase,
+            fetchPhotosUseCase: sharedDIContainer.makeFetchPhotosUseCase(),
+            processImageUseCase: sharedDIContainer.makeProcessImageUseCase(),
             navigationRouter: navigationRouter
         )
     }
@@ -54,6 +51,14 @@ final class AddDIContainer {
         return PhotoTagViewModel(
             photo: photo,
             allPhotos: allPhotos,
+            navigationRouter: navigationRouter,
+            fetchClothItemsUseCase: closetDIContainer.makeFetchClothItemsUseCase()
+        )
+    }
+    
+    func makePhotoEditViewModel(selectedPhotos: [SelectedPhoto]) -> PhotoEditViewModel {
+        return PhotoEditViewModel(
+            selectedPhotos: selectedPhotos,
             navigationRouter: navigationRouter
         )
     }
@@ -70,8 +75,13 @@ final class AddDIContainer {
     }
     
     func makePhotoTagView(photo: SelectedPhoto, allPhotos: [SelectedPhoto]) -> PhotoTagView {
-        return PhotoTagView(
-            viewModel: makePhotoTagViewModel(photo: photo, allPhotos: allPhotos)
+        let viewModel = makePhotoTagViewModel(photo: photo, allPhotos: allPhotos)
+        return PhotoTagView(viewModel: viewModel)
+    }
+    
+    func makePhotoEditView(selectedPhotos: [SelectedPhoto]) -> PhotoEditView {
+        return PhotoEditView(
+            viewModel: makePhotoEditViewModel(selectedPhotos: selectedPhotos)
         )
     }
 }

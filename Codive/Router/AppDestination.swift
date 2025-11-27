@@ -24,6 +24,9 @@ enum AppDestination: Hashable {
     case reportDetail(target: ReportTarget)
     case editCategory
     case codiBoard
+    case search
+    case searchResult(query: String)
+    case notification
     
     // MARK: - 하단 탭바
     /// 이 화면이 탭바를 덮어야 하는가?
@@ -32,7 +35,15 @@ enum AppDestination: Hashable {
     var shouldCoverTabBar: Bool {
         switch self {
         // Add Flow - 기록 추가 관련 전체 화면
-        case .recordAdd, .photoEdit, .recordDetail, .photoTag, .editCategory, .codiBoard:
+        case .recordAdd, .photoEdit, .recordDetail, .photoTag:
+            return true
+        
+        // Home Flow
+        case .editCategory, .codiBoard:
+            return true
+            
+        // Search, Alarm Flow
+        case .search, .searchResult, .notification:
             return true
             
         // 다른 플로우 전체 화면은 여기에 추가

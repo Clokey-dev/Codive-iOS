@@ -15,6 +15,7 @@ enum TextLiteral {
         static let save = "저장"
         static let confirm = "확인"
         static let delete = "삭제"
+        static let unknown = "알 수 없음"
     }
     
     // MARK: - Auth (인증)
@@ -73,11 +74,17 @@ enum TextLiteral {
         static let recordTitle = "기록 추가"
         static let recordDescription = "오늘의 스타일을 기록해요"
         static let recordRecentAlbum = "최근 항목"
+        static let recordPhotoSaveFailure = "사진 저장 실패: "
         
         // Photo Edit
         static let photoEditTitle = "사진 편집"
         static let photoEditComplete = "편집 완료"
-        
+
+        // Exit Alert
+        static let exitAlertTitle = "정말 나가시겠습니까?"
+        static let exitAlertMessage = "편집 중인 화면은 복구할 수 없습니다"
+        static let exitAlertLeave = "나가기"
+
         // Record Detail
         static let recordDetailQuestion = "오늘의 내 기록을 추가해볼까요?"
         static let recordDetailStyleTitle = "오늘의 스타일을 선택해보세요"
@@ -85,6 +92,27 @@ enum TextLiteral {
         static let recordDetailCaptionTitle = "캡션을 추가해주세요"
         static let recordDetailCaptionPlaceholder = "나만의 스타일 이야기를 채워보세요.\n#아이템과 #스타일을 자랑해보세요."
         static let recordDetailComplete = "작성 완료"
+
+        // Style Options
+        static let styleCasual = "캐주얼"
+        static let styleLoving = "러블리"
+        static let styleMinimal = "미니멀"
+        static let styleVintage = "빈티지"
+        static let styleSporty = "스포티"
+        static let styleStreet = "스트릿"
+        static let styleChic = "시크"
+        static let styleOffice = "오피스룩"
+        static let styleClassic = "클래식"
+        static let styleHighteen = "하이틴"
+
+        // Situation Options
+        static let situationDate = "데이트"
+        static let situationDaily = "데일리"
+        static let situationTravel = "여행"
+        static let situationExercise = "운동"
+        static let situationFestival = "축제"
+        static let situationWork = "출근복"
+        static let situationParty = "파티"
         
         // Photo Tag
         static let photoTagTitle = "태그하기"
@@ -105,5 +133,24 @@ enum TextLiteral {
         static let decesion = "이 코디로 결정하기"
         static let weatherLoading = "날씨 정보를 가져오는 중입니다..."
         static let failWeather = "날씨 정보를 가져오는 데 실패했습니다."
+    }
+    
+    enum Search {
+        static let searchHint = "찾고 싶은 옷이나 브랜드를 검색해보세요"
+        static let recentSearch = "최근 검색어"
+        static let deleteAll = "전체 삭제"
+        static let noTag = "최근 검색어가 없습니다."
+        static let recommendedNewsTitle = "님을 위한 추천 소식"
+        static let alertTitle = "최근 검색어를 모두 삭제하시겠습니까?"
+        static let alertDelete = "삭제"
+        static let alertCancel = "취소"
+        static let noRestore = "한 번 삭제된 기록은 복구할 수 없습니다."
+    }
+    
+    enum Notification {
+        static let title = "알림"
+        static let read = "읽음"
+        static let notRead = "읽지 않음"
+        static let noNewNoti = "새로운 알림이 없습니다."
     }
 }

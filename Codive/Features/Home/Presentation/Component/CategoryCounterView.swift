@@ -14,12 +14,8 @@ struct CategoryCounterView: View {
     let totalCount: Int
     let maxLimit: Int = 10
 
-    private var isDefaultCategory: Bool {
-        return title == "상의" || title == "바지" || title == "신발"
-    }
-
     private var minCount: Int {
-        return isDefaultCategory ? 1 : 0
+        return 0
     }
 
     var body: some View {
