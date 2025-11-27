@@ -27,7 +27,7 @@ struct RecordAddView: View {
             VStack(spacing: 0) {
                 // Navigation Bar
                 CustomNavigationBar(
-                    title: TextLiteral.Add.recordTitle,
+                    title: viewModel.navigationTitle,
                     onBack: {
                         viewModel.dismissView()
                     },

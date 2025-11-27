@@ -33,9 +33,18 @@ final class RecordAddViewModel: ObservableObject {
     var isCompleteEnabled: Bool {
         !selectedPhotos.isEmpty
     }
-    
+
     var selectedAlbumTitle: String {
         selectedAlbum?.title ?? TextLiteral.Add.recordRecentAlbum
+    }
+
+    var navigationTitle: String {
+        switch flowType {
+        case .record:
+            return TextLiteral.Add.recordTitle
+        case .cloth:
+            return "옷 추가"
+        }
     }
     
     // MARK: - Initializer
