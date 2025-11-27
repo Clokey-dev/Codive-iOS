@@ -94,9 +94,15 @@ struct ClothAddView: View {
         return viewModel.selectedPhotos.enumerated().map { index, photo in
             let form = viewModel.clothForms.indices.contains(index) ? viewModel.clothForms[index] : ClothFormData()
 
-            let seasonText = form.selectedSeasons.isEmpty
-                ? ""
-                : form.selectedSeasons.map { $0.displayName }.joined(separator: ", ")
+            // 봄 → 여름 → 가을 → 겨울 순서로 정렬
+            let seasonText: String
+            if form.selectedSeasons.isEmpty {
+                seasonText = ""
+            } else {
+                let orderedSeasons: [Season] = [.spring, .summer, .fall, .winter]
+                let sortedSeasons = orderedSeasons.filter { form.selectedSeasons.contains($0) }
+                seasonText = sortedSeasons.map { $0.displayName }.joined(separator: ", ")
+            }
 
             return ClothingItem(
                 image: photo.croppedImage,

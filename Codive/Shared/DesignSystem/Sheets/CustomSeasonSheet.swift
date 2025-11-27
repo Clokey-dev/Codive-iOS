@@ -40,9 +40,10 @@ struct CustomSeasonSheet: View {
                     .padding(.trailing, 16)
                 }
 
-            // 항목 리스트
+            // 항목 리스트 (봄 → 여름 → 가을 → 겨울 순서)
             VStack(spacing: 0) {
-                ForEach(Season.allCases) { season in
+                let orderedSeasons: [Season] = [.spring, .summer, .fall, .winter]
+                ForEach(orderedSeasons) { season in
                     let isSelected = selected.contains(season)
 
                     Divider()

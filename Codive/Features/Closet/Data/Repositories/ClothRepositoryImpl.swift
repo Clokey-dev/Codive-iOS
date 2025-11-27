@@ -38,7 +38,7 @@ final class ClothRepositoryImpl: ClothRepository {
                 brand: input.brand.isEmpty ? nil : input.brand,
                 purchaseUrl: input.purchaseUrl.isEmpty ? nil : input.purchaseUrl,
                 categoryId: input.categoryId,
-                season: input.seasons.first // 첫 번째 계절만 사용
+                seasons: input.seasons
             )
         }
 

@@ -36,7 +36,7 @@ struct ClothResponseDTO: Decodable {
     let brand: String?
     let purchaseUrl: String?
     let categoryId: Int?
-    let season: String?
+    let seasons: [String]
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -45,11 +45,12 @@ struct ClothResponseDTO: Decodable {
         case brand
         case purchaseUrl = "purchase_url"
         case categoryId = "category_id"
-        case season
+        case seasons
     }
 
     /// DTO → Entity 변환
     func toEntity() -> Cloth {
+        let seasonSet = Set(seasons.compactMap { Season(rawValue: $0) })
         return Cloth(
             id: id,
             imageUrl: imageUrl,
@@ -57,7 +58,7 @@ struct ClothResponseDTO: Decodable {
             brand: brand,
             purchaseUrl: purchaseUrl,
             categoryId: categoryId,
-            season: season != nil ? Season(rawValue: season!) : nil
+            seasons: seasonSet
         )
     }
 }

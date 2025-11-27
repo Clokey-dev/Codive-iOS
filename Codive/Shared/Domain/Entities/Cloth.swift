@@ -8,15 +8,15 @@
 import Foundation
 
 public struct Cloth: Identifiable, Codable, Equatable {
-    
+
     public let id: Int
     public let imageUrl: String
     public let name: String?
     public let brand: String?
     public let purchaseUrl: String?
     public let categoryId: Int?
-    public let season: Season?
-    
+    public let seasons: Set<Season>
+
     public init(
         id: Int,
         imageUrl: String,
@@ -24,7 +24,7 @@ public struct Cloth: Identifiable, Codable, Equatable {
         brand: String? = nil,
         purchaseUrl: String? = nil,
         categoryId: Int? = nil,
-        season: Season? = nil
+        seasons: Set<Season> = []
     ) {
         self.id = id
         self.imageUrl = imageUrl
@@ -32,7 +32,7 @@ public struct Cloth: Identifiable, Codable, Equatable {
         self.brand = brand
         self.purchaseUrl = purchaseUrl
         self.categoryId = categoryId
-        self.season = season
+        self.seasons = seasons
     }
 }
 
