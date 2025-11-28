@@ -13,17 +13,23 @@ public struct Feed: Identifiable, Codable, Equatable {
     public let content: String?
     public let author: User?
     public let images: [FeedImage]
-    
+
     public let situationId: Int?
     public let styleIds: [Int]?
     public let hashtags: [String]?
     public let createdAt: Date?
-    
+
+    // 상호작용 (목록/상세 공통)
+    public let likeCount: Int?
+    public let isLiked: Bool?
+    public let commentCount: Int?
+
     enum CodingKeys: String, CodingKey {
         case id, content, author, situationId, styleIds, hashtags, createdAt
         case images = "payloads"
+        case likeCount, isLiked, commentCount
     }
-    
+
     public init(
         id: Int,
         content: String?,
@@ -32,7 +38,10 @@ public struct Feed: Identifiable, Codable, Equatable {
         situationId: Int? = nil,
         styleIds: [Int]? = nil,
         hashtags: [String]? = nil,
-        createdAt: Date? = nil
+        createdAt: Date? = nil,
+        likeCount: Int? = nil,
+        isLiked: Bool? = nil,
+        commentCount: Int? = nil
     ) {
         self.id = id
         self.content = content
@@ -42,6 +51,9 @@ public struct Feed: Identifiable, Codable, Equatable {
         self.styleIds = styleIds
         self.hashtags = hashtags
         self.createdAt = createdAt
+        self.likeCount = likeCount
+        self.isLiked = isLiked
+        self.commentCount = commentCount
     }
 }
 
