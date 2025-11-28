@@ -142,5 +142,17 @@ let project = Project(
                 ]
             )
         ),
+        .target(
+            name: "CodiveTests",
+            destinations: .iOS,
+            product: .unitTests,
+            bundleId: "com.codive.app.tests",
+            deploymentTargets: .iOS("16.0"),
+            infoPlist: .default,
+            sources: ["CodiveTests/**"],
+            dependencies: [
+                .target(name: "Codive")
+            ]
+        )
     ]
 )
