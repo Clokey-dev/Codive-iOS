@@ -82,7 +82,10 @@ final class MockFeedRepository: FeedRepository {
                 situationId: 1,
                 styleIds: [1, 2],
                 hashtags: ["#test"],
-                createdAt: Date()
+                createdAt: Date(),
+                likeCount: 10,
+                isLiked: false,
+                commentCount: 5
             )
         }
     }
@@ -96,8 +99,15 @@ final class MockFeedRepository: FeedRepository {
             situationId: 1,
             styleIds: [1, 2],
             hashtags: ["#test"],
-            createdAt: Date()
+            createdAt: Date(),
+            likeCount: 10,
+            isLiked: false,
+            commentCount: 5
         )
+    }
+
+    func toggleLike(feedId: Int) async throws {
+        // Mock: 아무것도 하지 않음
     }
 }
 
@@ -110,11 +120,8 @@ final class MockFeedRepositoryWithError: FeedRepository {
     func fetchFeedDetail(id: Int) async throws -> Feed {
         throw FeedError.notFound
     }
-}
 
-// MARK: - FeedError (테스트용 에러 타입)
-
-enum FeedError: Error {
-    case networkError
-    case notFound
+    func toggleLike(feedId: Int) async throws {
+        throw FeedError.networkError
+    }
 }

@@ -20,6 +20,9 @@ protocol FeedDataSource {
 
     /// 특정 Feed의 상세 정보를 가져옵니다.
     func fetchFeedDetail(id: Int) async throws -> Feed
+
+    /// Feed의 좋아요를 토글합니다.
+    func toggleLike(feedId: Int) async throws
 }
 
 /// Mock FeedDataSource - 서버 연결 전 테스트용 구현
@@ -69,7 +72,7 @@ final class MockFeedDataSource: FeedDataSource {
             styleIds: [(id % 10) + 1, ((id + 1) % 10) + 1],
             hashtags: ["#OOTD", "#fashion", "#daily"],
             createdAt: Date().addingTimeInterval(-Double(id * 3600)),
-            likeCount: Int.random(in: 0...500),
+            likeCount: Int.random(in: 0...500), // 상세 조회용
             isLiked: Bool.random(),
             commentCount: Int.random(in: 0...50)
         )
@@ -129,6 +132,14 @@ final class MockFeedDataSource: FeedDataSource {
         }
 
         return feed
+    }
+
+    func toggleLike(feedId: Int) async throws {
+        // 네트워크 지연 시뮬레이션
+        try? await Task.sleep(nanoseconds: 200_000_000) // 0.2초
+
+        // Mock: 실제로는 서버에 POST 요청
+        print("✅ Toggled like for feed \(feedId)")
     }
 }
 

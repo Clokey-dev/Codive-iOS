@@ -20,7 +20,7 @@ public struct Feed: Identifiable, Codable, Equatable {
     public let createdAt: Date?
 
     // 상호작용 (목록/상세 공통)
-    public let likeCount: Int?
+    public let likeCount: Int? // 상세 조회에서 사용
     public let isLiked: Bool?
     public let commentCount: Int?
 

@@ -28,4 +28,8 @@ protocol FeedRepository {
     /// - Parameter id: Feed ID
     /// - Returns: Feed 상세 정보
     func fetchFeedDetail(id: Int) async throws -> Feed
+
+    /// Feed의 좋아요를 토글합니다.
+    /// - Parameter feedId: Feed ID
+    func toggleLike(feedId: Int) async throws
 }
