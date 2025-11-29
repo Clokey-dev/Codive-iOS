@@ -8,7 +8,7 @@
 import Foundation
 
 // MARK: - Feed
-public struct Feed: Identifiable, Codable, Equatable {
+public struct Feed: Identifiable, Equatable {
     public let id: Int
     public let content: String?
     public let author: User?
@@ -24,11 +24,7 @@ public struct Feed: Identifiable, Codable, Equatable {
     public let isLiked: Bool?
     public let commentCount: Int?
 
-    enum CodingKeys: String, CodingKey {
-        case id, content, author, situationId, styleIds, hashtags, createdAt
-        case images = "payloads"
-        case likeCount, isLiked, commentCount
-    }
+
 
     public init(
         id: Int,
@@ -58,15 +54,12 @@ public struct Feed: Identifiable, Codable, Equatable {
 }
 
 // MARK: - FeedImage
-public struct FeedImage: Identifiable, Codable, Equatable {
+public struct FeedImage: Identifiable, Equatable {
     public let id: UUID = UUID()
     public let imageUrl: String
     public let tags: [ImageClothTag]
     
-    enum CodingKeys: String, CodingKey {
-        case imageUrl
-        case tags = "clothTags"
-    }
+
     
     public init(imageUrl: String, tags: [ImageClothTag] = []) {
         self.imageUrl = imageUrl
@@ -75,16 +68,14 @@ public struct FeedImage: Identifiable, Codable, Equatable {
 }
 
 // MARK: - ImageClothTag
-public struct ImageClothTag: Identifiable, Codable, Equatable {
+public struct ImageClothTag: Identifiable, Equatable {
     public let id: UUID = UUID()
     
     public let clothId: Int
     public let locationX: Double
     public let locationY: Double
     
-    enum CodingKeys: String, CodingKey {
-        case clothId, locationX, locationY
-    }
+
     
     public init(clothId: Int, locationX: Double, locationY: Double) {
         self.clothId = clothId

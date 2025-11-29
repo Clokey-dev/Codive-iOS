@@ -68,7 +68,6 @@ final class FeedViewModel: ObservableObject {
             feeds = newFeeds
             currentPage = 1
             hasMorePages = newFeeds.count == pageSize
-
         } catch {
             errorMessage = "Feed를 불러오는데 실패했습니다: \(error.localizedDescription)"
             feeds = []
@@ -98,7 +97,6 @@ final class FeedViewModel: ObservableObject {
             feeds.append(contentsOf: newFeeds)
             currentPage = nextPage
             hasMorePages = newFeeds.count == pageSize
-
         } catch {
             errorMessage = "더 많은 Feed를 불러오는데 실패했습니다: \(error.localizedDescription)"
         }

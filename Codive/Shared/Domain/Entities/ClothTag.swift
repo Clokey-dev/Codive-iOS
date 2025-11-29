@@ -9,7 +9,7 @@ import Foundation
 import CoreGraphics
 
 // MARK: - ClothTag
-struct ClothTag: Identifiable, Equatable, Hashable, Codable {
+struct ClothTag: Identifiable, Equatable, Hashable {
     let id: UUID
     let clothId: UUID
     let brand: String
