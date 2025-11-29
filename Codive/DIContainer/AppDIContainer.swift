@@ -55,4 +55,8 @@ final class AppDIContainer {
     func makeNotificationDIContainer() -> NotificationDIContainer {
         return NotificationDIContainer(navigationRouter: navigationRouter)
     }
+
+    func makeFeedDIContainer() -> FeedDIContainer {
+        return feedDIContainer
+    }
 }

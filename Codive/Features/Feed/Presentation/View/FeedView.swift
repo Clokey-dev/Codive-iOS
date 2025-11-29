@@ -8,11 +8,45 @@
 import SwiftUI
 
 struct FeedView: View {
+    @StateObject private var viewModel: FeedViewModel
+
+    init(viewModel: FeedViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
+
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        VStack {
+            if viewModel.isLoading && viewModel.feeds.isEmpty {
+                ProgressView("피드 로딩 중...")
+            } else if let errorMessage = viewModel.errorMessage {
+                Text("에러: \(errorMessage)")
+                    .foregroundColor(.red)
+            } else {
+                List(viewModel.feeds) { feed in
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Feed #\(feed.id)")
+                            .font(.headline)
+                        if let content = feed.content {
+                            Text(content)
+                                .font(.body)
+                        }
+                        if let author = feed.author {
+                            Text("by \(author.nickname)")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
+            }
+        }
+        .task {
+            await viewModel.loadFeeds()
+        }
     }
 }
 
 #Preview {
-    FeedView()
+    let container = FeedDIContainer()
+    return FeedView(viewModel: container.makeFeedViewModel())
 }

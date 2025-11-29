@@ -15,17 +15,19 @@ struct MainTabView: View {
     private let appDIContainer: AppDIContainer
     private let addDIContainer: AddDIContainer
     private let homeDIContainer: HomeDIContainer
+    private let feedDIContainer: FeedDIContainer
     private let searchDIContainer: SearchDIContainer
     private let notificationDIContainer: NotificationDIContainer
-    
+
     // MARK: - Initializer
     init(appDIContainer: AppDIContainer) {
         self.appDIContainer = appDIContainer
         self.addDIContainer = appDIContainer.makeAddDIContainer()
         self.homeDIContainer = appDIContainer.makeHomeDIContainer()
+        self.feedDIContainer = appDIContainer.makeFeedDIContainer()
         self.searchDIContainer = appDIContainer.makeSearchDIContainer()
         self.notificationDIContainer = appDIContainer.makeNotificationDIContainer()
-        
+
         self._navigationRouter = ObservedObject(wrappedValue: appDIContainer.navigationRouter)
         let viewModel = MainTabViewModel(navigationRouter: appDIContainer.navigationRouter)
         self._viewModel = StateObject(wrappedValue: viewModel)
@@ -55,7 +57,7 @@ struct MainTabView: View {
                         AddView(addDIContainer: addDIContainer)
                             .ignoresSafeArea(.all, edges: .bottom)
                     case .feed:
-                        FeedView()
+                        FeedView(viewModel: feedDIContainer.makeFeedViewModel())
                     case .profile:
                         ProfileView()
                     }
