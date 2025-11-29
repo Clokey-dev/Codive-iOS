@@ -39,12 +39,25 @@ final class FeedDIContainer {
         return DefaultFetchFeedsUseCase(repository: feedRepository)
     }
 
+    func makeFetchFeedDetailUseCase() -> FetchFeedDetailUseCase {
+        return DefaultFetchFeedDetailUseCase(repository: feedRepository)
+    }
+
     // MARK: - ViewModels
 
     @MainActor
     func makeFeedViewModel() -> FeedViewModel {
         return FeedViewModel(
             fetchFeedsUseCase: makeFetchFeedsUseCase(),
+            feedRepository: feedRepository
+        )
+    }
+
+    @MainActor
+    func makeFeedDetailViewModel(feedId: Int) -> FeedDetailViewModel {
+        return FeedDetailViewModel(
+            feedId: feedId,
+            fetchFeedDetailUseCase: makeFetchFeedDetailUseCase(),
             feedRepository: feedRepository
         )
     }
