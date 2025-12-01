@@ -20,11 +20,9 @@ public struct Feed: Identifiable, Equatable {
     public let createdAt: Date?
 
     // 상호작용 (목록/상세 공통)
-    public let likeCount: Int? // 상세 조회에서 사용
+    public let likeCount: Int? 
     public let isLiked: Bool?
     public let commentCount: Int?
-
-
 
     public init(
         id: Int,
@@ -59,8 +57,6 @@ public struct FeedImage: Identifiable, Equatable {
     public let imageUrl: String
     public let tags: [ImageClothTag]
     
-
-    
     public init(imageUrl: String, tags: [ImageClothTag] = []) {
         self.imageUrl = imageUrl
         self.tags = tags
@@ -74,9 +70,7 @@ public struct ImageClothTag: Identifiable, Equatable {
     public let clothId: Int
     public let locationX: Double
     public let locationY: Double
-    
-
-    
+        
     public init(clothId: Int, locationX: Double, locationY: Double) {
         self.clothId = clothId
         self.locationX = locationX
