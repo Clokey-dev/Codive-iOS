@@ -57,12 +57,14 @@ struct CustomMultiSelectButton: View {
             // Selection Buttons
             CustomFlowLayout(spacing: 8) {
                 ForEach(options, id: \.self) { option in
-                    SelectionButton(
-                        title: option,
-                        isSelected: selectedOptions.contains(option)
-                    ) {
+                    Button(action: {
                         toggleSelection(option)
+                    }) {
+                        Text(option)
                     }
+                    .buttonStyle(SelectionButtonStyle(isSelected: selectedOptions.contains(option)))
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
                 }
             }
         }
@@ -77,29 +79,6 @@ struct CustomMultiSelectButton: View {
                 return
             }
             selectedOptions.insert(option)
-        }
-    }
-}
-
-// MARK: - Selection Button
-private struct SelectionButton: View {
-    let title: String
-    let isSelected: Bool
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            Text(title)
-                .font(.codive_body2_medium)
-                .foregroundStyle(isSelected ? Color.Codive.point1 : Color.Codive.grayscale1)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 10)
-                .background(isSelected ? Color.Codive.point4 : Color.white)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 100)
-                        .stroke(isSelected ? Color.Codive.point2 : Color.Codive.grayscale5, lineWidth: isSelected ? 2 : 1)
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 100))
         }
     }
 }

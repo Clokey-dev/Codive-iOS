@@ -18,17 +18,10 @@ struct CustomCategoryTag: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.codive_body2_medium)
-                .foregroundStyle(isSelected ? Color.Codive.point1 : Color.Codive.grayscale1)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 7)
-                .background(isSelected ? Color.Codive.point4 : Color.white)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 100)
-                        .stroke(isSelected ? Color.Codive.point2 : Color.Codive.grayscale5, lineWidth: isSelected ? 2 : 1)
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 100))
         }
+        .buttonStyle(SelectionButtonStyle(isSelected: isSelected))
+        .padding(.horizontal, 14)
+        .padding(.vertical, 7)
     }
 }
 

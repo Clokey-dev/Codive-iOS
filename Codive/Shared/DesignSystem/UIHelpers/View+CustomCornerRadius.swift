@@ -1,0 +1,14 @@
+//
+//  View+CornerRadius.swift
+//  Codive
+//
+//  Created by Gemini on 2025/12/01.
+//
+
+import SwiftUI
+
+extension View {
+    func customCornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
+        clipShape(RoundedCorner(radius: radius, corners: corners))
+    }
+}

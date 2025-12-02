@@ -12,9 +12,15 @@ struct FeedView: View {
     // MARK: - Properties
     @StateObject private var viewModel: FeedViewModel
     
-    // Filter States
+    // MARK: Filter States
+    // Top Bar States
     @State private var isFollowingSelected: Bool = false
     @State private var selectedCategory: String = ""
+    
+    // Bottom Sheet States
+    @State private var isShowingFilterSheet: Bool = false
+    @State private var selectedSheetStyles: Set<String> = []
+    @State private var selectedSheetSituations: Set<String> = []
     
     init(viewModel: FeedViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -26,15 +32,9 @@ struct FeedView: View {
     ]
     
     private let styleCategories = [
-        TextLiteral.Add.styleCasual,
-        TextLiteral.Add.styleLoving,
-        TextLiteral.Add.styleMinimal,
-        TextLiteral.Add.styleVintage,
-        TextLiteral.Add.styleSporty,
-        TextLiteral.Add.styleStreet,
-        TextLiteral.Add.styleChic,
-        TextLiteral.Add.styleOffice,
-        TextLiteral.Add.styleClassic,
+        TextLiteral.Add.styleCasual, TextLiteral.Add.styleLoving, TextLiteral.Add.styleMinimal,
+        TextLiteral.Add.styleVintage, TextLiteral.Add.styleSporty, TextLiteral.Add.styleStreet,
+        TextLiteral.Add.styleChic, TextLiteral.Add.styleOffice, TextLiteral.Add.styleClassic,
         TextLiteral.Add.styleHighteen
     ]
     
@@ -46,7 +46,7 @@ struct FeedView: View {
                 categories: styleCategories,
                 selectedCategory: $selectedCategory,
                 onFilterTap: {
-                    // TODO: Implement filter sheet presentation
+                    isShowingFilterSheet = true
                 }
             )
             
@@ -54,15 +54,28 @@ struct FeedView: View {
         }
         .onChange(of: isFollowingSelected, perform: { newValue in
             viewModel.followingOnly = newValue
-            Task {
-                await viewModel.applyFilters()
-            }
+            Task { await viewModel.applyFilters() }
         })
         .onChange(of: selectedCategory, perform: { newValue in
-            Task {
-                await viewModel.applyFilters()
-            }
+            viewModel.selectedStyleIds = nil // Assuming top bar selection overrides sheet selection
+            viewModel.selectedSituationIds = nil
+            Task { await viewModel.applyFilters() }
         })
+        .sheet(isPresented: $isShowingFilterSheet) {
+            FeedFilterBottomSheet(
+                selectedStyles: $selectedSheetStyles,
+                selectedSituations: $selectedSheetSituations,
+                onReset: {
+                    selectedSheetStyles.removeAll()
+                    selectedSheetSituations.removeAll()
+                },
+                onApply: {
+                    isShowingFilterSheet = false
+                    Task { await viewModel.applyFilters() }
+                }
+            )
+            .presentationDetents([.height(500)])
+        }
         .task {
             if viewModel.feeds.isEmpty {
                 await viewModel.loadFeeds()
@@ -93,7 +106,6 @@ struct FeedView: View {
             }
         }
         .padding(.horizontal, 20)
-//        .padding(.top, 8)
     }
 }
 
@@ -117,7 +129,6 @@ private struct FeedCellView: View {
             )
         )
         .onAppear {
-            // Simple pagination trigger
             if feed.id == viewModel.feeds.last?.id {
                 Task {
                     await viewModel.loadMoreFeeds()
