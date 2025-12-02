@@ -122,9 +122,6 @@ struct LookBookView: View {
     }
 }
 
-//#Preview {
-//    LookBookView(viewModel: LookBookViewModel.preview)
-//}
 #Preview {
     let mockRouter = NavigationRouter()
     let mockDIContainer = LookBookDIContainer(navigationRouter: mockRouter)

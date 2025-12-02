@@ -12,6 +12,7 @@ final class AddCodiViewModel: ObservableObject {
     // MARK: - Properties
     private let navigationRouter: NavigationRouter
     private let useCase: LookBookUseCase
+    let lookbookId: Int
     
     // MARK: - Published Properties (View Bindings)
     @Published var codiName: String = ""
@@ -26,9 +27,10 @@ final class AddCodiViewModel: ObservableObject {
     }
     
     // MARK: - Initializer
-    init(navigationRouter: NavigationRouter, useCase: LookBookUseCase) {
+    init(navigationRouter: NavigationRouter, useCase: LookBookUseCase, lookbookId: Int) {
         self.navigationRouter = navigationRouter
         self.useCase = useCase
+        self.lookbookId = lookbookId
     }
     
     // MARK: - Actions
@@ -53,7 +55,8 @@ extension AddCodiViewModel {
         let mockUseCase = LookBookUseCase(repository: mockRepository)
         return AddCodiViewModel(
             navigationRouter: mockRouter,
-            useCase: mockUseCase
+            useCase: mockUseCase,
+            lookbookId: 1
         )
     }
 }

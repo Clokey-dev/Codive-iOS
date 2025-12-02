@@ -48,4 +48,16 @@ final class LookBookDIContainer {
     func makeSpecificLookBookView(lookbookId: Int) -> SpecificLookBook {
         return SpecificLookBook(viewModel: makeSpecificLookBookViewModel(lookbookId: lookbookId))
     }
+    
+    func makeAddCodiViewModel(lookbookId: Int) -> AddCodiViewModel {
+        return AddCodiViewModel(
+            navigationRouter: navigationRouter,
+            useCase: lookBookUseCase,
+            lookbookId: lookbookId
+        )
+    }
+    
+    func makeAddCodiView(lookbookId: Int) -> AddCodiView {
+        return AddCodiView(viewModel: makeAddCodiViewModel(lookbookId: lookbookId))
+    }
 }

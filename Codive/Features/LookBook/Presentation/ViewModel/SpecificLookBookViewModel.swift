@@ -51,6 +51,10 @@ final class SpecificLookBookViewModel: ObservableObject {
     }
     
     // MARK: - Navigation
+    func navigateToAddCodi() {
+        navigationRouter.navigate(to: .addCodi(lookbookId: lookbookId))
+    }
+    
     func handleBackTap() {
         navigationRouter.navigateBack()
     }

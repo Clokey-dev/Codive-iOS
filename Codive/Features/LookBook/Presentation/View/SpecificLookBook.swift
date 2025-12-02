@@ -25,7 +25,7 @@ struct SpecificLookBook: View {
                 rightButton: .overflow(
                         menuType: .feed,
                         menuActions: [
-                            { print("코디 추가하기 tapped") },
+                            { viewModel.navigateToAddCodi() },
                             { print("편집하기 tapped") }
                         ]
                     )
