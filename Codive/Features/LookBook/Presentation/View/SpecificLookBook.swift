@@ -1,31 +1,31 @@
 //
-//  LookBookView.swift
+//  SpecificLookBook.swift
 //  Codive
 //
-//  Created by 한금준 on 11/22/25.
+//  Created by 한금준 on 11/27/25.
 //
 
 import SwiftUI
 
-struct LookBookView: View {
+struct SpecificLookBook: View {
     // MARK: - Properties
-    @StateObject private var viewModel: LookBookViewModel
+    @StateObject private var viewModel: SpecificLookBookViewModel
     
     // MARK: - Initializer
-    init(viewModel: LookBookViewModel) {
+    init(viewModel: SpecificLookBookViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
     
     var body: some View {
         VStack {
             CustomNavigationBar(
-                title: TextLiteral.LookBook.title,
+                title: "데이트 룩",
                 onBack: { print("뒤로가기") },
                 rightButton: .overflow(
-                        menuType: .lookbook,
+                        menuType: .feed,
                         menuActions: [
-                            { print("룩북 만들기 tapped") },
-                            { print("삭제하기 tapped") }
+                            { print("코디 추가하기 tapped") },
+                            { print("편집하기 tapped") }
                         ]
                     )
             )
@@ -45,7 +45,7 @@ struct LookBookView: View {
                                 LookBookCard(
                                     imageURL: lookbook.imageURL,
                                     cardTitle: lookbook.cardTitle,
-                                    iconType: .none
+                                    iconType: .heart
                                 )
                             }
                         }
@@ -63,5 +63,5 @@ struct LookBookView: View {
 }
 
 #Preview {
-    LookBookView(viewModel: LookBookViewModel.preview)
+    SpecificLookBook(viewModel: SpecificLookBookViewModel.preview)
 }

@@ -12,6 +12,7 @@ enum NavigationBarRightButton {
     case text(title: String, isEnabled: Bool, action: () -> Void)
     case icon(systemName: String, isEnabled: Bool, action: () -> Void)
     case menu(systemName: String, isEnabled: Bool, action: () -> Void)
+    case overflow(menuType: MenuType, menuActions: [() -> Void])
 }
 
 struct CustomNavigationBar: View {
@@ -39,9 +40,16 @@ struct CustomNavigationBar: View {
             Spacer()
             
             // 오른쪽 버튼
-            rightButtonView
-                .frame(width: 44, height: 44)
-                .padding(.trailing, 10)
+            Group {
+                if case .overflow = rightButton {
+                    rightButtonView
+                        .padding(.trailing, 10)
+                } else {
+                    rightButtonView
+                        .frame(width: 44, height: 44)
+                        .padding(.trailing, 10)
+                }
+            }
         }
         .frame(height: 56)
         .background(Color.white)
@@ -77,6 +85,9 @@ struct CustomNavigationBar: View {
                     .rotationEffect(.degrees(90))
             }
             .disabled(!isEnabled)
+            
+        case .overflow(let menuType, let menuActions):
+            CustomOverflowMenu(menuType: menuType, menuActions: menuActions)
         }
     }
 }
@@ -143,6 +154,21 @@ struct CustomNavigationBar: View {
                 print("삭제 버튼")
             }
         )
+        
+        Divider()
+        
+        CustomNavigationBar(
+            title: "데이트 룩",
+            onBack: { print("뒤로가기") },
+            rightButton: .overflow(
+                    menuType: .feed,
+                    menuActions: [
+                        { print("코디 추가하기 tapped") },
+                        { print("편집하기 tapped") }
+                    ]
+                )
+        )
+        .zIndex(10)
         
         Spacer()
     }
