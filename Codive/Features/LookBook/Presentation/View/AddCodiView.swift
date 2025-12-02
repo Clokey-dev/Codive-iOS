@@ -95,6 +95,10 @@ struct AddCodiView: View {
                 .animation(.easeOut(duration: 0.8), value: viewModel.isShowingBottomSheet)
             }
         }
+        .navigationBarHidden(true)
+        .background(alignment: .center) {
+            Color.white
+        }
     }
 }
 

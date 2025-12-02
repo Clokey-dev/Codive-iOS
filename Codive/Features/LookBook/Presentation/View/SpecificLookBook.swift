@@ -59,6 +59,10 @@ struct SpecificLookBook: View {
                 }
             }
         }
+        .navigationBarHidden(true)
+        .background(alignment: .center) {
+            Color.white
+        }
     }
 }
 

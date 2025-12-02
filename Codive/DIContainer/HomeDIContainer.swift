@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 @MainActor
 final class HomeDIContainer {
@@ -13,6 +14,11 @@ final class HomeDIContainer {
     // MARK: - Properties
     let navigationRouter: NavigationRouter
     lazy var homeViewFactory = HomeViewFactory(homeDIContainer: self)
+
+    private lazy var lookBookDIContainer: LookBookDIContainer = {
+        LookBookDIContainer(navigationRouter: navigationRouter)
+    }()
+    
     let locationService: LocationService = SystemLocationService()
     
     lazy var homeDatasource = HomeDatasource(locationService: locationService)
@@ -53,5 +59,9 @@ final class HomeDIContainer {
         return CodiBoardView(
             viewModel: makeCodiBoardViewModel()
         )
+    }
+    
+    func makeLookBookView() -> some View {
+        lookBookDIContainer.makeLookBookView()
     }
 }
