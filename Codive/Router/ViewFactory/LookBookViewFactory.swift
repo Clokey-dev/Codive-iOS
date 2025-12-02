@@ -22,6 +22,8 @@ final class LookBookViewFactory {
         switch destination {
         case .lookbook:
             lookBookDIContainer?.makeLookBookView()
+        case .specificLookbook(let lookbookId):
+            lookBookDIContainer?.makeSpecificLookBookView(lookbookId: lookbookId)
         default:
             EmptyView()
         }

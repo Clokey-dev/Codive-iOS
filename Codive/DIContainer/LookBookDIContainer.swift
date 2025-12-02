@@ -30,7 +30,26 @@ final class LookBookDIContainer {
         )
     }
     
+//    func makeLookBookView() -> LookBookView {
+//        return LookBookView(viewModel: makeLookBookViewModel())
+//    }
     func makeLookBookView() -> LookBookView {
-        return LookBookView(viewModel: makeLookBookViewModel())
+            return LookBookView(
+                viewModel: makeLookBookViewModel(),
+                lookBookDIContainer: self
+            )
+        }
+    
+    func makeSpecificLookBookViewModel(lookbookId: Int) -> SpecificLookBookViewModel {
+        return SpecificLookBookViewModel(
+            navigationRouter: navigationRouter,
+            useCase: lookBookUseCase,
+            lookbookId: lookbookId
+        )
+    }
+    
+    // ✨ 추가: lookbookId를 주입받아 View 생성
+    func makeSpecificLookBookView(lookbookId: Int) -> SpecificLookBook {
+        return SpecificLookBook(viewModel: makeSpecificLookBookViewModel(lookbookId: lookbookId))
     }
 }

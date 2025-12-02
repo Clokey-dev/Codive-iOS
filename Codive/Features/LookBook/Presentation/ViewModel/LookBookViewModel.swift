@@ -10,7 +10,7 @@ import SwiftUI
 @MainActor
 final class LookBookViewModel: ObservableObject {
     // MARK: - Properties
-    private let navigationRouter: NavigationRouter
+    let navigationRouter: NavigationRouter
     private let useCase: LookBookUseCase
     
     @Published var lookBookList: [LookBookEntity] = []
@@ -18,7 +18,7 @@ final class LookBookViewModel: ObservableObject {
     @Published var errorMessage: String?
     
     @Published var isEditing: Bool = false
-    @Published var selectedLookBookIds: Set<String> = []
+    @Published var selectedLookBookIds: Set<Int> = []
     
     @Published var isShowingDeleteAlert: Bool = false
     
@@ -51,7 +51,7 @@ final class LookBookViewModel: ObservableObject {
         }
     }
     
-    func toggleSelection(id: String) {
+    func toggleSelection(id: Int) {
         if selectedLookBookIds.contains(id) {
             selectedLookBookIds.remove(id)
         } else {
@@ -99,6 +99,10 @@ final class LookBookViewModel: ObservableObject {
         } else {
             navigationRouter.navigateBack()
         }
+    }
+    
+    func navigateToSpecificLookBook(id: Int) {
+        navigationRouter.navigate(to: .specificLookbook(lookbookId: id))
     }
 }
 

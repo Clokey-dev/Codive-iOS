@@ -13,27 +13,40 @@ final class SpecificLookBookViewModel: ObservableObject {
     private let navigationRouter: NavigationRouter
     private let useCase: LookBookUseCase
     
-    @Published var lookBookList: [LookBookEntity] = []
+    @Published var lookBookList: [LookBookEntity] = [] 
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
+    let lookbookId: Int
     
     // MARK: - Initializer
-    init(navigationRouter: NavigationRouter, useCase: LookBookUseCase) {
+    init(navigationRouter: NavigationRouter, useCase: LookBookUseCase, lookbookId: Int) {
         self.navigationRouter = navigationRouter
         self.useCase = useCase
+        self.lookbookId = lookbookId
+        print("SpecificLookBookViewModel initialized for LookBook ID: \(lookbookId)")
     }
     
-    func fetchLookBooks() {
+    func fetchCodis() {
         isLoading = true
         errorMessage = nil
         Task {
             do {
-                let list = try await useCase.fetchLookBookList()
+                let list = try await useCase.fetchCodis(forLookbookId: lookbookId)
                 self.lookBookList = list
             } catch {
                 self.errorMessage = "데이터 로드에 실패했습니다: \(error.localizedDescription)"
             }
             isLoading = false
+        }
+    }
+    
+    func toggleLike(codyId: Int, isLiked: Bool) {
+        Task {
+            do {
+                try await useCase.toggleLike(codyId: codyId, isLiked: isLiked)
+            } catch {
+                self.errorMessage = "좋아요 상태 변경에 실패했습니다: \(error.localizedDescription)"
+            }
         }
     }
     
@@ -51,7 +64,8 @@ extension SpecificLookBookViewModel {
         let mockUseCase = LookBookUseCase(repository: mockRepository)
         return SpecificLookBookViewModel(
             navigationRouter: mockRouter,
-            useCase: mockUseCase
+            useCase: mockUseCase,
+            lookbookId: 1
         )
     }
 }

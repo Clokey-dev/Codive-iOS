@@ -10,6 +10,7 @@ import SwiftUI
 struct SpecificLookBook: View {
     // MARK: - Properties
     @StateObject private var viewModel: SpecificLookBookViewModel
+    @State private var selectedCodyIds: Set<Int> = []
     
     // MARK: - Initializer
     init(viewModel: SpecificLookBookViewModel) {
@@ -20,7 +21,7 @@ struct SpecificLookBook: View {
         VStack {
             CustomNavigationBar(
                 title: "데이트 룩",
-                onBack: { print("뒤로가기") },
+                onBack: { viewModel.handleBackTap() },
                 rightButton: .overflow(
                         menuType: .feed,
                         menuActions: [
@@ -38,25 +39,29 @@ struct SpecificLookBook: View {
                 } else if let error = viewModel.errorMessage {
                     Text(error)
                         .foregroundStyle(.red)
+                } else if viewModel.lookBookList.isEmpty {
+                    Text("해당 룩북에 코디가 없습니다.")
+                        .foregroundColor(.gray)
                 } else {
-                    ScrollView {
-                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: 2), spacing: 16) {
-                            ForEach(viewModel.lookBookList) { lookbook in
-                                LookBookCard(
-                                    imageURL: lookbook.imageURL,
-                                    cardTitle: lookbook.cardTitle,
-                                    iconType: .heart,
-                                    isSelected: false
-                                )
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: 2), spacing: 16) {
+                        ForEach(viewModel.lookBookList) { lookbook in
+                            LookBookCard(
+                                imageURL: lookbook.imageURL,
+                                cardTitle: lookbook.cardTitle,
+                                iconType: .heart,
+                                isSelected: selectedCodyIds.contains(lookbook.id)
+                            )
+                            .onTapGesture {
+                                handleCodyTap(codyId: lookbook.id)
                             }
                         }
-                        .padding(.horizontal, 16)
                     }
-                    .onAppear {
-                        if viewModel.lookBookList.isEmpty {
-                            viewModel.fetchLookBooks()
-                        }
-                    }
+                    .padding(.horizontal, 16)
+                }
+            }
+            .onAppear {
+                if viewModel.lookBookList.isEmpty {
+                    viewModel.fetchCodis()
                 }
             }
         }
@@ -64,6 +69,18 @@ struct SpecificLookBook: View {
         .background(alignment: .center) {
             Color.white
         }
+    }
+
+    private func handleCodyTap(codyId: Int) {
+        let isCurrentlyLiked = selectedCodyIds.contains(codyId)
+
+        if isCurrentlyLiked {
+            selectedCodyIds.remove(codyId)
+        } else {
+            selectedCodyIds.insert(codyId)
+        }
+
+        viewModel.toggleLike(codyId: codyId, isLiked: !isCurrentlyLiked)
     }
 }
 

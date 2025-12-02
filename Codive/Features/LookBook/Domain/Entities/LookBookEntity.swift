@@ -8,7 +8,7 @@
 import Foundation
 
 struct LookBookEntity: Identifiable {
-    let id: String
+    let id: Int
     let imageURL: String
     let cardTitle: String
 }
