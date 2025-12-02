@@ -17,4 +17,8 @@ final class LookBookUseCase {
     func fetchLookBookList() async throws -> [LookBookEntity] {
         return try await repository.fetchLookBookList()
     }
+    
+    func deleteLookBooks(ids: [String]) async throws {
+        try await repository.deleteLookBooks(ids: ids)
+    }
 }

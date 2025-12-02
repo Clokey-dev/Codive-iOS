@@ -85,8 +85,8 @@ struct AddCodiView: View {
                     CustomBottomSheet(
                         iconName1: "addCodi",
                         iconName2: "recallCodi",
-                        title1: "새로운 코디 추가하기",
-                        title2: "이전 코디 불러오기"
+                        title1: TextLiteral.LookBook.addNewCodi,
+                        title2: TextLiteral.LookBook.getBeforeCodi
                     )
                     .padding(.bottom, 0)
                 }

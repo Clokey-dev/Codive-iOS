@@ -17,6 +17,11 @@ final class LookBookViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     
+    @Published var isEditing: Bool = false
+    @Published var selectedLookBookIds: Set<String> = []
+    
+    @Published var isShowingDeleteAlert: Bool = false
+    
     // MARK: - Initializer
     init(navigationRouter: NavigationRouter, useCase: LookBookUseCase) {
         self.navigationRouter = navigationRouter
@@ -37,9 +42,63 @@ final class LookBookViewModel: ObservableObject {
         }
     }
     
+    // MARK: - Editing Actions
+    
+    func toggleEditingMode() {
+        isEditing.toggle()
+        if !isEditing {
+            selectedLookBookIds = []
+        }
+    }
+    
+    func toggleSelection(id: String) {
+        if selectedLookBookIds.contains(id) {
+            selectedLookBookIds.remove(id)
+        } else {
+            selectedLookBookIds.insert(id)
+        }
+    }
+
+    func handleDeleteAction() {
+        toggleEditingMode()
+    }
+    
+    func handleCompleteAction() {
+        guard !selectedLookBookIds.isEmpty else {
+            toggleEditingMode()
+            return
+        }
+
+        isShowingDeleteAlert = true
+    }
+
+    func confirmDelete() {
+        isShowingDeleteAlert = false
+        
+        isLoading = true
+        errorMessage = nil
+        
+        let idsToDelete = Array(selectedLookBookIds)
+        
+        Task {
+            do {
+                try await useCase.deleteLookBooks(ids: idsToDelete)
+                self.fetchLookBooks()
+                self.toggleEditingMode()
+            } catch {
+                self.errorMessage = "룩북 삭제에 실패했습니다: \(error.localizedDescription)"
+                self.isLoading = false
+            }
+        }
+    }
+
     // MARK: - Navigation
     func handleBackTap() {
-        navigationRouter.navigateBack()
+        if isEditing {
+            toggleEditingMode()
+        } else {
+            navigationRouter.navigateBack()
+        }
     }
 }
 

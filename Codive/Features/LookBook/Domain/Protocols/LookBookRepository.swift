@@ -7,4 +7,5 @@
 
 protocol LookBookRepository {
     func fetchLookBookList() async throws -> [LookBookEntity]
+    func deleteLookBooks(ids: [String]) async throws
 }

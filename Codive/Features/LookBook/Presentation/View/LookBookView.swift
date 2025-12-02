@@ -1,3 +1,4 @@
+// LookBookView.swift
 //
 //  LookBookView.swift
 //  Codive
@@ -20,12 +21,18 @@ struct LookBookView: View {
         VStack {
             CustomNavigationBar(
                 title: TextLiteral.LookBook.title,
-                onBack: { print("뒤로가기") },
-                rightButton: .overflow(
+                onBack: viewModel.handleBackTap,
+                rightButton: viewModel.isEditing ?
+                    .text(
+                        title: TextLiteral.Common.delete,
+                        isEnabled: !viewModel.selectedLookBookIds.isEmpty,
+                        action: viewModel.handleCompleteAction
+                    ) :
+                    .overflow(
                         menuType: .lookbook,
                         menuActions: [
                             { print("룩북 만들기 tapped") },
-                            { print("삭제하기 tapped") }
+                            viewModel.handleDeleteAction
                         ]
                     )
             )
@@ -34,28 +41,32 @@ struct LookBookView: View {
             
             ScrollView {
                 if viewModel.isLoading {
-                    ProgressView("룩북 로드 중...")
+                    ProgressView(TextLiteral.LookBook.loadingTitle)
                 } else if let error = viewModel.errorMessage {
                     Text(error)
                         .foregroundStyle(.red)
                 } else {
-                    ScrollView {
-                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: 2), spacing: 16) {
-                            ForEach(viewModel.lookBookList) { lookbook in
-                                LookBookCard(
-                                    imageURL: lookbook.imageURL,
-                                    cardTitle: lookbook.cardTitle,
-                                    iconType: .none
-                                )
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: 2), spacing: 16) {
+                        ForEach(viewModel.lookBookList) { lookbook in
+                            LookBookCard(
+                                imageURL: lookbook.imageURL,
+                                cardTitle: lookbook.cardTitle,
+                                iconType: viewModel.isEditing ? .checkmark : .none,
+                                isSelected: viewModel.selectedLookBookIds.contains(lookbook.id)
+                            )
+                            .onTapGesture {
+                                if viewModel.isEditing {
+                                    viewModel.toggleSelection(id: lookbook.id)
+                                }
                             }
                         }
-                        .padding(.horizontal, 16)
                     }
-                    .onAppear {
-                        if viewModel.lookBookList.isEmpty {
-                            viewModel.fetchLookBooks()
-                        }
-                    }
+                    .padding(.horizontal, 16)
+                }
+            }
+            .onAppear {
+                if viewModel.lookBookList.isEmpty {
+                    viewModel.fetchLookBooks()
                 }
             }
         }
@@ -63,6 +74,21 @@ struct LookBookView: View {
         .background(alignment: .center) {
             Color.white
         }
+
+        .alert(
+            TextLiteral.LookBook.alertDeleteTitle,
+            isPresented: $viewModel.isShowingDeleteAlert,
+            actions: {
+                Button(TextLiteral.Common.delete, role: .destructive) {
+                    viewModel.confirmDelete()
+                }
+                Button(TextLiteral.Common.cancel, role: .cancel) {
+                }
+            },
+            message: {
+                Text(TextLiteral.LookBook.alertDeleteSubTitle)
+            }
+        )
     }
 }
 

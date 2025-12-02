@@ -34,7 +34,7 @@ struct SpecificLookBook: View {
             
             ScrollView {
                 if viewModel.isLoading {
-                    ProgressView("룩북 로드 중...")
+                    ProgressView(TextLiteral.LookBook.loadingTitle)
                 } else if let error = viewModel.errorMessage {
                     Text(error)
                         .foregroundStyle(.red)
@@ -45,7 +45,8 @@ struct SpecificLookBook: View {
                                 LookBookCard(
                                     imageURL: lookbook.imageURL,
                                     cardTitle: lookbook.cardTitle,
-                                    iconType: .heart
+                                    iconType: .heart,
+                                    isSelected: false
                                 )
                             }
                         }

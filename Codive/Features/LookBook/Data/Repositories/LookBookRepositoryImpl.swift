@@ -17,4 +17,8 @@ final class LookBookRepositoryImpl: LookBookRepository {
     func fetchLookBookList() async throws -> [LookBookEntity] {
         return try await datasource.fetchLookBookList()
     }
+    
+    func deleteLookBooks(ids: [String]) async throws {
+        try await datasource.deleteLookBooks(ids: ids)
+    }
 }

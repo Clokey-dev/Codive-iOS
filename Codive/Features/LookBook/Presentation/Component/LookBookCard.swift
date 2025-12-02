@@ -1,3 +1,4 @@
+// LookBookCard.swift
 //
 //  LookBookCard.swift
 //  Codive
@@ -18,8 +19,7 @@ struct LookBookCard: View {
     let imageURL: String
     let cardTitle: String
     let iconType: CardIconType
-
-    @State private var isSelected: Bool = false
+    let isSelected: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -42,6 +42,13 @@ struct LookBookCard: View {
                 .frame(width: 160, height: 160)
                 .cornerRadius(16)
                 .clipped()
+                .overlay {
+                    if isSelected {
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.Codive.point1, lineWidth: 3)
+                            .background(Color.black.opacity(0.2))
+                    }
+                }
     
                 if iconType != .none {
                     iconButton
@@ -57,31 +64,27 @@ struct LookBookCard: View {
     }
     
     private var iconButton: some View {
-        Button {
-            isSelected.toggle()
-        } label: {
-            Group {
-                switch iconType {
-                case .heart:
-                    Image(isSelected ? "heart_on" : "heart_off")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 20, height: 20)
-                        .foregroundStyle(.white)
-                        .padding(5)
-                case .checkmark:
-                    Image(isSelected ? "check_on" : "check_off")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 20, height: 20)
-                        .foregroundStyle(.white)
-                        .padding(4)
-                default:
-                    EmptyView()
-                }
+        Group {
+            switch iconType {
+            case .heart:
+                Image(isSelected ? "heart_on" : "heart_off")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 20, height: 20)
+                    .foregroundStyle(.white)
+                    .padding(5)
+            case .checkmark:
+                Image(isSelected ? "check_on" : "check_off")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 20, height: 20)
+                    .foregroundStyle(.white)
+                    .padding(4)
+            default:
+                EmptyView()
             }
-            .font(.system(size: 20))
         }
+        .font(.system(size: 20))
     }
 }
 
@@ -91,17 +94,20 @@ struct LookBookCard_Previews: PreviewProvider {
             LookBookCard(
                 imageURL: "https://via.placeholder.com/160/F08080/FFFFFF?text=Date+Look",
                 cardTitle: "영화관 데이트",
-                iconType: .heart
+                iconType: .heart,
+                isSelected: true
             )
             LookBookCard(
                 imageURL: "https://via.placeholder.com/160/ADD8E6/000000?text=Daily+Look",
                 cardTitle: "데일리 코디",
-                iconType: .checkmark
+                iconType: .checkmark,
+                isSelected: false
             )
             LookBookCard(
                 imageURL: "https://via.placeholder.com/160/90EE90/000000?text=Basic+Look",
                 cardTitle: "기본 스타일링",
-                iconType: .none
+                iconType: .none,
+                isSelected: false
             )
         }
     }
