@@ -117,8 +117,6 @@ private struct FilterSectionView: View {
                         Text(option)
                     }
                     .buttonStyle(SelectionButtonStyle(isSelected: selections.contains(option)))
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 10)
                 }
             }
         }

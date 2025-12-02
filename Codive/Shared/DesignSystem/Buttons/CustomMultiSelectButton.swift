@@ -63,8 +63,6 @@ struct CustomMultiSelectButton: View {
                         Text(option)
                     }
                     .buttonStyle(SelectionButtonStyle(isSelected: selectedOptions.contains(option)))
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 10)
                 }
             }
         }

@@ -14,6 +14,8 @@ struct SelectionButtonStyle: ButtonStyle {
         configuration.label
             .font(.codive_body2_medium)
             .foregroundStyle(isSelected ? Color.Codive.point1 : Color.Codive.grayscale1)
+            .padding(.horizontal, 14) // Added padding
+            .padding(.vertical, 7)    // Added padding
             .background(isSelected ? Color.Codive.point4 : Color.white)
             .overlay(
                 RoundedRectangle(cornerRadius: 100)

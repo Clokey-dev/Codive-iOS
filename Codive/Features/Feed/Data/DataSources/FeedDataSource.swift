@@ -139,7 +139,7 @@ final class MockFeedDataSource: FeedDataSource {
         try? await Task.sleep(nanoseconds: 200_000_000) // 0.2초
 
         // Mock: 실제로는 서버에 POST 요청
-        print("✅ Toggled like for feed \(feedId)")
+        print("Toggled like for feed \(feedId)")
     }
 }
 

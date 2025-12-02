@@ -20,8 +20,6 @@ struct CustomCategoryTag: View {
             Text(title)
         }
         .buttonStyle(SelectionButtonStyle(isSelected: isSelected))
-        .padding(.horizontal, 14)
-        .padding(.vertical, 7)
     }
 }
 
