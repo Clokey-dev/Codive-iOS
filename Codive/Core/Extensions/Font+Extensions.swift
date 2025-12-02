@@ -27,6 +27,9 @@ public extension Font {
     /// regular 16
     static let codive_body1_regular = customPretendard(size: 16, weight: .regular)
     
+    ///  bold 16
+    static let codive_body1_bold = customPretendard(size: 16, weight: .bold)
+    
     /// medium 14
     static let codive_body2_medium = customPretendard(size: 14, weight: .medium)
     

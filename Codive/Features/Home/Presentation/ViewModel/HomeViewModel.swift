@@ -1,10 +1,3 @@
-//
-//  HomeViewModel.swift
-//  Codive
-//
-//  Created by 한금준 on 10/13/25.
-//
-
 import SwiftUI
 import UIKit
 import Combine
@@ -24,6 +17,8 @@ final class HomeViewModel: ObservableObject {
     @Published var selectedItemID: Int?
     @Published var codiItems: [CodiItemEntity] = []
     @Published var activeCategories: [CategoryEntity] = []
+    
+    @AppStorage("SavedCategories") private var savedCategoriesData: Data?
     
     private let navigationRouter: NavigationRouter
     private let useCase: HomeUseCase
@@ -50,9 +45,27 @@ final class HomeViewModel: ObservableObject {
     }
 
     func loadActiveCategories() {
-        let allCategories = useCase.loadCategories()
-        activeCategories = allCategories.filter { $0.itemCount > 0 }
+        let allCategories: [CategoryEntity]
+        if let data = savedCategoriesData,
+           let decoded = try? JSONDecoder().decode([CategoryEntity].self, from: data) {
+            allCategories = decoded
+        } else {
+            allCategories = [
+                CategoryEntity(id: 1, title: "상의", itemCount: 1),
+                CategoryEntity(id: 2, title: "바지", itemCount: 1),
+                CategoryEntity(id: 3, title: "스커트", itemCount: 0),
+                CategoryEntity(id: 4, title: "아우터", itemCount: 0),
+                CategoryEntity(id: 5, title: "신발", itemCount: 1),
+                CategoryEntity(id: 6, title: "가방", itemCount: 0),
+                CategoryEntity(id: 7, title: "패션 소품", itemCount: 0)
+            ]
+        }
+        
+        activeCategories = allCategories.flatMap { category in
+            Array(repeating: category, count: category.itemCount)
+        }
     }
+    
     func loadDummyCodi() {
         codiItems = useCase.loadTodaysCodi()
     }

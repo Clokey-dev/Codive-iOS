@@ -12,46 +12,55 @@ final class EditCategoryViewModel: ObservableObject {
     
     // MARK: - Properties
     private let navigationRouter: NavigationRouter
-    private let useCase: HomeUseCase
     var totalCount: Int { categories.reduce(0) { $0 + $1.itemCount } }
     
     var hasChanges: Bool {
-        for i in categories.indices {
-            let current = categories[i]
-            let initial = initialCategories[i]
-            
-            if !current.isDefaultCategory && current.itemCount != initial.itemCount {
-                return true
-            }
-        }
-        return false
+        return categories.map { $0.itemCount } != initialCategories.map { $0.itemCount }
     }
 
     var isApplyButtonEnabled: Bool {
-        if !hasChanges {
-            return false
-        }
-        
-        let nonDefaultCategories = categories.filter { !$0.isDefaultCategory }
-        return nonDefaultCategories.contains { $0.itemCount > 0 }
+        return hasChanges && totalCount > 0
     }
     
+    @AppStorage("SavedCategories") private var savedCategoriesData: Data?
     @Published var categories: [CategoryEntity] = []
     @Published var showExitAlert: Bool = false
 
     private var initialCategories: [CategoryEntity] = []
     
+    private static var allCategories: [CategoryEntity] = [
+        CategoryEntity(id: 1, title: "상의", itemCount: 0),
+        CategoryEntity(id: 2, title: "바지", itemCount: 0),
+        CategoryEntity(id: 3, title: "스커트", itemCount: 0),
+        CategoryEntity(id: 4, title: "아우터", itemCount: 0),
+        CategoryEntity(id: 5, title: "신발", itemCount: 0),
+        CategoryEntity(id: 6, title: "가방", itemCount: 0),
+        CategoryEntity(id: 7, title: "패션 소품", itemCount: 0)
+    ]
+    
     // MARK: - Initializer
-    init(navigationRouter: NavigationRouter, useCase: HomeUseCase) {
+    init(navigationRouter: NavigationRouter) {
         self.navigationRouter = navigationRouter
-        self.useCase = useCase
         loadInitialData()
     }
     
     // MARK: - Data Loading
     private func loadInitialData() {
-        categories = useCase.loadCategories()
-        initialCategories = categories
+        if let data = savedCategoriesData,
+           let decodedCategories = try? JSONDecoder().decode([CategoryEntity].self, from: data) {
+            self.categories = decodedCategories
+        } else {
+            // 앱 최초 실행 시 또는 저장된 데이터가 없을 경우
+            var defaultCategories = Self.allCategories
+            for i in defaultCategories.indices {
+                let category = defaultCategories[i]
+                if [1, 2, 5].contains(category.id) {
+                    defaultCategories[i].itemCount = 1
+                }
+            }
+            self.categories = defaultCategories
+        }
+        self.initialCategories = self.categories
     }
     
     // MARK: - Category Count Handling
@@ -64,34 +73,24 @@ final class EditCategoryViewModel: ObservableObject {
     
     func decrementCount(for category: CategoryEntity) {
         guard let index = categories.firstIndex(where: { $0.id == category.id }) else { return }
-        
-        if category.isDefaultCategory {
-            if categories[index].itemCount > 1 {
-                categories[index].itemCount -= 1
-            }
-        } else {
-            if categories[index].itemCount > 0 {
-                categories[index].itemCount -= 1
-            }
+        if categories[index].itemCount > 0 {
+            categories[index].itemCount -= 1
         }
     }
     
     // MARK: - Reset
     func resetCounts() {
-        for i in categories.indices {
-            if categories[i].isDefaultCategory {
-                categories[i].itemCount = 1
-            } else {
-                categories[i].itemCount = 0
-            }
-        }
+        self.categories = initialCategories
     }
     
     // MARK: - Apply Changes
     func applyChanges() {
-        useCase.updateCategories(categories)
+        if let encoded = try? JSONEncoder().encode(categories) {
+            savedCategoriesData = encoded
+        }
         navigationRouter.navigateBack()
     }
+    
     // MARK: - Navigation
     func handleBackTap() {
         if hasChanges {

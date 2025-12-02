@@ -42,7 +42,7 @@ final class HomeDIContainer {
     }
     
     func makeEditCategoryViewModel() -> EditCategoryViewModel {
-        return EditCategoryViewModel(navigationRouter: navigationRouter, useCase: homeUseCase)
+        return EditCategoryViewModel(navigationRouter: navigationRouter)
     }
     
     func makeCodiBoardViewModel() -> CodiBoardViewModel {
