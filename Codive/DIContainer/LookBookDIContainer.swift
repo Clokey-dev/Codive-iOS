@@ -29,10 +29,7 @@ final class LookBookDIContainer {
             useCase: lookBookUseCase
         )
     }
-    
-//    func makeLookBookView() -> LookBookView {
-//        return LookBookView(viewModel: makeLookBookViewModel())
-//    }
+
     func makeLookBookView() -> LookBookView {
             return LookBookView(
                 viewModel: makeLookBookViewModel(),
@@ -48,7 +45,6 @@ final class LookBookDIContainer {
         )
     }
     
-    // ✨ 추가: lookbookId를 주입받아 View 생성
     func makeSpecificLookBookView(lookbookId: Int) -> SpecificLookBook {
         return SpecificLookBook(viewModel: makeSpecificLookBookViewModel(lookbookId: lookbookId))
     }
