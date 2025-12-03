@@ -44,7 +44,8 @@ struct PhotoTagView: View {
                     // Photo with Tags
                     TaggableImageView(
                         image: viewModel.currentPhoto.croppedImage,
-                        tags: $viewModel.clothTags
+                        tags: $viewModel.clothTags,
+                        selectedTagId: nil
                     ) { tagId in
                         viewModel.removeClothTag(tagId: tagId)
                     }

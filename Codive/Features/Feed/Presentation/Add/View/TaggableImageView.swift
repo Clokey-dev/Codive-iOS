@@ -14,10 +14,12 @@ struct TaggableImageView: View {
     let image: UIImage
     @Binding var tags: [ClothTag]
     
+    // Interaction Properties
+    let selectedTagId: UUID?
     let onTagRemove: ((UUID) -> Void)?
     let onTagTap: ((UUID) -> Void)?
     let isDraggable: Bool
-    let isReadOnly: Bool              
+    let isReadOnly: Bool
     
     @State private var imageSize: CGSize = .zero
     
@@ -25,6 +27,7 @@ struct TaggableImageView: View {
     init(
         image: UIImage,
         tags: Binding<[ClothTag]>,
+        selectedTagId: UUID?,
         onTagRemove: ((UUID) -> Void)? = nil,
         onTagTap: ((UUID) -> Void)? = nil,
         isDraggable: Bool = true,
@@ -32,6 +35,7 @@ struct TaggableImageView: View {
     ) {
         self.image = image
         self._tags = tags
+        self.selectedTagId = selectedTagId
         self.onTagRemove = onTagRemove
         self.onTagTap = onTagTap
         self.isDraggable = isDraggable
@@ -72,6 +76,8 @@ struct TaggableImageView: View {
                             x: tag.locationX * imageSize.width,
                             y: tag.locationY * imageSize.height
                         )
+                        // 선택된 태그 하이라이팅
+                        .opacity(selectedTagId == nil || selectedTagId == tag.id ? 1.0 : 0.5)
                     } else {
                         // 편집 화면용: 드래그 가능, Closable 스타일 (기존 로직)
                         DraggableTag(

@@ -14,28 +14,28 @@ struct FeedImageSlider: View {
     let tags: [[ClothTag]]
     
     @Binding var currentIndex: Int
-    @State private var showTags: Bool = true // 기본값을 true로 변경하여 태그가 보이도록 함
     
+    let showTags: Bool
+    let selectedTagId: UUID?
+    let onTagButtonTap: () -> Void
+    let onTagTap: (UUID) -> Void
+
     // MARK: - Body
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             
-            // 배경색을 먼저 지정합니다.
             Color.gray
             
-            // 이미지가 있을 경우에만 TabView를 표시합니다.
             if !images.isEmpty {
                 TabView(selection: $currentIndex) {
                     ForEach(images.indices, id: \.self) { index in
-                        // 현재 페이지의 태그 가져오기 (showTags가 true일 때만)
                         let currentTags = showTags && index < tags.count ? tags[index] : []
                         
                         TaggableImageView(
                             image: images[index],
                             tags: .constant(currentTags),
-                            onTagTap: { tagId in
-                                print("태그 탭: \(tagId)")
-                            },
+                            selectedTagId: selectedTagId,
+                            onTagTap: onTagTap,
                             isDraggable: false,
                             isReadOnly: true
                         )
@@ -45,10 +45,9 @@ struct FeedImageSlider: View {
                 .tabViewStyle(.page(indexDisplayMode: .never))
             }
             
-            // Tag Toggle Button은 항상 ZStack 최상단에 위치합니다.
             Button(action: {
                 withAnimation {
-                    showTags.toggle()
+                    onTagButtonTap()
                 }
             }) {
                 ZStack {
@@ -74,6 +73,10 @@ struct FeedImageSlider: View {
             [ClothTag(id: UUID(), clothId: UUID(), brand: "Typeservice", name: "Layered Henry Neck", locationX: 0.3, locationY: 0.4)],
             []
         ],
-        currentIndex: .constant(0)
+        currentIndex: .constant(0),
+        showTags: true,
+        selectedTagId: nil,
+        onTagButtonTap: { print("Tag button tapped") },
+        onTagTap: { tagId in print("Tag tapped: \(tagId)") }
     )
 }
