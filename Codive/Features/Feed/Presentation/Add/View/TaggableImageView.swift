@@ -7,14 +7,17 @@
 
 import SwiftUI
 
-// MARK: - TaggableImageView
 struct TaggableImageView: View {
     
     // MARK: - Properties
+
     let image: UIImage
     @Binding var tags: [ClothTag]
-    let onTagRemove: (UUID) -> Void
+    
+    let onTagRemove: ((UUID) -> Void)?
+    let onTagTap: ((UUID) -> Void)?
     let isDraggable: Bool
+    let isReadOnly: Bool              
     
     @State private var imageSize: CGSize = .zero
     
@@ -22,13 +25,17 @@ struct TaggableImageView: View {
     init(
         image: UIImage,
         tags: Binding<[ClothTag]>,
-        onTagRemove: @escaping (UUID) -> Void,
-        isDraggable: Bool = true
+        onTagRemove: ((UUID) -> Void)? = nil,
+        onTagTap: ((UUID) -> Void)? = nil,
+        isDraggable: Bool = true,
+        isReadOnly: Bool = false
     ) {
         self.image = image
         self._tags = tags
         self.onTagRemove = onTagRemove
+        self.onTagTap = onTagTap
         self.isDraggable = isDraggable
+        self.isReadOnly = isReadOnly
     }
     
     // MARK: - Body
@@ -42,28 +49,43 @@ struct TaggableImageView: View {
                     .background(
                         GeometryReader { proxy in
                             Color.clear
-                                .onAppear {
-                                    imageSize = proxy.size
-                                }
-                                .onChange(of: proxy.size) { newSize in
-                                    imageSize = newSize
-                                }
+                                .onAppear { imageSize = proxy.size }
+                                .onChange(of: proxy.size) { newSize in imageSize = newSize }
                         }
                     )
                 
                 // 태그들
                 ForEach(tags) { tag in
-                    DraggableTag(
-                        tag: tag,
-                        imageSize: imageSize,
-                        isDraggable: isDraggable,
-                        onDrag: { newX, newY in
-                            updateTagPosition(tag.id, x: newX, y: newY)
-                        },
-                        onRemove: {
-                            onTagRemove(tag.id)
-                        }
-                    )
+                    // 읽기 모드에 따라 태그 뷰 분기
+                    if isReadOnly {
+                        // 상세 화면용: 위치 고정, Navigable 스타일
+                        CustomTagView(
+                            type: .navigable(
+                                title: tag.brand.isEmpty ? "Brand" : tag.brand,
+                                content: tag.name.isEmpty ? "Product Name" : tag.name,
+                                onTap: {
+                                    onTagTap?(tag.id)
+                                }
+                            )
+                        )
+                        .position(
+                            x: tag.locationX * imageSize.width,
+                            y: tag.locationY * imageSize.height
+                        )
+                    } else {
+                        // 편집 화면용: 드래그 가능, Closable 스타일 (기존 로직)
+                        DraggableTag(
+                            tag: tag,
+                            imageSize: imageSize,
+                            isDraggable: isDraggable,
+                            onDrag: { newX, newY in
+                                updateTagPosition(tag.id, x: newX, y: newY)
+                            },
+                            onRemove: {
+                                onTagRemove?(tag.id)
+                            }
+                        )
+                    }
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -72,7 +94,6 @@ struct TaggableImageView: View {
         }
     }
     
-    // MARK: - Private Methods
     private func updateTagPosition(_ tagId: UUID, x: CGFloat, y: CGFloat) {
         if let index = tags.firstIndex(where: { $0.id == tagId }) {
             tags[index].locationX = x
@@ -81,7 +102,7 @@ struct TaggableImageView: View {
     }
 }
 
-// MARK: - DraggableTag
+// DraggableTag는 기존 코드 유지 (편집 화면용)
 private struct DraggableTag: View {
     let tag: ClothTag
     let imageSize: CGSize
@@ -92,8 +113,8 @@ private struct DraggableTag: View {
     var body: some View {
         CustomTagView(
             type: .closable(
-                title: tag.brand.isEmpty ? TextLiteral.Closet.brandTag : tag.brand,
-                content: tag.name.isEmpty ? TextLiteral.Closet.productTag : tag.name,
+                title: tag.brand.isEmpty ? "Brand" : tag.brand,
+                content: tag.name.isEmpty ? "Product Name" : tag.name,
                 onClose: onRemove
             )
         )
@@ -111,17 +132,4 @@ private struct DraggableTag: View {
             : nil
         )
     }
-}
-
-// MARK: - Preview
-#Preview {
-    TaggableImageView(
-        image: UIImage(systemName: "photo")!,
-        tags: .constant([
-            ClothTag(id: UUID(), clothId: UUID(), brand: "Nike", name: "에어포스 1", locationX: 0.3, locationY: 0.4),
-            ClothTag(id: UUID(), clothId: UUID(), brand: "Adidas", name: "후디", locationX: 0.6, locationY: 0.7)
-        ]),
-        onTagRemove: { _ in },
-        isDraggable: true
-    )
 }
