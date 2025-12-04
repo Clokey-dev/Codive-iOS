@@ -76,7 +76,7 @@ struct FeedContentSection: View {
             
             // 고정 태그들
             HStack(spacing: 8) {
-                ForEach(["미니멀", "데일리"], id: \.self) { style in
+                ForEach(styles, id: \.self) { style in
                     Text(style)
                         .font(.codive_body2_medium)
                         .foregroundStyle(Color.Codive.grayscale1)
