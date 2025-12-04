@@ -16,7 +16,7 @@ struct LinkedProductListView: View {
     // MARK: - Body
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack {
+            HStack(spacing: 10) {
                 ForEach(tags) { tag in
                     Button(action: {
                         if selectedTagId == tag.id {
@@ -24,11 +24,11 @@ struct LinkedProductListView: View {
                         } else {
                             selectedTagId = tag.id
                         }
-                    }) {
+                    }, label: {
                         ProductThumbnailItem(
                             isSelected: selectedTagId == tag.id
                         )
-                    }
+                    })
                 }
             }
             .padding(.horizontal, 20)

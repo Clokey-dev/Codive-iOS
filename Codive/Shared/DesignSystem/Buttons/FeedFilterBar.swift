@@ -48,7 +48,9 @@ struct FeedFilterBar: View {
                     .fill(Color.Codive.grayscale5)
                     .frame(width: 1, height: 24)
                 
-                Button(action: onFilterTap) {
+                Button {
+                    onFilterTap()
+                } label: {
                     ZStack {
                         Circle()
                             .stroke(Color.Codive.grayscale5, lineWidth: 1)
@@ -75,9 +77,9 @@ private struct FollowingButton: View {
     @Binding var isSelected: Bool
     
     var body: some View {
-        Button(action: {
+        Button {
             isSelected.toggle()
-        }) {
+        } label: {
             HStack(spacing: 2) {
                 Image(systemName: "checkmark")
                     .font(.system(size: 12, weight: .semibold))
@@ -108,7 +110,9 @@ private struct FilterSelectionButton: View {
     private let activeStrokeColor = Color.Codive.point2
     
     var body: some View {
-        Button(action: action) {
+        Button {
+            action()
+        } label: {
             Text(title)
                 .font(.codive_body2_medium)
                 .foregroundStyle(isSelected ? activeTextColor : Color.Codive.grayscale1)
@@ -130,15 +134,13 @@ private struct FilterSelectionButton: View {
         FeedFilterBar(
             isFollowingSelected: .constant(true),
             categories: ["미니멀", "캐주얼", "스트릿", "빈티지"],
-            selectedCategory: .constant(""),
-            onFilterTap: {}
-        )
+            selectedCategory: .constant("")
+        ) {}
         
         FeedFilterBar(
             isFollowingSelected: .constant(false),
             categories: ["미니멀", "캐주얼", "스트릿", "빈티지"],
-            selectedCategory: .constant("미니멀"),
-            onFilterTap: {}
-        )
+            selectedCategory: .constant("미니멀")
+        ) {}
     }
 }

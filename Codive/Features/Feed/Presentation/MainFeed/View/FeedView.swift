@@ -44,36 +44,33 @@ struct FeedView: View {
             FeedFilterBar(
                 isFollowingSelected: $isFollowingSelected,
                 categories: styleCategories,
-                selectedCategory: $selectedCategory,
-                onFilterTap: {
-                    isShowingFilterSheet = true
-                }
-            )
+                selectedCategory: $selectedCategory
+            ) {
+                isShowingFilterSheet = true
+            }
             
             feedGrid
         }
-        .onChange(of: isFollowingSelected, perform: { newValue in
+        .onChange(of: isFollowingSelected) { newValue in
             viewModel.followingOnly = newValue
             Task { await viewModel.applyFilters() }
-        })
-        .onChange(of: selectedCategory, perform: { newValue in
-            viewModel.selectedStyleIds = nil // Assuming top bar selection overrides sheet selection
+        }
+        .onChange(of: selectedCategory) { _ in
+            viewModel.selectedStyleIds = nil
             viewModel.selectedSituationIds = nil
             Task { await viewModel.applyFilters() }
-        })
+        }
         .sheet(isPresented: $isShowingFilterSheet) {
             FeedFilterBottomSheet(
                 selectedStyles: $selectedSheetStyles,
-                selectedSituations: $selectedSheetSituations,
-                onReset: {
-                    selectedSheetStyles.removeAll()
-                    selectedSheetSituations.removeAll()
-                },
-                onApply: {
-                    isShowingFilterSheet = false
-                    Task { await viewModel.applyFilters() }
-                }
-            )
+                selectedSituations: $selectedSheetSituations
+            ) {
+                selectedSheetStyles.removeAll()
+                selectedSheetSituations.removeAll()
+            } onApply: {
+                isShowingFilterSheet = false
+                Task { await viewModel.applyFilters() }
+            }
             .presentationDetents([.height(500)])
         }
         .task {

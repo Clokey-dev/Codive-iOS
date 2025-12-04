@@ -31,11 +31,11 @@ struct FeedDetailView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Button(action: { dismiss() }) {
+                Button(action: { dismiss() }, label: {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 20))
                         .foregroundStyle(.black)
-                }
+                })
                 
                 Spacer()
                 
@@ -56,9 +56,8 @@ struct FeedDetailView: View {
                         // 프로필
                         ProfileHeaderView(
                             profileImageUrl: feed.author?.profileImageUrl ?? "",
-                            nickname: feed.author?.nickname ?? "Unknown User",
-                            onMoreTap: { }
-                        )
+                            nickname: feed.author?.nickname ?? "Unknown User"
+                        ) { }
                         
                         // 이미지 슬라이더
                         FeedImageSlider(
@@ -118,11 +117,10 @@ struct FeedDetailView: View {
                             content: feed.content ?? "",
                             hashtags: feed.hashtags ?? [],
                             date: feed.createdAt?.description ?? "Date N/A",
-                            styles: [],
-                            onLikeTap: {
-                                Task { await viewModel.toggleLike() }
-                            }
-                        )
+                            styles: []
+                        ) {
+                            Task { await viewModel.toggleLike() }
+                        }
                     } else if viewModel.isLoading {
                         ProgressView()
                             .frame(maxWidth: .infinity, minHeight: 300)

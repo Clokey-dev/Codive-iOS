@@ -49,7 +49,7 @@ struct FeedImageSlider: View {
                 withAnimation {
                     onTagButtonTap()
                 }
-            }) {
+            }, label: {
                 ZStack {
                     Image("tag")
                         .resizable()
@@ -57,7 +57,7 @@ struct FeedImageSlider: View {
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 28, height: 28)
                 }
-            }
+            })
             .padding(.leading, 20)
             .padding(.bottom, 20)
         }
@@ -67,6 +67,9 @@ struct FeedImageSlider: View {
 
 // MARK: - Preview
 #Preview {
+    let onTagButtonTapClosure = { print("Tag button tapped") }
+    let onTagTapClosure: (UUID) -> Void = { tagId in print("Tag tapped: \(tagId)") }
+
     FeedImageSlider(
         images: [UIImage(systemName: "photo")!, UIImage(systemName: "photo.fill")!],
         tags: [
@@ -76,7 +79,7 @@ struct FeedImageSlider: View {
         currentIndex: .constant(0),
         showTags: true,
         selectedTagId: nil,
-        onTagButtonTap: { print("Tag button tapped") },
-        onTagTap: { tagId in print("Tag tapped: \(tagId)") }
+        onTagButtonTap: onTagButtonTapClosure,
+        onTagTap: onTagTapClosure
     )
 }

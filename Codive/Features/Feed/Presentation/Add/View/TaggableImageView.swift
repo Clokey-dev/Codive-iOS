@@ -66,11 +66,10 @@ struct TaggableImageView: View {
                         CustomTagView(
                             type: .navigable(
                                 title: tag.brand.isEmpty ? "Brand" : tag.brand,
-                                content: tag.name.isEmpty ? "Product Name" : tag.name,
-                                onTap: {
-                                    onTagTap?(tag.id)
-                                }
-                            )
+                                content: tag.name.isEmpty ? "Product Name" : tag.name
+                            ) { 
+                                onTagTap?(tag.id)
+                            }
                         )
                         .position(
                             x: tag.locationX * imageSize.width,

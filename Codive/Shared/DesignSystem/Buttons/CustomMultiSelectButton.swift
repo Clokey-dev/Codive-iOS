@@ -59,9 +59,9 @@ struct CustomMultiSelectButton: View {
                 ForEach(options, id: \.self) { option in
                     Button(action: {
                         toggleSelection(option)
-                    }) {
+                    }, label: {
                         Text(option)
-                    }
+                    })
                     .buttonStyle(SelectionButtonStyle(isSelected: selectedOptions.contains(option)))
                 }
             }

@@ -111,9 +111,9 @@ private struct FilterSectionView: View {
             
             CustomFlowLayout(spacing: 8) {
                 ForEach(options, id: \.self) { option in
-                    Button(action: {
+                    Button {
                         toggleSelection(option)
-                    }) {
+                    } label: {
                         Text(option)
                     }
                     .buttonStyle(SelectionButtonStyle(isSelected: selections.contains(option)))
