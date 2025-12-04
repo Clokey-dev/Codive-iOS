@@ -83,14 +83,30 @@ struct FeedView: View {
     // MARK: - Subviews
     @ViewBuilder
     private var feedGrid: some View {
-        ScrollView {
+        Group {
             if viewModel.isLoading && viewModel.feeds.isEmpty {
+                Spacer()
                 ProgressView()
+                Spacer()
+            } else if viewModel.feeds.isEmpty {
+                if viewModel.followingOnly {
+                    FeedEmptyView(type: .noFollowing) {
+                        viewModel.browseAllFeeds()
+                        isFollowingSelected = false
+                    }
+                } else {
+                    FeedEmptyView(type: .noFeeds) {
+                        viewModel.clearFiltersAndReload()
+                        selectedCategory = ""
+                    }
+                }
             } else if let errorMessage = viewModel.errorMessage {
                 Text(errorMessage)
                     .padding()
             } else {
-                feedLazyVGrid
+                ScrollView {
+                    feedLazyVGrid
+                }
             }
         }
     }
@@ -141,12 +157,46 @@ private struct FeedCellView: View {
 }
 
 // MARK: - Preview
-#Preview {
-    let navigationRouter = NavigationRouter()
-    let feedDIContainer = FeedDIContainer(navigationRouter: navigationRouter)
-    let viewModel = feedDIContainer.makeFeedViewModel()
+struct FeedView_Previews: PreviewProvider {
+    static var previews: some View {
+        // MARK: - Helper to create ViewModel
+        @MainActor
+        func makeViewModel(dataSource: FeedDataSource) -> FeedViewModel {
+            let repository = FeedRepositoryImpl(dataSource: dataSource)
+            let useCase = DefaultFetchFeedsUseCase(repository: repository)
+            let router = NavigationRouter()
+            return FeedViewModel(
+                navigationRouter: router,
+                fetchFeedsUseCase: useCase,
+                feedRepository: repository
+            )
+        }
+        
+        // Default: Uses mock data
+        let defaultVM = makeViewModel(dataSource: MockFeedDataSource())
 
-    return NavigationStack {
-        FeedView(viewModel: viewModel)
+        // Empty (No Following): Uses empty data source
+        let noFollowingVM = makeViewModel(dataSource: EmptyFeedDataSource())
+        noFollowingVM.followingOnly = true
+
+        // Empty (No Feeds): Uses empty data source
+        let noFeedsVM = makeViewModel(dataSource: EmptyFeedDataSource())
+
+        return Group {
+            NavigationStack {
+                FeedView(viewModel: defaultVM)
+            }
+            .previewDisplayName("Default")
+
+            NavigationStack {
+                FeedView(viewModel: noFollowingVM)
+            }
+            .previewDisplayName("Empty (No Following)")
+
+            NavigationStack {
+                FeedView(viewModel: noFeedsVM)
+            }
+            .previewDisplayName("Empty (No Feeds)")
+        }
     }
 }

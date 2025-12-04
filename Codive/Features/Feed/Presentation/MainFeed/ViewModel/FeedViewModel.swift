@@ -125,6 +125,23 @@ final class FeedViewModel: ObservableObject {
         await loadFeeds()
     }
 
+    /// '팔로잉만 보기' 필터를 끄고 전체 피드를 다시 로드합니다.
+    func browseAllFeeds() {
+        followingOnly = false
+        Task {
+            await loadFeeds()
+        }
+    }
+
+    /// 모든 스타일 및 상황 필터를 초기화하고 피드를 다시 로드합니다.
+    func clearFiltersAndReload() {
+        selectedStyleIds = nil
+        selectedSituationIds = nil
+        Task {
+            await loadFeeds()
+        }
+    }
+
     /// 좋아요 토글
     func toggleLike(feedId: Int) async {
         guard let index = feeds.firstIndex(where: { $0.id == feedId }) else { return }

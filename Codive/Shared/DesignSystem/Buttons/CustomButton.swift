@@ -23,6 +23,7 @@ struct CustomButton: View {
     let widthType: ButtonWidthType
     var styleType: ButtonStyleType = .fill
     var isEnabled: Bool = true
+    var textColor: Color? = nil // New parameter
     let action: () -> Void
 
     var body: some View {
@@ -30,7 +31,7 @@ struct CustomButton: View {
             Text(text)
                 .font(Font.codive_title2)
                 .padding()
-                .modifier(TextStyleModifier(type: styleType, isEnabled: isEnabled))
+                .modifier(TextStyleModifier(type: styleType, isEnabled: isEnabled, customTextColor: textColor))
         }
         .modifier(WidthModifier(type: widthType))
         .frame(height: 48)
@@ -63,13 +64,18 @@ struct WidthModifier: ViewModifier {
 struct TextStyleModifier: ViewModifier {
     let type: ButtonStyleType
     let isEnabled: Bool
+    var customTextColor: Color? // New parameter
     
     func body(content: Content) -> some View {
+        content.foregroundStyle(customTextColor ?? defaultTextColor)
+    }
+    
+    private var defaultTextColor: Color {
         switch type {
         case .fill:
-            content.foregroundStyle(isEnabled ? .white : Color.white)
+            return isEnabled ? .white : Color.white
         case .border:
-            content.foregroundStyle(isEnabled ? Color.Codive.main0 : Color.white)
+            return isEnabled ? Color.Codive.main0 : Color.white
         }
     }
 }

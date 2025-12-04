@@ -150,3 +150,18 @@ enum FeedDataSourceError: Error {
     case networkError
     case invalidResponse
 }
+
+#if DEBUG
+/// 프리뷰용 빈 DataSource
+final class EmptyFeedDataSource: FeedDataSource {
+    func fetchFeeds(page: Int, limit: Int, styleIds: [Int]?, situationIds: [Int]?, followingOnly: Bool) async throws -> [Feed] {
+        []
+    }
+    
+    func fetchFeedDetail(id: Int) async throws -> Feed {
+        throw FeedDataSourceError.notFound
+    }
+    
+    func toggleLike(feedId: Int) async throws {}
+}
+#endif

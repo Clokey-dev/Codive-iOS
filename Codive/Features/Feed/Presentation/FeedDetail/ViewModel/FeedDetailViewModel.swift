@@ -60,7 +60,7 @@ final class FeedDetailViewModel: ObservableObject {
             self.displayableTags = mapToDisplayableTags(from: fetchedFeed.images)
             self.formattedDate = format(date: fetchedFeed.createdAt)
             
-            // TODO: styleIds를 실제 스타일 이름으로 변환하는 로직 구현 필요 (e.g., 별도의 Manager 또는 UseCase 사용)
+            // TODO: styleIds를 실제 스타일 이름으로 변환하는 로직 구현 필요
             self.displayableStyles = [] // 현재는 임시로 빈 배열 할당
 
         } catch {
@@ -81,8 +81,8 @@ final class FeedDetailViewModel: ObservableObject {
             image.tags.map { tag in
                 ClothTag(
                     id: tag.id,
-                    clothId: UUID(), // TODO: Resolve Int vs UUID mismatch
-                    brand: TextLiteral.Feed.defaultBrand, // TODO: Fetch real brand name
+                    clothId: UUID(),
+                    brand: TextLiteral.Feed.defaultBrand,
                     name: TextLiteral.Feed.defaultProductName + " \(tag.clothId)",
                     locationX: CGFloat(tag.locationX),
                     locationY: CGFloat(tag.locationY)
@@ -136,9 +136,9 @@ final class FeedDetailViewModel: ObservableObject {
 
     private func calculateNewLikeCount(current: Int, isLiked: Bool) -> Int {
         if isLiked {
-            return current + 1 // 좋아요 추가
+            return current + 1
         } else {
-            return max(0, current - 1) // 좋아요 취소 (0 이하로 내려가지 않음)
+            return max(0, current - 1)
         }
     }
 }

@@ -16,7 +16,7 @@ struct FeedDetailView: View {
     // UI State
     @State private var currentImageIndex: Int = 0
     @State private var selectedTagId: UUID?
-    @State private var showTagsAndThumbnails: Bool = true
+    @State private var showTagsAndThumbnails: Bool = false
 
     // For Previewing
     private let previewImages: [UIImage]?
