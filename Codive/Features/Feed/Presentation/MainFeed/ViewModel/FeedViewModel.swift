@@ -148,6 +148,7 @@ final class FeedViewModel: ObservableObject {
 
         let originalFeed = feeds[index]
         let newIsLiked = !(originalFeed.isLiked ?? false)
+        let newLikeCount = newIsLiked ? (originalFeed.likeCount ?? 0) + 1 : max(0, (originalFeed.likeCount ?? 0) - 1)
 
         // 로컬에서 먼저 업데이트
         feeds[index] = Feed(
@@ -159,7 +160,7 @@ final class FeedViewModel: ObservableObject {
             styleIds: originalFeed.styleIds,
             hashtags: originalFeed.hashtags,
             createdAt: originalFeed.createdAt,
-            likeCount: originalFeed.likeCount,
+            likeCount: newLikeCount,
             isLiked: newIsLiked,
             commentCount: originalFeed.commentCount
         )
