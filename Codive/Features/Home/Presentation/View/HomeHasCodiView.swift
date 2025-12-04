@@ -42,7 +42,7 @@ struct HomeHasCodiView: View {
 
     private var header: some View {
         HStack {
-            Text("오늘의 코디(\(viewModel.todayString))")
+            Text("\(TextLiteral.Home.todayCodiTitle)(\(viewModel.todayString))")
                 .font(.title2)
                 .padding(.horizontal, 20)
             Spacer()

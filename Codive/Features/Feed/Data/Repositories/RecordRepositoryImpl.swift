@@ -2,7 +2,7 @@
 //  RecordRepositoryImpl.swift
 //  Codive
 //
-//  Created by gemini on 2025/11/22.
+//  Created by 황상환 on 2025/11/22.
 //
 
 import Foundation

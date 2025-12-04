@@ -13,7 +13,7 @@ import Combine
 // MARK: - RecordAddViewModel
 @MainActor
 final class RecordAddViewModel: ObservableObject {
-    
+
     // MARK: - Properties
     @Published var albums: [PhotoAlbum] = []
     @Published var selectedAlbum: PhotoAlbum?
@@ -27,25 +27,37 @@ final class RecordAddViewModel: ObservableObject {
     private let fetchPhotosUseCase: FetchPhotosUseCase
     private let processImageUseCase: ProcessImageUseCase
     private let navigationRouter: NavigationRouter
+    private let flowType: PhotoEditFlowType
     
     // MARK: - Computed Properties
     var isCompleteEnabled: Bool {
         !selectedPhotos.isEmpty
     }
-    
+
     var selectedAlbumTitle: String {
         selectedAlbum?.title ?? TextLiteral.Add.recordRecentAlbum
+    }
+
+    var navigationTitle: String {
+        switch flowType {
+        case .record:
+            return TextLiteral.Add.recordTitle
+        case .cloth:
+            return "옷 추가"
+        }
     }
     
     // MARK: - Initializer
     init(
         fetchPhotosUseCase: FetchPhotosUseCase,
         processImageUseCase: ProcessImageUseCase,
-        navigationRouter: NavigationRouter
+        navigationRouter: NavigationRouter,
+        flowType: PhotoEditFlowType = .record
     ) {
         self.fetchPhotosUseCase = fetchPhotosUseCase
         self.processImageUseCase = processImageUseCase
         self.navigationRouter = navigationRouter
+        self.flowType = flowType
     }
     
     // MARK: - Image Loading
@@ -151,8 +163,14 @@ final class RecordAddViewModel: ObservableObject {
                     for: photo.asset,
                     size: targetSize
                 ) {
-                    let croppedImage = processImageUseCase.cropTo3_4Ratio(image)
-                    
+                    let croppedImage: UIImage
+                    switch flowType {
+                    case .record:
+                        croppedImage = processImageUseCase.cropTo3_4Ratio(image)
+                    case .cloth:
+                        croppedImage = processImageUseCase.cropTo1_1Ratio(image)
+                    }
+
                     let selectedPhoto = SelectedPhoto(
                         id: photo.id,
                         originalImage: image,
@@ -163,7 +181,12 @@ final class RecordAddViewModel: ObservableObject {
                 }
             }
             
-            navigationRouter.navigate(to: .photoEdit(photos: selectedPhotoItems))
+            switch flowType {
+            case .record:
+                navigationRouter.navigate(to: .photoEdit(photos: selectedPhotoItems))
+            case .cloth:
+                navigationRouter.navigate(to: .photoEditForCloth(photos: selectedPhotoItems))
+            }
                     
             resetSelection()
             isCompletingSelection = false

@@ -35,7 +35,8 @@ struct PhotoEditView: View {
                     ForEach(Array(viewModel.selectedPhotos.enumerated()), id: \.element.id) { index, photo in
                         PhotoEditCell(
                             photo: viewModel.selectedPhotos[index],
-                            isSelected: index == viewModel.currentIndex
+                            isSelected: index == viewModel.currentIndex,
+                            aspectRatio: viewModel.aspectRatio
                         )
                         .id("\(photo.id)-\(photo.croppedImage.hashValue)")
                         .onTapGesture {
@@ -70,12 +71,12 @@ struct PhotoEditView: View {
                 if let currentPhoto = viewModel.currentPhoto {
                     Image(uiImage: currentPhoto.croppedImage)
                         .resizable()
-                        .aspectRatio(3/4, contentMode: .fit)
+                        .aspectRatio(viewModel.aspectRatio, contentMode: .fit)
                         .frame(maxWidth: .infinity)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 } else {
                     Color.gray.opacity(0.2)
-                        .aspectRatio(3/4, contentMode: .fit)
+                        .aspectRatio(viewModel.aspectRatio, contentMode: .fit)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
                 
@@ -112,6 +113,7 @@ struct PhotoEditView: View {
             if let currentPhoto = viewModel.currentPhoto {
                 ImageCropView(
                     image: currentPhoto.originalImage,
+                    aspectRatio: viewModel.aspectRatio,
                     onComplete: { croppedImage in
                         viewModel.updateCroppedImage(croppedImage)
                         viewModel.isEditingMode = false

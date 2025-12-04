@@ -92,8 +92,8 @@ private struct DraggableTag: View {
     var body: some View {
         CustomTagView(
             type: .closable(
-                title: tag.brand.isEmpty ? "브랜드" : tag.brand,
-                content: tag.name.isEmpty ? "상품명" : tag.name,
+                title: tag.brand.isEmpty ? TextLiteral.Closet.brandTag : tag.brand,
+                content: tag.name.isEmpty ? TextLiteral.Closet.productTag : tag.name,
                 onClose: onRemove
             )
         )

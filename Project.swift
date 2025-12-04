@@ -123,10 +123,7 @@ let project = Project(
                 .external(name: "KakaoSDKUser"),
                 
                 // 네트워킹
-                .external(name: "Moya"),
-                
-                // 이미지 크롭
-                .external(name: "SwiftyCrop"),
+                .external(name: "Moya")
             ],
             settings: .settings(
                 base: [

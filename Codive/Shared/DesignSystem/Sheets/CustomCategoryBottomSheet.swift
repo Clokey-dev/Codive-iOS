@@ -11,15 +11,18 @@ struct CustomCategoryBottomSheet: View {
 
     /// 외부에서 주입받는 전체 카테고리 데이터
     let allCategories: [CategoryItem]
-    
+
     /// 현재 선택된 주 카테고리를 외부와 동기화
     @Binding var selectedCategory: CategoryItem?
-    
+
     /// 최종 선택 완료 시 호출될 클로저
     let onApply: (CategoryItem, String) -> Void
-    
+
     /// 뷰 내부에서만 사용할 선택된 서브 카테고리 상태
     @State private var selectedSubcategory: String?
+
+    /// 초기 선택된 서브 카테고리 (뷰 초기화 시 전달)
+    let initialSubcategory: String?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -51,14 +54,14 @@ struct CustomCategoryBottomSheet: View {
                                     .background(
                                         selectedCategory == category
                                         ? Color("Grayscale6")
-                                        : Color("Grayscale7")
+                                        : Color.white
                                     )
                             }
                         }
                     }
                 }
                 .frame(width: 100)
-                .background(Color("Grayscale7"))
+                .background(Color.white)
 
                 // 가운데 세로 Divider
                 Divider()
@@ -83,21 +86,29 @@ struct CustomCategoryBottomSheet: View {
                                     .background(
                                         selectedSubcategory == sub
                                         ? Color("Grayscale6")
-                                        : Color("Grayscale7")
+                                        : Color.white
                                     )
                             }
                             Divider()
                         }
                     }
                 }
+                .background(Color.white)
             }
         }
-        .background(Color("Grayscale7"))
+        .background(
+            Color.white
+                .ignoresSafeArea()
+        )
         .clipShape(RoundedCorner(radius: 24, corners: [.topLeft, .topRight]))
         .onAppear {
             // 뷰가 나타날 때, 만약 외부에서 선택된 카테고리가 없다면 첫 번째 항목을 기본값으로 설정
             if selectedCategory == nil {
                 selectedCategory = allCategories.first
+            }
+            // 초기 서브카테고리 설정
+            if let initialSubcategory = initialSubcategory {
+                selectedSubcategory = initialSubcategory
             }
         }
     }
@@ -117,10 +128,12 @@ struct CustomCategoryBottomSheet: View {
                 
                 CustomCategoryBottomSheet(
                     allCategories: CategoryConstants.all,
-                    selectedCategory: $selectedCategory
-                ) { mainCategory, subCategory in
-                    print("최종 선택 완료: \(mainCategory.name) -> \(subCategory)")
-                }
+                    selectedCategory: $selectedCategory,
+                    onApply: { mainCategory, subCategory in
+                        print("최종 선택 완료: \(mainCategory.name) -> \(subCategory)")
+                    },
+                    initialSubcategory: nil
+                )
                 .frame(height: 404)
             }
         }
