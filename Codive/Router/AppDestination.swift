@@ -50,6 +50,10 @@ enum AppDestination: Hashable {
         // Search, Alarm Flow
         case .search, .searchResult, .notification:
             return true
+            
+        // Feed Flow
+        case .feedDetail:
+            return true
 
         // 다른 플로우 전체 화면은 여기에 추가
         // case .closetEdit, .feedCreate:

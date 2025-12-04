@@ -82,8 +82,6 @@ final class FeedDIContainer {
 }
 
 #if DEBUG
-import Foundation
-
 extension FeedDIContainer {
     @MainActor
     static func makeFeedDetailViewModelForPreview(feedId: Int, repository: FeedRepository) -> FeedDetailViewModel {

@@ -79,6 +79,7 @@ final class FeedDetailViewModel: ObservableObject {
     private func mapToDisplayableTags(from images: [FeedImage]) -> [[ClothTag]] {
         images.map { image in
             image.tags.map { tag in
+                // TODO: API 연동 시 clothId로 실제 옷 정보(brand, name) 조회하여 사용
                 ClothTag(
                     id: tag.id,
                     clothId: tag.clothId,

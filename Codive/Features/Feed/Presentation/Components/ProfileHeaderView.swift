@@ -14,7 +14,7 @@ struct ProfileHeaderView: View {
     
     var body: some View {
         HStack(spacing: 8) {
-            // 프로필 이미지
+            // TODO: API 연동 시 profileImageUrl을 사용하여 비동기 이미지 로딩 (KingFisher 또는 AsyncImage)
             Circle()
                 .fill(Color.gray.opacity(0.2))
                 .frame(width: 32, height: 32)

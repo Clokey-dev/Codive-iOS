@@ -136,7 +136,7 @@ struct FeedRepositoryImplTests {
 
         // Then: 모든 Feed의 작성자가 팔로잉 상태여야 함
         for feed in feeds {
-            #expect(feed.author?.isFollowing == true)
+            #expect(feed.author.isFollowing == true)
         }
     }
 
@@ -160,7 +160,7 @@ struct FeedRepositoryImplTests {
             let hasMatchingStyle = feed.styleIds?.contains(where: { [1, 2].contains($0) }) == true
             #expect(hasMatchingStyle)
             #expect(feed.situationId == 1)
-            #expect(feed.author?.isFollowing == true)
+            #expect(feed.author.isFollowing == true)
         }
     }
 }

@@ -133,8 +133,8 @@ private struct FeedCellView: View {
         } label: {
             CustomFeedCard(
                 imageUrl: feed.images.first?.imageUrl ?? "",
-                profileImageUrl: feed.author?.profileImageUrl ?? "sample_profile",
-                nickname: feed.author?.nickname ?? TextLiteral.Common.unknown,
+                profileImageUrl: feed.author.profileImageUrl ?? "sample_profile",
+                nickname: feed.author.nickname,
                 isLiked: Binding(
                     get: { feed.isLiked ?? false },
                     set: { _ in

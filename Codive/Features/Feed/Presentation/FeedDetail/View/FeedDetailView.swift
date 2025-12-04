@@ -62,8 +62,8 @@ struct FeedDetailView: View {
                     if let feed = viewModel.feed {
                         // 프로필
                         ProfileHeaderView(
-                            profileImageUrl: feed.author?.profileImageUrl ?? "",
-                            nickname: feed.author?.nickname ?? TextLiteral.Common.unknownUser
+                            profileImageUrl: feed.author.profileImageUrl ?? "",
+                            nickname: feed.author.nickname
                         ) { }
                         
                         // 이미지 슬라이더

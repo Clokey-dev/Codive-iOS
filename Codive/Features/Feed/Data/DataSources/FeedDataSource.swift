@@ -109,7 +109,7 @@ final class MockFeedDataSource: FeedDataSource {
 
         // 팔로잉 필터
         if followingOnly {
-            filteredFeeds = filteredFeeds.filter { $0.author?.isFollowing == true }
+            filteredFeeds = filteredFeeds.filter { $0.author.isFollowing == true }
         }
 
         // 페이지네이션

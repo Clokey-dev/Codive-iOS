@@ -11,7 +11,7 @@ import Foundation
 public struct Feed: Identifiable, Equatable {
     public let id: Int
     public let content: String?
-    public let author: User?
+    public let author: User
     public let images: [FeedImage]
 
     public let situationId: Int?
@@ -26,7 +26,7 @@ public struct Feed: Identifiable, Equatable {
     public init(
         id: Int,
         content: String?,
-        author: User? = nil,
+        author: User,
         images: [FeedImage],
         situationId: Int? = nil,
         styleIds: [Int]? = nil,
