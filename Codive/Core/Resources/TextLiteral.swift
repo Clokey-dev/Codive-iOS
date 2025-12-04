@@ -267,6 +267,16 @@ enum TextLiteral {
         static let dateFormat = "yyyy.M.d"
         static let defaultBrand = "Brand"
         static let defaultProductName = "Product"
+
+        enum Empty {
+            static let noFollowingTitle = "팔로잉한 사람이 아직 없어요."
+            static let noFollowingSubtitle = "관심있는 사람을 팔로잉하면\n그들의 스타일을 모아볼 수 있어요."
+            static let noFollowingButton = "지금 둘러보기"
+            
+            static let noFeedsTitle = "관련된 스타일 피드가 아직 없어요."
+            static let noFeedsSubtitle = "곧 다양한 코디가\n이 스타일 피드에 올려질 예정이에요!"
+            static let noFeedsButton = "다른 스타일 보기"
+        }
     }
 }
 

@@ -49,27 +49,27 @@ struct FeedEmptyView: View {
     private var title: String {
         switch type {
         case .noFollowing:
-            return "팔로잉한 사람이 아직 없어요."
+            return TextLiteral.Feed.Empty.noFollowingTitle
         case .noFeeds:
-            return "관련된 스타일 피드가 아직 없어요."
+            return TextLiteral.Feed.Empty.noFeedsTitle
         }
     }
     
     private var subtitle: String {
         switch type {
         case .noFollowing:
-            return "관심있는 사람을 팔로잉하면\n그들의 스타일을 모아볼 수 있어요."
+            return TextLiteral.Feed.Empty.noFollowingSubtitle
         case .noFeeds:
-            return "곧 다양한 코디가\n이 스타일 피드에 올려질 예정이에요!"
+            return TextLiteral.Feed.Empty.noFeedsSubtitle
         }
     }
     
     private var buttonText: String {
         switch type {
         case .noFollowing:
-            return "지금 둘러보기"
+            return TextLiteral.Feed.Empty.noFollowingButton
         case .noFeeds:
-            return "다른 스타일 보기"
+            return TextLiteral.Feed.Empty.noFeedsButton
         }
     }
     
