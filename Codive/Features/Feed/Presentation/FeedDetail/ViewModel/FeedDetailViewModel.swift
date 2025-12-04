@@ -27,7 +27,7 @@ final class FeedDetailViewModel: ObservableObject {
     private let feedRepository: FeedRepository
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy.M.d"
+        formatter.dateFormat = TextLiteral.Feed.dateFormat
         return formatter
     }()
 
@@ -64,7 +64,7 @@ final class FeedDetailViewModel: ObservableObject {
             self.displayableStyles = [] // 현재는 임시로 빈 배열 할당
 
         } catch {
-            errorMessage = "Feed를 불러오는데 실패했습니다."
+            errorMessage = TextLiteral.Feed.loadDetailFailed
             feed = nil
             displayableTags = []
             formattedDate = ""
@@ -82,8 +82,8 @@ final class FeedDetailViewModel: ObservableObject {
                 ClothTag(
                     id: tag.id,
                     clothId: UUID(), // TODO: Resolve Int vs UUID mismatch
-                    brand: "Brand", // TODO: Fetch real brand name
-                    name: "Product \(tag.clothId)",
+                    brand: TextLiteral.Feed.defaultBrand, // TODO: Fetch real brand name
+                    name: TextLiteral.Feed.defaultProductName + " \(tag.clothId)",
                     locationX: CGFloat(tag.locationX),
                     locationY: CGFloat(tag.locationY)
                 )

@@ -258,4 +258,18 @@ enum TextLiteral {
         static let notice3 = "신고 내용에 대한 사실 확인이 필요할 경우, CloKey 고객센터를 통해 신고자에게 추가적인 자료 제출을 요청할 수 있습니다."
         static let notice4 = "신고가 누적 3회 이상일 경우 계정이 정지되며, 허위 신고가 3회 적발될 경우에도 동일하게 제재가 집행됩니다."
     }
+
+    // MARK: - Feed (피드)
+    enum Feed {
+        static let detailTitle = "기록 상세"
+        static let loadDetailFailed = "Feed를 불러오는데 실패했습니다."
+        static let genericLoadFailed = "정보를 불러올 수 없습니다."
+        static let dateFormat = "yyyy.M.d"
+        static let defaultBrand = "Brand"
+        static let defaultProductName = "Product"
+    }
+}
+
+extension TextLiteral.Common {
+    static let unknownUser = "Unknown User"
 }

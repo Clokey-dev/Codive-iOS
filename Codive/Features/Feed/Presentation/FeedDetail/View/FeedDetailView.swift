@@ -39,7 +39,7 @@ struct FeedDetailView: View {
                 
                 Spacer()
                 
-                Text("기록 상세")
+                Text(TextLiteral.Feed.detailTitle)
                     .font(.codive_title2)
                     .foregroundStyle(.black)
                 
@@ -56,7 +56,7 @@ struct FeedDetailView: View {
                         // 프로필
                         ProfileHeaderView(
                             profileImageUrl: feed.author?.profileImageUrl ?? "",
-                            nickname: feed.author?.nickname ?? "Unknown User"
+                            nickname: feed.author?.nickname ?? TextLiteral.Common.unknownUser
                         ) { }
                         
                         // 이미지 슬라이더
@@ -105,7 +105,7 @@ struct FeedDetailView: View {
                         ProgressView()
                             .frame(maxWidth: .infinity, minHeight: 300)
                     } else {
-                        Text(viewModel.errorMessage ?? "정보를 불러올 수 없습니다.")
+                        Text(viewModel.errorMessage ?? TextLiteral.Feed.genericLoadFailed)
                             .padding(.top, 50)
                     }
                 }
