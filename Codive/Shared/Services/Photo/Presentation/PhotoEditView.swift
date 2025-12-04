@@ -109,12 +109,13 @@ struct PhotoEditView: View {
         }
         .navigationBarHidden(true)
         .background(Color.white)
-        .sheet(isPresented: $viewModel.isEditingMode) {
+        .fullScreenCover(isPresented: $viewModel.isEditingMode) {
             if let currentPhoto = viewModel.currentPhoto {
                 ImageCropView(
                     image: currentPhoto.originalImage,
                     aspectRatio: viewModel.aspectRatio,
-                    onComplete: { croppedImage in
+                    onComplete: {
+                        croppedImage in
                         viewModel.updateCroppedImage(croppedImage)
                         viewModel.isEditingMode = false
                     },
@@ -128,37 +129,34 @@ struct PhotoEditView: View {
             Button(TextLiteral.Add.exitAlertLeave, role: .destructive) {
                 viewModel.confirmExit()
             }
-            Button(TextLiteral.Common.cancel, role: .cancel) {}
-        } message: {
-            Text(TextLiteral.Add.exitAlertMessage)
         }
     }
-}
-
-// MARK: - PhotoDropDelegate
-// 드래그 앤 드롭으로 사진 순서를 변경하기 위한 델리게이트
-// 상단 썸네일들을 길게 눌러서 드래그하면 순서를 바꿀 수 있음
-struct PhotoDropDelegate: DropDelegate {
-    let photo: SelectedPhoto
-    @Binding var photos: [SelectedPhoto]
-    @Binding var draggedPhoto: SelectedPhoto?
-    let onReorder: (IndexSet, Int) -> Void
     
-    func performDrop(info: DropInfo) -> Bool {
-        draggedPhoto = nil
-        return true
-    }
-    
-    func dropEntered(info: DropInfo) {
-        guard let draggedPhoto = draggedPhoto,
-              draggedPhoto.id != photo.id,
-              let fromIndex = photos.firstIndex(where: { $0.id == draggedPhoto.id }),
-              let toIndex = photos.firstIndex(where: { $0.id == photo.id }) else {
-            return
+    // MARK: - PhotoDropDelegate
+    // 드래그 앤 드롭으로 사진 순서를 변경하기 위한 델리게이트
+    // 상단 썸네일들을 길게 눌러서 드래그하면 순서를 바꿀 수 있음
+    struct PhotoDropDelegate: DropDelegate {
+        let photo: SelectedPhoto
+        @Binding var photos: [SelectedPhoto]
+        @Binding var draggedPhoto: SelectedPhoto?
+        let onReorder: (IndexSet, Int) -> Void
+        
+        func performDrop(info: DropInfo) -> Bool {
+            draggedPhoto = nil
+            return true
         }
         
-        withAnimation(.spring()) {
-            onReorder(IndexSet(integer: fromIndex), toIndex > fromIndex ? toIndex + 1 : toIndex)
+        func dropEntered(info: DropInfo) {
+            guard let draggedPhoto = draggedPhoto,
+                  draggedPhoto.id != photo.id,
+                  let fromIndex = photos.firstIndex(where: { $0.id == draggedPhoto.id }),
+                  let toIndex = photos.firstIndex(where: { $0.id == photo.id }) else {
+                return
+            }
+            
+            withAnimation(.spring()) {
+                onReorder(IndexSet(integer: fromIndex), toIndex > fromIndex ? toIndex + 1 : toIndex)
+            }
         }
     }
 }

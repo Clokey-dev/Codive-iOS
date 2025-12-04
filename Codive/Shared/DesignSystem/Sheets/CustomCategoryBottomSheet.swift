@@ -96,11 +96,19 @@ struct CustomCategoryBottomSheet: View {
                 .background(Color.white)
             }
         }
-        .background(
-            Color.white
-                .ignoresSafeArea()
+        .background(Color.white) // First background
+        .clipShape(
+            .rect(
+                topLeadingRadius: 24,
+                bottomLeadingRadius: 0,
+                bottomTrailingRadius: 0,
+                topTrailingRadius: 24
+            )
         )
-        .clipShape(RoundedCorner(radius: 24, corners: [.topLeft, .topRight]))
+        .background( // Second background
+            Color.white
+                .ignoresSafeArea(edges: .bottom)
+        )
         .onAppear {
             // 뷰가 나타날 때, 만약 외부에서 선택된 카테고리가 없다면 첫 번째 항목을 기본값으로 설정
             if selectedCategory == nil {

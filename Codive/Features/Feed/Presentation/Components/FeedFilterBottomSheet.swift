@@ -48,7 +48,7 @@ struct FeedFilterBottomSheet: View {
                         selections: $selectedStyles,
                         maxCount: 5
                     )
-
+                    
                     FilterSectionView(
                         title: "상황",
                         description: "필요한 상황을 등록해두면, 피드에서 손쉽게 골라볼 수 있어요.",
@@ -81,7 +81,18 @@ struct FeedFilterBottomSheet: View {
             .padding(.bottom, 20)
         }
         .background(Color.white)
-        .customCornerRadius(20, corners: [.topLeft, .topRight])
+        .clipShape(
+            .rect(
+                topLeadingRadius: 20,
+                bottomLeadingRadius: 0,
+                bottomTrailingRadius: 0,
+                topTrailingRadius: 20
+            )
+        )
+        .background(
+            Color.white
+                .ignoresSafeArea(edges: .bottom)
+        )
     }
 }
 
