@@ -112,19 +112,24 @@ private struct FeedCellView: View {
     @ObservedObject var viewModel: FeedViewModel
     
     var body: some View {
-        CustomFeedCard(
-            imageUrl: feed.images.first?.imageUrl ?? "",
-            profileImageUrl: feed.author?.profileImageUrl ?? "sample_profile",
-            nickname: feed.author?.nickname ?? TextLiteral.Common.unknown,
-            isLiked: Binding(
-                get: { feed.isLiked ?? false },
-                set: { _ in
-                    Task {
-                        await viewModel.toggleLike(feedId: feed.id)
+        Button {
+            viewModel.navigateToDetail(feedId: feed.id)
+        } label: {
+            CustomFeedCard(
+                imageUrl: feed.images.first?.imageUrl ?? "",
+                profileImageUrl: feed.author?.profileImageUrl ?? "sample_profile",
+                nickname: feed.author?.nickname ?? TextLiteral.Common.unknown,
+                isLiked: Binding(
+                    get: { feed.isLiked ?? false },
+                    set: { _ in
+                        Task {
+                            await viewModel.toggleLike(feedId: feed.id)
+                        }
                     }
-                }
+                )
             )
-        )
+        }
+        .buttonStyle(PlainButtonStyle())
         .onAppear {
             if feed.id == viewModel.feeds.last?.id {
                 Task {
@@ -137,9 +142,10 @@ private struct FeedCellView: View {
 
 // MARK: - Preview
 #Preview {
-    let feedDIContainer = FeedDIContainer()
+    let navigationRouter = NavigationRouter()
+    let feedDIContainer = FeedDIContainer(navigationRouter: navigationRouter)
     let viewModel = feedDIContainer.makeFeedViewModel()
-    
+
     return NavigationStack {
         FeedView(viewModel: viewModel)
     }

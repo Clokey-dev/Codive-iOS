@@ -7,7 +7,17 @@
 
 import Foundation
 
+@MainActor
 final class FeedDIContainer {
+
+    // MARK: - Properties
+    let navigationRouter: NavigationRouter
+    lazy var feedViewFactory = FeedViewFactory(feedDIContainer: self)
+
+    // MARK: - Initializer
+    init(navigationRouter: NavigationRouter) {
+        self.navigationRouter = navigationRouter
+    }
 
     // MARK: - DataSources
 
@@ -45,20 +55,28 @@ final class FeedDIContainer {
 
     // MARK: - ViewModels
 
-    @MainActor
     func makeFeedViewModel() -> FeedViewModel {
         return FeedViewModel(
+            navigationRouter: navigationRouter,
             fetchFeedsUseCase: makeFetchFeedsUseCase(),
             feedRepository: feedRepository
         )
     }
 
-    @MainActor
     func makeFeedDetailViewModel(feedId: Int) -> FeedDetailViewModel {
         return FeedDetailViewModel(
             feedId: feedId,
             fetchFeedDetailUseCase: makeFetchFeedDetailUseCase(),
             feedRepository: feedRepository
+        )
+    }
+
+    // MARK: - Views
+
+    func makeFeedDetailView(feedId: Int) -> FeedDetailView {
+        return FeedDetailView(
+            viewModel: makeFeedDetailViewModel(feedId: feedId),
+            navigationRouter: navigationRouter
         )
     }
 }

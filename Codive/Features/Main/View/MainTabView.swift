@@ -35,61 +35,79 @@ struct MainTabView: View {
     
     // MARK: - Body
     var body: some View {
-        VStack(spacing: 0) {
-            if shouldShowTopBar {
-                TopNavigationBar(
-                    showSearchButton: showSearchButton,
-                    showNotificationButton: showNotificationButton,
-                    onSearchTap: viewModel.handleSearchTap,
-                    onNotificationTap: viewModel.handleNotificationTap
-                )
+        ZStack {
+            // 기본 탭바 UI
+            VStack(spacing: 0) {
+                if shouldShowTopBar {
+                    TopNavigationBar(
+                        showSearchButton: showSearchButton,
+                        showNotificationButton: showNotificationButton,
+                        onSearchTap: viewModel.handleSearchTap,
+                        onNotificationTap: viewModel.handleNotificationTap
+                    )
+                }
+
+                ZStack(alignment: .bottom) {
+                    Group {
+                        switch viewModel.selectedTab {
+                        case .home:
+                            HomeView(homeDIContainer: homeDIContainer)
+                                .ignoresSafeArea(.all, edges: .bottom)
+                        case .closet:
+                            ClosetView()
+                        case .add:
+                            AddView(addDIContainer: addDIContainer)
+                                .ignoresSafeArea(.all, edges: .bottom)
+                        case .feed:
+                            FeedView(viewModel: feedDIContainer.makeFeedViewModel())
+                        case .profile:
+                            ProfileView()
+                        }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                    // MARK: - Tab Bar
+                    if shouldShowTabBar {
+                        TabBar(selectedTab: $viewModel.selectedTab)
+                    }
+                }
             }
-            
-            ZStack(alignment: .bottom) {
-                Group {
-                    switch viewModel.selectedTab {
-                    case .home:
-                        HomeView(homeDIContainer: homeDIContainer)
-                            .ignoresSafeArea(.all, edges: .bottom)
-                    case .closet:
-                        ClosetView()
-                    case .add:
-                        AddView(addDIContainer: addDIContainer)
-                            .ignoresSafeArea(.all, edges: .bottom)
-                    case .feed:
-                        FeedView(viewModel: feedDIContainer.makeFeedViewModel())
-                    case .profile:
-                        ProfileView()
-                    }
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .overlay {
-                    if let destination = navigationRouter.currentDestination {
-                        destinationView(for: destination)
-                            .transition(.move(edge: .trailing))
-                    }
-                }
-                
-                // MARK: - Tab Bar
-                if navigationRouter.currentDestination == nil ||
-                    navigationRouter.currentDestination?.shouldCoverTabBar == false {
-                    TabBar(selectedTab: $viewModel.selectedTab)
-                }
+            .ignoresSafeArea(.keyboard, edges: .bottom)
+
+            if let destination = navigationRouter.currentDestination {
+                destinationView(for: destination)
+                    .transition(.move(edge: .trailing))
+                    .zIndex(1)
             }
         }
-        .ignoresSafeArea(.keyboard, edges: .bottom)
+        .animation(.easeInOut(duration: 0.3), value: navigationRouter.currentDestination)
     }
     
     // MARK: - Computed Properties
+
+    /// 상단 네비게이션 바를 표시할지 여부
     private var shouldShowTopBar: Bool {
-        viewModel.selectedTab != .add &&
-        !(viewModel.selectedTab == .home && !navigationRouter.path.isEmpty)
+        // destination은 ZStack으로 위에 덮이므로 체크하지 않음
+        // 현재 탭의 상태만 확인
+        return viewModel.selectedTab != .add &&
+               !(viewModel.selectedTab == .home && !navigationRouter.path.isEmpty)
     }
-    
+
+    /// 하단 탭 바를 표시할지 여부
+    private var shouldShowTabBar: Bool {
+        // destination이 있고 탭바를 덮어야 하면 숨김
+        if let destination = navigationRouter.currentDestination {
+            return !destination.shouldCoverTabBar
+        }
+
+        // destination이 없으면 항상 표시
+        return true
+    }
+
     private var showSearchButton: Bool {
         true
     }
-    
+
     private var showNotificationButton: Bool {
         true
     }
@@ -103,7 +121,9 @@ struct MainTabView: View {
             searchDIContainer.makeSearchResultView(initialQuery: query)
         case .notification:
             notificationDIContainer.makeNotificationView()
-            
+        case .feedDetail(let feedId):
+            feedDIContainer.makeFeedDetailView(feedId: feedId)
+
         default:
             EmptyView()
         }

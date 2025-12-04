@@ -20,7 +20,8 @@ struct FeedViewModelTests {
         // Given
         let mockUseCase = MockFetchFeedsUseCase()
         let mockRepository = MockFeedRepositoryForViewModel()
-        let viewModel = FeedViewModel(fetchFeedsUseCase: mockUseCase, feedRepository: mockRepository)
+        let mockRouter = NavigationRouter()
+        let viewModel = FeedViewModel(navigationRouter: mockRouter, fetchFeedsUseCase: mockUseCase, feedRepository: mockRepository)
 
         // When: 초기 로딩
         await viewModel.loadFeeds()
@@ -39,7 +40,8 @@ struct FeedViewModelTests {
         // Given
         let mockUseCase = MockFetchFeedsUseCase()
         let mockRepository = MockFeedRepositoryForViewModel()
-        let viewModel = FeedViewModel(fetchFeedsUseCase: mockUseCase, feedRepository: mockRepository)
+        let mockRouter = NavigationRouter()
+        let viewModel = FeedViewModel(navigationRouter: mockRouter, fetchFeedsUseCase: mockUseCase, feedRepository: mockRepository)
         await viewModel.loadFeeds()
         let initialCount = viewModel.feeds.count
 
@@ -56,7 +58,8 @@ struct FeedViewModelTests {
         // Given
         let mockUseCase = MockFetchFeedsUseCase()
         let mockRepository = MockFeedRepositoryForViewModel()
-        let viewModel = FeedViewModel(fetchFeedsUseCase: mockUseCase, feedRepository: mockRepository)
+        let mockRouter = NavigationRouter()
+        let viewModel = FeedViewModel(navigationRouter: mockRouter, fetchFeedsUseCase: mockUseCase, feedRepository: mockRepository)
 
         // When: 동시에 여러 번 호출
         async let load1 = viewModel.loadFeeds()
@@ -75,7 +78,8 @@ struct FeedViewModelTests {
         // Given
         let mockUseCase = MockFetchFeedsUseCase()
         let mockRepository = MockFeedRepositoryForViewModel()
-        let viewModel = FeedViewModel(fetchFeedsUseCase: mockUseCase, feedRepository: mockRepository)
+        let mockRouter = NavigationRouter()
+        let viewModel = FeedViewModel(navigationRouter: mockRouter, fetchFeedsUseCase: mockUseCase, feedRepository: mockRepository)
         await viewModel.loadFeeds()
 
         // When: 스타일 필터 적용
@@ -92,7 +96,8 @@ struct FeedViewModelTests {
         // Given
         let mockUseCase = MockFetchFeedsUseCase()
         let mockRepository = MockFeedRepositoryForViewModel()
-        let viewModel = FeedViewModel(fetchFeedsUseCase: mockUseCase, feedRepository: mockRepository)
+        let mockRouter = NavigationRouter()
+        let viewModel = FeedViewModel(navigationRouter: mockRouter, fetchFeedsUseCase: mockUseCase, feedRepository: mockRepository)
 
         // When: 팔로잉 필터 적용
         viewModel.followingOnly = true
@@ -107,7 +112,8 @@ struct FeedViewModelTests {
         // Given
         let mockUseCase = MockFetchFeedsUseCase()
         let mockRepository = MockFeedRepositoryForViewModel()
-        let viewModel = FeedViewModel(fetchFeedsUseCase: mockUseCase, feedRepository: mockRepository)
+        let mockRouter = NavigationRouter()
+        let viewModel = FeedViewModel(navigationRouter: mockRouter, fetchFeedsUseCase: mockUseCase, feedRepository: mockRepository)
         await viewModel.loadFeeds()
         await viewModel.loadMoreFeeds() // 2페이지까지 로드
 
@@ -126,7 +132,8 @@ struct FeedViewModelTests {
         // Given
         let mockUseCase = MockSlowFetchFeedsUseCase()
         let mockRepository = MockFeedRepositoryForViewModel()
-        let viewModel = FeedViewModel(fetchFeedsUseCase: mockUseCase, feedRepository: mockRepository)
+        let mockRouter = NavigationRouter()
+        let viewModel = FeedViewModel(navigationRouter: mockRouter, fetchFeedsUseCase: mockUseCase, feedRepository: mockRepository)
 
         // When: 비동기 로딩 시작
         let loadTask = Task {
@@ -148,7 +155,8 @@ struct FeedViewModelTests {
         // Given
         let mockUseCase = MockFailingFetchFeedsUseCase()
         let mockRepository = MockFeedRepositoryForViewModel()
-        let viewModel = FeedViewModel(fetchFeedsUseCase: mockUseCase, feedRepository: mockRepository)
+        let mockRouter = NavigationRouter()
+        let viewModel = FeedViewModel(navigationRouter: mockRouter, fetchFeedsUseCase: mockUseCase, feedRepository: mockRepository)
 
         // When
         await viewModel.loadFeeds()
@@ -165,7 +173,8 @@ struct FeedViewModelTests {
         // Given
         let mockUseCase = MockFetchFeedsUseCase()
         let mockRepository = MockFeedRepositoryForToggle()
-        let viewModel = FeedViewModel(fetchFeedsUseCase: mockUseCase, feedRepository: mockRepository)
+        let mockRouter = NavigationRouter()
+        let viewModel = FeedViewModel(navigationRouter: mockRouter, fetchFeedsUseCase: mockUseCase, feedRepository: mockRepository)
         await viewModel.loadFeeds()
 
         let firstFeed = viewModel.feeds.first!
@@ -185,7 +194,8 @@ struct FeedViewModelTests {
         // Given
         let mockUseCase = MockFetchFeedsUseCase()
         let mockRepository = MockFailingFeedRepositoryForToggle()
-        let viewModel = FeedViewModel(fetchFeedsUseCase: mockUseCase, feedRepository: mockRepository)
+        let mockRouter = NavigationRouter()
+        let viewModel = FeedViewModel(navigationRouter: mockRouter, fetchFeedsUseCase: mockUseCase, feedRepository: mockRepository)
         await viewModel.loadFeeds()
 
         let firstFeed = viewModel.feeds.first!
@@ -205,7 +215,8 @@ struct FeedViewModelTests {
         // Given
         let mockUseCase = MockFetchFeedsUseCase()
         let mockRepository = MockFeedRepositoryForToggle()
-        let viewModel = FeedViewModel(fetchFeedsUseCase: mockUseCase, feedRepository: mockRepository)
+        let mockRouter = NavigationRouter()
+        let viewModel = FeedViewModel(navigationRouter: mockRouter, fetchFeedsUseCase: mockUseCase, feedRepository: mockRepository)
         await viewModel.loadFeeds()
 
         let feed1 = viewModel.feeds[0]

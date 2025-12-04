@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct FeedDetailView: View {
-    
+
     // MARK: - Properties
     @StateObject var viewModel: FeedDetailViewModel
-    @Environment(\.dismiss) private var dismiss
-    
+    @ObservedObject var navigationRouter: NavigationRouter
+
     // UI State
     @State private var currentImageIndex: Int = 0
     @State private var selectedTagId: UUID?
@@ -20,10 +20,15 @@ struct FeedDetailView: View {
 
     // For Previewing
     private let previewImages: [UIImage]?
-    
+
     // MARK: - Initializer
-    init(viewModel: FeedDetailViewModel, previewImages: [UIImage]? = nil) {
+    init(
+        viewModel: FeedDetailViewModel,
+        navigationRouter: NavigationRouter,
+        previewImages: [UIImage]? = nil
+    ) {
         _viewModel = StateObject(wrappedValue: viewModel)
+        _navigationRouter = ObservedObject(wrappedValue: navigationRouter)
         self.previewImages = previewImages
     }
 
@@ -31,7 +36,9 @@ struct FeedDetailView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Button(action: { dismiss() }, label: {
+                Button(action: {
+                    navigationRouter.navigateBack()
+                }, label: {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 20))
                         .foregroundStyle(.black)
@@ -111,6 +118,7 @@ struct FeedDetailView: View {
                 }
             }
         }
+        .background(Color.white)
         .navigationBarHidden(true)
         .onAppear {
             Task {
@@ -122,15 +130,17 @@ struct FeedDetailView: View {
 
 // MARK: - Preview
 #Preview {
-    
+
     let mockRepo = MockFeedRepository()
+    let navigationRouter = NavigationRouter()
     let viewModel = FeedDIContainer.makeFeedDetailViewModelForPreview(
         feedId: 1,
         repository: mockRepo
     )
-    
+
     FeedDetailView(
         viewModel: viewModel,
+        navigationRouter: navigationRouter,
         previewImages: [UIImage(systemName: "photo.artframe")!]
     )
 }

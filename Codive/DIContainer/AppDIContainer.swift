@@ -17,7 +17,6 @@ final class AppDIContainer {
     // MARK: - Domain DIContainers
     lazy var sharedDIContainer = SharedDIContainer()
     lazy var closetDIContainer = ClosetDIContainer()
-    lazy var feedDIContainer = FeedDIContainer()
     
     // MARK: - Feature DIContainers
     func makeAuthDIContainer() -> AuthDIContainer {
@@ -30,7 +29,7 @@ final class AppDIContainer {
     func makeAddDIContainer() -> AddDIContainer {
         return AddDIContainer(
             navigationRouter: navigationRouter,
-            feedDIContainer: feedDIContainer,
+            feedDIContainer: makeFeedDIContainer(),
             closetDIContainer: closetDIContainer,
             sharedDIContainer: sharedDIContainer
         )
@@ -57,6 +56,6 @@ final class AppDIContainer {
     }
 
     func makeFeedDIContainer() -> FeedDIContainer {
-        return feedDIContainer
+        return FeedDIContainer(navigationRouter: navigationRouter)
     }
 }

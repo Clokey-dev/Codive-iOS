@@ -33,6 +33,7 @@ final class FeedViewModel: ObservableObject {
 
     // MARK: - Private Properties
 
+    private let navigationRouter: NavigationRouter
     private let fetchFeedsUseCase: FetchFeedsUseCase
     private let feedRepository: FeedRepository
     private var currentPage: Int = 1
@@ -41,12 +42,22 @@ final class FeedViewModel: ObservableObject {
 
     // MARK: - Initialization
 
-    init(fetchFeedsUseCase: FetchFeedsUseCase, feedRepository: FeedRepository) {
+    init(
+        navigationRouter: NavigationRouter,
+        fetchFeedsUseCase: FetchFeedsUseCase,
+        feedRepository: FeedRepository
+    ) {
+        self.navigationRouter = navigationRouter
         self.fetchFeedsUseCase = fetchFeedsUseCase
         self.feedRepository = feedRepository
     }
 
     // MARK: - Public Methods
+
+    /// Feed 상세보기로 이동
+    func navigateToDetail(feedId: Int) {
+        navigationRouter.navigate(to: .feedDetail(feedId: feedId))
+    }
 
     /// 첫 페이지 Feed 로드
     func loadFeeds() async {
@@ -114,9 +125,8 @@ final class FeedViewModel: ObservableObject {
         await loadFeeds()
     }
 
-    /// 좋아요 토글 (낙관적 업데이트)
+    /// 좋아요 토글
     func toggleLike(feedId: Int) async {
-        // 1. 낙관적 업데이트: UI 먼저 업데이트
         guard let index = feeds.firstIndex(where: { $0.id == feedId }) else { return }
 
         let originalFeed = feeds[index]
@@ -137,11 +147,11 @@ final class FeedViewModel: ObservableObject {
             commentCount: originalFeed.commentCount
         )
 
-        // 2. 서버에 요청
+        // 서버에 요청
         do {
             try await feedRepository.toggleLike(feedId: feedId)
         } catch {
-            // 3. 에러 시 롤백
+            // 에러 시 롤백
             feeds[index] = originalFeed
             errorMessage = "좋아요 처리에 실패했습니다"
         }
