@@ -11,9 +11,11 @@ import CoreLocation
 struct HomeView: View {
     private let homeDIContainer: HomeDIContainer
     @StateObject private var viewModel: HomeViewModel
+    @ObservedObject private var navigationRouter: NavigationRouter
 
     init(homeDIContainer: HomeDIContainer) {
         self.homeDIContainer = homeDIContainer
+        self._navigationRouter = ObservedObject(wrappedValue: homeDIContainer.navigationRouter)
         _viewModel = StateObject(wrappedValue: homeDIContainer.makeHomeViewModel())
     }
 
@@ -55,6 +57,11 @@ struct HomeView: View {
             }
             .task {
                 await viewModel.loadWeather(for: nil)
+            }
+            .onChange(of: navigationRouter.currentDestination) { newDestination in
+                if newDestination == nil {
+                    viewModel.loadActiveCategories()
+                }
             }
         }
     }
