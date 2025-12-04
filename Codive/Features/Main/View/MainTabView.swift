@@ -88,9 +88,8 @@ struct MainTabView: View {
     /// 상단 네비게이션 바를 표시할지 여부
     private var shouldShowTopBar: Bool {
         // destination은 ZStack으로 위에 덮이므로 체크하지 않음
-        // 현재 탭의 상태만 확인
-        return viewModel.selectedTab != .add &&
-               !(viewModel.selectedTab == .home && !navigationRouter.path.isEmpty)
+        // Add 탭에서만 상단바 숨김
+        return viewModel.selectedTab != .add
     }
 
     /// 하단 탭 바를 표시할지 여부
@@ -123,6 +122,10 @@ struct MainTabView: View {
             notificationDIContainer.makeNotificationView()
         case .feedDetail(let feedId):
             feedDIContainer.makeFeedDetailView(feedId: feedId)
+        case .editCategory:
+            homeDIContainer.makeEditCategoryView()
+        case .codiBoard:
+            homeDIContainer.makeCodiBoardView()
 
         default:
             EmptyView()
