@@ -60,8 +60,8 @@ private struct ProductThumbnailItem: View {
 #Preview {
     LinkedProductListView(
         tags: [
-            ClothTag(id: UUID(), clothId: UUID(), brand: "Nike", name: "Shirt", locationX: 0, locationY: 0),
-            ClothTag(id: UUID(), clothId: UUID(), brand: "Adidas", name: "Pants", locationX: 0, locationY: 0)
+            ClothTag(id: UUID(), clothId: 1, brand: "Nike", name: "Shirt", locationX: 0, locationY: 0),
+            ClothTag(id: UUID(), clothId: 2, brand: "Adidas", name: "Pants", locationX: 0, locationY: 0)
         ],
         selectedTagId: .constant(nil)
     )

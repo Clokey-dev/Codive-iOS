@@ -18,12 +18,12 @@ final class DefaultClothDataSource: ClothDataSource {
 
     // MARK: - Mock Data
     private let mockClothItems: [ProductItem] = [
-        ProductItem(imageName: "sample1", isTodayCloth: true, brand: "Nike", name: "에어포스 1"),
-        ProductItem(imageName: "sample2", isTodayCloth: true, brand: "Adidas", name: "후디"),
-        ProductItem(imageName: "sample3", isTodayCloth: true, brand: nil, name: "검은 모자"),
-        ProductItem(imageName: "sample4", isTodayCloth: false, brand: "Uniqlo", name: "오버핏 티셔츠"),
-        ProductItem(imageName: "sample5", isTodayCloth: false, brand: "Zara", name: "슬랙스"),
-        ProductItem(imageName: "sample6", isTodayCloth: false, brand: nil, name: nil)
+        ProductItem(id: 1, imageName: "sample1", isTodayCloth: true, brand: "Nike", name: "에어포스 1"),
+        ProductItem(id: 2, imageName: "sample2", isTodayCloth: true, brand: "Adidas", name: "후디"),
+        ProductItem(id: 3, imageName: "sample3", isTodayCloth: true, brand: nil, name: "검은 모자"),
+        ProductItem(id: 4, imageName: "sample4", isTodayCloth: false, brand: "Uniqlo", name: "오버핏 티셔츠"),
+        ProductItem(id: 5, imageName: "sample5", isTodayCloth: false, brand: "Zara", name: "슬랙스"),
+        ProductItem(id: 6, imageName: "sample6", isTodayCloth: false, brand: nil, name: nil)
     ]
 
     // MARK: - Methods

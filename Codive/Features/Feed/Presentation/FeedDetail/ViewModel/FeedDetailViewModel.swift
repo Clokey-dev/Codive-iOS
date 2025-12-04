@@ -81,7 +81,7 @@ final class FeedDetailViewModel: ObservableObject {
             image.tags.map { tag in
                 ClothTag(
                     id: tag.id,
-                    clothId: UUID(),
+                    clothId: tag.clothId,
                     brand: TextLiteral.Feed.defaultBrand,
                     name: TextLiteral.Feed.defaultProductName + " \(tag.clothId)",
                     locationX: CGFloat(tag.locationX),

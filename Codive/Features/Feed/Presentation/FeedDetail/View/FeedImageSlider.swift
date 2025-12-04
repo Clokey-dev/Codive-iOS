@@ -73,7 +73,7 @@ struct FeedImageSlider: View {
     FeedImageSlider(
         images: [UIImage(systemName: "photo")!, UIImage(systemName: "photo.fill")!],
         tags: [
-            [ClothTag(id: UUID(), clothId: UUID(), brand: "Typeservice", name: "Layered Henry Neck", locationX: 0.3, locationY: 0.4)],
+            [ClothTag(id: UUID(), clothId: 1, brand: "Typeservice", name: "Layered Henry Neck", locationX: 0.3, locationY: 0.4)],
             []
         ],
         currentIndex: .constant(0),
