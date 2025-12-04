@@ -45,6 +45,16 @@ final class AddCodiViewModel: ObservableObject {
     func handleCompleteTap() {
         print("코디 등록 완료. 닉네임: \(codiName), 메모: \(memo)")
     }
+
+    func navigateToNewCodi() {
+        isShowingBottomSheet = false
+//        navigationRouter.navigate(to: .recordAdd)
+    }
+
+    func handleRecallCodi() {
+        isShowingBottomSheet = false
+        print("이전 코디 불러오기 tapped")
+    }
 }
 
 extension AddCodiViewModel {

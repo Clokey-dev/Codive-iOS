@@ -86,7 +86,9 @@ struct AddCodiView: View {
                         iconName1: "addCodi",
                         iconName2: "recallCodi",
                         title1: TextLiteral.LookBook.addNewCodi,
-                        title2: TextLiteral.LookBook.getBeforeCodi
+                        title2: TextLiteral.LookBook.getBeforeCodi,
+                        action1: { viewModel.navigateToNewCodi() },
+                        action2: { viewModel.handleRecallCodi() }
                     )
                     .padding(.bottom, 0)
                 }
