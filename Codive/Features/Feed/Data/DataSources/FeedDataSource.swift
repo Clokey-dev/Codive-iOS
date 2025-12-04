@@ -29,7 +29,7 @@ protocol FeedDataSource {
 final class MockFeedDataSource: FeedDataSource {
 
     /// Mock 데이터 저장소
-    private let mockFeeds: [Feed]
+    private var mockFeeds: [Feed]
 
     init() {
         // 샘플 Feed 데이터 30개 생성
@@ -138,8 +138,31 @@ final class MockFeedDataSource: FeedDataSource {
         // 네트워크 지연 시뮬레이션
         try? await Task.sleep(nanoseconds: 200_000_000) // 0.2초
 
-        // Mock: 실제로는 서버에 POST 요청
-        print("Toggled like for feed \(feedId)")
+        guard let index = mockFeeds.firstIndex(where: { $0.id == feedId }) else {
+            throw FeedDataSourceError.notFound
+        }
+
+        let oldFeed = mockFeeds[index]
+        let newIsLiked = !(oldFeed.isLiked ?? false)
+        let newLikeCount = max(0, (oldFeed.likeCount ?? 0) + (newIsLiked ? 1 : -1))
+
+        let newFeed = Feed(
+            id: oldFeed.id,
+            content: oldFeed.content,
+            author: oldFeed.author,
+            images: oldFeed.images,
+            situationId: oldFeed.situationId,
+            styleIds: oldFeed.styleIds,
+            hashtags: oldFeed.hashtags,
+            createdAt: oldFeed.createdAt,
+            likeCount: newLikeCount,
+            isLiked: newIsLiked,
+            commentCount: oldFeed.commentCount
+        )
+
+        mockFeeds[index] = newFeed
+
+        print("Toggled like for feed \(feedId): isLiked=\(newIsLiked), likeCount=\(newLikeCount)")
     }
 }
 
