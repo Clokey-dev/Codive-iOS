@@ -16,7 +16,7 @@ struct LinkedProductListView: View {
     // MARK: - Body
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 10) {
+            HStack {
                 ForEach(tags) { tag in
                     Button(action: {
                         if selectedTagId == tag.id {
@@ -32,7 +32,7 @@ struct LinkedProductListView: View {
                 }
             }
             .padding(.horizontal, 20)
-            .padding(.vertical, 12)
+            .padding(.top, 11)
         }
     }
 }
@@ -51,7 +51,7 @@ private struct ProductThumbnailItem: View {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(isSelected ? Color.black : Color.clear, lineWidth: 2)
+                    .stroke(isSelected ? Color.black : Color.clear, lineWidth: 1)
             )
     }
 }

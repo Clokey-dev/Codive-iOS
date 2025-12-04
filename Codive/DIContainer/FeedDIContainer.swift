@@ -62,3 +62,19 @@ final class FeedDIContainer {
         )
     }
 }
+
+#if DEBUG
+import Foundation
+
+extension FeedDIContainer {
+    @MainActor
+    static func makeFeedDetailViewModelForPreview(feedId: Int, repository: FeedRepository) -> FeedDetailViewModel {
+        let useCase = DefaultFetchFeedDetailUseCase(repository: repository)
+        return FeedDetailViewModel(
+            feedId: feedId,
+            fetchFeedDetailUseCase: useCase,
+            feedRepository: repository
+        )
+    }
+}
+#endif

@@ -2,7 +2,7 @@
 //  View+CornerRadius.swift
 //  Codive
 //
-//  Created by Gemini on 2025/12/01.
+//  Created by 황상환 on 2025/12/01.
 //
 
 import SwiftUI
