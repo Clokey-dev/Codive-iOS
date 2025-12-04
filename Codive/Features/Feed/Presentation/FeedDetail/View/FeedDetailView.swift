@@ -62,18 +62,7 @@ struct FeedDetailView: View {
                         // 이미지 슬라이더
                         FeedImageSlider(
                             images: previewImages ?? [],
-                            tags: feed.images.map { image in
-                                image.tags.map { tag in
-                                    ClothTag(
-                                        id: tag.id,
-                                        clothId: UUID(),
-                                        brand: "Brand",
-                                        name: "Product \(tag.clothId)",
-                                        locationX: CGFloat(tag.locationX),
-                                        locationY: CGFloat(tag.locationY)
-                                    )
-                                }
-                            },
+                            tags: viewModel.displayableTags,
                             currentIndex: $currentImageIndex,
                             showTags: showTagsAndThumbnails,
                             selectedTagId: selectedTagId,
@@ -90,20 +79,11 @@ struct FeedDetailView: View {
                         )
                         
                         // 연동 상품 썸네일 리스트
-                        if showTagsAndThumbnails, feed.images.indices.contains(currentImageIndex) {
-                            let currentTags = feed.images[currentImageIndex].tags
+                        if showTagsAndThumbnails, viewModel.displayableTags.indices.contains(currentImageIndex) {
+                            let currentTags = viewModel.displayableTags[currentImageIndex]
                             if !currentTags.isEmpty {
                                 LinkedProductListView(
-                                    tags: currentTags.map { tag in
-                                        ClothTag(
-                                            id: tag.id,
-                                            clothId: UUID(),
-                                            brand: "Brand",
-                                            name: "Product \(tag.clothId)",
-                                            locationX: CGFloat(tag.locationX),
-                                            locationY: CGFloat(tag.locationY)
-                                        )
-                                    },
+                                    tags: currentTags,
                                     selectedTagId: $selectedTagId
                                 )
                             }
@@ -116,8 +96,8 @@ struct FeedDetailView: View {
                             isLiked: feed.isLiked ?? false,
                             content: feed.content ?? "",
                             hashtags: feed.hashtags ?? [],
-                            date: feed.createdAt?.description ?? "Date N/A",
-                            styles: []
+                            date: viewModel.formattedDate,
+                            styles: viewModel.displayableStyles
                         ) {
                             Task { await viewModel.toggleLike() }
                         }

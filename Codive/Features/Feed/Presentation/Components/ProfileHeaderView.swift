@@ -19,15 +19,14 @@ struct ProfileHeaderView: View {
                 .fill(Color.gray.opacity(0.2))
                 .frame(width: 32, height: 32)
                 .overlay(
-                    // Image(profileImageUrl) ...
-                    Image(systemName: "person.crop.circle.fill") // 임시
+                    Image(systemName: "person.crop.circle.fill")
                         .resizable()
                         .foregroundStyle(Color.gray)
                 )
                 .clipShape(Circle())
             
             Text(nickname)
-                .font(.codive_body2_medium) // or system(14, medium)
+                .font(.codive_body2_medium)
                 .foregroundStyle(Color.Codive.grayscale1)
             
             Spacer()
