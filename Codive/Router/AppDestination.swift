@@ -12,7 +12,7 @@ enum AppDestination: Hashable {
     case signup
     case main
     case recordAdd
-    case clothPhotoSelect  // 옷 추가를 위한 사진 선택
+    case clothPhotoSelect 
     case clothAdd(photos: [SelectedPhoto])
     case photoEdit(photos: [SelectedPhoto])
     case photoEditForCloth(photos: [SelectedPhoto])
