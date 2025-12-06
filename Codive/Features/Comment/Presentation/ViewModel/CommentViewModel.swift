@@ -1,4 +1,9 @@
-// Codive/Features/Comment/Presentation/ViewModel/CommentViewModel.swift
+//
+//  CommentViewModel.swift
+//  Codive
+//
+//  Created by 황상환 on 2025/12/06.
+//
 
 import Foundation
 import Combine

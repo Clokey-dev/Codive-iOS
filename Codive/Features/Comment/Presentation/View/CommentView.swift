@@ -1,86 +1,167 @@
-// Codive/Features/Comment/Presentation/View/CommentView.swift
+//
+//  CommentView.swift
+//  Codive
+//
+//  Created by 황상환 on 2025/12/06.
+//
 
 import SwiftUI
 
 struct CommentView: View {
     @StateObject var viewModel: CommentViewModel
     
+    @Environment(\.dismiss) private var dismiss
+    
     var body: some View {
         VStack(spacing: 0) {
             // MARK: - Header
             HStack {
-                Text("댓글")
-                    .font(.headline)
                 Spacer()
-                Button(action: {
-                    // TODO: 닫기 액션
-                }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.gray)
-                }
+                Text("댓글")
+                    .font(.codive_title2)
+                    .foregroundStyle(Color.Codive.grayscale1)
+                Spacer()
+                Button(action: { dismiss() }, label: {
+                    Image(systemName: "xmark")
+                        .resizable()
+                        .frame(width: 16, height: 16)
+                        .foregroundStyle(Color.Codive.grayscale1)
+                })
             }
-            .padding()
-            .background(Color.white)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
             
-            Divider()
+            Divider().overlay(Color.Codive.grayscale6)
             
             // MARK: - Comment List
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: 15) {
+                LazyVStack(alignment: .leading, spacing: 24) {
                     ForEach(viewModel.comments) { comment in
                         CommentRow(comment: comment)
                     }
                     if viewModel.isLoading {
                         ProgressView()
                             .frame(maxWidth: .infinity)
+                            .padding(.top, 20)
                     }
                 }
-                .padding(.horizontal)
-                .padding(.vertical, 10)
+                .padding(.leading, 20)
+                .padding(.trailing, 30)
+                .padding(.vertical, 24)
             }
             .onAppear {
                 viewModel.fetchFirstPage()
             }
             
-            Divider()
-            
-            // MARK: - Comment Input
-            HStack {
-                TextField("댓글을 입력하세요...", text: $viewModel.currentCommentText)
-                    .textFieldStyle(.roundedBorder)
-                Button("등록") {
-                    viewModel.postComment()
+            // MARK: - Comment Input Area
+            VStack(spacing: 0) {
+                Divider().overlay(Color.Codive.grayscale6)
+                HStack(alignment: .center, spacing: 12) {
+                    TextField("댓글 달기", text: $viewModel.currentCommentText)
+                        .padding(.horizontal, 15)
+                        .frame(height: 40)
+                        .background(Color.Codive.main6)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .font(.codive_body2_regular)
+                    Button(action: {
+                        viewModel.postComment()
+                    }, label: {
+                        Image("comment_enter")
+                            .foregroundStyle(.white)
+                            .frame(width: 35, height: 35)
+                            .background(Color.Codive.main0)
+                            .clipShape(Circle())
+                    })
+                    .disabled(viewModel.currentCommentText.isEmpty)
                 }
-                .disabled(viewModel.currentCommentText.isEmpty)
+                .padding(.horizontal, 20)
+                .padding(.bottom, 40)
+                .padding(.vertical, 12)
             }
-            .padding()
-            .background(Color.white)
         }
-        .background(Color.gray.opacity(0.1))
-        .cornerRadius(16, corners: [.topLeft, .topRight]) // 바텀시트 모양
-        .edgesIgnoringSafeArea(.bottom)
+        .background(Color.white)
+        .clipShape(
+            .rect(
+                topLeadingRadius: 20,
+                bottomLeadingRadius: 0,
+                bottomTrailingRadius: 0,
+                topTrailingRadius: 20
+            )
+        )
+        .ignoresSafeArea(edges: .bottom)
     }
 }
 
-// MARK: - CommentRow (임시)
+// MARK: - CommentRow (리스트 아이템)
 struct CommentRow: View {
     let comment: Comment
+    var isReply: Bool = false
     
+    @State private var isExpanded: Bool = false
+
     var body: some View {
-        HStack(alignment: .top) {
-            Image(systemName: "person.circle.fill") // 프로필 이미지 대체
-                .resizable()
-                .frame(width: 30, height: 30)
+        VStack(alignment: .leading, spacing: 12) {
+            // MARK: 댓글 내용
+            HStack(alignment: .top, spacing: 10) {
+                // 프로필 이미지
+                AsyncImage(url: URL(string: comment.author.profileImageUrl ?? "")) { image in
+                    image.resizable().aspectRatio(contentMode: .fill)
+                } placeholder: {
+                    Circle().fill(Color.Codive.grayscale5)
+                }
+                .frame(width: isReply ? 28 : 36, height: isReply ? 28 : 36)
                 .clipShape(Circle())
-            
-            VStack(alignment: .leading) {
-                Text(comment.author.nickname ?? "익명")
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                Text(comment.content)
-                    .font(.callout)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    // 닉네임
+                    Text(comment.author.nickname)
+                        .font(.codive_body2_medium)
+                        .foregroundStyle(Color.Codive.grayscale1)
+                    
+                    // 댓글내용
+                    Text(comment.content)
+                        .font(.codive_body3_regular)
+                        .foregroundStyle(Color.Codive.grayscale2)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .lineSpacing(4)
+                    
+                    Button(action: {}) {
+                        Text("답글달기")
+                            .font(.codive_body3_regular)
+                            .foregroundStyle(Color.Codive.grayscale4)
+                    }
+                    .padding(.top, 4)
+                    
+                    // MARK: 답글 더보기/숨기기 버튼
+                    if comment.hasReplies, let replies = comment.replies, !replies.isEmpty {
+                        Button(action: {
+                            withAnimation(.easeOut(duration: 0.2)) { isExpanded.toggle() }
+                        }) {
+                            Text(isExpanded ? "— 답글 숨기기" : "— 답글 \(replies.count)개 더 보기")
+                                .font(.codive_body2_regular)
+                                .foregroundStyle(Color.Codive.grayscale4)
+                        }
+                        .padding(.top, 8)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                
+                Button(action: {}) {
+                    Image("more")
+                        .font(.system(size: 12))
+                }
             }
-            Spacer()
+            .padding(.leading, isReply ? 40 : 0)
+            
+            // MARK: 답글 리스트
+            if isExpanded, let replies = comment.replies {
+                VStack(alignment: .leading, spacing: 20) {
+                    ForEach(replies) { reply in
+                        CommentRow(comment: reply, isReply: true)
+                    }
+                }
+                .padding(.top, 10)
+            }
         }
     }
 }
@@ -88,35 +169,7 @@ struct CommentRow: View {
 // MARK: - Preview
 struct CommentView_Previews: PreviewProvider {
     static var previews: some View {
-        // Mock Repository를 사용하여 ViewModel 생성
-        let mockRepository = MockCommentRepository()
-        let viewModel = CommentViewModel(feedId: 1, commentRepository: mockRepository)
-        
-        // 미리보기에서 데이터 로드를 트리거하기 위해 Task 사용
-        // 실제 앱에서는 onAppear에서 호출됩니다.
-        _ = Task {
-            await viewModel.fetchFirstPage()
-        }
-        
-        return CommentView(viewModel: viewModel)
-            .previewLayout(.sizeThatFits)
-            .frame(height: 500) // 바텀시트 높이 시뮬레이션
-    }
-}
-
-// CornerRadius extension (optional, for aesthetics)
-extension View {
-    func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
-        clipShape(RoundedCorner(radius: radius, corners: corners))
-    }
-}
-
-struct RoundedCorner: Shape {
-    var radius: CGFloat = .infinity
-    var corners: UIRectCorner = .allCorners
-    
-    func path(in rect: CGRect) -> Path {
-        let path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
-        return Path(path.cgPath)
+        CommentView(viewModel: CommentViewModel(feedId: 1, commentRepository: MockCommentRepository()))
+            .previewDisplayName("댓글과 답글")
     }
 }
