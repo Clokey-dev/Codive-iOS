@@ -13,7 +13,7 @@ final class MockFeedRepository: FeedRepository {
     var resultFeed: Feed
 
     init(feed: Feed? = nil) {
-        // 만약 외부에서 feed를 주입하지 않으면, 기본 더미 데이터를 생성합니다.
+        // 만약 외부에서 feed를 주입하지 않으면, 기본 더미 데이터를 생성
         if let feed = feed {
             self.resultFeed = feed
         } else {
@@ -50,22 +50,17 @@ final class MockFeedRepository: FeedRepository {
     }
 
     func toggleLike(feedId: Int) async throws {
-        let newIsLiked = !(resultFeed.isLiked ?? false)
-        let newLikeCount = newIsLiked ? (resultFeed.likeCount ?? 0) + 1 : (resultFeed.likeCount ?? 1) - 1
-        
-        resultFeed = Feed(
-            id: resultFeed.id,
-            content: resultFeed.content,
-            author: resultFeed.author,
-            images: resultFeed.images,
-            situationId: resultFeed.situationId,
-            styleIds: resultFeed.styleIds,
-            hashtags: resultFeed.hashtags,
-            createdAt: resultFeed.createdAt,
-            likeCount: newLikeCount,
-            isLiked: newIsLiked,
-            commentCount: resultFeed.commentCount
-        )
+        print("Like toggled for feedId: \(feedId)")
+    }
+    
+    func fetchLikers(feedId: Int) async throws -> [User] {
+        print("Fetching likers for feedId: \(feedId)")
+        return [
+            .init(id: "1", nickname: "패셔니스타", profileImageUrl: nil),
+            .init(id: "2", nickname: "코디장인", profileImageUrl: nil),
+            .init(id: "3", nickname: "스타일헌터", profileImageUrl: nil),
+            .init(id: "4", nickname: "옷잘알", profileImageUrl: nil)
+        ]
     }
 }
 #endif

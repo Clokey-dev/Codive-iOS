@@ -48,7 +48,6 @@ final class FeedDetailViewModel: ObservableObject {
 
     // MARK: - Feed 상세 로딩
 
-    /// Feed 상세 정보를 로드하고 View에 필요한 데이터로 가공합니다.
     func loadFeedDetail() async {
         guard !isLoading else { return }
 

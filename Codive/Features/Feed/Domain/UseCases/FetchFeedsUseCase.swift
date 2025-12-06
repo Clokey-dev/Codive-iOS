@@ -9,7 +9,7 @@ import Foundation
 
 /// Feed 목록을 가져오는 UseCase
 protocol FetchFeedsUseCase {
-    /// Feed 목록을 페이지 단위로 가져옵니다.
+    /// Feed 목록을 페이지 단위로 조회
     /// - Parameters:
     ///   - page: 페이지 번호 (1부터 시작)
     ///   - limit: 한 페이지당 가져올 개수
