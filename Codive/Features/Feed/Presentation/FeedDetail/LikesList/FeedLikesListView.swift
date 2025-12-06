@@ -16,7 +16,7 @@ struct FeedLikesListView: View {
             // MARK: - Header
             HStack {
                 Spacer()
-                Text("좋아요")
+                Text(TextLiteral.LikesList.title)
                     .font(.codive_title2)
                     .foregroundStyle(Color.Codive.grayscale1)
                 Spacer()
@@ -38,7 +38,7 @@ struct FeedLikesListView: View {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 10) {
                     if viewModel.likers.isEmpty {
-                        Text("좋아요를 누른 사람이 없습니다.")
+                        Text(TextLiteral.LikesList.empty)
                             .foregroundStyle(Color.Codive.grayscale3)
                             .padding()
                             .frame(maxWidth: .infinity)
@@ -47,11 +47,11 @@ struct FeedLikesListView: View {
                             CustomUserRow(
                                 user: SimpleUser(
                                     userId: Int(user.id) ?? 0,
-                                    nickname: user.nickname ?? "익명",
+                                    nickname: user.nickname ?? TextLiteral.LikesList.anonymous,
                                     handle: "ID", // User 모델에 handle이 없으므로 임시값 사용
                                     avatarURL: URL(string: user.profileImageUrl ?? "")
                                 ),
-                                buttonTitle: (user.isFollowing ?? false) ? "팔로잉" : "팔로우",
+                                buttonTitle: (user.isFollowing ?? false) ? TextLiteral.LikesList.following : TextLiteral.LikesList.follow,
                                 buttonStyle: (user.isFollowing ?? false) ? .secondary : .primary
                             ) {
                                 // TODO: 팔로우/언팔로우 액션 구현

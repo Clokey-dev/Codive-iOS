@@ -16,7 +16,7 @@ struct CommentView: View {
         VStack(spacing: 0) {
             // MARK: - Header
             ZStack {
-                Text("댓글")
+                Text(TextLiteral.Comment.title)
                     .font(.codive_title2)
                     .foregroundStyle(Color.Codive.grayscale1)
                     .padding(.top, 5)
@@ -60,7 +60,7 @@ struct CommentView: View {
             VStack(spacing: 0) {
                 Divider().overlay(Color.Codive.grayscale6)
                 HStack(alignment: .center, spacing: 12) {
-                    TextField("댓글 달기", text: $viewModel.currentCommentText)
+                    TextField(TextLiteral.Comment.placeholder, text: $viewModel.currentCommentText)
                         .padding(.horizontal, 15)
                         .frame(height: 40)
                         .background(Color.Codive.main6)
@@ -117,7 +117,7 @@ struct CommentRow: View {
                 
                 VStack(alignment: .leading, spacing: 4) {
                     // 닉네임
-                    Text(comment.author.nickname)
+                    Text(comment.author.nickname ?? TextLiteral.Comment.anonymous)
                         .font(.codive_body2_medium)
                         .foregroundStyle(Color.Codive.grayscale1)
                     
@@ -129,7 +129,7 @@ struct CommentRow: View {
                         .lineSpacing(4)
                     
                     Button(action: {}) {
-                        Text("답글달기")
+                        Text(TextLiteral.Comment.addReply)
                             .font(.codive_body3_regular)
                             .foregroundStyle(Color.Codive.grayscale4)
                     }
@@ -140,7 +140,7 @@ struct CommentRow: View {
                         Button(action: {
                             withAnimation(.easeOut(duration: 0.2)) { isExpanded.toggle() }
                         }) {
-                            Text(isExpanded ? "— 답글 숨기기" : "— 답글 \(replies.count)개 더 보기")
+                            Text(isExpanded ? TextLiteral.Comment.hideReplies : TextLiteral.Comment.repliesCount(replies.count))
                                 .font(.codive_body2_regular)
                                 .foregroundStyle(Color.Codive.grayscale4)
                         }

@@ -160,7 +160,7 @@ final class FeedDetailViewModel: ObservableObject {
                 self.likers = try await fetchLikersUseCase.execute(feedId: self.feedId)
                 self.isLikesSheetPresented = true
             } catch {
-                errorMessage = "좋아요 목록을 불러오는데 실패했습니다."
+                errorMessage = TextLiteral.Feed.likesListLoadFailed
             }
         }
     }

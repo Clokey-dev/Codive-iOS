@@ -267,6 +267,7 @@ enum TextLiteral {
         static let dateFormat = "yyyy.M.d"
         static let defaultBrand = "Brand"
         static let defaultProductName = "Product"
+        static let likesListLoadFailed = "좋아요 목록을 불러오는데 실패했습니다."
 
         enum Empty {
             static let noFollowingTitle = "팔로잉한 사람이 아직 없어요."
@@ -277,6 +278,28 @@ enum TextLiteral {
             static let noFeedsSubtitle = "곧 다양한 코디가\n이 스타일 피드에 올려질 예정이에요!"
             static let noFeedsButton = "다른 스타일 보기"
         }
+    }
+    
+    // MARK: - Comment (댓글)
+    enum Comment {
+        static let title = "댓글"
+        static let placeholder = "댓글 달기"
+        static let submit = "등록"
+        static let addReply = "답글달기"
+        static let hideReplies = "- 답글 숨기기"
+        static func repliesCount(_ count: Int) -> String {
+            "- 답글 \(count)개 더 보기"
+        }
+        static let anonymous = "익명"
+    }
+    
+    // MARK: - LikesList (좋아요 목록)
+    enum LikesList {
+        static let title = "좋아요"
+        static let empty = "좋아요를 누른 사람이 없습니다."
+        static let anonymous = "익명 사용자"
+        static let follow = "팔로우"
+        static let following = "팔로잉"
     }
 }
 
