@@ -104,10 +104,14 @@ struct FeedDetailView: View {
                             content: feed.content ?? "",
                             hashtags: feed.hashtags ?? [],
                             date: viewModel.formattedDate,
-                            styles: viewModel.displayableStyles
-                        ) {
-                            Task { await viewModel.toggleLike() }
-                        }
+                            styles: viewModel.displayableStyles,
+                            onLikeTap: {
+                                Task { await viewModel.toggleLike() }
+                            },
+                            onCommentTap: {
+                                viewModel.commentButtonTapped()
+                            }
+                        )
                     } else if viewModel.isLoading {
                         ProgressView()
                             .frame(maxWidth: .infinity, minHeight: 300)

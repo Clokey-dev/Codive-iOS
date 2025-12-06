@@ -83,6 +83,12 @@ struct MainTabView: View {
             }
         }
         .animation(.easeInOut(duration: 0.3), value: navigationRouter.currentDestination)
+        .sheet(item: $navigationRouter.sheetDestination, onDismiss: {
+            navigationRouter.dismissSheet()
+        }, content: { destination in
+            destinationView(for: destination)
+                .presentationDetents([.medium, .large])
+        })
     }
     
     // MARK: - Computed Properties

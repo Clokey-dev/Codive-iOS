@@ -29,7 +29,7 @@ struct CommentView: View {
                 })
             }
             .padding(.horizontal, 20)
-            .padding(.vertical, 16)
+            .padding(.vertical, 20)
             
             Divider().overlay(Color.Codive.grayscale6)
             

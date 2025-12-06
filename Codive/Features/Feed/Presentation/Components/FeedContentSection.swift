@@ -16,6 +16,7 @@ struct FeedContentSection: View {
     let date: String
     let styles: [String]
     let onLikeTap: () -> Void
+    let onCommentTap: () -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -25,6 +26,8 @@ struct FeedContentSection: View {
                 Button(action: onLikeTap) {
                     HStack(spacing: 4) {
                         Image(systemName: isLiked ? "heart.fill" : "heart")
+                            .resizable()
+                            .frame(width: 16, height: 16)
                             .foregroundStyle(isLiked ? Color.red : Color.black)
                         Text("\(likeCount)")
                             .font(.codive_body2_regular)
@@ -32,11 +35,15 @@ struct FeedContentSection: View {
                     }
                 }
                 
-                HStack(spacing: 4) {
-                    Image(systemName: "bubble.right")
-                    Text("\(commentCount)")
-                        .font(.codive_body2_regular)
-                        .foregroundStyle(Color.black)
+                Button(action: onCommentTap) {
+                    HStack(spacing: 4) {
+                        Image("comment")
+                            .resizable()
+                            .frame(width: 20, height: 20)
+                        Text("\(commentCount)")
+                            .font(.codive_body2_regular)
+                            .foregroundStyle(Color.black)
+                    }
                 }
                 Spacer()
             }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum AppDestination: Hashable {
+enum AppDestination: Hashable, Identifiable {
     case login
     case signup
     case main
@@ -32,6 +32,8 @@ enum AppDestination: Hashable {
     case notification
     case feedDetail(feedId: Int)
     case comment(feedId: Int)
+    
+    var id: Self { self }
     
     // MARK: - UI 제어
 

@@ -147,9 +147,7 @@ final class FeedDetailViewModel: ObservableObject {
     }
     
     // MARK: - 댓글 화면 이동
-    
-    /// 댓글 버튼을 눌렀을 때 댓글 화면으로 이동
     func commentButtonTapped() {
-        navigationRouter.navigate(to: .comment(feedId: self.feedId))
+        navigationRouter.presentSheet(for: .comment(feedId: self.feedId))
     }
 }
