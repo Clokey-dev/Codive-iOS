@@ -15,21 +15,24 @@ struct CommentView: View {
     var body: some View {
         VStack(spacing: 0) {
             // MARK: - Header
-            HStack {
-                Spacer()
+            ZStack {
                 Text("댓글")
                     .font(.codive_title2)
                     .foregroundStyle(Color.Codive.grayscale1)
-                Spacer()
-                Button(action: { dismiss() }, label: {
-                    Image(systemName: "xmark")
-                        .resizable()
-                        .frame(width: 16, height: 16)
-                        .foregroundStyle(Color.Codive.grayscale1)
-                })
+                    .padding(.top, 5)
+                
+                HStack {
+                    Spacer()
+                    Button(action: { dismiss() }, label: {
+                        Image(systemName: "xmark")
+                            .resizable()
+                            .frame(width: 16, height: 16)
+                            .foregroundStyle(Color.Codive.grayscale1)
+                    })
+                    .padding(.trailing, 25)
+                }
             }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 20)
+            .frame(height: 56)
             
             Divider().overlay(Color.Codive.grayscale6)
             
