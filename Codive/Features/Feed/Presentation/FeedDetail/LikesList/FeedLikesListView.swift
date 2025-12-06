@@ -22,12 +22,12 @@ struct FeedLikesListView: View {
                 Spacer()
                 Button(action: {
                     dismiss()
-                }) {
+                }, label: {
                     Image(systemName: "xmark")
                         .resizable()
                         .frame(width: 16, height: 16)
                         .foregroundStyle(Color.Codive.grayscale1)
-                }
+                })
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 16)
@@ -47,15 +47,15 @@ struct FeedLikesListView: View {
                             CustomUserRow(
                                 user: SimpleUser(
                                     userId: Int(user.id) ?? 0,
-                                    nickname: user.nickname ?? TextLiteral.LikesList.anonymous,
-                                    handle: "ID", // User 모델에 handle이 없으므로 임시값 사용
+                                    nickname: user.nickname,
+                                    handle: "ID",
                                     avatarURL: URL(string: user.profileImageUrl ?? "")
                                 ),
                                 buttonTitle: (user.isFollowing ?? false) ? TextLiteral.LikesList.following : TextLiteral.LikesList.follow,
                                 buttonStyle: (user.isFollowing ?? false) ? .secondary : .primary
                             ) {
                                 // TODO: 팔로우/언팔로우 액션 구현
-                                print("팔로우/언팔로우 \(user.nickname ?? "")")
+                                print("팔로우/언팔로우 \(user.nickname)")
                             }
                         }
                     }
@@ -71,7 +71,6 @@ struct FeedLikesListView: View {
 struct FeedLikesListView_Previews: PreviewProvider {
     static var previews: some View {
         let mockRepo = MockFeedRepository()
-        let appDIContainer = AppDIContainer() // Preview를 위해 임시 생성
         let navigationRouter = NavigationRouter()
         let viewModel = FeedDIContainer.makeFeedDetailViewModelForPreview(
             feedId: 1,

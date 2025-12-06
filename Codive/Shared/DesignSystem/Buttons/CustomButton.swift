@@ -23,7 +23,7 @@ struct CustomButton: View {
     let widthType: ButtonWidthType
     var styleType: ButtonStyleType = .fill
     var isEnabled: Bool = true
-    var textColor: Color? = nil // New parameter
+    var textColor: Color? // = nil 제거
     let action: () -> Void
 
     var body: some View {
@@ -64,7 +64,7 @@ struct WidthModifier: ViewModifier {
 struct TextStyleModifier: ViewModifier {
     let type: ButtonStyleType
     let isEnabled: Bool
-    var customTextColor: Color? // New parameter
+    var customTextColor: Color? // = nil 제거
     
     func body(content: Content) -> some View {
         content.foregroundStyle(customTextColor ?? defaultTextColor)

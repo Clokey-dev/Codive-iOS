@@ -40,10 +40,11 @@ final class MockCommentRepository: CommentRepository {
 // MARK: - Mock Data
 
 private let mockUsers: [User] = [
+
     .init(id: "1", nickname: "패셔니스타", profileImageUrl: "https://example.com/p1.jpg"),
     .init(id: "2", nickname: "코디장인", profileImageUrl: "https://example.com/p2.jpg"),
     .init(id: "3", nickname: "CurrentUser", profileImageUrl: nil),
-    .init(id: "4", nickname: "궁금러", profileImageUrl: "https://example.com/p4.jpg"),
+    .init(id: "4", nickname: "궁금러", profileImageUrl: "https://example.com/p4.jpg")
 ]
 
 private let mockComments: [Comment] = [

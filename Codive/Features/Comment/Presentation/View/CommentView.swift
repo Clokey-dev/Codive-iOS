@@ -117,7 +117,7 @@ struct CommentRow: View {
                 
                 VStack(alignment: .leading, spacing: 4) {
                     // 닉네임
-                    Text(comment.author.nickname ?? TextLiteral.Comment.anonymous)
+                    Text(comment.author.nickname)
                         .font(.codive_body2_medium)
                         .foregroundStyle(Color.Codive.grayscale1)
                     
@@ -128,31 +128,31 @@ struct CommentRow: View {
                         .fixedSize(horizontal: false, vertical: true)
                         .lineSpacing(4)
                     
-                    Button(action: {}) {
+                    Button(action: {}, label: {
                         Text(TextLiteral.Comment.addReply)
                             .font(.codive_body3_regular)
                             .foregroundStyle(Color.Codive.grayscale4)
-                    }
+                    })
                     .padding(.top, 4)
                     
                     // MARK: 답글 더보기/숨기기 버튼
                     if comment.hasReplies, let replies = comment.replies, !replies.isEmpty {
                         Button(action: {
                             withAnimation(.easeOut(duration: 0.2)) { isExpanded.toggle() }
-                        }) {
+                        }, label: {
                             Text(isExpanded ? TextLiteral.Comment.hideReplies : TextLiteral.Comment.repliesCount(replies.count))
                                 .font(.codive_body2_regular)
                                 .foregroundStyle(Color.Codive.grayscale4)
-                        }
+                        })
                         .padding(.top, 8)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 
-                Button(action: {}) {
+                Button(action: {}, label: {
                     Image("more")
                         .font(.system(size: 12))
-                }
+                })
             }
             .padding(.leading, isReply ? 40 : 0)
             

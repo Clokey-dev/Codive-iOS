@@ -36,9 +36,10 @@ struct FeedEmptyView: View {
                 text: buttonText,
                 widthType: .dynamic,
                 styleType: buttonStyle,
-                textColor: Color.white,
-                action: buttonAction
-            )
+                textColor: Color.white
+            ) { // 후행 클로저로 변경
+                buttonAction()
+            }
             
             Spacer()
             Spacer()
@@ -80,12 +81,5 @@ struct FeedEmptyView: View {
         case .noFeeds:
             return .fill
         }
-    }
-}
-
-#Preview {
-    VStack {
-        FeedEmptyView(type: .noFollowing, buttonAction: {})
-        FeedEmptyView(type: .noFeeds, buttonAction: {})
     }
 }
