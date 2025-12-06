@@ -32,8 +32,8 @@ final class FeedRepositoryImpl: FeedRepository {
         )
     }
 
-    func fetchFeedDetail(id: Int) async throws -> Feed {
-        return try await dataSource.fetchFeedDetail(id: id)
+    func fetchFeedDetail(feedId: Int) async throws -> Feed {
+        return try await dataSource.fetchFeedDetail(id: feedId)
     }
 
     func toggleLike(feedId: Int) async throws {

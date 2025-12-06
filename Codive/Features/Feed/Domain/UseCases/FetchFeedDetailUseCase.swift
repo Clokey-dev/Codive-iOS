@@ -23,6 +23,6 @@ final class DefaultFetchFeedDetailUseCase: FetchFeedDetailUseCase {
     }
 
     func execute(feedId: Int) async throws -> Feed {
-        return try await repository.fetchFeedDetail(id: feedId)
+        return try await repository.fetchFeedDetail(feedId: feedId)
     }
 }

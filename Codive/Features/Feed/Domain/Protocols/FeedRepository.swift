@@ -9,7 +9,13 @@ import Foundation
 
 protocol FeedRepository {
     // MARK: - 피드 전체 조회
-    func fetchFeeds() async throws -> [Feed]
+    func fetchFeeds(
+        page: Int,
+        limit: Int,
+        styleIds: [Int]?,
+        situationIds: [Int]?,
+        followingOnly: Bool
+    ) async throws -> [Feed]
     
     // MARK: - 피드 상세 조회
     func fetchFeedDetail(feedId: Int) async throws -> Feed

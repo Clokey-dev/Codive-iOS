@@ -52,6 +52,10 @@ final class FeedDIContainer {
     func makeFetchFeedDetailUseCase() -> FetchFeedDetailUseCase {
         return DefaultFetchFeedDetailUseCase(repository: feedRepository)
     }
+    
+    func makeFetchFeedLikersUseCase() -> FetchFeedLikersUseCase {
+        return DefaultFetchFeedLikersUseCase(feedRepository: feedRepository)
+    }
 
     // MARK: - ViewModels
 
@@ -67,8 +71,9 @@ final class FeedDIContainer {
         return FeedDetailViewModel(
             feedId: feedId,
             fetchFeedDetailUseCase: makeFetchFeedDetailUseCase(),
+            fetchLikersUseCase: makeFetchFeedLikersUseCase(), // FetchLikersUseCase 주입 추가
             feedRepository: feedRepository,
-            navigationRouter: navigationRouter // navigationRouter 주입 추가
+            navigationRouter: navigationRouter
         )
     }
 
@@ -91,9 +96,11 @@ extension FeedDIContainer {
         navigationRouter: NavigationRouter
     ) -> FeedDetailViewModel {
         let useCase = DefaultFetchFeedDetailUseCase(repository: repository)
+        let likersUseCase = DefaultFetchFeedLikersUseCase(feedRepository: repository) // FetchFeedLikersUseCase 추가
         return FeedDetailViewModel(
             feedId: feedId,
             fetchFeedDetailUseCase: useCase,
+            fetchLikersUseCase: likersUseCase, // FetchLikersUseCase 주입 추가
             feedRepository: repository,
             navigationRouter: navigationRouter
         )

@@ -17,22 +17,30 @@ struct FeedContentSection: View {
     let styles: [String]
     let onLikeTap: () -> Void
     let onCommentTap: () -> Void
+    let onLikesCountTap: () -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             
             // Action Buttons
             HStack(spacing: 16) {
-                Button(action: onLikeTap) {
-                    HStack(spacing: 4) {
-                        Image(systemName: isLiked ? "heart.fill" : "heart")
+                HStack(spacing: 4) {
+                    // 좋아요 아이콘 버튼
+                    Button(action: onLikeTap) {
+                        // TODO: - 하트 이미지 수정 필요
+                        Image(isLiked ? "heart_off_black" : "heart_on")
                             .resizable()
-                            .frame(width: 16, height: 16)
-                            .foregroundStyle(isLiked ? Color.red : Color.black)
-                        Text("\(likeCount)")
-                            .font(.codive_body2_regular)
-                            .foregroundStyle(Color.black)
+                            .frame(width: 24, height: 24)
                     }
+                    
+                    // 좋아요 숫자 버튼
+                    Button(action: onLikesCountTap) {
+                        Text("\(likeCount)")
+                            .font(.codive_body1_medium)
+                            .foregroundStyle(Color.black)
+                            .monospacedDigit()
+                    }
+                    .disabled(likeCount == 0)
                 }
                 
                 Button(action: onCommentTap) {
@@ -41,7 +49,7 @@ struct FeedContentSection: View {
                             .resizable()
                             .frame(width: 20, height: 20)
                         Text("\(commentCount)")
-                            .font(.codive_body2_regular)
+                            .font(.codive_body1_medium)
                             .foregroundStyle(Color.black)
                     }
                 }

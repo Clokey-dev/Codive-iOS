@@ -45,7 +45,7 @@ final class MockFeedRepository: FeedRepository {
         return []
     }
 
-    func fetchFeedDetail(id: Int) async throws -> Feed {
+    func fetchFeedDetail(feedId: Int) async throws -> Feed {
         return resultFeed
     }
 

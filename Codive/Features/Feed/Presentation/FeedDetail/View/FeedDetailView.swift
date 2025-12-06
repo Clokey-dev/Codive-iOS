@@ -110,6 +110,9 @@ struct FeedDetailView: View {
                             },
                             onCommentTap: {
                                 viewModel.commentButtonTapped()
+                            },
+                            onLikesCountTap: {
+                                viewModel.likesCountTapped()
                             }
                         )
                     } else if viewModel.isLoading {
@@ -129,6 +132,12 @@ struct FeedDetailView: View {
                 await viewModel.loadFeedDetail()
             }
         }
+        .sheet(isPresented: $viewModel.isLikesSheetPresented, onDismiss: {
+            viewModel.isLikesSheetPresented = false
+        }, content: {
+            FeedLikesListView(viewModel: viewModel)
+                .presentationDetents([.medium, .large])
+        })
     }
 }
 

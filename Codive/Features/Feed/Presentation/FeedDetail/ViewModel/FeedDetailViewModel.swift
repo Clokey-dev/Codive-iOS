@@ -19,13 +19,17 @@ final class FeedDetailViewModel: ObservableObject {
     @Published var displayableStyles: [String] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
+    
+    @Published var likers: [User] = [] // 좋아요 누른 유저 목록
+    @Published var isLikesSheetPresented: Bool = false // 좋아요 목록 시트 표시 여부
 
     // MARK: - Private Properties
 
     private let feedId: Int
     private let fetchFeedDetailUseCase: FetchFeedDetailUseCase
+    private let fetchLikersUseCase: FetchFeedLikersUseCase // FetchFeedLikersUseCase 추가
     private let feedRepository: FeedRepository
-    private let navigationRouter: NavigationRouter // NavigationRouter 추가
+    private let navigationRouter: NavigationRouter
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = TextLiteral.Feed.dateFormat
@@ -37,11 +41,13 @@ final class FeedDetailViewModel: ObservableObject {
     init(
         feedId: Int,
         fetchFeedDetailUseCase: FetchFeedDetailUseCase,
+        fetchLikersUseCase: FetchFeedLikersUseCase, // FetchLikersUseCase 주입
         feedRepository: FeedRepository,
-        navigationRouter: NavigationRouter // NavigationRouter 주입
+        navigationRouter: NavigationRouter
     ) {
         self.feedId = feedId
         self.fetchFeedDetailUseCase = fetchFeedDetailUseCase
+        self.fetchLikersUseCase = fetchLikersUseCase
         self.feedRepository = feedRepository
         self.navigationRouter = navigationRouter
     }
@@ -142,6 +148,20 @@ final class FeedDetailViewModel: ObservableObject {
             return current + 1
         } else {
             return max(0, current - 1)
+        }
+    }
+    
+    // MARK: - 좋아요 목록 화면 이동
+    
+    /// 좋아요 개수를 탭했을 때 좋아요 목록 시트
+    func likesCountTapped() {
+        Task {
+            do {
+                self.likers = try await fetchLikersUseCase.execute(feedId: self.feedId)
+                self.isLikesSheetPresented = true
+            } catch {
+                errorMessage = "좋아요 목록을 불러오는데 실패했습니다."
+            }
         }
     }
     
