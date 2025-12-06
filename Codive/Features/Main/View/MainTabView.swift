@@ -18,6 +18,7 @@ struct MainTabView: View {
     private let feedDIContainer: FeedDIContainer
     private let searchDIContainer: SearchDIContainer
     private let notificationDIContainer: NotificationDIContainer
+    private let commentDIContainer: CommentDIContainer
 
     // MARK: - Initializer
     init(appDIContainer: AppDIContainer) {
@@ -27,6 +28,7 @@ struct MainTabView: View {
         self.feedDIContainer = appDIContainer.makeFeedDIContainer()
         self.searchDIContainer = appDIContainer.makeSearchDIContainer()
         self.notificationDIContainer = appDIContainer.makeNotificationDIContainer()
+        self.commentDIContainer = appDIContainer.makeCommentDIContainer()
 
         self._navigationRouter = ObservedObject(wrappedValue: appDIContainer.navigationRouter)
         let viewModel = MainTabViewModel(navigationRouter: appDIContainer.navigationRouter)
@@ -122,6 +124,8 @@ struct MainTabView: View {
             notificationDIContainer.makeNotificationView()
         case .feedDetail(let feedId):
             feedDIContainer.makeFeedDetailView(feedId: feedId)
+        case .comment(let feedId):
+            commentDIContainer.makeCommentView(feedId: feedId)
         case .editCategory:
             homeDIContainer.makeEditCategoryView()
         case .codiBoard:

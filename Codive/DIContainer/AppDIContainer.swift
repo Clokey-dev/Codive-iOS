@@ -58,4 +58,8 @@ final class AppDIContainer {
     func makeFeedDIContainer() -> FeedDIContainer {
         return FeedDIContainer(navigationRouter: navigationRouter)
     }
+    
+    func makeCommentDIContainer() -> CommentDIContainer {
+        return CommentDIContainer(navigationRouter: navigationRouter)
+    }
 }

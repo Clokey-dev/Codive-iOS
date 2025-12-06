@@ -13,12 +13,15 @@ protocol FetchCommentsUseCase {
 
 final class DefaultFetchCommentsUseCase: FetchCommentsUseCase {
     
+    // MARK: - Properties
     private let commentRepository: CommentRepository
     
+    // MARK: - Initializer
     init(commentRepository: CommentRepository) {
         self.commentRepository = commentRepository
     }
     
+    // MARK: - FetchCommentsUseCase
     func execute(feedId: Int, page: Int) async throws -> (comments: [Comment], hasNext: Bool) {
         return try await commentRepository.fetchComments(feedId: feedId, page: page)
     }

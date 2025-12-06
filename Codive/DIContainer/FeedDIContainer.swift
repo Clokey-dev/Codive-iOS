@@ -67,7 +67,8 @@ final class FeedDIContainer {
         return FeedDetailViewModel(
             feedId: feedId,
             fetchFeedDetailUseCase: makeFetchFeedDetailUseCase(),
-            feedRepository: feedRepository
+            feedRepository: feedRepository,
+            navigationRouter: navigationRouter // navigationRouter 주입 추가
         )
     }
 
@@ -84,12 +85,17 @@ final class FeedDIContainer {
 #if DEBUG
 extension FeedDIContainer {
     @MainActor
-    static func makeFeedDetailViewModelForPreview(feedId: Int, repository: FeedRepository) -> FeedDetailViewModel {
+    static func makeFeedDetailViewModelForPreview(
+        feedId: Int,
+        repository: FeedRepository,
+        navigationRouter: NavigationRouter
+    ) -> FeedDetailViewModel {
         let useCase = DefaultFetchFeedDetailUseCase(repository: repository)
         return FeedDetailViewModel(
             feedId: feedId,
             fetchFeedDetailUseCase: useCase,
-            feedRepository: repository
+            feedRepository: repository,
+            navigationRouter: navigationRouter
         )
     }
 }

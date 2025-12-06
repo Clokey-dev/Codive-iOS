@@ -135,7 +135,8 @@ struct FeedDetailView: View {
     let navigationRouter = NavigationRouter()
     let viewModel = FeedDIContainer.makeFeedDetailViewModelForPreview(
         feedId: 1,
-        repository: mockRepo
+        repository: mockRepo,
+        navigationRouter: navigationRouter 
     )
 
     FeedDetailView(

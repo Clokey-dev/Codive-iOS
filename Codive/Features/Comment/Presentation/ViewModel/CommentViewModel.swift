@@ -28,16 +28,19 @@ final class CommentViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     
     private let feedId: Int
-    private let commentRepository: CommentRepository
+    private let fetchCommentsUseCase: FetchCommentsUseCase
+    private let postCommentUseCase: PostCommentUseCase
     
     // MARK: - Initializer
     
     init(
         feedId: Int,
-        commentRepository: CommentRepository
+        fetchCommentsUseCase: FetchCommentsUseCase,
+        postCommentUseCase: PostCommentUseCase
     ) {
         self.feedId = feedId
-        self.commentRepository = commentRepository
+        self.fetchCommentsUseCase = fetchCommentsUseCase
+        self.postCommentUseCase = postCommentUseCase
     }
     
     // MARK: - Public Methods
@@ -48,7 +51,7 @@ final class CommentViewModel: ObservableObject {
         
         Task {
             do {
-                let result = try await commentRepository.fetchComments(feedId: feedId, page: 0)
+                let result = try await fetchCommentsUseCase.execute(feedId: feedId, page: 0)
                 self.comments = result.comments
                 self.hasNextPage = result.hasNext
             } catch {
@@ -65,10 +68,11 @@ final class CommentViewModel: ObservableObject {
     
     func postComment() {
         guard !currentCommentText.isEmpty else { return }
+        let content = currentCommentText
         
         Task {
             do {
-                let newComment = try await commentRepository.postComment(feedId: feedId, content: currentCommentText)
+                let newComment = try await postCommentUseCase.execute(feedId: feedId, content: content)
                 self.comments.insert(newComment, at: 0)
                 self.currentCommentText = ""
             } catch {

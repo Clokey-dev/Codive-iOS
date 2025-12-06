@@ -14,12 +14,15 @@ protocol PostCommentUseCase {
 
 final class DefaultPostCommentUseCase: PostCommentUseCase {
     
+    // MARK: - Properties
     private let commentRepository: CommentRepository
     
+    // MARK: - Initializer
     init(commentRepository: CommentRepository) {
         self.commentRepository = commentRepository
     }
     
+    // MARK: - PostCommentUseCase
     @discardableResult
     func execute(feedId: Int, content: String) async throws -> Comment {
         return try await commentRepository.postComment(feedId: feedId, content: content)

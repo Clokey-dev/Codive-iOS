@@ -31,6 +31,7 @@ enum AppDestination: Hashable {
     case searchResult(query: String)
     case notification
     case feedDetail(feedId: Int)
+    case comment(feedId: Int)
     
     // MARK: - UI 제어
 
@@ -52,7 +53,7 @@ enum AppDestination: Hashable {
             return true
             
         // Feed Flow
-        case .feedDetail:
+        case .feedDetail, .comment:
             return true
 
         // 다른 플로우 전체 화면은 여기에 추가
@@ -82,7 +83,7 @@ enum AppDestination: Hashable {
             return false
 
         // Feed Flow - 자체 네비게이션 바 있음
-        case .feedDetail:
+        case .feedDetail, .comment:
             return false
 
         default:

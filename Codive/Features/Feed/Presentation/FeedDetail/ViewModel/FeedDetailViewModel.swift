@@ -25,6 +25,7 @@ final class FeedDetailViewModel: ObservableObject {
     private let feedId: Int
     private let fetchFeedDetailUseCase: FetchFeedDetailUseCase
     private let feedRepository: FeedRepository
+    private let navigationRouter: NavigationRouter // NavigationRouter 추가
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = TextLiteral.Feed.dateFormat
@@ -36,11 +37,13 @@ final class FeedDetailViewModel: ObservableObject {
     init(
         feedId: Int,
         fetchFeedDetailUseCase: FetchFeedDetailUseCase,
-        feedRepository: FeedRepository
+        feedRepository: FeedRepository,
+        navigationRouter: NavigationRouter // NavigationRouter 주입
     ) {
         self.feedId = feedId
         self.fetchFeedDetailUseCase = fetchFeedDetailUseCase
         self.feedRepository = feedRepository
+        self.navigationRouter = navigationRouter
     }
 
     // MARK: - Feed 상세 로딩
@@ -141,5 +144,12 @@ final class FeedDetailViewModel: ObservableObject {
         } else {
             return max(0, current - 1)
         }
+    }
+    
+    // MARK: - 댓글 화면 이동
+    
+    /// 댓글 버튼을 눌렀을 때 댓글 화면으로 이동
+    func commentButtonTapped() {
+        navigationRouter.navigate(to: .comment(feedId: self.feedId))
     }
 }

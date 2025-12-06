@@ -168,8 +168,19 @@ struct CommentRow: View {
 
 // MARK: - Preview
 struct CommentView_Previews: PreviewProvider {
+    
     static var previews: some View {
-        CommentView(viewModel: CommentViewModel(feedId: 1, commentRepository: MockCommentRepository()))
+        let mockRepository = MockCommentRepository()
+        let fetchUseCase = DefaultFetchCommentsUseCase(commentRepository: mockRepository)
+        let postUseCase = DefaultPostCommentUseCase(commentRepository: mockRepository)
+        
+        let viewModel = CommentViewModel(
+            feedId: 1,
+            fetchCommentsUseCase: fetchUseCase,
+            postCommentUseCase: postUseCase
+        )
+        
+        return CommentView(viewModel: viewModel)
             .previewDisplayName("댓글과 답글")
     }
 }
