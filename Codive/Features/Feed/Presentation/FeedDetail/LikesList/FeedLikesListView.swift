@@ -48,7 +48,7 @@ struct FeedLikesListView: View {
                                 user: SimpleUser(
                                     userId: Int(user.id) ?? 0,
                                     nickname: user.nickname,
-                                    handle: "ID",
+                                    handle: user.id,
                                     avatarURL: URL(string: user.profileImageUrl ?? "")
                                 ),
                                 buttonTitle: (user.isFollowing ?? false) ? TextLiteral.LikesList.following : TextLiteral.LikesList.follow,
