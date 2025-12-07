@@ -19,7 +19,7 @@ final class MockCommentDataSource: CommentDataSource {
         try await Task.sleep(nanoseconds: 500_000_000)
         
         if page == 0 {
-            return (comments: mockComments, hasNext: true)
+            return (comments: CommentMockData.comments, hasNext: true)
         } else {
             return (comments: [], hasNext: false)
         }
@@ -31,31 +31,9 @@ final class MockCommentDataSource: CommentDataSource {
         let newComment = Comment(
             id: Int.random(in: 100...999),
             content: content,
-            author: mockUsers[2], // "CurrentUser"
+            author: CommentMockData.users[2], // "CurrentUser"
             isMine: true
         )
         return newComment
     }
 }
-
-// MARK: - Mock Data
-private let mockUsers: [User] = [
-    .init(id: "1", nickname: "패셔니스타", profileImageUrl: "https://example.com/p1.jpg"),
-    .init(id: "2", nickname: "코디장인", profileImageUrl: "https://example.com/p2.jpg"),
-    .init(id: "3", nickname: "CurrentUser", profileImageUrl: nil),
-    .init(id: "4", nickname: "궁금러", profileImageUrl: "https://example.com/p4.jpg")
-]
-
-private let mockComments: [Comment] = [
-    {
-        var comment = Comment(id: 1, content: "와, 이 코디 정말 멋져요! 어디서 구매하셨나요?", author: mockUsers[0], isMine: false, hasReplies: true)
-        comment.replies = [
-            .init(id: 101, content: "그러게요! 저도 궁금해요!", author: mockUsers[1], isMine: false),
-            .init(id: 102, content: "상의 정보 알 수 있을까요?", author: mockUsers[0], isMine: true),
-            .init(id: 103, content: "DM 확인해주세요~", author: mockUsers[3], isMine: false),
-            .init(id: 104, content: "네, 확인했어요!", author: mockUsers[0], isMine: true)
-        ]
-        return comment
-    }(),
-    .init(id: 2, content: "신발 정보 좀 알 수 있을까요? 🥹", author: mockUsers[1], isMine: false, hasReplies: false)
-]

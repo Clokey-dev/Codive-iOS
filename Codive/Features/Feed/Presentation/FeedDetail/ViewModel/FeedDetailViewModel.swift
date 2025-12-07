@@ -41,7 +41,7 @@ final class FeedDetailViewModel: ObservableObject {
     init(
         feedId: Int,
         fetchFeedDetailUseCase: FetchFeedDetailUseCase,
-        fetchLikersUseCase: FetchFeedLikersUseCase, // FetchLikersUseCase 주입
+        fetchLikersUseCase: FetchFeedLikersUseCase,
         feedRepository: FeedRepository,
         navigationRouter: NavigationRouter
     ) {

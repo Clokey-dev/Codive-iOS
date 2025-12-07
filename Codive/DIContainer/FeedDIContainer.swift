@@ -71,7 +71,7 @@ final class FeedDIContainer {
         return FeedDetailViewModel(
             feedId: feedId,
             fetchFeedDetailUseCase: makeFetchFeedDetailUseCase(),
-            fetchLikersUseCase: makeFetchFeedLikersUseCase(), // FetchLikersUseCase 주입 추가
+            fetchLikersUseCase: makeFetchFeedLikersUseCase(),
             feedRepository: feedRepository,
             navigationRouter: navigationRouter
         )
@@ -100,7 +100,7 @@ extension FeedDIContainer {
         return FeedDetailViewModel(
             feedId: feedId,
             fetchFeedDetailUseCase: useCase,
-            fetchLikersUseCase: likersUseCase, // FetchLikersUseCase 주입 추가
+            fetchLikersUseCase: likersUseCase,
             feedRepository: repository,
             navigationRouter: navigationRouter
         )
