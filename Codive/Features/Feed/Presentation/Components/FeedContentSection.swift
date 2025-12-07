@@ -28,7 +28,7 @@ struct FeedContentSection: View {
                     // 좋아요 아이콘 버튼
                     Button(action: onLikeTap) {
                         // TODO: - 하트 이미지 수정 필요
-                        Image(isLiked ? "heart_on" : "heart_off_black")
+                        Image(isLiked ? "heart_on_main" : "heart_off_black")
                             .resizable()
                             .frame(width: 24, height: 24)
                     }

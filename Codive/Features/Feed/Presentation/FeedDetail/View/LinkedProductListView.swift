@@ -53,6 +53,7 @@ private struct ProductThumbnailItem: View {
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(isSelected ? Color.black : Color.clear, lineWidth: 1)
             )
+            .padding(.bottom, 2)
     }
 }
 
