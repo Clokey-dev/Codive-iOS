@@ -31,7 +31,8 @@ struct RemoteTaggableImageView: View {
                     selectedTagId: selectedTagId,
                     onTagTap: onTagTap,
                     isDraggable: false,
-                    isReadOnly: true
+                    isReadOnly: true,
+                    contentMode: .fill
                 )
             } else if loadFailed {
                 // 로드 실패

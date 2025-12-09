@@ -27,24 +27,26 @@ struct FeedImageSlider: View {
             Color.gray
 
             if !imageUrls.isEmpty {
-                TabView(selection: $currentIndex) {
-                    ForEach(imageUrls.indices, id: \.self) { index in
-                        let currentTags = showTags && index < tags.count ? tags[index] : []
+                GeometryReader { geometry in
+                    TabView(selection: $currentIndex) {
+                        ForEach(imageUrls.indices, id: \.self) { index in
+                            let currentTags = showTags && index < tags.count ? tags[index] : []
 
-                        RemoteTaggableImageView(
-                            imageUrl: imageUrls[index],
-                            tags: .constant(currentTags),
-                            selectedTagId: selectedTagId,
-                            onTagTap: onTagTap
-                        )
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .clipped()
-                        .tag(index)
+                            RemoteTaggableImageView(
+                                imageUrl: imageUrls[index],
+                                tags: .constant(currentTags),
+                                selectedTagId: selectedTagId,
+                                onTagTap: onTagTap
+                            )
+                            .frame(width: geometry.size.width, height: geometry.size.height)
+                            .clipped()
+                            .tag(index)
+                        }
                     }
+                    .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+                    .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .never))
+                    .frame(width: geometry.size.width, height: geometry.size.height)
                 }
-                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-                .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .never))
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             
             Button(action: {
