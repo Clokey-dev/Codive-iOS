@@ -44,7 +44,7 @@ struct RemoteTaggableImageView: View {
                 }
             }
         }
-        .task {
+        .task(id: imageUrl) {
             await loadImage()
         }
     }
@@ -100,10 +100,9 @@ struct RemoteTaggableImageView: View {
         tags: .constant([
             ClothTag(id: UUID(), clothId: 1, brand: "Nike", name: "Shirt", locationX: 0.5, locationY: 0.3)
         ]),
-        selectedTagId: nil,
-        onTagTap: { tagId in
-            print("Tag tapped: \(tagId)")
-        }
-    )
+        selectedTagId: nil
+    ) { tagId in
+        print("Tag tapped: \(tagId)")
+    }
     .aspectRatio(3/4, contentMode: .fit)
 }

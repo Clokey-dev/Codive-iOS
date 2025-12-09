@@ -23,7 +23,7 @@ struct FeedImageSlider: View {
     // MARK: - Body
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            
+
             Color.gray
 
             if !imageUrls.isEmpty {
@@ -37,6 +37,8 @@ struct FeedImageSlider: View {
                             selectedTagId: selectedTagId,
                             onTagTap: onTagTap
                         )
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .clipped()
                         .tag(index)
                     }
                 }
