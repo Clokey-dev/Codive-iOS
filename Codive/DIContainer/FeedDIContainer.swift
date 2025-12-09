@@ -96,7 +96,7 @@ extension FeedDIContainer {
         navigationRouter: NavigationRouter
     ) -> FeedDetailViewModel {
         let useCase = DefaultFetchFeedDetailUseCase(repository: repository)
-        let likersUseCase = DefaultFetchFeedLikersUseCase(feedRepository: repository) // FetchFeedLikersUseCase 추가
+        let likersUseCase = DefaultFetchFeedLikersUseCase(feedRepository: repository) 
         return FeedDetailViewModel(
             feedId: feedId,
             fetchFeedDetailUseCase: useCase,

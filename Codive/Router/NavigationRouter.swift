@@ -14,7 +14,7 @@ final class NavigationRouter: ObservableObject {
     // MARK: - Properties
     @Published var path = NavigationPath()
     @Published var currentDestination: AppDestination?
-    @Published var sheetDestination: AppDestination? // 시트 목적지 추가
+    @Published var sheetDestination: AppDestination?
     
     // MARK: - Navigation Methods
 

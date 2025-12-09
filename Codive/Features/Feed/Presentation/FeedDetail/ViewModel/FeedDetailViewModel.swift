@@ -14,12 +14,13 @@ final class FeedDetailViewModel: ObservableObject {
     // MARK: - Published Properties
 
     @Published var feed: Feed?
+    @Published var imageUrls: [String] = []
     @Published var displayableTags: [[ClothTag]] = []
     @Published var formattedDate: String = ""
     @Published var displayableStyles: [String] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
-    
+
     @Published var likers: [User] = [] // 좋아요 누른 유저 목록
     @Published var isLikesSheetPresented: Bool = false // 좋아요 목록 시트 표시 여부
 
@@ -27,7 +28,7 @@ final class FeedDetailViewModel: ObservableObject {
 
     private let feedId: Int
     private let fetchFeedDetailUseCase: FetchFeedDetailUseCase
-    private let fetchLikersUseCase: FetchFeedLikersUseCase // FetchFeedLikersUseCase 추가
+    private let fetchLikersUseCase: FetchFeedLikersUseCase 
     private let feedRepository: FeedRepository
     private let navigationRouter: NavigationRouter
     private let dateFormatter: DateFormatter = {
@@ -62,18 +63,20 @@ final class FeedDetailViewModel: ObservableObject {
 
         do {
             let fetchedFeed = try await fetchFeedDetailUseCase.execute(feedId: feedId)
-            
+
             // 데이터 가공
             self.feed = fetchedFeed
+            self.imageUrls = fetchedFeed.images.map { $0.imageUrl }
             self.displayableTags = mapToDisplayableTags(from: fetchedFeed.images)
             self.formattedDate = format(date: fetchedFeed.createdAt)
-            
+
             // TODO: styleIds를 실제 스타일 이름으로 변환하는 로직 구현 필요
             self.displayableStyles = [] // 현재는 임시로 빈 배열 할당
 
         } catch {
             errorMessage = TextLiteral.Feed.loadDetailFailed
             feed = nil
+            imageUrls = []
             displayableTags = []
             formattedDate = ""
             displayableStyles = []

@@ -8,13 +8,13 @@
 import SwiftUI
 
 struct FeedImageSlider: View {
-    
+
     // MARK: - Properties
-    let images: [UIImage]
+    let imageUrls: [String]
     let tags: [[ClothTag]]
-    
+
     @Binding var currentIndex: Int
-    
+
     let showTags: Bool
     let selectedTagId: UUID?
     let onTagButtonTap: () -> Void
@@ -25,24 +25,24 @@ struct FeedImageSlider: View {
         ZStack(alignment: .bottomLeading) {
             
             Color.gray
-            
-            if !images.isEmpty {
+
+            if !imageUrls.isEmpty {
                 TabView(selection: $currentIndex) {
-                    ForEach(images.indices, id: \.self) { index in
+                    ForEach(imageUrls.indices, id: \.self) { index in
                         let currentTags = showTags && index < tags.count ? tags[index] : []
-                        
-                        TaggableImageView(
-                            image: images[index],
+
+                        RemoteTaggableImageView(
+                            imageUrl: imageUrls[index],
                             tags: .constant(currentTags),
                             selectedTagId: selectedTagId,
-                            onTagTap: onTagTap,
-                            isDraggable: false,
-                            isReadOnly: true
+                            onTagTap: onTagTap
                         )
                         .tag(index)
                     }
                 }
-                .tabViewStyle(.page(indexDisplayMode: .never))
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+                .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .never))
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             
             Button(action: {
@@ -61,7 +61,8 @@ struct FeedImageSlider: View {
             .padding(.leading, 20)
             .padding(.bottom, 20)
         }
-        .aspectRatio(3/4, contentMode: .fit)
+        .aspectRatio(3/4, contentMode: .fill)
+        .clipped()
     }
 }
 
@@ -71,7 +72,10 @@ struct FeedImageSlider: View {
     let onTagTapClosure: (UUID) -> Void = { tagId in print("Tag tapped: \(tagId)") }
 
     FeedImageSlider(
-        images: [UIImage(systemName: "photo")!, UIImage(systemName: "photo.fill")!],
+        imageUrls: [
+            "https://via.placeholder.com/300x400",
+            "https://via.placeholder.com/300x400/0000FF"
+        ],
         tags: [
             [ClothTag(id: UUID(), clothId: 1, brand: "Typeservice", name: "Layered Henry Neck", locationX: 0.3, locationY: 0.4)],
             []

@@ -49,7 +49,7 @@ struct SettingBlockedView: View {
                 CustomUserRow(
                     user: bu.user,
                     buttonTitle: TextLiteral.Setting.unblock,
-                    buttonStyle: .secondary // 버튼 스타일 추가
+                    buttonStyle: .secondary 
                 ) {
                     Task { await vm.tapUnblock(userId: bu.id) }
                 }

@@ -18,18 +18,13 @@ struct FeedDetailView: View {
     @State private var selectedTagId: UUID?
     @State private var showTagsAndThumbnails: Bool = false
 
-    // For Previewing
-    private let previewImages: [UIImage]?
-
     // MARK: - Initializer
     init(
         viewModel: FeedDetailViewModel,
-        navigationRouter: NavigationRouter,
-        previewImages: [UIImage]? = nil
+        navigationRouter: NavigationRouter
     ) {
         _viewModel = StateObject(wrappedValue: viewModel)
         _navigationRouter = ObservedObject(wrappedValue: navigationRouter)
-        self.previewImages = previewImages
     }
 
     // MARK: - Body
@@ -68,7 +63,7 @@ struct FeedDetailView: View {
                         
                         // 이미지 슬라이더
                         FeedImageSlider(
-                            images: previewImages ?? [],
+                            imageUrls: viewModel.imageUrls,
                             tags: viewModel.displayableTags,
                             currentIndex: $currentImageIndex,
                             showTags: showTagsAndThumbnails,
@@ -149,12 +144,11 @@ struct FeedDetailView: View {
     let viewModel = FeedDIContainer.makeFeedDetailViewModelForPreview(
         feedId: 1,
         repository: mockRepo,
-        navigationRouter: navigationRouter 
+        navigationRouter: navigationRouter
     )
 
     FeedDetailView(
         viewModel: viewModel,
-        navigationRouter: navigationRouter,
-        previewImages: [UIImage(systemName: "photo.artframe")!]
+        navigationRouter: navigationRouter
     )
 }

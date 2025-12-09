@@ -18,18 +18,28 @@ final class MockFeedRepository: FeedRepository {
             self.resultFeed = feed
         } else {
             let dummyUser = User(id: "previewUser", nickname: "프리뷰 유저", profileImageUrl: nil)
-            let dummyImageTags: [ImageClothTag] = [
+
+            // 첫 번째 이미지 - 태그 3개
+            let firstImageTags: [ImageClothTag] = [
                 ImageClothTag(clothId: 101, locationX: 0.25, locationY: 0.3),
                 ImageClothTag(clothId: 102, locationX: 0.75, locationY: 0.5),
                 ImageClothTag(clothId: 103, locationX: 0.5, locationY: 0.75)
             ]
-            let dummyFeedImage = FeedImage(imageUrl: "https://example.com/image.jpg", tags: dummyImageTags)
-            
+            let firstFeedImage = FeedImage(imageUrl: "https://via.placeholder.com/600x800", tags: firstImageTags)
+
+            // 두 번째 이미지 - 태그 3개
+            let secondImageTags: [ImageClothTag] = [
+                ImageClothTag(clothId: 201, locationX: 0.3, locationY: 0.25),
+                ImageClothTag(clothId: 202, locationX: 0.7, locationY: 0.6),
+                ImageClothTag(clothId: 203, locationX: 0.5, locationY: 0.85)
+            ]
+            let secondFeedImage = FeedImage(imageUrl: "https://via.placeholder.com/600x800/0000FF", tags: secondImageTags)
+
             self.resultFeed = Feed(
                 id: 1,
                 content: "이것은 프리뷰용 테스트 피드 내용입니다. 코디가 아주 멋지네요!",
                 author: dummyUser,
-                images: [dummyFeedImage],
+                images: [firstFeedImage, secondFeedImage],
                 situationId: 1,
                 styleIds: [1, 2],
                 hashtags: ["#미리보기", "#OOTD"],

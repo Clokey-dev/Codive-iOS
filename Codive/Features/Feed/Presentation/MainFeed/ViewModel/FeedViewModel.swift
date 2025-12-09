@@ -104,7 +104,6 @@ final class FeedViewModel: ObservableObject {
                 followingOnly: followingOnly
             )
 
-            // 기존 Feed에 추가
             feeds.append(contentsOf: newFeeds)
             currentPage = nextPage
             hasMorePages = newFeeds.count == pageSize
