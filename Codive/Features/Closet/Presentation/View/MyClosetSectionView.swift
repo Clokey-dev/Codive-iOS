@@ -22,7 +22,7 @@ struct MyClosetSectionView: View {
                 
                 Spacer()
                 
-                Button(action: {}) { 
+                Button(action: {}) {
                     HStack(spacing: 2) {
                         Text("더보기")
                         Image(systemName: "chevron.right")
