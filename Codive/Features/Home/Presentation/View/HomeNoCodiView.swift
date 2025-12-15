@@ -52,25 +52,41 @@ struct HomeNoCodiView: View {
         .padding(.horizontal, 20)
     }
 
+    // TODO: CustomButton에 비율 지정 기능 추가 후 리팩토링 필요
     private var bottomButtons: some View {
-        HStack {
-            CustomButton(
-                text: TextLiteral.Home.codiBoardTitle,
-                widthType: .dynamic,
-                styleType: .border,
-                action: viewModel.handleCodiBoardTap
-            )
-            
-            Spacer()
-            
-            CustomButton(
-                text: TextLiteral.Home.decesion,
-                widthType: .dynamic,
-                action: viewModel.handleConfirmCodiTap
-            )
+        GeometryReader { geometry in
+            let totalWidth = geometry.size.width - 40
+            let availableWidth = totalWidth - 16
+            let button1Width = availableWidth / 3
+            let button2Width = availableWidth * 2 / 3 
+
+            HStack(spacing: 16) {
+                Button(action: viewModel.handleCodiBoardTap) {
+                    Text(TextLiteral.Home.codiBoardTitle)
+                        .font(Font.codive_title2)
+                        .foregroundStyle(Color.Codive.main0)
+                        .frame(width: button1Width, height: 48)
+                }
+                .background(Color.white)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.Codive.main0, lineWidth: 1)
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                Button(action: viewModel.handleConfirmCodiTap) {
+                    Text(TextLiteral.Home.decesion)
+                        .font(Font.codive_title2)
+                        .foregroundStyle(.white)
+                        .frame(width: button2Width, height: 48)
+                }
+                .background(Color.Codive.main0)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+            }
+            .padding(.horizontal, 20)
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 40)
-        .padding(.bottom, 100)
+        .frame(height: 48)
+        .padding(.top, 24)
+        .padding(.bottom, 48)
     }
 }

@@ -8,31 +8,33 @@
 import Foundation
 
 // MARK: - Feed
-public struct Feed: Identifiable, Codable, Equatable {
+public struct Feed: Identifiable, Equatable {
     public let id: Int
     public let content: String?
-    public let author: User?
+    public let author: User
     public let images: [FeedImage]
-    
+
     public let situationId: Int?
     public let styleIds: [Int]?
     public let hashtags: [String]?
     public let createdAt: Date?
-    
-    enum CodingKeys: String, CodingKey {
-        case id, content, author, situationId, styleIds, hashtags, createdAt
-        case images = "payloads"
-    }
-    
+
+    // 상호작용 (목록/상세 공통)
+    public let likeCount: Int?
+    public let isLiked: Bool?
+    public let commentCount: Int?
     public init(
         id: Int,
         content: String?,
-        author: User? = nil,
+        author: User,
         images: [FeedImage],
         situationId: Int? = nil,
         styleIds: [Int]? = nil,
         hashtags: [String]? = nil,
-        createdAt: Date? = nil
+        createdAt: Date? = nil,
+        likeCount: Int? = nil,
+        isLiked: Bool? = nil,
+        commentCount: Int? = nil
     ) {
         self.id = id
         self.content = content
@@ -42,19 +44,17 @@ public struct Feed: Identifiable, Codable, Equatable {
         self.styleIds = styleIds
         self.hashtags = hashtags
         self.createdAt = createdAt
+        self.likeCount = likeCount
+        self.isLiked = isLiked
+        self.commentCount = commentCount
     }
 }
 
 // MARK: - FeedImage
-public struct FeedImage: Identifiable, Codable, Equatable {
+public struct FeedImage: Identifiable, Equatable {
     public let id: UUID = UUID()
     public let imageUrl: String
     public let tags: [ImageClothTag]
-    
-    enum CodingKeys: String, CodingKey {
-        case imageUrl
-        case tags = "clothTags"
-    }
     
     public init(imageUrl: String, tags: [ImageClothTag] = []) {
         self.imageUrl = imageUrl
@@ -63,17 +63,13 @@ public struct FeedImage: Identifiable, Codable, Equatable {
 }
 
 // MARK: - ImageClothTag
-public struct ImageClothTag: Identifiable, Codable, Equatable {
+public struct ImageClothTag: Identifiable, Equatable {
     public let id: UUID = UUID()
     
     public let clothId: Int
     public let locationX: Double
     public let locationY: Double
-    
-    enum CodingKeys: String, CodingKey {
-        case clothId, locationX, locationY
-    }
-    
+        
     public init(clothId: Int, locationX: Double, locationY: Double) {
         self.clothId = clothId
         self.locationX = locationX

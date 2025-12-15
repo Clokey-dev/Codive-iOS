@@ -9,7 +9,7 @@ import Foundation
 
 // MARK: - Product Item Model
 struct ProductItem: Identifiable {
-    let id = UUID()
+    let id: Int
     let imageName: String
     let isTodayCloth: Bool
     let brand: String?

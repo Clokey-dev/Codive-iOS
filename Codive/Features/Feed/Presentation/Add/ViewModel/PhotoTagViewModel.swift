@@ -20,7 +20,7 @@ final class PhotoTagViewModel: ObservableObject {
     @Published var currentPhoto: SelectedPhoto
     @Published var searchText: String = ""
     @Published var selectedCategory: String = "전체"
-    @Published var selectedProducts: Set<UUID> = []
+    @Published var selectedProducts: Set<Int> = []
     @Published var clothTags: [ClothTag] = []
     @Published var clothItems: [ProductItem] = []
 

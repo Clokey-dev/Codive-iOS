@@ -12,7 +12,7 @@ struct CustomProductBottomSheet: View {
     // MARK: - Properties
     @Binding var searchText: String
     @Binding var selectedCategory: String
-    @Binding var selectedProducts: Set<UUID>
+    @Binding var selectedProducts: Set<Int>
     let products: [ProductItem]
     let onProductTap: (ProductItem) -> Void
 

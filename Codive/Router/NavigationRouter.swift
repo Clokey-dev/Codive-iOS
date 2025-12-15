@@ -16,18 +16,18 @@ final class NavigationRouter: ObservableObject {
     @Published var currentDestination: AppDestination?
     
     // MARK: - Navigation Methods
-    
+
     /// 새로운 화면으로 이동 (스택에 추가)
     func navigate(to destination: AppDestination) {
         currentDestination = destination
         path.append(destination)
     }
-    
+
     /// 이전 화면으로 돌아가기
     func navigateBack() {
         guard !path.isEmpty else { return }
         path.removeLast()
-        
+
         if path.isEmpty {
             currentDestination = nil
         }

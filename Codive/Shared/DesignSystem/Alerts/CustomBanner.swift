@@ -41,7 +41,7 @@ struct CustomBanner: View {
     }
     .padding()
     
-    CustomBanner(text: "패션트렌드 편지가 도착했어요💌") {
+    CustomBanner(text: "패션트렌드 편지가 도착했어요") {
         print("Icon tapped!")
     }
     .padding()

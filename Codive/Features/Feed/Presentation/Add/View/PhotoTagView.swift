@@ -44,7 +44,8 @@ struct PhotoTagView: View {
                     // Photo with Tags
                     TaggableImageView(
                         image: viewModel.currentPhoto.croppedImage,
-                        tags: $viewModel.clothTags
+                        tags: $viewModel.clothTags,
+                        selectedTagId: nil
                     ) { tagId in
                         viewModel.removeClothTag(tagId: tagId)
                     }
@@ -107,35 +108,12 @@ private extension PhotoTagView {
                     
                     withAnimation(.spring()) {
                         if dragDistance < -50 {
-                            // 위로 스와이프 - 확장
                             isExpanded = true
                         } else if dragDistance > 50 {
-                            // 아래로 스와이프 - 축소
                             isExpanded = false
                         }
                     }
                 }
         )
-    }
-}
-
-// MARK: - Custom Corner Radius
-extension View {
-    func customCornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
-        clipShape(CustomRoundedCorner(radius: radius, corners: corners))
-    }
-}
-
-struct CustomRoundedCorner: Shape {
-    var radius: CGFloat = .infinity
-    var corners: UIRectCorner = .allCorners
-    
-    func path(in rect: CGRect) -> Path {
-        let path = UIBezierPath(
-            roundedRect: rect,
-            byRoundingCorners: corners,
-            cornerRadii: CGSize(width: radius, height: radius)
-        )
-        return Path(path.cgPath)
     }
 }
