@@ -8,7 +8,7 @@
 import Foundation
 
 /// FeedRepository의 구현체
-/// DataSource로부터 데이터를 가져와서 Domain Layer에 제공합니다.
+/// DataSource로부터 데이터를 가져와서 Domain Layer에 제공
 final class FeedRepositoryImpl: FeedRepository {
     private let dataSource: FeedDataSource
 
@@ -32,11 +32,15 @@ final class FeedRepositoryImpl: FeedRepository {
         )
     }
 
-    func fetchFeedDetail(id: Int) async throws -> Feed {
-        return try await dataSource.fetchFeedDetail(id: id)
+    func fetchFeedDetail(feedId: Int) async throws -> Feed {
+        return try await dataSource.fetchFeedDetail(id: feedId)
     }
 
     func toggleLike(feedId: Int) async throws {
         try await dataSource.toggleLike(feedId: feedId)
+    }
+    
+    func fetchLikers(feedId: Int) async throws -> [User] {
+        return try await dataSource.fetchLikers(feedId: feedId)
     }
 }

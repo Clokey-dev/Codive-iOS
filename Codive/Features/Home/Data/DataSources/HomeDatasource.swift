@@ -95,7 +95,7 @@ final class HomeDatasource {
             currentTemp: currentTemp,
             symbolName: symbolName,
             dailyForecasts: Array(dailyForecasts),
-            // MARK: - 수정: 위치 이름을 추가합니다.
+            // MARK: - 수정: 위치 이름을 추가
             locationName: locationName
         )
         

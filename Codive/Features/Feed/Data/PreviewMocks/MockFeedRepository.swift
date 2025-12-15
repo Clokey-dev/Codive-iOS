@@ -13,23 +13,33 @@ final class MockFeedRepository: FeedRepository {
     var resultFeed: Feed
 
     init(feed: Feed? = nil) {
-        // 만약 외부에서 feed를 주입하지 않으면, 기본 더미 데이터를 생성합니다.
+        // 만약 외부에서 feed를 주입하지 않으면, 기본 더미 데이터를 생성
         if let feed = feed {
             self.resultFeed = feed
         } else {
             let dummyUser = User(id: "previewUser", nickname: "프리뷰 유저", profileImageUrl: nil)
-            let dummyImageTags: [ImageClothTag] = [
+
+            // 첫 번째 이미지 - 태그 3개
+            let firstImageTags: [ImageClothTag] = [
                 ImageClothTag(clothId: 101, locationX: 0.25, locationY: 0.3),
                 ImageClothTag(clothId: 102, locationX: 0.75, locationY: 0.5),
                 ImageClothTag(clothId: 103, locationX: 0.5, locationY: 0.75)
             ]
-            let dummyFeedImage = FeedImage(imageUrl: "https://example.com/image.jpg", tags: dummyImageTags)
-            
+            let firstFeedImage = FeedImage(imageUrl: "https://via.placeholder.com/600x800", tags: firstImageTags)
+
+            // 두 번째 이미지 - 태그 3개
+            let secondImageTags: [ImageClothTag] = [
+                ImageClothTag(clothId: 201, locationX: 0.3, locationY: 0.25),
+                ImageClothTag(clothId: 202, locationX: 0.7, locationY: 0.6),
+                ImageClothTag(clothId: 203, locationX: 0.5, locationY: 0.85)
+            ]
+            let secondFeedImage = FeedImage(imageUrl: "https://via.placeholder.com/600x800/0000FF", tags: secondImageTags)
+
             self.resultFeed = Feed(
                 id: 1,
                 content: "이것은 프리뷰용 테스트 피드 내용입니다. 코디가 아주 멋지네요!",
                 author: dummyUser,
-                images: [dummyFeedImage],
+                images: [firstFeedImage, secondFeedImage],
                 situationId: 1,
                 styleIds: [1, 2],
                 hashtags: ["#미리보기", "#OOTD"],
@@ -45,27 +55,22 @@ final class MockFeedRepository: FeedRepository {
         return []
     }
 
-    func fetchFeedDetail(id: Int) async throws -> Feed {
+    func fetchFeedDetail(feedId: Int) async throws -> Feed {
         return resultFeed
     }
 
     func toggleLike(feedId: Int) async throws {
-        let newIsLiked = !(resultFeed.isLiked ?? false)
-        let newLikeCount = newIsLiked ? (resultFeed.likeCount ?? 0) + 1 : (resultFeed.likeCount ?? 1) - 1
-        
-        resultFeed = Feed(
-            id: resultFeed.id,
-            content: resultFeed.content,
-            author: resultFeed.author,
-            images: resultFeed.images,
-            situationId: resultFeed.situationId,
-            styleIds: resultFeed.styleIds,
-            hashtags: resultFeed.hashtags,
-            createdAt: resultFeed.createdAt,
-            likeCount: newLikeCount,
-            isLiked: newIsLiked,
-            commentCount: resultFeed.commentCount
-        )
+        print("Like toggled for feedId: \(feedId)")
+    }
+    
+    func fetchLikers(feedId: Int) async throws -> [User] {
+        print("Fetching likers for feedId: \(feedId)")
+        return [
+            .init(id: "1", nickname: "패셔니스타", profileImageUrl: nil),
+            .init(id: "2", nickname: "코디장인", profileImageUrl: nil),
+            .init(id: "3", nickname: "스타일헌터", profileImageUrl: nil),
+            .init(id: "4", nickname: "옷잘알", profileImageUrl: nil)
+        ]
     }
 }
 #endif

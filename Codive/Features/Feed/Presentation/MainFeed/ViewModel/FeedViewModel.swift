@@ -104,7 +104,6 @@ final class FeedViewModel: ObservableObject {
                 followingOnly: followingOnly
             )
 
-            // 기존 Feed에 추가
             feeds.append(contentsOf: newFeeds)
             currentPage = nextPage
             hasMorePages = newFeeds.count == pageSize
@@ -125,7 +124,7 @@ final class FeedViewModel: ObservableObject {
         await loadFeeds()
     }
 
-    /// '팔로잉만 보기' 필터를 끄고 전체 피드를 다시 로드합니다.
+    /// '팔로잉만 보기' 필터를 끄고 전체 피드를 다시 로드
     func browseAllFeeds() {
         followingOnly = false
         Task {
@@ -133,7 +132,7 @@ final class FeedViewModel: ObservableObject {
         }
     }
 
-    /// 모든 스타일 및 상황 필터를 초기화하고 피드를 다시 로드합니다.
+    /// 모든 스타일 및 상황 필터를 초기화하고 피드를 다시 로드
     func clearFiltersAndReload() {
         selectedStyleIds = nil
         selectedSituationIds = nil

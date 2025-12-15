@@ -8,21 +8,22 @@
 import SwiftUI
 
 struct TaggableImageView: View {
-    
+
     // MARK: - Properties
 
     let image: UIImage
     @Binding var tags: [ClothTag]
-    
+
     // Interaction Properties
     let selectedTagId: UUID?
     let onTagRemove: ((UUID) -> Void)?
     let onTagTap: ((UUID) -> Void)?
     let isDraggable: Bool
     let isReadOnly: Bool
-    
+    let contentMode: ContentMode
+
     @State private var imageSize: CGSize = .zero
-    
+
     // MARK: - Initializer
     init(
         image: UIImage,
@@ -31,7 +32,8 @@ struct TaggableImageView: View {
         onTagRemove: ((UUID) -> Void)? = nil,
         onTagTap: ((UUID) -> Void)? = nil,
         isDraggable: Bool = true,
-        isReadOnly: Bool = false
+        isReadOnly: Bool = false,
+        contentMode: ContentMode = .fit
     ) {
         self.image = image
         self._tags = tags
@@ -40,6 +42,7 @@ struct TaggableImageView: View {
         self.onTagTap = onTagTap
         self.isDraggable = isDraggable
         self.isReadOnly = isReadOnly
+        self.contentMode = contentMode
     }
     
     // MARK: - Body
@@ -49,7 +52,7 @@ struct TaggableImageView: View {
                 // 이미지
                 Image(uiImage: image)
                     .resizable()
-                    .aspectRatio(contentMode: .fit)
+                    .aspectRatio(contentMode: contentMode)
                     .background(
                         GeometryReader { proxy in
                             Color.clear
@@ -65,8 +68,8 @@ struct TaggableImageView: View {
                         // 상세 화면용: 위치 고정, Navigable 스타일
                         CustomTagView(
                             type: .navigable(
-                                title: tag.brand.isEmpty ? "Brand" : tag.brand,
-                                content: tag.name.isEmpty ? "Product Name" : tag.name
+                                title: tag.brand.isEmpty ? TextLiteral.Feed.defaultBrand : tag.brand,
+                                content: tag.name.isEmpty ? TextLiteral.Feed.defaultProductName : tag.name
                             ) { 
                                 onTagTap?(tag.id)
                             }
@@ -118,8 +121,8 @@ private struct DraggableTag: View {
     var body: some View {
         CustomTagView(
             type: .closable(
-                title: tag.brand.isEmpty ? "Brand" : tag.brand,
-                content: tag.name.isEmpty ? "Product Name" : tag.name,
+                title: tag.brand.isEmpty ? TextLiteral.Feed.defaultBrand : tag.brand,
+                content: tag.name.isEmpty ? TextLiteral.Feed.defaultProductName : tag.name,
                 onClose: onRemove
             )
         )

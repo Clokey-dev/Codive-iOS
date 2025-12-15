@@ -48,7 +48,8 @@ struct SettingBlockedView: View {
             List(vm.items, id: \.id) { bu in
                 CustomUserRow(
                     user: bu.user,
-                    buttonTitle: TextLiteral.Setting.unblock
+                    buttonTitle: TextLiteral.Setting.unblock,
+                    buttonStyle: .secondary 
                 ) {
                     Task { await vm.tapUnblock(userId: bu.id) }
                 }

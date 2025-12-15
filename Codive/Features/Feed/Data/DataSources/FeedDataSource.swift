@@ -9,7 +9,7 @@ import Foundation
 
 /// Feed 데이터를 가져오는 DataSource 프로토콜
 protocol FeedDataSource {
-    /// Feed 목록을 페이지 단위로 가져옵니다.
+    /// Feed 목록 조회
     func fetchFeeds(
         page: Int,
         limit: Int,
@@ -18,11 +18,14 @@ protocol FeedDataSource {
         followingOnly: Bool
     ) async throws -> [Feed]
 
-    /// 특정 Feed의 상세 정보를 가져옵니다.
+    /// 특정 Feed의 상세 정보 조회
     func fetchFeedDetail(id: Int) async throws -> Feed
 
-    /// Feed의 좋아요를 토글합니다.
+    /// Feed의 좋아요 조회
     func toggleLike(feedId: Int) async throws
+    
+    /// 특정 Feed를 좋아한 사용자 목록 조회
+    func fetchLikers(feedId: Int) async throws -> [User]
 }
 
 /// Mock FeedDataSource - 서버 연결 전 테스트용 구현
@@ -51,15 +54,36 @@ final class MockFeedDataSource: FeedDataSource {
             isFollowing: isFollowing
         )
 
-        let tags = [
+        // 첫 번째 이미지 태그
+        let tags1 = [
             ImageClothTag(clothId: id, locationX: 0.3, locationY: 0.4),
             ImageClothTag(clothId: id + 100, locationX: 0.5, locationY: 0.6)
+        ]
+
+        // 두 번째 이미지 태그
+        let tags2 = [
+            ImageClothTag(clothId: id + 200, locationX: 0.25, locationY: 0.35),
+            ImageClothTag(clothId: id + 300, locationX: 0.7, locationY: 0.5)
+        ]
+
+        // 세 번째 이미지 태그
+        let tags3 = [
+            ImageClothTag(clothId: id + 400, locationX: 0.4, locationY: 0.3),
+            ImageClothTag(clothId: id + 500, locationX: 0.6, locationY: 0.65)
         ]
 
         let images = [
             FeedImage(
                 imageUrl: "https://picsum.photos/400/600?random=\(id)",
-                tags: tags
+                tags: tags1
+            ),
+            FeedImage(
+                imageUrl: "https://picsum.photos/400/600?random=\(id + 1000)",
+                tags: tags2
+            ),
+            FeedImage(
+                imageUrl: "https://picsum.photos/400/600?random=\(id + 2000)",
+                tags: tags3
             )
         ]
 
@@ -164,6 +188,18 @@ final class MockFeedDataSource: FeedDataSource {
 
         print("Toggled like for feed \(feedId): isLiked=\(newIsLiked), likeCount=\(newLikeCount)")
     }
+    
+    func fetchLikers(feedId: Int) async throws -> [User] {
+        try? await Task.sleep(nanoseconds: 400_000_000)
+        
+        return [
+            .init(id: "1", nickname: "패셔니스타", profileImageUrl: nil),
+            .init(id: "2", nickname: "코디장인", profileImageUrl: nil),
+            .init(id: "3", nickname: "스타일헌터", profileImageUrl: nil),
+            .init(id: "4", nickname: "옷잘알", profileImageUrl: nil),
+            .init(id: "5", nickname: "데일리룩장인", profileImageUrl: nil)
+        ]
+    }
 }
 
 // MARK: - FeedDataSourceError
@@ -186,5 +222,9 @@ final class EmptyFeedDataSource: FeedDataSource {
     }
     
     func toggleLike(feedId: Int) async throws {}
+    
+    func fetchLikers(feedId: Int) async throws -> [User] {
+        []
+    }
 }
 #endif

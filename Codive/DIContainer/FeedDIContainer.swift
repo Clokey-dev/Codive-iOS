@@ -52,6 +52,10 @@ final class FeedDIContainer {
     func makeFetchFeedDetailUseCase() -> FetchFeedDetailUseCase {
         return DefaultFetchFeedDetailUseCase(repository: feedRepository)
     }
+    
+    func makeFetchFeedLikersUseCase() -> FetchFeedLikersUseCase {
+        return DefaultFetchFeedLikersUseCase(feedRepository: feedRepository)
+    }
 
     // MARK: - ViewModels
 
@@ -67,7 +71,9 @@ final class FeedDIContainer {
         return FeedDetailViewModel(
             feedId: feedId,
             fetchFeedDetailUseCase: makeFetchFeedDetailUseCase(),
-            feedRepository: feedRepository
+            fetchLikersUseCase: makeFetchFeedLikersUseCase(),
+            feedRepository: feedRepository,
+            navigationRouter: navigationRouter
         )
     }
 
@@ -84,12 +90,19 @@ final class FeedDIContainer {
 #if DEBUG
 extension FeedDIContainer {
     @MainActor
-    static func makeFeedDetailViewModelForPreview(feedId: Int, repository: FeedRepository) -> FeedDetailViewModel {
+    static func makeFeedDetailViewModelForPreview(
+        feedId: Int,
+        repository: FeedRepository,
+        navigationRouter: NavigationRouter
+    ) -> FeedDetailViewModel {
         let useCase = DefaultFetchFeedDetailUseCase(repository: repository)
+        let likersUseCase = DefaultFetchFeedLikersUseCase(feedRepository: repository) 
         return FeedDetailViewModel(
             feedId: feedId,
             fetchFeedDetailUseCase: useCase,
-            feedRepository: repository
+            fetchLikersUseCase: likersUseCase,
+            feedRepository: repository,
+            navigationRouter: navigationRouter
         )
     }
 }

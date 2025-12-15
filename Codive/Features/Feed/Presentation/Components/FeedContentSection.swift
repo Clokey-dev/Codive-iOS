@@ -16,27 +16,42 @@ struct FeedContentSection: View {
     let date: String
     let styles: [String]
     let onLikeTap: () -> Void
+    let onCommentTap: () -> Void
+    let onLikesCountTap: () -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             
             // Action Buttons
             HStack(spacing: 16) {
-                Button(action: onLikeTap) {
-                    HStack(spacing: 4) {
-                        Image(systemName: isLiked ? "heart.fill" : "heart")
-                            .foregroundStyle(isLiked ? Color.red : Color.black)
-                        Text("\(likeCount)")
-                            .font(.codive_body2_regular)
-                            .foregroundStyle(Color.black)
+                HStack(spacing: 4) {
+                    // 좋아요 아이콘 버튼
+                    Button(action: onLikeTap) {
+                        // TODO: - 하트 이미지 수정 필요
+                        Image(isLiked ? "heart_on_main" : "heart_off_black")
+                            .resizable()
+                            .frame(width: 24, height: 24)
                     }
+                    
+                    // 좋아요 숫자 버튼
+                    Button(action: onLikesCountTap) {
+                        Text("\(likeCount)")
+                            .font(.codive_body1_medium)
+                            .foregroundStyle(Color.black)
+                            .monospacedDigit()
+                    }
+                    .disabled(likeCount == 0)
                 }
                 
-                HStack(spacing: 4) {
-                    Image(systemName: "bubble.right")
-                    Text("\(commentCount)")
-                        .font(.codive_body2_regular)
-                        .foregroundStyle(Color.black)
+                Button(action: onCommentTap) {
+                    HStack(spacing: 4) {
+                        Image("comment")
+                            .resizable()
+                            .frame(width: 20, height: 20)
+                        Text("\(commentCount)")
+                            .font(.codive_body1_medium)
+                            .foregroundStyle(Color.black)
+                    }
                 }
                 Spacer()
             }

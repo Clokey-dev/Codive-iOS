@@ -18,18 +18,13 @@ struct FeedDetailView: View {
     @State private var selectedTagId: UUID?
     @State private var showTagsAndThumbnails: Bool = false
 
-    // For Previewing
-    private let previewImages: [UIImage]?
-
     // MARK: - Initializer
     init(
         viewModel: FeedDetailViewModel,
-        navigationRouter: NavigationRouter,
-        previewImages: [UIImage]? = nil
+        navigationRouter: NavigationRouter
     ) {
         _viewModel = StateObject(wrappedValue: viewModel)
         _navigationRouter = ObservedObject(wrappedValue: navigationRouter)
-        self.previewImages = previewImages
     }
 
     // MARK: - Body
@@ -68,7 +63,7 @@ struct FeedDetailView: View {
                         
                         // 이미지 슬라이더
                         FeedImageSlider(
-                            images: previewImages ?? [],
+                            imageUrls: viewModel.imageUrls,
                             tags: viewModel.displayableTags,
                             currentIndex: $currentImageIndex,
                             showTags: showTagsAndThumbnails,
@@ -104,10 +99,17 @@ struct FeedDetailView: View {
                             content: feed.content ?? "",
                             hashtags: feed.hashtags ?? [],
                             date: viewModel.formattedDate,
-                            styles: viewModel.displayableStyles
-                        ) {
-                            Task { await viewModel.toggleLike() }
-                        }
+                            styles: viewModel.displayableStyles,
+                            onLikeTap: {
+                                Task { await viewModel.toggleLike() }
+                            },
+                            onCommentTap: {
+                                viewModel.commentButtonTapped()
+                            },
+                            onLikesCountTap: {
+                                viewModel.likesCountTapped()
+                            }
+                        )
                     } else if viewModel.isLoading {
                         ProgressView()
                             .frame(maxWidth: .infinity, minHeight: 300)
@@ -125,6 +127,12 @@ struct FeedDetailView: View {
                 await viewModel.loadFeedDetail()
             }
         }
+        .sheet(isPresented: $viewModel.isLikesSheetPresented, onDismiss: {
+            viewModel.isLikesSheetPresented = false
+        }, content: {
+            FeedLikesListView(viewModel: viewModel)
+                .presentationDetents([.medium, .large])
+        })
     }
 }
 
@@ -135,12 +143,12 @@ struct FeedDetailView: View {
     let navigationRouter = NavigationRouter()
     let viewModel = FeedDIContainer.makeFeedDetailViewModelForPreview(
         feedId: 1,
-        repository: mockRepo
+        repository: mockRepo,
+        navigationRouter: navigationRouter
     )
 
     FeedDetailView(
         viewModel: viewModel,
-        navigationRouter: navigationRouter,
-        previewImages: [UIImage(systemName: "photo.artframe")!]
+        navigationRouter: navigationRouter
     )
 }

@@ -9,7 +9,7 @@ import Foundation
 
 /// Feed 상세 정보를 가져오는 UseCase
 protocol FetchFeedDetailUseCase {
-    /// 특정 Feed의 상세 정보를 가져옵니다.
+    /// 특정 Feed의 상세 정보 조회
     /// - Parameter feedId: Feed ID
     /// - Returns: Feed 상세 정보
     func execute(feedId: Int) async throws -> Feed
@@ -23,6 +23,6 @@ final class DefaultFetchFeedDetailUseCase: FetchFeedDetailUseCase {
     }
 
     func execute(feedId: Int) async throws -> Feed {
-        return try await repository.fetchFeedDetail(id: feedId)
+        return try await repository.fetchFeedDetail(feedId: feedId)
     }
 }

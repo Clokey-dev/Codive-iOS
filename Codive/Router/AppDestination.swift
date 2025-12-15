@@ -7,12 +7,12 @@
 
 import Foundation
 
-enum AppDestination: Hashable {
+enum AppDestination: Hashable, Identifiable {
     case login
     case signup
     case main
     case recordAdd
-    case clothPhotoSelect  // 옷 추가를 위한 사진 선택
+    case clothPhotoSelect 
     case clothAdd(photos: [SelectedPhoto])
     case photoEdit(photos: [SelectedPhoto])
     case photoEditForCloth(photos: [SelectedPhoto])
@@ -31,6 +31,9 @@ enum AppDestination: Hashable {
     case searchResult(query: String)
     case notification
     case feedDetail(feedId: Int)
+    case comment(feedId: Int)
+    
+    var id: Self { self }
     
     // MARK: - UI 제어
 
@@ -52,7 +55,7 @@ enum AppDestination: Hashable {
             return true
             
         // Feed Flow
-        case .feedDetail:
+        case .feedDetail, .comment:
             return true
 
         // 다른 플로우 전체 화면은 여기에 추가
@@ -82,7 +85,7 @@ enum AppDestination: Hashable {
             return false
 
         // Feed Flow - 자체 네비게이션 바 있음
-        case .feedDetail:
+        case .feedDetail, .comment:
             return false
 
         default:

@@ -14,17 +14,23 @@ final class FeedDetailViewModel: ObservableObject {
     // MARK: - Published Properties
 
     @Published var feed: Feed?
+    @Published var imageUrls: [String] = []
     @Published var displayableTags: [[ClothTag]] = []
     @Published var formattedDate: String = ""
     @Published var displayableStyles: [String] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
 
+    @Published var likers: [User] = [] // 좋아요 누른 유저 목록
+    @Published var isLikesSheetPresented: Bool = false // 좋아요 목록 시트 표시 여부
+
     // MARK: - Private Properties
 
     private let feedId: Int
     private let fetchFeedDetailUseCase: FetchFeedDetailUseCase
+    private let fetchLikersUseCase: FetchFeedLikersUseCase 
     private let feedRepository: FeedRepository
+    private let navigationRouter: NavigationRouter
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = TextLiteral.Feed.dateFormat
@@ -36,16 +42,19 @@ final class FeedDetailViewModel: ObservableObject {
     init(
         feedId: Int,
         fetchFeedDetailUseCase: FetchFeedDetailUseCase,
-        feedRepository: FeedRepository
+        fetchLikersUseCase: FetchFeedLikersUseCase,
+        feedRepository: FeedRepository,
+        navigationRouter: NavigationRouter
     ) {
         self.feedId = feedId
         self.fetchFeedDetailUseCase = fetchFeedDetailUseCase
+        self.fetchLikersUseCase = fetchLikersUseCase
         self.feedRepository = feedRepository
+        self.navigationRouter = navigationRouter
     }
 
     // MARK: - Feed 상세 로딩
 
-    /// Feed 상세 정보를 로드하고 View에 필요한 데이터로 가공합니다.
     func loadFeedDetail() async {
         guard !isLoading else { return }
 
@@ -54,18 +63,20 @@ final class FeedDetailViewModel: ObservableObject {
 
         do {
             let fetchedFeed = try await fetchFeedDetailUseCase.execute(feedId: feedId)
-            
+
             // 데이터 가공
             self.feed = fetchedFeed
+            self.imageUrls = fetchedFeed.images.map { $0.imageUrl }
             self.displayableTags = mapToDisplayableTags(from: fetchedFeed.images)
             self.formattedDate = format(date: fetchedFeed.createdAt)
-            
+
             // TODO: styleIds를 실제 스타일 이름으로 변환하는 로직 구현 필요
             self.displayableStyles = [] // 현재는 임시로 빈 배열 할당
 
         } catch {
             errorMessage = TextLiteral.Feed.loadDetailFailed
             feed = nil
+            imageUrls = []
             displayableTags = []
             formattedDate = ""
             displayableStyles = []
@@ -141,5 +152,24 @@ final class FeedDetailViewModel: ObservableObject {
         } else {
             return max(0, current - 1)
         }
+    }
+    
+    // MARK: - 좋아요 목록 화면 이동
+    
+    /// 좋아요 개수를 탭했을 때 좋아요 목록 시트
+    func likesCountTapped() {
+        Task {
+            do {
+                self.likers = try await fetchLikersUseCase.execute(feedId: self.feedId)
+                self.isLikesSheetPresented = true
+            } catch {
+                errorMessage = TextLiteral.Feed.likesListLoadFailed
+            }
+        }
+    }
+    
+    // MARK: - 댓글 화면 이동
+    func commentButtonTapped() {
+        navigationRouter.presentSheet(for: .comment(feedId: self.feedId))
     }
 }
