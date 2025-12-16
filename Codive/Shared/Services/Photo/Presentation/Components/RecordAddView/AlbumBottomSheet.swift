@@ -19,29 +19,32 @@ struct AlbumBottomSheet: View {
     
     // MARK: - Body
     var body: some View {
-        VStack(spacing: 0) {
-            // Handle Bar
-            RoundedRectangle(cornerRadius: 2.5)
-                .fill(Color.gray.opacity(0.3))
-                .frame(width: 40, height: 5)
-                .padding(.top, 12)
-                .padding(.bottom, 20)
+        ZStack {
+            Color.white.ignoresSafeArea()
             
-            ScrollView {
-                VStack(spacing: 0) {
-                    ForEach(albums, id: \.id) { album in
-                        AlbumRow(
-                            album: album,
-                            isSelected: selectedAlbum?.id == album.id,
-                            viewModel: viewModel
-                        ) {
-                            await onSelect(album)
+            VStack(spacing: 0) {
+                // Handle Bar
+                RoundedRectangle(cornerRadius: 2.5)
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(width: 40, height: 5)
+                    .padding(.top, 12)
+                    .padding(.bottom, 20)
+                
+                ScrollView {
+                    VStack(spacing: 0) {
+                        ForEach(albums, id: \.id) { album in
+                            AlbumRow(
+                                album: album,
+                                isSelected: selectedAlbum?.id == album.id,
+                                viewModel: viewModel
+                            ) {
+                                await onSelect(album)
+                            }
                         }
                     }
                 }
             }
         }
-        .background(Color.white)
     }
 }
 

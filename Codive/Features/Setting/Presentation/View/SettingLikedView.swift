@@ -18,17 +18,17 @@ struct SettingLikedView: View {
                 ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if let error = vm.error, vm.items.isEmpty {
                 VStack(spacing: 12) {
-                    Text("불러오지 못했어요").font(.codive_title2)
+                    Text(TextLiteral.Setting.loadFailed).font(.codive_title2)
                     Text(error.localizedDescription).font(.codive_body2_regular).foregroundStyle(.secondary)
-                    CustomButton(text: "다시 시도", widthType: .fixed) {
+                    CustomButton(text: TextLiteral.Setting.retry, widthType: .fixed) {
                         Task { await vm.refresh() }
                     }
                 }.frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if vm.items.isEmpty {
                 SettingsEmptyView(
-                    title: "좋아요 한 기록이 없어요!",
-                    message: "마음에 드는 기록을 찾아볼까요?",
-                    actionTitle: "피드로 이동하기"
+                    title: TextLiteral.Setting.likedRecordsEmpty,
+                    message: TextLiteral.Setting.likedRecordsEmptyMessage,
+                    actionTitle: TextLiteral.Setting.goToFeed
                 ) {
                     /* 라우팅 */
                 }
@@ -61,7 +61,7 @@ struct SettingLikedView: View {
                 }
             }
         }
-        .navigationTitle("좋아요 한 기록")
+        .navigationTitle(TextLiteral.Setting.likedRecords)
         .navigationBarTitleDisplayMode(.inline)
         .task { await vm.refresh() }
         .refreshable { await vm.refresh() }

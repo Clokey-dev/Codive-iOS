@@ -14,20 +14,26 @@ final class NavigationRouter: ObservableObject {
     // MARK: - Properties
     @Published var path = NavigationPath()
     @Published var currentDestination: AppDestination?
+    @Published var sheetDestination: AppDestination?
     
     // MARK: - Navigation Methods
-    
+
     /// 새로운 화면으로 이동 (스택에 추가)
     func navigate(to destination: AppDestination) {
         currentDestination = destination
         path.append(destination)
     }
-    
+
     /// 이전 화면으로 돌아가기
     func navigateBack() {
+        if sheetDestination != nil {
+            dismissSheet()
+            return
+        }
+        
         guard !path.isEmpty else { return }
         path.removeLast()
-        
+
         if path.isEmpty {
             currentDestination = nil
         }
@@ -37,6 +43,7 @@ final class NavigationRouter: ObservableObject {
     func navigateToRoot() {
         path = NavigationPath()
         currentDestination = nil
+        dismissSheet()
     }
     
     /// 특정 화면으로 교체 (현재 스택을 모두 비우고 새로운 화면으로)
@@ -44,6 +51,18 @@ final class NavigationRouter: ObservableObject {
         path = NavigationPath()
         currentDestination = destination
         path.append(destination)
+    }
+    
+    // MARK: - Sheet Presentation Methods
+    
+    /// 시트를 표시합니다.
+    func presentSheet(for destination: AppDestination) {
+        sheetDestination = destination
+    }
+    
+    /// 현재 표시된 시트를 닫습니다.
+    func dismissSheet() {
+        sheetDestination = nil
     }
     
     // MARK: - Computed Properties

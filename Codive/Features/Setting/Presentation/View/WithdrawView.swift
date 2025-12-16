@@ -9,7 +9,7 @@ import SwiftUI
 
 struct WithdrawView: View {
     var body: some View {
-        CustomNavigationBar(title: "계정 탈퇴") {
+        CustomNavigationBar(title: TextLiteral.Setting.withdrawTitle) {
             print("뒤로가기")
         }
         VStack {
@@ -18,8 +18,8 @@ struct WithdrawView: View {
                     .resizable()
                     .frame(width: 24, height: 24)
                     .padding(.leading, 20)
-                
-                Text("탈퇴 전 아래 내용을 확인해주세요")
+
+                Text(TextLiteral.Setting.withdrawNotice)
                     .font(.codive_title2)
                     .foregroundStyle(Color.Codive.grayscale1)
             }
@@ -37,8 +37,8 @@ struct WithdrawView: View {
                 .padding(.horizontal, 20)
 
             Spacer()
-            
-            CustomButton(text: "계정 탈퇴하기", widthType: .fixed) {
+
+            CustomButton(text: TextLiteral.Setting.withdrawButton, widthType: .fixed) {
                 print("계정 탈퇴하기")
             }
             .padding(.horizontal, 20)

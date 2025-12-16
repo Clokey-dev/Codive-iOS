@@ -10,4 +10,5 @@ import Foundation
 // MARK: - ClothRepository
 protocol ClothRepository {
     func fetchClothItems(category: String?) async throws -> [ProductItem]
+    func saveClothes(_ inputs: [ClothInput], images: [Data]) async throws -> [Cloth]
 }

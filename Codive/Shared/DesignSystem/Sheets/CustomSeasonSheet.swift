@@ -8,10 +8,20 @@
 import SwiftUI
 
 struct CustomSeasonSheet: View {
-    @State private var selected: Set<Season> = []
+    @State private var selected: Set<Season>
 
     var onClose: () -> Void = {}
     var onApply: (_ selected: Set<Season>) -> Void = { _ in }
+
+    init(
+        initialSelected: Set<Season> = [],
+        onClose: @escaping () -> Void = {},
+        onApply: @escaping (_ selected: Set<Season>) -> Void = { _ in }
+    ) {
+        self._selected = State(initialValue: initialSelected)
+        self.onClose = onClose
+        self.onApply = onApply
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -30,9 +40,10 @@ struct CustomSeasonSheet: View {
                     .padding(.trailing, 16)
                 }
 
-            // 항목 리스트
+            // 항목 리스트 (봄 → 여름 → 가을 → 겨울 순서)
             VStack(spacing: 0) {
-                ForEach(Season.allCases) { season in
+                let orderedSeasons: [Season] = [.spring, .summer, .fall, .winter]
+                ForEach(orderedSeasons) { season in
                     let isSelected = selected.contains(season)
 
                     Divider()
@@ -55,7 +66,7 @@ struct CustomSeasonSheet: View {
                             }
                             .padding(.leading, 100)
                             // 중앙 텍스트
-                            Text(season.rawValue)
+                            Text(season.displayName)
                                 .font(.codive_title3)
                                 .foregroundStyle(Color("Grayscale1"))
                                 .frame(maxWidth: .infinity)
@@ -84,8 +95,19 @@ struct CustomSeasonSheet: View {
             .padding(.horizontal, 20)
             .padding(.vertical, 16)
         }
-        .background(Color.white)
-        .clipShape(RoundedCorner(radius: 24, corners: [.topLeft, .topRight]))
+        .background(Color.white) // First background
+        .clipShape(
+            .rect(
+                topLeadingRadius: 24,
+                bottomLeadingRadius: 0,
+                bottomTrailingRadius: 0,
+                topTrailingRadius: 24
+            )
+        )
+        .background( // Second background
+            Color.white
+                .ignoresSafeArea(edges: .bottom)
+        )
     }
 
     // 선택 토글
@@ -102,6 +124,7 @@ struct CustomSeasonSheet: View {
     ZStack {
         Color.gray.opacity(0.2).ignoresSafeArea()
         CustomSeasonSheet(
+            initialSelected: [],
             onClose: { print("닫기") },
             onApply: { print("적용:", $0.map(\.rawValue)) }
         )

@@ -123,10 +123,7 @@ let project = Project(
                 .external(name: "KakaoSDKUser"),
                 
                 // 네트워킹
-                .external(name: "Moya"),
-                
-                // 이미지 크롭
-                .external(name: "SwiftyCrop"),
+                .external(name: "Moya")
             ],
             settings: .settings(
                 base: [
@@ -145,5 +142,17 @@ let project = Project(
                 ]
             )
         ),
+        .target(
+            name: "CodiveTests",
+            destinations: .iOS,
+            product: .unitTests,
+            bundleId: "com.codive.app.tests",
+            deploymentTargets: .iOS("16.0"),
+            infoPlist: .default,
+            sources: ["CodiveTests/**"],
+            dependencies: [
+                .target(name: "Codive")
+            ]
+        )
     ]
 )

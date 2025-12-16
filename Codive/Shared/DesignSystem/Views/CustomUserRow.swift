@@ -7,10 +7,16 @@
 
 import SwiftUI
 
+enum CustomUserRowButtonStyle {
+    case primary    // 채워진 스타일 (e.g. 팔로우)
+    case secondary  // 테두리 스타일 (e.g. 팔로잉, 차단 해제)
+}
+
 struct CustomUserRow: View {
-    let user: SimpleUser           // 유저 정보
-    let buttonTitle: String        // 오른쪽 버튼 텍스트
-    let action: () -> Void         // 버튼 탭 액션
+    let user: SimpleUser
+    let buttonTitle: String
+    let buttonStyle: CustomUserRowButtonStyle
+    let action: () -> Void
 
     var body: some View {
         HStack {
@@ -18,9 +24,9 @@ struct CustomUserRow: View {
             AsyncImage(url: user.avatarURL) { phase in
                 switch phase {
                 case .success(let img): img.resizable().scaledToFill()
-                case .empty: Color("Grayscale4")
-                case .failure: Color("Grayscale4")
-                @unknown default: Color("Grayscale4")
+                case .empty: Color.Codive.grayscale4
+                case .failure: Color.Codive.grayscale4
+                @unknown default: Color.Codive.grayscale4
                 }
             }
             .frame(width: 40, height: 40)
@@ -30,10 +36,10 @@ struct CustomUserRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(user.nickname)
                     .font(.codive_body1_medium)
-                    .foregroundStyle(Color("Grayscale1"))
+                    .foregroundStyle(Color.Codive.grayscale1)
                 Text(user.handle)
                     .font(.codive_body3_medium)
-                    .foregroundStyle(Color("Grayscale3"))
+                    .foregroundStyle(Color.Codive.grayscale3)
             }
             .padding(.leading, 8)
 
@@ -42,10 +48,14 @@ struct CustomUserRow: View {
             Button(action: action) {
                 Text(buttonTitle)
                     .font(.codive_body2_medium)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(buttonStyle == .primary ? .white : Color.Codive.main0)
                     .frame(minWidth: 76, minHeight: 32)
-                    .background(Color("main0"))
+                    .background(buttonStyle == .primary ? Color.Codive.main0 : .white)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(buttonStyle == .secondary ? Color.Codive.main0 : .clear, lineWidth: 1)
+                    )
                     .multilineTextAlignment(.center)
             }
             .buttonStyle(.plain)
@@ -55,7 +65,7 @@ struct CustomUserRow: View {
 }
 
 #Preview {
-    let dummy = SimpleUser(
+    let dummyUser = SimpleUser(
         userId: 0,
         nickname: "닉네임",
         handle: "아이디",
@@ -63,7 +73,8 @@ struct CustomUserRow: View {
     )
 
     VStack(spacing: 24) {
-        CustomUserRow(user: dummy, buttonTitle: "팔로우") { }
-        CustomUserRow(user: dummy, buttonTitle: "차단 해제") { }
+        CustomUserRow(user: dummyUser, buttonTitle: "팔로우", buttonStyle: .primary) { }
+        CustomUserRow(user: dummyUser, buttonTitle: "팔로잉", buttonStyle: .secondary) { }
+        CustomUserRow(user: dummyUser, buttonTitle: "차단 해제", buttonStyle: .secondary) { }
     }
 }
