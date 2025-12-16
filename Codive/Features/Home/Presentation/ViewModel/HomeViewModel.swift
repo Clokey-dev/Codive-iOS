@@ -1,3 +1,10 @@
+//
+//  HomeViewModel.swift
+//  Codive
+//
+//  Created by 한금준 on 10/13/25.
+//
+
 import SwiftUI
 import UIKit
 import Combine
@@ -20,7 +27,7 @@ final class HomeViewModel: ObservableObject {
     
     @AppStorage("SavedCategories") private var savedCategoriesData: Data?
     
-    private let navigationRouter: NavigationRouter
+    let navigationRouter: NavigationRouter
     private let useCase: HomeUseCase
     
     // MARK: - Initializer

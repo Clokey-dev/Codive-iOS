@@ -22,7 +22,7 @@ struct LookBookView: View {
     }
     
     var body: some View {
-        // ✅ LookBook 전용 NavigationStack
+        // LookBook 전용 NavigationStack
         NavigationStack(path: $navigationRouter.path) {
             VStack(spacing: 0) {
                 CustomNavigationBar(
@@ -93,7 +93,7 @@ struct LookBookView: View {
                     }
                 }
             }
-            // ✅ LookBook 관련 화면들만 처리
+            // LookBook 관련 화면들만 처리
             .navigationDestination(for: AppDestination.self) { destination in
                 lookBookDIContainer.lookBookViewFactory.makeView(for: destination)
             }

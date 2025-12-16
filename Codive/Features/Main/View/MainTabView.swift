@@ -95,8 +95,17 @@ struct MainTabView: View {
 
     /// 상단 네비게이션 바를 표시할지 여부
     private var shouldShowTopBar: Bool {
-        // destination은 ZStack으로 위에 덮이므로 체크하지 않음
-        // Add 탭에서만 상단바 숨김
+        // destination이 표시 중인 경우: 목적지에 따라 상단바를 숨길 수 있음
+        if let destination = navigationRouter.currentDestination {
+            switch destination {
+            case .lookbook:
+                return false
+            default:
+                break
+            }
+        }
+
+        // 기본 규칙: Add 탭에서만 상단바 숨김
         return viewModel.selectedTab != .add
     }
 
@@ -136,7 +145,6 @@ struct MainTabView: View {
             homeDIContainer.makeEditCategoryView()
         case .codiBoard:
             homeDIContainer.makeCodiBoardView()
-
         default:
             EmptyView()
         }
