@@ -18,7 +18,7 @@ struct SpecificLookBook: View {
     }
     
     var body: some View {
-        VStack {
+        VStack(spacing: 0) { // spacing을 0으로 설정하여 상단바와 밀착
             CustomNavigationBar(
                 title: "데이트 룩",
                 onBack: { viewModel.handleBackTap() },
@@ -36,12 +36,15 @@ struct SpecificLookBook: View {
             ScrollView {
                 if viewModel.isLoading {
                     ProgressView(TextLiteral.LookBook.loadingTitle)
+                        .padding(.top, 100)
                 } else if let error = viewModel.errorMessage {
                     Text(error)
                         .foregroundStyle(.red)
+                        .padding()
                 } else if viewModel.lookBookList.isEmpty {
                     Text("해당 룩북에 코디가 없습니다.")
                         .foregroundColor(.gray)
+                        .padding(.top, 100)
                 } else {
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: 2), spacing: 16) {
                         ForEach(viewModel.lookBookList) { lookbook in
@@ -57,6 +60,7 @@ struct SpecificLookBook: View {
                         }
                     }
                     .padding(.horizontal, 16)
+                    .padding(.top, 16)
                 }
             }
             .onAppear {
@@ -65,10 +69,8 @@ struct SpecificLookBook: View {
                 }
             }
         }
-        .navigationBarHidden(true)
-        .background(alignment: .center) {
-            Color.white
-        }
+        .navigationBarHidden(true) 
+        .background(Color.white)
     }
 
     private func handleCodyTap(codyId: Int) {
