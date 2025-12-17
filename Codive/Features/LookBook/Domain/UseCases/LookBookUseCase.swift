@@ -33,4 +33,8 @@ final class LookBookUseCase {
     func fetchProductList() async throws -> [ProductItem] {
         return try await repository.fetchProductList()
     }
+    
+    func fetchBeforeCodiList() async throws -> [BeforeCodiEntity] {
+        return try await repository.fetchBeforeCodi()
+    }
 }

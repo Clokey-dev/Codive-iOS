@@ -28,6 +28,8 @@ final class LookBookViewFactory {
             lookBookDIContainer?.makeAddCodiView(lookbookId: lookbookId)
         case .addCodiDetail:
             lookBookDIContainer?.makeAddCodiDetailView()
+        case .addBeforeCodi:
+            lookBookDIContainer?.makeAddBeforeCodiView()
         default:
             EmptyView()
         }

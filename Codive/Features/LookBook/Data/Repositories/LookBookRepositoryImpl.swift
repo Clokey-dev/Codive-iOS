@@ -33,4 +33,8 @@ final class LookBookRepositoryImpl: LookBookRepository {
     func fetchProductList() async throws -> [ProductItem] {
         return try await datasource.fetchProductList()
     }
+    
+    func fetchBeforeCodi() async throws -> [BeforeCodiEntity] {
+        return try await datasource.fetchBeforeCodiList()
+    }
 }

@@ -34,17 +34,31 @@ final class LookBookDataSource {
     
     // 수정된 상품 더미 데이터
     private var dummyProducts: [ProductItem] = [
-            ProductItem(id: 1, imageName: "https://image.msscdn.net/images/goods_img/20230823/3505663/3505663_16927703370903_500.jpg", isTodayCloth: true, brand: "아디다스", name: "트랙탑"),
-            ProductItem(id: 2, imageName: "https://image.msscdn.net/images/goods_img/20240115/3792446/3792446_17053040307044_500.jpg", isTodayCloth: false, brand: "나이키", name: "후드티"),
-            ProductItem(id: 3, imageName: "https://image.msscdn.net/images/goods_img/20230209/3067644/3067644_16759086395254_500.jpg", isTodayCloth: false, brand: "리바이스", name: "데님 팬츠"),
-            ProductItem(id: 4, imageName: "https://image.msscdn.net/images/goods_img/20230912/3553250/3553250_16945037307524_500.jpg", isTodayCloth: false, brand: "노스페이스", name: "패딩"),
-            ProductItem(id: 5, imageName: "https://image.msscdn.net/images/goods_img/20221031/2902341/2902341_1_500.jpg", isTodayCloth: true, brand: "뉴발란스", name: "990v6"),
-            ProductItem(id: 6, imageName: "https://image.msscdn.net/images/goods_img/20230302/3119129/3119129_16777353986884_500.jpg", isTodayCloth: false, brand: "뉴에라", name: "볼캡")
-        ]
+        ProductItem(id: 1, imageName: "https://image.msscdn.net/images/goods_img/20230823/3505663/3505663_16927703370903_500.jpg", isTodayCloth: true, brand: "아디다스", name: "트랙탑"),
+        ProductItem(id: 2, imageName: "https://image.msscdn.net/images/goods_img/20240115/3792446/3792446_17053040307044_500.jpg", isTodayCloth: false, brand: "나이키", name: "후드티"),
+        ProductItem(id: 3, imageName: "https://image.msscdn.net/images/goods_img/20230209/3067644/3067644_16759086395254_500.jpg", isTodayCloth: false, brand: "리바이스", name: "데님 팬츠"),
+        ProductItem(id: 4, imageName: "https://image.msscdn.net/images/goods_img/20230912/3553250/3553250_16945037307524_500.jpg", isTodayCloth: false, brand: "노스페이스", name: "패딩"),
+        ProductItem(id: 5, imageName: "https://image.msscdn.net/images/goods_img/20221031/2902341/2902341_1_500.jpg", isTodayCloth: true, brand: "뉴발란스", name: "990v6"),
+        ProductItem(id: 6, imageName: "https://image.msscdn.net/images/goods_img/20230302/3119129/3119129_16777353986884_500.jpg", isTodayCloth: false, brand: "뉴에라", name: "볼캡")
+    ]
+    
+    private var dummyBeforeCodi: [BeforeCodiEntity] = [
+        BeforeCodiEntity(id: 1, imageURL: "https://image.msscdn.net/images/style/detail/37395/detail_37395_1_500.jpg", date: "2025.08.09"),
+        BeforeCodiEntity(id: 2, imageURL: "https://image.msscdn.net/images/style/detail/37390/detail_37390_1_500.jpg", date: "2025.08.01"),
+        BeforeCodiEntity(id: 3, imageURL: "https://image.msscdn.net/images/style/detail/37370/detail_37370_1_500.jpg", date: "2025.08.03"),
+        BeforeCodiEntity(id: 4, imageURL: "https://image.msscdn.net/images/style/detail/37370/detail_37370_1_500.jpg", date: "2025.08.08"),
+        BeforeCodiEntity(id: 5, imageURL: "https://image.msscdn.net/images/style/detail/37385/detail_37385_1_500.jpg", date: "2025.08.011"),
+        BeforeCodiEntity(id: 6, imageURL: "https://image.msscdn.net/images/style/detail/37380/detail_37380_1_500.jpg", date: "2025.08.14")
+    ]
     
     func fetchLookBookList() async throws -> [LookBookEntity] {
         try await Task.sleep(nanoseconds: 500_000_000)
         return dummyLookBooks
+    }
+    
+    func fetchBeforeCodiList() async throws -> [BeforeCodiEntity] {
+        try await Task.sleep(nanoseconds: 500_000_000)
+        return dummyBeforeCodi
     }
     
     func deleteLookBooks(ids: [Int]) async throws {

@@ -12,3 +12,9 @@ struct LookBookEntity: Identifiable {
     let imageURL: String
     let cardTitle: String
 }
+
+struct BeforeCodiEntity: Identifiable {
+    let id: Int
+    let imageURL: String
+    let date: String
+}

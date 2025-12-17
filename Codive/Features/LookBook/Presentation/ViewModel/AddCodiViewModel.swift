@@ -54,6 +54,7 @@ final class AddCodiViewModel: ObservableObject {
     func handleRecallCodi() {
         isShowingBottomSheet = false
         print("이전 코디 불러오기 tapped")
+        navigationRouter.navigate(to: .addBeforeCodi)
     }
 }
 
