@@ -185,6 +185,8 @@ enum TextLiteral {
         static let loadingTitle = "룩북 로드 중..."
         static let addNewCodi = "새로운 코디 추가하기"
         static let getBeforeCodi = "이전 코디 불러오기"
+        static let makeNewCodiDescription1 = "옷을 선택해 새로운 코디를 만들어보세요!"
+        static let makeNewCodiDescription2 = "아이템은 최대 10개까지 등록할 수 있어요"
     }
 
     // MARK: - Setting (설정)

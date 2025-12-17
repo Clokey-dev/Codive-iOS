@@ -26,6 +26,8 @@ final class LookBookViewFactory {
             lookBookDIContainer?.makeSpecificLookBookView(lookbookId: lookbookId)
         case .addCodi(let lookbookId):
             lookBookDIContainer?.makeAddCodiView(lookbookId: lookbookId)
+        case .addCodiDetail:
+            lookBookDIContainer?.makeAddCodiDetailView()
         default:
             EmptyView()
         }

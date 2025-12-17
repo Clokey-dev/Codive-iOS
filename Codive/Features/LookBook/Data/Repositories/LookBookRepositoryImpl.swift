@@ -29,4 +29,8 @@ final class LookBookRepositoryImpl: LookBookRepository {
     func toggleLike(codyId: Int, isLiked: Bool) async throws {
         try await datasource.toggleLike(codyId: codyId, isLiked: isLiked)
     }
+    
+    func fetchProductList() async throws -> [ProductItem] {
+        return try await datasource.fetchProductList()
+    }
 }

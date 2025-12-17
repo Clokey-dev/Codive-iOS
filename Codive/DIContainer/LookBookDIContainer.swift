@@ -29,13 +29,13 @@ final class LookBookDIContainer {
             useCase: lookBookUseCase
         )
     }
-
+    
     func makeLookBookView() -> LookBookView {
-            return LookBookView(
-                viewModel: makeLookBookViewModel(),
-                lookBookDIContainer: self
-            )
-        }
+        return LookBookView(
+            viewModel: makeLookBookViewModel(),
+            lookBookDIContainer: self
+        )
+    }
     
     func makeSpecificLookBookViewModel(lookbookId: Int) -> SpecificLookBookViewModel {
         return SpecificLookBookViewModel(
@@ -59,5 +59,18 @@ final class LookBookDIContainer {
     
     func makeAddCodiView(lookbookId: Int) -> AddCodiView {
         return AddCodiView(viewModel: makeAddCodiViewModel(lookbookId: lookbookId))
+    }
+    
+    func makeAddCodiDetailViewModel() -> AddCodiDetailViewModel {
+        return AddCodiDetailViewModel(
+            navigationRouter: navigationRouter,
+            useCase: lookBookUseCase
+        )
+    }
+    
+    func makeAddCodiDetailView() -> AddCodiDetailView {
+        return AddCodiDetailView(
+            viewModel: makeAddCodiDetailViewModel()
+        )
     }
 }

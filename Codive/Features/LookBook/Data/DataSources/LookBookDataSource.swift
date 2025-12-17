@@ -33,6 +33,16 @@ final class LookBookDataSource {
         // ... 필요한 경우 더미 데이터 추가
     ]
     
+    // 수정된 상품 더미 데이터
+    private var dummyProducts: [ProductItem] = [
+        ProductItem(id: 1, imageName: "cloth_top_1", isTodayCloth: true, brand: "아디다스", name: "트랙탑"),
+        ProductItem(id: 2, imageName: "cloth_top_2", isTodayCloth: false, brand: "나이키", name: "후드티"),
+        ProductItem(id: 3, imageName: "cloth_pants_1", isTodayCloth: false, brand: "리바이스", name: "데님 팬츠"),
+        ProductItem(id: 4, imageName: "cloth_outer_1", isTodayCloth: false, brand: "노스페이스", name: "패딩"),
+        ProductItem(id: 5, imageName: "cloth_shoes_1", isTodayCloth: true, brand: "뉴발란스", name: "990v6"),
+        ProductItem(id: 6, imageName: "cloth_hat_1", isTodayCloth: false, brand: "뉴에라", name: "볼캡")
+    ]
+    
     func fetchLookBookList() async throws -> [LookBookEntity] {
         try await Task.sleep(nanoseconds: 500_000_000)
         return dummyLookBooks
@@ -54,5 +64,10 @@ final class LookBookDataSource {
     func toggleLike(codyId: Int, isLiked: Bool) async throws {
         try await Task.sleep(nanoseconds: 300_000_000)
         print("서버에 좋아요 상태 전송: Codi ID \(codyId), isLiked: \(isLiked)")
+    }
+    
+    func fetchProductList() async throws -> [ProductItem] {
+        try await Task.sleep(nanoseconds: 300_000_000)
+        return dummyProducts
     }
 }

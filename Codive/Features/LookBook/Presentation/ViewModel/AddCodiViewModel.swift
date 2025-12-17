@@ -48,7 +48,7 @@ final class AddCodiViewModel: ObservableObject {
 
     func navigateToNewCodi() {
         isShowingBottomSheet = false
-//        navigationRouter.navigate(to: .recordAdd)
+        navigationRouter.navigate(to: .addCodiDetail)
     }
 
     func handleRecallCodi() {

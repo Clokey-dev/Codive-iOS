@@ -33,6 +33,7 @@ enum AppDestination: Hashable, Identifiable {
     case lookbook
     case specificLookbook(lookbookId: Int)
     case addCodi(lookbookId: Int)
+    case addCodiDetail
     case feedDetail(feedId: Int)
     case comment(feedId: Int)
     
@@ -58,7 +59,7 @@ enum AppDestination: Hashable, Identifiable {
             return true
             
         // LookBook
-        case .lookbook, .specificLookbook, .addCodi:
+        case .lookbook, .specificLookbook, .addCodi, .addCodiDetail:
             return true
             
         // Feed Flow

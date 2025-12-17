@@ -42,13 +42,6 @@ struct LookBookCard: View {
                 .frame(width: 160, height: 160)
                 .cornerRadius(16)
                 .clipped()
-                .overlay {
-                    if isSelected {
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.Codive.point1, lineWidth: 3)
-                            .background(Color.black.opacity(0.2))
-                    }
-                }
     
                 if iconType != .none {
                     iconButton
