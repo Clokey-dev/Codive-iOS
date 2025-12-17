@@ -20,11 +20,20 @@ struct AddCodiDetailView: View {
             CustomNavigationBar(
                 title: "새 코디 만들기",
                 onBack: viewModel.handleBackTap,
-                rightButton: .text(title: "완료", isEnabled: true, action: viewModel.handleComplete)
+                rightButton: .text(
+                    title: "완료",
+                    isEnabled: !viewModel.selectedProductIds.isEmpty,
+                    action: viewModel.handleComplete
+                )
             )
             .padding(.horizontal, 15)
             
             GeometryReader { geometry in
+                let boardSize = geometry.size.width - 40
+                let imageHalfSize: CGFloat = 40
+                let minBound = imageHalfSize
+                let maxBound = boardSize - imageHalfSize
+                
                 ZStack(alignment: .bottom) {
                     // 배경 콘텐츠
                     VStack(spacing: 20) {
@@ -39,16 +48,30 @@ struct AddCodiDetailView: View {
                         .padding(.horizontal, 20)
                         .padding(.top, 10)
                         
-                        // 코디 제작 영역
-                        RoundedRectangle(cornerRadius: 15)
-                            .fill(Color(UIColor.systemGray6))
-                            .frame(height: geometry.size.height * 0.45)
-                            .padding(.horizontal, 20)
-                            .overlay(
-                                Text("아이템을 선택해 주세요")
-                                    .foregroundColor(.gray)
-                                    .opacity(viewModel.selectedProductIds.isEmpty ? 1 : 0)
-                            )
+                        // 코디 제작 영역 (DraggableImageView로 대체)
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 15)
+                                .fill(Color(UIColor.systemGray6))
+                                .frame(width: boardSize, height: boardSize)
+                                .overlay(
+                                    Text("아이템을 선택해 주세요")
+                                        .foregroundColor(.gray)
+                                        .opacity(viewModel.images.isEmpty ? 1 : 0)
+                                )
+                            
+                            // 드래그 가능한 이미지들
+                            ForEach($viewModel.images) { $image in
+                                DraggableImageView(
+                                    image: $image,
+                                    imageHalfSize: imageHalfSize,
+                                    minBound: minBound,
+                                    maxBound: maxBound,
+                                    viewModel: viewModel
+                                )
+                            }
+                        }
+                        .frame(width: boardSize, height: boardSize)
+                        .padding(.horizontal, 20)
                         
                         Spacer()
                     }
@@ -76,6 +99,9 @@ struct AddCodiDetailView: View {
                     .clipShape(RoundedCorner(radius: 20, corners: [.topLeft, .topRight]))
                     .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: -5)
                 }
+                .onAppear {
+                        viewModel.boardSize = boardSize
+                    }
             }
         }
         .navigationBarHidden(true)

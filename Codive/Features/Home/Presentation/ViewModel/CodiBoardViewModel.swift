@@ -8,7 +8,7 @@
 import SwiftUI
 
 @MainActor
-final class CodiBoardViewModel: ObservableObject {
+final class CodiBoardViewModel: ObservableObject, DraggableImageViewModelProtocol {
     
     // MARK: - Properties
     @Published var isConfirmed: Bool = false
@@ -41,7 +41,7 @@ final class CodiBoardViewModel: ObservableObject {
         isConfirmed = true
     }
 
-    // MARK: - Image Manipulation
+    // MARK: - Image Manipulation (DraggableImageViewModelProtocol)
     func bringImageToFront(id: Int) {
         if let index = images.firstIndex(where: { $0.id == id }) {
             let tapped = images.remove(at: index)
