@@ -45,6 +45,14 @@ struct CodiDetailView: View {
         .onAppear {
             viewModel.fetchCodiDetail()
         }
+        .alert("코디 삭제", isPresented: $viewModel.showDeleteAlert) {
+            Button("취소", role: .cancel) { }
+            Button("삭제", role: .destructive) {
+                viewModel.deleteCodi()
+            }
+        } message: {
+            Text("해당 코디를 삭제하시겠습니까?\n한 번 삭제된 기록은 복구할 수 없습니다")
+        }
     }
 
     // MARK: - Top Bar
@@ -56,7 +64,7 @@ struct CodiDetailView: View {
                 menuType: .closet,
                 menuActions: [
                     { viewModel.navigateToEditCodi() },
-                    { viewModel.deleteCodi() }
+                    { viewModel.requestDelete() }
                 ]
             )
         )
