@@ -58,7 +58,6 @@ final class EditCodiViewModel: ObservableObject {
     func handleCompleteTap() {
         guard hasChanges else { return }
         print("수정 완료 제출: \(codiName)")
-        // logic to call useCase.updateCodi(...)
     }
 }
 

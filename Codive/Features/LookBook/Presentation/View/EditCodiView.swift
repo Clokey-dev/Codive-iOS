@@ -20,7 +20,7 @@ struct EditCodiView: View {
             if viewModel.hasChanges {
                 // 수정 사항이 있는 경우
                 CustomNavigationBar(
-                    title: "새 코디 만들기",
+                    title: viewModel.codiName, // 실시간 업데이트
                     onBack: { viewModel.handleBackTap() },
                     rightButton: .text(
                         title: "완료",
@@ -32,7 +32,7 @@ struct EditCodiView: View {
             } else {
                 // 수정 사항이 없는 경우
                 CustomNavigationBar(
-                    title: "이전 코디",
+                    title: viewModel.codiName, // 수정 사항 없어도 현재 이름 표시
                     onBack: { viewModel.handleBackTap() }
                 )
                 .padding(.leading, 15)
@@ -43,10 +43,12 @@ struct EditCodiView: View {
                     // 이미지 및 애니메이션 영역
                     ZStack {
                         if let url = viewModel.selectedImageURL {
-                            AsyncImage(url: URL(string: url)) { image in
-                                image.resizable().aspectRatio(contentMode: .fill)
-                            } placeholder: {
-                                Color.gray.opacity(0.2)
+                            AsyncImage(url: URL(string: url)) { phase in
+                                if let image = phase.image {
+                                    image.resizable().aspectRatio(contentMode: .fill)
+                                } else {
+                                    Color.gray.opacity(0.2)
+                                }
                             }
                             .frame(height: 335)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -76,9 +78,10 @@ struct EditCodiView: View {
                 .padding(20)
             }
             
-            // 하단 버튼 (수정 사항이 있을 때만 활성화 권장)
+            // 하단 버튼 
             CustomButton(
-                text: "수정 완료하기", widthType: .fixed,
+                text: "수정 완료하기",
+                widthType: .fixed,
                 isEnabled: viewModel.isButtonEnabled
             ) {
                 viewModel.handleCompleteTap()
@@ -86,6 +89,7 @@ struct EditCodiView: View {
             .padding(20)
         }
         .navigationBarHidden(true)
+        .background(Color.white)
     }
 }
 
