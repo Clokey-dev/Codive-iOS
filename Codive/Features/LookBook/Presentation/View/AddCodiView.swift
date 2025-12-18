@@ -104,8 +104,8 @@ struct AddCodiView: View {
                 VStack {
                     Spacer()
                     CustomBottomSheet(
-                        iconName1: "addCodi",
-                        iconName2: "recallCodi",
+                        iconName1: "plus",
+                        iconName2: "clo_selected",
                         title1: TextLiteral.LookBook.addNewCodi,
                         title2: TextLiteral.LookBook.getBeforeCodi,
                         action1: { viewModel.navigateToNewCodi() },

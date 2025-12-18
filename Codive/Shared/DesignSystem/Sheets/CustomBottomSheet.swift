@@ -26,7 +26,8 @@ struct CustomBottomSheet: View {
             Button(action: action1) {
                 HStack(spacing: 16) {
                     Image(iconName1)
-                        .frame(width: 36, height: 36)
+                        .resizable()
+                        .frame(width: 20, height: 20)
                         .foregroundStyle(Color("main0"))
                     
                     Text(title1)
@@ -36,6 +37,9 @@ struct CustomBottomSheet: View {
                     Spacer()
                     
                     Image("backSmall")
+                        .resizable()
+                        .frame(width: 8, height: 13)
+                        .rotationEffect(.degrees(180))
                         .foregroundStyle(Color("main0"))
                 }
             }
@@ -44,9 +48,10 @@ struct CustomBottomSheet: View {
             
             // Row 2 (이전 코디 불러오기)
             Button(action: action2) {
-                HStack(spacing: 16) {
+                HStack(spacing: 14) {
                     Image(iconName2)
-                        .frame(width: 36, height: 36)
+                        .resizable()
+                        .frame(width: 25, height: 25)
                         .foregroundStyle(Color("main0"))
                     
                     Text(title2)
@@ -56,10 +61,14 @@ struct CustomBottomSheet: View {
                     Spacer()
                     
                     Image("backSmall")
+                        .resizable()
+                        .frame(width: 8, height: 13)
+                        .rotationEffect(.degrees(180))
                         .foregroundStyle(Color("main0"))
                 }
             }
-            .padding(.horizontal, 20)
+            .padding(.leading, 18)
+            .padding(.trailing, 20)
             .padding(.bottom, 56)
         }
         .background(Color.white)
