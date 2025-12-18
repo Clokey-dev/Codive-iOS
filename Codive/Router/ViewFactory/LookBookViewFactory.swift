@@ -32,6 +32,8 @@ final class LookBookViewFactory {
             lookBookDIContainer?.makeAddBeforeCodiView(lookbookId: lookbookId)
         case .codiDetail(let codiId):
                 lookBookDIContainer?.makeCodiDetailView(codiId: codiId)
+        case .editCodi(let lookbookId, let selectedCodiData): // 추가
+                    lookBookDIContainer?.makeEditCodiView(lookbookId: lookbookId, selectedCodiData: selectedCodiData)
         default:
             EmptyView()
         }

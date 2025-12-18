@@ -32,7 +32,8 @@ enum AppDestination: Hashable, Identifiable {
     case notification
     case lookbook
     case specificLookbook(lookbookId: Int)
-    case addCodi(lookbookId: Int, selectedCodiData: SelectedCodiData? = nil)  // 수정
+    case addCodi(lookbookId: Int, selectedCodiData: SelectedCodiData? = nil)
+    case editCodi(lookbookId: Int, selectedCodiData: SelectedCodi)
     case addCodiDetail
     case addBeforeCodi(lookbookId: Int)
     case codiDetail(codiId: Int)
@@ -61,7 +62,7 @@ enum AppDestination: Hashable, Identifiable {
             return true
             
         // LookBook
-        case .lookbook, .specificLookbook, .addCodi, .addCodiDetail, .addBeforeCodi, .codiDetail:
+        case .lookbook, .specificLookbook, .addCodi, .addCodiDetail, .addBeforeCodi, .codiDetail, .editCodi:
             return true
             
         // Feed Flow

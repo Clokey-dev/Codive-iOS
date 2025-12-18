@@ -102,4 +102,17 @@ final class LookBookDIContainer {
             viewModel: makeCodiDetailViewModel(codiId: codiId)
         )
     }
+    
+    func makeEditCodiViewModel(lookbookId: Int, selectedCodiData: SelectedCodi) -> EditCodiViewModel {
+            return EditCodiViewModel(
+                navigationRouter: navigationRouter,
+                useCase: lookBookUseCase,
+                lookbookId: lookbookId,
+                selectedCodiData: selectedCodiData
+            )
+        }
+        
+        func makeEditCodiView(lookbookId: Int, selectedCodiData: SelectedCodi) -> EditCodiView {
+            return EditCodiView(viewModel: makeEditCodiViewModel(lookbookId: lookbookId, selectedCodiData: selectedCodiData))
+        }
 }

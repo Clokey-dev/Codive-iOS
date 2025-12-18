@@ -45,3 +45,10 @@ struct CodiItem: Identifiable {
     let brand: String
     let name: String
 }
+
+struct SelectedCodi: Hashable {
+    let codiId: Int
+    let name: String
+    let memo: String
+    let imageURL: String
+}
