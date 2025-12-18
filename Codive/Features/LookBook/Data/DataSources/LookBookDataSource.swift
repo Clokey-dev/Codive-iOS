@@ -1,4 +1,3 @@
-// LookBookDataSource.swift
 //
 //  LookBookDataSource.swift
 //  Codive
@@ -30,6 +29,50 @@ final class LookBookDataSource {
             LookBookEntity(id: 21, imageURL: "https://image.msscdn.net/images/style/detail/37375/detail_37375_1_500.jpg", cardTitle: "캐주얼 오버핏"),
             LookBookEntity(id: 22, imageURL: "https://image.msscdn.net/images/style/detail/37370/detail_37370_1_500.jpg", cardTitle: "편한 집앞 마실룩")
         ]
+    ]
+    
+    // 코디 상세 정보 더미 데이터
+    private var codiDetails: [Int: CodiDetailEntity] = [
+        11: CodiDetailEntity(
+            id: 11,
+            imageURL: "https://image.msscdn.net/images/style/detail/37395/detail_37395_1_500.jpg",
+            topImageURL: "https://image.msscdn.net/images/goods_img/20230823/3505663/3505663_16927703370903_500.jpg",
+            bottomImageURL: "https://image.msscdn.net/images/goods_img/20230209/3067644/3067644_16759086395254_500.jpg",
+            shoeImageURL: "https://image.msscdn.net/images/goods_img/20221031/2902341/2902341_1_500.jpg",
+            name: "로맨틱 시사회 룩",
+            memo: "1주년이니까 오빠가 사준 신발 신고가야됨",
+            date: "2025.08.09"
+        ),
+        12: CodiDetailEntity(
+            id: 12,
+            imageURL: "https://image.msscdn.net/images/style/detail/37390/detail_37390_1_500.jpg",
+            topImageURL: "https://image.msscdn.net/images/goods_img/20240115/3792446/3792446_17053040307044_500.jpg",
+            bottomImageURL: "https://image.msscdn.net/images/goods_img/20230209/3067644/3067644_16759086395254_500.jpg",
+            shoeImageURL: "https://image.msscdn.net/images/goods_img/20221031/2902341/2902341_1_500.jpg",
+            name: "따뜻한 카페 데이트",
+            memo: "겨울 카페 데이트 코디",
+            date: "2025.08.01"
+        ),
+        13: CodiDetailEntity(
+            id: 13,
+            imageURL: "https://image.msscdn.net/images/style/detail/37385/detail_37385_1_500.jpg",
+            topImageURL: "https://image.msscdn.net/images/goods_img/20230823/3505663/3505663_16927703370903_500.jpg",
+            bottomImageURL: "https://image.msscdn.net/images/goods_img/20230912/3553250/3553250_16945037307524_500.jpg",
+            shoeImageURL: "https://image.msscdn.net/images/goods_img/20221031/2902341/2902341_1_500.jpg",
+            name: "활동적인 피크닉 룩",
+            memo: "야외 활동하기 좋은 스타일",
+            date: "2025.08.11"
+        ),
+        14: CodiDetailEntity(
+            id: 14,
+            imageURL: "https://image.msscdn.net/images/style/detail/37380/detail_37380_1_500.jpg",
+            topImageURL: "https://image.msscdn.net/images/goods_img/20240115/3792446/3792446_17053040307044_500.jpg",
+            bottomImageURL: "https://image.msscdn.net/images/goods_img/20230912/3553250/3553250_16945037307524_500.jpg",
+            shoeImageURL: "https://image.msscdn.net/images/goods_img/20221031/2902341/2902341_1_500.jpg",
+            name: "뮤지컬 관람 코디",
+            memo: "공연장에 입고 가기 좋은 코디",
+            date: "2025.08.14"
+        )
     ]
     
     // 수정된 상품 더미 데이터
@@ -72,6 +115,11 @@ final class LookBookDataSource {
     func fetchCodisForLookBook(id lookbookId: Int) async throws -> [LookBookEntity] {
         try await Task.sleep(nanoseconds: 500_000_000)
         return lookbookCodis[lookbookId] ?? []
+    }
+    
+    func fetchCodiDetail(codiId: Int) async throws -> CodiDetailEntity? {
+        try await Task.sleep(nanoseconds: 300_000_000)
+        return codiDetails[codiId]
     }
     
     func toggleLike(codyId: Int, isLiked: Bool) async throws {

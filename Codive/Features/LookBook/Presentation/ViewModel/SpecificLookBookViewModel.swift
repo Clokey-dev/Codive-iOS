@@ -55,6 +55,10 @@ final class SpecificLookBookViewModel: ObservableObject {
         navigationRouter.navigate(to: .addCodi(lookbookId: lookbookId))
     }
     
+    func navigateToCodiDetail(codiId: Int) {
+        navigationRouter.navigate(to: .codiDetail(codiId: codiId))
+    }
+    
     func handleBackTap() {
         navigationRouter.navigateBack()
     }

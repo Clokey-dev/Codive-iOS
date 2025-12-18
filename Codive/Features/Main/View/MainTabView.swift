@@ -98,7 +98,7 @@ struct MainTabView: View {
         // destination이 표시 중인 경우: 목적지에 따라 상단바를 숨길 수 있음
         if let destination = navigationRouter.currentDestination {
             switch destination {
-            case .lookbook, .specificLookbook, .addCodi, .addCodiDetail, .addBeforeCodi:
+            case .lookbook, .specificLookbook, .addCodi, .addCodiDetail, .addBeforeCodi, .codiDetail:
                 return false
             default:
                 break

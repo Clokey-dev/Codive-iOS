@@ -88,4 +88,18 @@ final class LookBookDIContainer {
             viewModel: makeAddBeforeCodiViewModel(lookbookId: lookbookId)
         )
     }
+    
+    func makeCodiDetailViewModel(codiId: Int) -> CodiDetailViewModel {
+        return CodiDetailViewModel(
+            navigationRouter: navigationRouter,
+            useCase: lookBookUseCase,
+            codiId: codiId
+        )
+    }
+
+    func makeCodiDetailView(codiId: Int) -> CodiDetailView {
+        return CodiDetailView(
+            viewModel: makeCodiDetailViewModel(codiId: codiId)
+        )
+    }
 }
