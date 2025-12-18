@@ -24,12 +24,12 @@ final class LookBookViewFactory {
             lookBookDIContainer?.makeLookBookView()
         case .specificLookbook(let lookbookId):
             lookBookDIContainer?.makeSpecificLookBookView(lookbookId: lookbookId)
-        case .addCodi(let lookbookId):
-            lookBookDIContainer?.makeAddCodiView(lookbookId: lookbookId)
+        case .addCodi(let lookbookId, let selectedCodiData):
+            lookBookDIContainer?.makeAddCodiView(lookbookId: lookbookId, selectedCodiData: selectedCodiData)
         case .addCodiDetail:
             lookBookDIContainer?.makeAddCodiDetailView()
-        case .addBeforeCodi:
-            lookBookDIContainer?.makeAddBeforeCodiView()
+        case .addBeforeCodi(let lookbookId):
+            lookBookDIContainer?.makeAddBeforeCodiView(lookbookId: lookbookId)
         default:
             EmptyView()
         }

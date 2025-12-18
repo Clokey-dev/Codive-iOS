@@ -10,7 +10,6 @@ import SwiftUI
 struct AddBeforeCodiView: View {
     // MARK: - Properties
     @StateObject private var viewModel: AddBeforeCodiViewModel
-    @State private var selectedCodyIds: Set<Int> = []
     
     // MARK: - Initializer
     init(viewModel: AddBeforeCodiViewModel) {
@@ -18,7 +17,7 @@ struct AddBeforeCodiView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) { // spacing을 0으로 설정하여 상단바와 밀착
+        VStack(spacing: 0) {
             CustomNavigationBar(
                 title: "이전 코디",
                 onBack: viewModel.handleBackTap
@@ -42,7 +41,7 @@ struct AddBeforeCodiView: View {
                             BeforeCodiCard(
                                 imageURL: lookbook.imageURL,
                                 date: lookbook.date,
-                                isSelected: viewModel.selectedLookBookIds.contains(lookbook.id)
+                                isSelected: false  // 선택 상태 제거 (즉시 이동하므로)
                             )
                             .onTapGesture {
                                 viewModel.toggleSelection(id: lookbook.id)

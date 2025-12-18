@@ -43,12 +43,12 @@ final class LookBookDataSource {
     ]
     
     private var dummyBeforeCodi: [BeforeCodiEntity] = [
-        BeforeCodiEntity(id: 1, imageURL: "https://image.msscdn.net/images/style/detail/37395/detail_37395_1_500.jpg", date: "2025.08.09"),
-        BeforeCodiEntity(id: 2, imageURL: "https://image.msscdn.net/images/style/detail/37390/detail_37390_1_500.jpg", date: "2025.08.01"),
-        BeforeCodiEntity(id: 3, imageURL: "https://image.msscdn.net/images/style/detail/37370/detail_37370_1_500.jpg", date: "2025.08.03"),
-        BeforeCodiEntity(id: 4, imageURL: "https://image.msscdn.net/images/style/detail/37370/detail_37370_1_500.jpg", date: "2025.08.08"),
-        BeforeCodiEntity(id: 5, imageURL: "https://image.msscdn.net/images/style/detail/37385/detail_37385_1_500.jpg", date: "2025.08.011"),
-        BeforeCodiEntity(id: 6, imageURL: "https://image.msscdn.net/images/style/detail/37380/detail_37380_1_500.jpg", date: "2025.08.14")
+        BeforeCodiEntity(id: 1, imageURL: "https://image.msscdn.net/images/style/detail/37395/detail_37395_1_500.jpg", date: "2025.08.09", name: "로맨틱 시사회 룩", memo: "영화관 데이트하기 좋은 스타일"),
+        BeforeCodiEntity(id: 2, imageURL: "https://image.msscdn.net/images/style/detail/37390/detail_37390_1_500.jpg", date: "2025.08.01", name: "따뜻한 카페 데이트", memo: "겨울 카페 데이트 코디"),
+        BeforeCodiEntity(id: 3, imageURL: "https://image.msscdn.net/images/style/detail/37370/detail_37370_1_500.jpg", date: "2025.08.03", name: "편한 집앞 마실룩", memo: "동네 산책하기 좋은 편한 옷"),
+        BeforeCodiEntity(id: 4, imageURL: "https://image.msscdn.net/images/style/detail/37370/detail_37370_1_500.jpg", date: "2025.08.08", name: "캐주얼 데일리", memo: "평소에 입기 좋은 무난한 코디"),
+        BeforeCodiEntity(id: 5, imageURL: "https://image.msscdn.net/images/style/detail/37385/detail_37385_1_500.jpg", date: "2025.08.11", name: "활동적인 피크닉 룩", memo: "야외 활동하기 좋은 스타일"),
+        BeforeCodiEntity(id: 6, imageURL: "https://image.msscdn.net/images/style/detail/37380/detail_37380_1_500.jpg", date: "2025.08.14", name: "뮤지컬 관람 코디", memo: "공연장에 입고 가기 좋은 코디")
     ]
     
     func fetchLookBookList() async throws -> [LookBookEntity] {

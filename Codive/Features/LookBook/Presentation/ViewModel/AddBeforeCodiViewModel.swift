@@ -12,6 +12,7 @@ final class AddBeforeCodiViewModel: ObservableObject {
     // MARK: - Properties
     let navigationRouter: NavigationRouter
     private let useCase: LookBookUseCase
+    let lookbookId: Int
     
     @Published var lookBookList: [BeforeCodiEntity] = []
     @Published var isLoading: Bool = false
@@ -20,9 +21,10 @@ final class AddBeforeCodiViewModel: ObservableObject {
     @Published var selectedLookBookIds: Set<Int> = []
     
     // MARK: - Initializer
-    init(navigationRouter: NavigationRouter, useCase: LookBookUseCase) {
+    init(navigationRouter: NavigationRouter, useCase: LookBookUseCase, lookbookId: Int) {
         self.navigationRouter = navigationRouter
         self.useCase = useCase
+        self.lookbookId = lookbookId
     }
     
     func fetchLookBooks() {
@@ -40,16 +42,28 @@ final class AddBeforeCodiViewModel: ObservableObject {
     }
     
     func toggleSelection(id: Int) {
-        if selectedLookBookIds.contains(id) {
-            selectedLookBookIds.remove(id)
-        } else {
-            selectedLookBookIds.insert(id)
+        // 단일 선택으로 변경하고 바로 AddCodiView로 이동
+        if let selectedCodi = lookBookList.first(where: { $0.id == id }) {
+            navigateToAddCodiWithData(codi: selectedCodi)
         }
     }
 
     // MARK: - Navigation
     func handleBackTap() {
         navigationRouter.navigateBack()
+    }
+    
+    func navigateToAddCodiWithData(codi: BeforeCodiEntity) {
+        // AddCodiView로 이동하면서 선택한 코디 데이터 전달
+        let selectedData = SelectedCodiData(
+            imageURL: codi.imageURL,
+            name: codi.name,
+            memo: codi.memo
+        )
+        navigationRouter.navigate(to: .addCodi(
+            lookbookId: lookbookId,
+            selectedCodiData: selectedData
+        ))
     }
     
     func navigateToSpecificLookBook(id: Int) {
@@ -65,7 +79,8 @@ extension AddBeforeCodiViewModel {
         let mockUseCase = LookBookUseCase(repository: mockRepository)
         return AddBeforeCodiViewModel(
             navigationRouter: mockRouter,
-            useCase: mockUseCase
+            useCase: mockUseCase,
+            lookbookId: 1
         )
     }
 }

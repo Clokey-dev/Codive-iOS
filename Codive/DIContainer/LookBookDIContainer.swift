@@ -49,16 +49,17 @@ final class LookBookDIContainer {
         return SpecificLookBook(viewModel: makeSpecificLookBookViewModel(lookbookId: lookbookId))
     }
     
-    func makeAddCodiViewModel(lookbookId: Int) -> AddCodiViewModel {
+    func makeAddCodiViewModel(lookbookId: Int, selectedCodiData: SelectedCodiData? = nil) -> AddCodiViewModel {
         return AddCodiViewModel(
             navigationRouter: navigationRouter,
             useCase: lookBookUseCase,
-            lookbookId: lookbookId
+            lookbookId: lookbookId,
+            selectedCodiData: selectedCodiData
         )
     }
     
-    func makeAddCodiView(lookbookId: Int) -> AddCodiView {
-        return AddCodiView(viewModel: makeAddCodiViewModel(lookbookId: lookbookId))
+    func makeAddCodiView(lookbookId: Int, selectedCodiData: SelectedCodiData? = nil) -> AddCodiView {
+        return AddCodiView(viewModel: makeAddCodiViewModel(lookbookId: lookbookId, selectedCodiData: selectedCodiData))
     }
     
     func makeAddCodiDetailViewModel() -> AddCodiDetailViewModel {
@@ -74,16 +75,17 @@ final class LookBookDIContainer {
         )
     }
     
-    func makeAddBeforeCodiViewModel() -> AddBeforeCodiViewModel {
+    func makeAddBeforeCodiViewModel(lookbookId: Int) -> AddBeforeCodiViewModel {
         return AddBeforeCodiViewModel(
             navigationRouter: navigationRouter,
-            useCase: lookBookUseCase
+            useCase: lookBookUseCase,
+            lookbookId: lookbookId
         )
     }
     
-    func makeAddBeforeCodiView() -> AddBeforeCodiView {
+    func makeAddBeforeCodiView(lookbookId: Int) -> AddBeforeCodiView {
         return AddBeforeCodiView(
-            viewModel: makeAddBeforeCodiViewModel()
+            viewModel: makeAddBeforeCodiViewModel(lookbookId: lookbookId)
         )
     }
 }

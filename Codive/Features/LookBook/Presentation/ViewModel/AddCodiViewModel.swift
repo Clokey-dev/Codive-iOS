@@ -17,6 +17,7 @@ final class AddCodiViewModel: ObservableObject {
     // MARK: - Published Properties (View Bindings)
     @Published var codiName: String = ""
     @Published var memo: String = ""
+    @Published var selectedImageURL: String? = nil
     
     // MARK: - UI State
     @Published var isShowingBottomSheet: Bool = false
@@ -27,10 +28,22 @@ final class AddCodiViewModel: ObservableObject {
     }
     
     // MARK: - Initializer
-    init(navigationRouter: NavigationRouter, useCase: LookBookUseCase, lookbookId: Int) {
+    init(
+        navigationRouter: NavigationRouter,
+        useCase: LookBookUseCase,
+        lookbookId: Int,
+        selectedCodiData: SelectedCodiData? = nil
+    ) {
         self.navigationRouter = navigationRouter
         self.useCase = useCase
         self.lookbookId = lookbookId
+        
+        // 이전 코디 데이터가 있으면 초기화
+        if let data = selectedCodiData {
+            self.selectedImageURL = data.imageURL
+            self.codiName = data.name
+            self.memo = data.memo
+        }
     }
     
     // MARK: - Actions
@@ -43,7 +56,7 @@ final class AddCodiViewModel: ObservableObject {
     }
     
     func handleCompleteTap() {
-        print("코디 등록 완료. 닉네임: \(codiName), 메모: \(memo)")
+        print("코디 등록 완료. 닉네임: \(codiName), 메모: \(memo), 이미지: \(selectedImageURL ?? "없음")")
     }
 
     func navigateToNewCodi() {
@@ -54,7 +67,7 @@ final class AddCodiViewModel: ObservableObject {
     func handleRecallCodi() {
         isShowingBottomSheet = false
         print("이전 코디 불러오기 tapped")
-        navigationRouter.navigate(to: .addBeforeCodi)
+        navigationRouter.navigate(to: .addBeforeCodi(lookbookId: lookbookId))
     }
 }
 

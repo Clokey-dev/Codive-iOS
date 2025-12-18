@@ -31,9 +31,30 @@ struct AddCodiView: View {
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(Color.gray.opacity(0.2))
                                 .frame(height: 335)
-     
-                            CustomButton(text: TextLiteral.LookBook.codiUpload, widthType: .dynamic) {
-                                viewModel.handleCodiUploadTap()
+                            
+                            // 선택된 이미지가 있으면 표시
+                            if let imageURL = viewModel.selectedImageURL {
+                                AsyncImage(url: URL(string: imageURL)) { phase in
+                                    switch phase {
+                                    case .empty:
+                                        ProgressView()
+                                    case .success(let image):
+                                        image
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(height: 335)
+                                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                                    case .failure:
+                                        Image(systemName: "photo")
+                                            .foregroundColor(.gray)
+                                    @unknown default:
+                                        EmptyView()
+                                    }
+                                }
+                            } else {
+                                CustomButton(text: TextLiteral.LookBook.codiUpload, widthType: .dynamic) {
+                                    viewModel.handleCodiUploadTap()
+                                }
                             }
                         }
                         

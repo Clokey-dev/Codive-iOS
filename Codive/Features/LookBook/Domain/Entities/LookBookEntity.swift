@@ -13,8 +13,18 @@ struct LookBookEntity: Identifiable {
     let cardTitle: String
 }
 
+
+// MARK: - Supporting Types
+struct SelectedCodiData: Hashable {
+    let imageURL: String
+    let name: String
+    let memo: String
+}
+
 struct BeforeCodiEntity: Identifiable {
     let id: Int
     let imageURL: String
     let date: String
+    let name: String
+    let memo: String
 }
