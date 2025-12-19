@@ -25,10 +25,9 @@ struct AddCodiView: View {
                 
                 ScrollView {
                     VStack(spacing: 24) {
-                        // MARK: - 코디 이미지 영역
+                        // 코디 이미지 영역 (기존 로직 유지)
                         ZStack {
                             if !viewModel.combinedItems.isEmpty {
-                                // 1. 조합된 개별 아이템 리스트가 있을 때 (AddCodiDetail에서 온 경우)
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 15)
                                         .fill(Color(UIColor.systemGray6))
@@ -49,26 +48,21 @@ struct AddCodiView: View {
                                         .clipShape(RoundedRectangle(cornerRadius: 12))
                                 }
                             } else if let imageURL = viewModel.selectedImageURL, !imageURL.isEmpty {
-                                // ✅ 2. 이전 코디를 불러와서 단일 이미지 URL이 있을 때 (추가된 부분)
                                 AsyncImage(url: URL(string: imageURL)) { phase in
                                     switch phase {
                                     case .success(let image):
-                                        image
-                                            .resizable()
-                                            .scaledToFill() // 또는 scaledToFit
+                                        image.resizable().scaledToFill()
                                             .frame(height: 335)
                                             .clipShape(RoundedRectangle(cornerRadius: 12))
                                     case .failure:
-                                        Image(systemName: "photo") // 로드 실패 시 아이콘
-                                            .foregroundColor(.gray)
+                                        Image(systemName: "photo").foregroundColor(.gray)
                                     case .empty:
-                                        ProgressView() // 로딩 중
+                                        ProgressView()
                                     @unknown default:
                                         EmptyView()
                                     }
                                 }
                             } else {
-                                // 3. 이미지가 아예 없을 때: 업로드 유도 버튼
                                 RoundedRectangle(cornerRadius: 12)
                                     .fill(Color.gray.opacity(0.1))
                                     .frame(height: 335)
@@ -111,13 +105,16 @@ struct AddCodiView: View {
             }
             .disabled(viewModel.isShowingBottomSheet)
             
-            // 바텀시트 로직 (기존 유지)
             if viewModel.isShowingBottomSheet {
                 bottomSheetOverlay
             }
         }
         .navigationBarHidden(true)
         .background(Color.white)
+        // ✅ 성공 화면 풀스크린 커버 추가
+        .fullScreenCover(isPresented: $viewModel.isShowingSuccessView) {
+            CustomSuccessView(message: viewModel.successMessage)
+        }
     }
     
     private var bottomSheetOverlay: some View {
