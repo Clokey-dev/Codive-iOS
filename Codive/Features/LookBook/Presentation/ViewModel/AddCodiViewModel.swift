@@ -38,10 +38,11 @@ final class AddCodiViewModel: ObservableObject {
             }
         }
         
-        // 버튼 활성화 조건: 이름이 있고, (단일 이미지나 조합된 아이템 중 하나라도 존재)
-        var isButtonEnabled: Bool {
-            !codiName.isEmpty && (selectedImageURL != "" || !combinedItems.isEmpty)
-        }
+    // 버튼 활성화 조건: 이름이 있고, (단일 이미지나 조합된 아이템 중 하나라도 존재)
+    var isButtonEnabled: Bool {
+        let hasImage = (selectedImageURL != nil && !selectedImageURL!.isEmpty) || !combinedItems.isEmpty
+        return !codiName.isEmpty && hasImage
+    }
     
     func handleBackTap() { navigationRouter.navigateBack() }
     

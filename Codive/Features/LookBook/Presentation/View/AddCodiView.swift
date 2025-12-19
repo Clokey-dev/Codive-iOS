@@ -28,30 +28,47 @@ struct AddCodiView: View {
                         // MARK: - 코디 이미지 영역
                         ZStack {
                             if !viewModel.combinedItems.isEmpty {
-                                    // MARK: - 조합된 개별 아이템 리스트가 있을 때 (AddCodiDetail에서 온 경우)
-                                    ZStack {
-                                        RoundedRectangle(cornerRadius: 15)
-                                            .fill(Color(UIColor.systemGray6))
-                                        
-                                        ForEach(viewModel.combinedItems) { item in
-                                            AsyncImage(url: URL(string: item.name)) { phase in
-                                                if let image = phase.image {
-                                                    image.resizable().scaledToFit()
-                                                }
+                                // 1. 조합된 개별 아이템 리스트가 있을 때 (AddCodiDetail에서 온 경우)
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 15)
+                                        .fill(Color(UIColor.systemGray6))
+                                    
+                                    ForEach(viewModel.combinedItems) { item in
+                                        AsyncImage(url: URL(string: item.name)) { phase in
+                                            if let image = phase.image {
+                                                image.resizable().scaledToFit()
                                             }
-                                            .frame(width: 80, height: 80) // 기본 크기 설정
-                                            .scaleEffect(item.scale)
-                                            .rotationEffect(.degrees(item.rotationAngle))
-                                            .position(x: item.position.x, y: item.position.y)
                                         }
-                                        
-                                        // 수정 안내 애니메이션
-                                        EditCodiOverlayView()
+                                        .frame(width: 80, height: 80)
+                                        .scaleEffect(item.scale)
+                                        .rotationEffect(.degrees(item.rotationAngle))
+                                        .position(x: item.position.x, y: item.position.y)
+                                    }
+                                    
+                                    EditCodiOverlayView()
+                                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                                }
+                            } else if let imageURL = viewModel.selectedImageURL, !imageURL.isEmpty {
+                                // ✅ 2. 이전 코디를 불러와서 단일 이미지 URL이 있을 때 (추가된 부분)
+                                AsyncImage(url: URL(string: imageURL)) { phase in
+                                    switch phase {
+                                    case .success(let image):
+                                        image
+                                            .resizable()
+                                            .scaledToFill() // 또는 scaledToFit
+                                            .frame(height: 335)
                                             .clipShape(RoundedRectangle(cornerRadius: 12))
+                                    case .failure:
+                                        Image(systemName: "photo") // 로드 실패 시 아이콘
+                                            .foregroundColor(.gray)
+                                    case .empty:
+                                        ProgressView() // 로딩 중
+                                    @unknown default:
+                                        EmptyView()
                                     }
                                 }
-                            else {
-                                // 2. 이미지가 없을 때: 업로드 유도 버튼
+                            } else {
+                                // 3. 이미지가 아예 없을 때: 업로드 유도 버튼
                                 RoundedRectangle(cornerRadius: 12)
                                     .fill(Color.gray.opacity(0.1))
                                     .frame(height: 335)
