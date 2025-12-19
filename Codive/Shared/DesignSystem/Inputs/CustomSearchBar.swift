@@ -30,9 +30,18 @@ struct CustomSearchBar: View {
             }
 
             HStack {
-                TextField("찾고싶은 옷이나 브랜드를 검색해보세요", text: $text)
-                    .font(Font.codive_body2_medium)
-                    .foregroundStyle(Color.Codive.grayscale3)
+                ZStack(alignment: .leading) {
+                    if text.isEmpty {
+                        Text("찾고싶은 옷이나 브랜드를 검색해보세요")
+                            .font(Font.codive_body2_medium)
+                            .foregroundStyle(Color.Codive.grayscale3)
+                    }
+                    
+                    TextField("", text: $text)
+                        .font(Font.codive_body2_medium)
+                        .foregroundStyle(Color.Codive.grayscale1)
+                }
+                
                 Image(systemName: "magnifyingglass")
                     .foregroundStyle(Color.Codive.main1)
             }
