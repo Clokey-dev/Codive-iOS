@@ -9,54 +9,47 @@ import SwiftUI
 
 @MainActor
 final class AddCodiViewModel: ObservableObject {
-    // MARK: - Properties
     private let navigationRouter: NavigationRouter
     private let useCase: LookBookUseCase
     let lookbookId: Int
     
-    // MARK: - Published Properties (View Bindings)
     @Published var codiName: String = ""
     @Published var memo: String = ""
     @Published var selectedImageURL: String? = nil
     
-    // MARK: - UI State
+    // 추가: 이미지가 '방금 조합된 것'인지 확인하여 오버레이 표시 여부 결정
+    @Published var isNewlyCombined: Bool = false
     @Published var isShowingBottomSheet: Bool = false
     
-    // MARK: - Computed Properties (Button Activation)
-    var isButtonEnabled: Bool {
-        !codiName.isEmpty
-    }
-    
-    // MARK: - Initializer
-    init(
-        navigationRouter: NavigationRouter,
-        useCase: LookBookUseCase,
-        lookbookId: Int,
-        selectedCodiData: SelectedCodiData? = nil
-    ) {
-        self.navigationRouter = navigationRouter
-        self.useCase = useCase
-        self.lookbookId = lookbookId
-        
-        // 이전 코디 데이터가 있으면 초기화
-        if let data = selectedCodiData {
-            self.selectedImageURL = data.imageURL
-            self.codiName = data.name
-            self.memo = data.memo
+    @Published var combinedItems: [DraggableImageEntity] = []
+
+        init(navigationRouter: NavigationRouter, useCase: LookBookUseCase, lookbookId: Int, selectedCodiData: SelectedCodi? = nil) {
+            self.navigationRouter = navigationRouter
+            self.useCase = useCase
+            self.lookbookId = lookbookId
+            
+            if let data = selectedCodiData {
+                self.selectedImageURL = data.imageURL
+                self.codiName = data.name
+                self.memo = data.memo
+                // 리스트가 있으면 주입
+                self.combinedItems = data.combinedItems ?? []
+                self.isNewlyCombined = true
+            }
         }
-    }
+        
+        // 버튼 활성화 조건: 이름이 있고, (단일 이미지나 조합된 아이템 중 하나라도 존재)
+        var isButtonEnabled: Bool {
+            !codiName.isEmpty && (selectedImageURL != "" || !combinedItems.isEmpty)
+        }
     
-    // MARK: - Actions
-    func handleBackTap() {
-        navigationRouter.navigateBack()
-    }
+    func handleBackTap() { navigationRouter.navigateBack() }
     
-    func handleCodiUploadTap() {
-        isShowingBottomSheet = true
-    }
+    func handleCodiUploadTap() { isShowingBottomSheet = true }
     
     func handleCompleteTap() {
-        print("코디 등록 완료. 닉네임: \(codiName), 메모: \(memo), 이미지: \(selectedImageURL ?? "없음")")
+        print("최종 등록 완료: \(codiName)")
+        // TODO: useCase.saveCodi(...)
     }
 
     func navigateToNewCodi() {
@@ -66,7 +59,6 @@ final class AddCodiViewModel: ObservableObject {
 
     func handleRecallCodi() {
         isShowingBottomSheet = false
-        print("이전 코디 불러오기 tapped")
         navigationRouter.navigate(to: .addBeforeCodi(lookbookId: lookbookId))
     }
 }

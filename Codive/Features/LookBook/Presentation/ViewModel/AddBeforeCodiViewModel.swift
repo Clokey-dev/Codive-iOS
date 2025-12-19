@@ -55,8 +55,8 @@ final class AddBeforeCodiViewModel: ObservableObject {
     
     func navigateToAddCodiWithData(codi: BeforeCodiEntity) {
         // AddCodiView로 이동하면서 선택한 코디 데이터 전달
-        let selectedData = SelectedCodiData(
-            imageURL: codi.imageURL,
+        let selectedData = SelectedCodi(
+            codiId: 0, imageURL: codi.imageURL,
             name: codi.name,
             memo: codi.memo
         )

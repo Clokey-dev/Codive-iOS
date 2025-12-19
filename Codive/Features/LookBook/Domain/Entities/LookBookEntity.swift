@@ -47,8 +47,18 @@ struct CodiItem: Identifiable {
 }
 
 struct SelectedCodi: Hashable {
-    let codiId: Int
+    let codiId: Int?
+    let imageURL: String?               // 기존 사용처를 위해 유지 (옵셔널로 변경)
     let name: String
     let memo: String
-    let imageURL: String
+    var combinedItems: [DraggableImageEntity]? // 새롭게 추가된 필드 (선택적)
+
+    // 기존 사용처(CodiDetail 등)를 위한 기본 생성자 유지
+    init(codiId: Int, imageURL: String, name: String, memo: String, combinedItems: [DraggableImageEntity]? = nil) {
+        self.codiId = codiId
+        self.imageURL = imageURL
+        self.name = name
+        self.memo = memo
+        self.combinedItems = combinedItems
+    }
 }

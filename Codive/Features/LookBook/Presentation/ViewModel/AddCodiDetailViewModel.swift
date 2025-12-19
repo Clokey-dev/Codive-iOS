@@ -114,10 +114,17 @@ final class AddCodiDetailViewModel: ObservableObject, DraggableImageViewModelPro
     
     // MARK: - Navigation & Actions
     func handleBackTap() { navigationRouter.navigateBack() }
-    
+
     func handleComplete() {
-        print("완료: \(images.count)개 아이템")
-        print("선택된 상품 IDs: \(selectedProductIds)")
-        // TODO: useCase를 통해 저장 로직 추가
+        // 캡처된 URL 대신 실제 아이템 리스트를 담은 DTO 생성
+        let data = SelectedCodi(
+            codiId: 0, imageURL: "", // 단일 URL이 없으므로 빈 값 또는 nil
+            name: "",
+            memo: "",
+            combinedItems: self.images // 현재 보드 위의 이미지들
+        )
+        
+        // 이 데이터는 AppDestination을 통해 AddCodiView로 전달됨
+        navigationRouter.navigate(to: .addCodi(lookbookId: 0, selectedCodiData: data))
     }
 }

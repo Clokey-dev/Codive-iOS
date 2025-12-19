@@ -32,7 +32,7 @@ enum AppDestination: Hashable, Identifiable {
     case notification
     case lookbook
     case specificLookbook(lookbookId: Int)
-    case addCodi(lookbookId: Int, selectedCodiData: SelectedCodiData? = nil)
+    case addCodi(lookbookId: Int, selectedCodiData: SelectedCodi? = nil)
     case editCodi(lookbookId: Int, selectedCodiData: SelectedCodi)
     case addCodiDetail
     case addBeforeCodi(lookbookId: Int)

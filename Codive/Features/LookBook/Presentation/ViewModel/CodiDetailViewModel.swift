@@ -63,9 +63,8 @@ final class CodiDetailViewModel: ObservableObject {
         
         let data = SelectedCodi(
             codiId: codiId,
-            name: detail.name,
-            memo: detail.memo,
-            imageURL: detail.imageURL
+            imageURL: detail.imageURL, name: detail.name,
+            memo: detail.memo
         )
         
         // 정의한 editCodi 경로로 이동

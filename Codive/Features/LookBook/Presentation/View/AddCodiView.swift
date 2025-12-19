@@ -8,119 +8,118 @@
 import SwiftUI
 
 struct AddCodiView: View {
-    // MARK: - Properties
     @StateObject private var viewModel: AddCodiViewModel
     
-    // MARK: - Initializer
     init(viewModel: AddCodiViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
     
     var body: some View {
         ZStack {
-            VStack {
+            VStack(spacing: 0) {
                 CustomNavigationBar(
-                    title: TextLiteral.LookBook.addCodiTitle
-                ) {
-                    viewModel.handleBackTap()
-                }
+                    title: TextLiteral.LookBook.addCodiTitle,
+                    onBack: viewModel.handleBackTap
+                )
+                .padding(.leading, 15)
                 
                 ScrollView {
-                    VStack {
+                    VStack(spacing: 24) {
+                        // MARK: - 코디 이미지 영역
                         ZStack {
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.gray.opacity(0.2))
-                                .frame(height: 335)
-                            
-                            // 선택된 이미지가 있으면 표시
-                            if let imageURL = viewModel.selectedImageURL {
-                                AsyncImage(url: URL(string: imageURL)) { phase in
-                                    switch phase {
-                                    case .empty:
-                                        ProgressView()
-                                    case .success(let image):
-                                        image
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fill)
-                                            .frame(height: 335)
+                            if !viewModel.combinedItems.isEmpty {
+                                    // MARK: - 조합된 개별 아이템 리스트가 있을 때 (AddCodiDetail에서 온 경우)
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 15)
+                                            .fill(Color(UIColor.systemGray6))
+                                        
+                                        ForEach(viewModel.combinedItems) { item in
+                                            AsyncImage(url: URL(string: item.name)) { phase in
+                                                if let image = phase.image {
+                                                    image.resizable().scaledToFit()
+                                                }
+                                            }
+                                            .frame(width: 80, height: 80) // 기본 크기 설정
+                                            .scaleEffect(item.scale)
+                                            .rotationEffect(.degrees(item.rotationAngle))
+                                            .position(x: item.position.x, y: item.position.y)
+                                        }
+                                        
+                                        // 수정 안내 애니메이션
+                                        EditCodiOverlayView()
                                             .clipShape(RoundedRectangle(cornerRadius: 12))
-                                    case .failure:
-                                        Image(systemName: "photo")
-                                            .foregroundColor(.gray)
-                                    @unknown default:
-                                        EmptyView()
                                     }
                                 }
-                            } else {
-                                CustomButton(text: TextLiteral.LookBook.codiUpload, widthType: .dynamic) {
-                                    viewModel.handleCodiUploadTap()
-                                }
+                            else {
+                                // 2. 이미지가 없을 때: 업로드 유도 버튼
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color.gray.opacity(0.1))
+                                    .frame(height: 335)
+                                    .overlay {
+                                        CustomButton(text: TextLiteral.LookBook.codiUpload, widthType: .dynamic) {
+                                            viewModel.handleCodiUploadTap()
+                                        }
+                                    }
                             }
                         }
+                        .frame(height: 335)
                         
-                        CustomTextField1(
-                            title: TextLiteral.LookBook.codiNameTitle,
-                            placeholder: TextLiteral.LookBook.hintCodiNameTitle,
-                            text: $viewModel.codiName,
-                            showRequiredMark: true
-                        )
-                        .padding(.top, 24)
-                        
-                        CustomTextField1(
-                            title: TextLiteral.LookBook.memoTitle,
-                            placeholder: TextLiteral.LookBook.hintMemo,
-                            text: $viewModel.memo
-                        )
-                        .padding(.top, 12)
-                    }
-                }
-                .padding(.horizontal, 20)
-                .safeAreaInset(edge: .bottom) {
-                    HStack(spacing: 9) {
-                        CustomButton(
-                            text: TextLiteral.LookBook.addCodiCompleteButton,
-                            widthType: .fixed,
-                            isEnabled: viewModel.isButtonEnabled
-                        ) {
-                            viewModel.handleCompleteTap()
+                        VStack(spacing: 12) {
+                            CustomTextField1(
+                                title: TextLiteral.LookBook.codiNameTitle,
+                                placeholder: TextLiteral.LookBook.hintCodiNameTitle,
+                                text: $viewModel.codiName,
+                                showRequiredMark: true
+                            )
+                            
+                            CustomTextField1(
+                                title: TextLiteral.LookBook.memoTitle,
+                                placeholder: TextLiteral.LookBook.hintMemo,
+                                text: $viewModel.memo
+                            )
                         }
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 16)
-                    .background(alignment: .center) {
-                        Color.white
-                    }
+                    .padding(20)
                 }
+                
+                // 하단 버튼
+                CustomButton(
+                    text: TextLiteral.LookBook.addCodiCompleteButton,
+                    widthType: .fixed,
+                    isEnabled: viewModel.isButtonEnabled
+                ) {
+                    viewModel.handleCompleteTap()
+                }
+                .padding(20)
             }
             .disabled(viewModel.isShowingBottomSheet)
             
+            // 바텀시트 로직 (기존 유지)
             if viewModel.isShowingBottomSheet {
-                Color.black.opacity(0.5)
-                    .edgesIgnoringSafeArea(.all)
-                    .onTapGesture {
-                        viewModel.isShowingBottomSheet = false
-                    }
-
-                VStack {
-                    Spacer()
-                    CustomBottomSheet(
-                        iconName1: "plus",
-                        iconName2: "clo_selected",
-                        title1: TextLiteral.LookBook.addNewCodi,
-                        title2: TextLiteral.LookBook.getBeforeCodi,
-                        action1: { viewModel.navigateToNewCodi() },
-                        action2: { viewModel.handleRecallCodi() }
-                    )
-                    .padding(.bottom, 0)
-                }
-                .edgesIgnoringSafeArea(.bottom)
-                .transition(.move(edge: .bottom))
-                .animation(.easeOut(duration: 0.8), value: viewModel.isShowingBottomSheet)
+                bottomSheetOverlay
             }
         }
         .navigationBarHidden(true)
-        .background(alignment: .center) {
-            Color.white
+        .background(Color.white)
+    }
+    
+    private var bottomSheetOverlay: some View {
+        ZStack {
+            Color.black.opacity(0.5)
+                .edgesIgnoringSafeArea(.all)
+                .onTapGesture { viewModel.isShowingBottomSheet = false }
+
+            VStack {
+                Spacer()
+                CustomBottomSheet(
+                    iconName1: "plus",
+                    iconName2: "clo_selected",
+                    title1: TextLiteral.LookBook.addNewCodi,
+                    title2: TextLiteral.LookBook.getBeforeCodi,
+                    action1: { viewModel.navigateToNewCodi() },
+                    action2: { viewModel.handleRecallCodi() }
+                )
+            }
         }
     }
 }

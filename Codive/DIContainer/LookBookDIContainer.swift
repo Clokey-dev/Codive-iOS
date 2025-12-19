@@ -49,7 +49,7 @@ final class LookBookDIContainer {
         return SpecificLookBook(viewModel: makeSpecificLookBookViewModel(lookbookId: lookbookId))
     }
     
-    func makeAddCodiViewModel(lookbookId: Int, selectedCodiData: SelectedCodiData? = nil) -> AddCodiViewModel {
+    func makeAddCodiViewModel(lookbookId: Int, selectedCodiData: SelectedCodi? = nil) -> AddCodiViewModel {
         return AddCodiViewModel(
             navigationRouter: navigationRouter,
             useCase: lookBookUseCase,
@@ -58,7 +58,7 @@ final class LookBookDIContainer {
         )
     }
     
-    func makeAddCodiView(lookbookId: Int, selectedCodiData: SelectedCodiData? = nil) -> AddCodiView {
+    func makeAddCodiView(lookbookId: Int, selectedCodiData: SelectedCodi? = nil) -> AddCodiView {
         return AddCodiView(viewModel: makeAddCodiViewModel(lookbookId: lookbookId, selectedCodiData: selectedCodiData))
     }
     

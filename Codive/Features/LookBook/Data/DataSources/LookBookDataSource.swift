@@ -77,12 +77,48 @@ final class LookBookDataSource {
     
     // 수정된 상품 더미 데이터
     private var dummyProducts: [ProductItem] = [
-        ProductItem(id: 1, imageName: "https://image.msscdn.net/images/goods_img/20230823/3505663/3505663_16927703370903_500.jpg", isTodayCloth: true, brand: "아디다스", name: "트랙탑"),
-        ProductItem(id: 2, imageName: "https://image.msscdn.net/images/goods_img/20240115/3792446/3792446_17053040307044_500.jpg", isTodayCloth: false, brand: "나이키", name: "후드티"),
-        ProductItem(id: 3, imageName: "https://image.msscdn.net/images/goods_img/20230209/3067644/3067644_16759086395254_500.jpg", isTodayCloth: false, brand: "리바이스", name: "데님 팬츠"),
-        ProductItem(id: 4, imageName: "https://image.msscdn.net/images/goods_img/20230912/3553250/3553250_16945037307524_500.jpg", isTodayCloth: false, brand: "노스페이스", name: "패딩"),
-        ProductItem(id: 5, imageName: "https://image.msscdn.net/images/goods_img/20221031/2902341/2902341_1_500.jpg", isTodayCloth: true, brand: "뉴발란스", name: "990v6"),
-        ProductItem(id: 6, imageName: "https://image.msscdn.net/images/goods_img/20230302/3119129/3119129_16777353986884_500.jpg", isTodayCloth: false, brand: "뉴에라", name: "볼캡")
+        ProductItem(
+            id: 1,
+            imageName: "https://pngimg.com/uploads/jacket/jacket_PNG8055.png",
+            isTodayCloth: true,
+            brand: "아디다스",
+            name: "트랙탑"
+        ),
+        ProductItem(
+            id: 2,
+            imageName: "https://pngimg.com/uploads/hoodie/hoodie_PNG27.png",
+            isTodayCloth: false,
+            brand: "나이키",
+            name: "후드티"
+        ),
+        ProductItem(
+            id: 3,
+            imageName: "https://pngimg.com/uploads/jeans/jeans_PNG5777.png",
+            isTodayCloth: false,
+            brand: "리바이스",
+            name: "데님 팬츠"
+        ),
+        ProductItem(
+            id: 4,
+            imageName: "https://pngimg.com/uploads/jacket/jacket_PNG8066.png",
+            isTodayCloth: false,
+            brand: "노스페이스",
+            name: "패딩"
+        ),
+        ProductItem(
+            id: 5,
+            imageName: "https://pngimg.com/uploads/running_shoes/running_shoes_PNG5823.png",
+            isTodayCloth: true,
+            brand: "뉴발란스",
+            name: "990v6"
+        ),
+        ProductItem(
+            id: 6,
+            imageName: "https://pngimg.com/uploads/cap/cap_PNG5687.png",
+            isTodayCloth: false,
+            brand: "뉴에라",
+            name: "볼캡"
+        )
     ]
     
     private var dummyBeforeCodi: [BeforeCodiEntity] = [
