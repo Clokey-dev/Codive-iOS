@@ -42,5 +42,6 @@ final class ClosetDIContainer {
     // MARK: - Views
     func makeMyClosetView() -> some View {
         return MyClosetView(navigationRouter: navigationRouter)
+            .navigationBarHidden(true)
     }
 }

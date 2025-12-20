@@ -11,12 +11,7 @@ struct MyClosetSectionView: View {
 
     // MARK: - Properties
     let totalItems = 10
-    private let navigationRouter: NavigationRouter
-
-    // MARK: - Initializer
-    init(navigationRouter: NavigationRouter) {
-        self.navigationRouter = navigationRouter
-    }
+    @EnvironmentObject private var navigationRouter: NavigationRouter
 
     // MARK: - Body
     var body: some View {
@@ -68,5 +63,6 @@ struct MyClosetSectionView: View {
 #Preview {
     let appDIContainer = AppDIContainer()
     let navigationRouter = appDIContainer.navigationRouter
-    return MyClosetSectionView(navigationRouter: navigationRouter)
+    return MyClosetSectionView()
+        .environmentObject(navigationRouter)
 }

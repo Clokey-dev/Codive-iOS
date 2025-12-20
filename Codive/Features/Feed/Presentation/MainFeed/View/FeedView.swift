@@ -8,22 +8,24 @@
 import SwiftUI
 
 struct FeedView: View {
-    
+
     // MARK: - Properties
     @StateObject private var viewModel: FeedViewModel
-    
+    private let feedDIContainer: FeedDIContainer
+
     // MARK: Filter States
     // Top Bar States
     @State private var isFollowingSelected: Bool = false
     @State private var selectedCategory: String = ""
-    
+
     // Bottom Sheet States
     @State private var isShowingFilterSheet: Bool = false
     @State private var selectedSheetStyles: Set<String> = []
     @State private var selectedSheetSituations: Set<String> = []
-    
-    init(viewModel: FeedViewModel) {
+
+    init(viewModel: FeedViewModel, feedDIContainer: FeedDIContainer) {
         _viewModel = StateObject(wrappedValue: viewModel)
+        self.feedDIContainer = feedDIContainer
     }
 
     private let columns: [GridItem] = [
@@ -48,7 +50,7 @@ struct FeedView: View {
             ) {
                 isShowingFilterSheet = true
             }
-            
+
             feedGrid
         }
         .onChange(of: isFollowingSelected) { newValue in
@@ -159,44 +161,36 @@ private struct FeedCellView: View {
 // MARK: - Preview
 struct FeedView_Previews: PreviewProvider {
     static var previews: some View {
-        // MARK: - Helper to create ViewModel
+        // MARK: - Helper to create FeedDIContainer
         @MainActor
-        func makeViewModel(dataSource: FeedDataSource) -> FeedViewModel {
-            let repository = FeedRepositoryImpl(dataSource: dataSource)
-            let useCase = DefaultFetchFeedsUseCase(repository: repository)
-            let router = NavigationRouter()
-            return FeedViewModel(
-                navigationRouter: router,
-                fetchFeedsUseCase: useCase,
-                feedRepository: repository
-            )
+        func makeFeedDIContainer(dataSource: FeedDataSource) -> FeedDIContainer {
+            let appDIContainer = AppDIContainer()
+            let feedDIContainer = appDIContainer.makeFeedDIContainer()
+            return feedDIContainer
         }
-        
+
         // Default: Uses mock data
-        let defaultVM = makeViewModel(dataSource: MockFeedDataSource())
+        let defaultContainer = makeFeedDIContainer(dataSource: MockFeedDataSource())
+        let defaultVM = defaultContainer.makeFeedViewModel()
 
         // Empty (No Following): Uses empty data source
-        let noFollowingVM = makeViewModel(dataSource: EmptyFeedDataSource())
+        let noFollowingContainer = makeFeedDIContainer(dataSource: EmptyFeedDataSource())
+        let noFollowingVM = noFollowingContainer.makeFeedViewModel()
         noFollowingVM.followingOnly = true
 
         // Empty (No Feeds): Uses empty data source
-        let noFeedsVM = makeViewModel(dataSource: EmptyFeedDataSource())
+        let noFeedsContainer = makeFeedDIContainer(dataSource: EmptyFeedDataSource())
+        let noFeedsVM = noFeedsContainer.makeFeedViewModel()
 
         return Group {
-            NavigationStack {
-                FeedView(viewModel: defaultVM)
-            }
-            .previewDisplayName("Default")
+            FeedView(viewModel: defaultVM, feedDIContainer: defaultContainer)
+                .previewDisplayName("Default")
 
-            NavigationStack {
-                FeedView(viewModel: noFollowingVM)
-            }
-            .previewDisplayName("Empty (No Following)")
+            FeedView(viewModel: noFollowingVM, feedDIContainer: noFollowingContainer)
+                .previewDisplayName("Empty (No Following)")
 
-            NavigationStack {
-                FeedView(viewModel: noFeedsVM)
-            }
-            .previewDisplayName("Empty (No Feeds)")
+            FeedView(viewModel: noFeedsVM, feedDIContainer: noFeedsContainer)
+                .previewDisplayName("Empty (No Feeds)")
         }
     }
 }
