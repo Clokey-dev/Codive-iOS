@@ -123,20 +123,10 @@ final class SpecificLookBookViewModel: ObservableObject {
         isShowingDeleteAlert = false
         isLoading = true
 
-        let idsToDelete = Array(selectedCodiIds)
-
         Task {
-            do {
-                // 참고: useCase에 deleteCodis가 구현되어 있어야 합니다.
-                // try await useCase.deleteCodis(ids: idsToDelete)
-                
-                // 삭제 후 목록 새로고침 및 편집모드 종료
-                fetchCodis()
-                toggleEditingMode()
-            } catch {
-                self.errorMessage = "삭제에 실패했습니다: \(error.localizedDescription)"
-                self.isLoading = false
-            }
+            // 삭제 후 목록 새로고침 및 편집모드 종료
+            fetchCodis()
+            toggleEditingMode()
         }
     }
 

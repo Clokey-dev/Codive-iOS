@@ -52,7 +52,6 @@ struct EditCodiView: View {
                     )
                 )
                 .padding(.leading, 15)
-
             } else {
 
                 // MARK: Navigation Bar (No Changes)

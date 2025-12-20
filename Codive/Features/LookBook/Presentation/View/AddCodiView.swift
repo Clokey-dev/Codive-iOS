@@ -88,7 +88,6 @@ struct AddCodiView: View {
                                     EditCodiOverlayView()
                                         .clipShape(RoundedRectangle(cornerRadius: 12))
                                 }
-
                             } else if let imageURL = viewModel.selectedImageURL, !imageURL.isEmpty {
 
                                 // MARK: Selected Image Preview
@@ -110,11 +109,7 @@ struct AddCodiView: View {
                                         EmptyView()
                                     }
                                 }
-
                             } else {
-
-                                // MARK: Empty State (Upload Prompt)
-
                                 RoundedRectangle(cornerRadius: 12)
                                     .fill(Color.gray.opacity(0.1))
                                     .frame(height: 335)

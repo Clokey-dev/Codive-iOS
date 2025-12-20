@@ -216,15 +216,7 @@ private struct LookBookContent: View {
 private struct EmptyLookBookView: View {
 
     var body: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "photo.on.rectangle.angled")
-                .font(.system(size: 60))
-                .foregroundStyle(.gray)
-
-            Text("아직 룩북이 없습니다")
-                .font(.headline)
-                .foregroundStyle(.gray)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        Color.white
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
