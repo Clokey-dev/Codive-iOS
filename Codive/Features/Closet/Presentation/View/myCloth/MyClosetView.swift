@@ -14,7 +14,9 @@ struct MyClosetView: View {
     @State private var selectedSeasons: Set<Season> = []
     @State private var isShowingSeasonSheet: Bool = false
     
-    // 애니메이션을 위한 네임스페이스
+    @State private var isEditMode: Bool = false
+    @State private var selectedItemIds: Set<Int> = []
+    
     @Namespace private var categoryAnimation
     
     private let columns = [
@@ -26,7 +28,24 @@ struct MyClosetView: View {
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 0) {
-                CustomNavigationBar(title: "옷장 전체") { }
+                CustomNavigationBar(
+                    title: isEditMode ? "옷장 편집" : "옷장 전체",
+                    onBack: {
+                        if isEditMode {
+                            isEditMode = false
+                            selectedItemIds.removeAll()
+                        }
+                    },
+                    rightButton: isEditMode ? .text(
+                        title: "삭제",
+                        isEnabled: !selectedItemIds.isEmpty,
+                        action: {
+                            print("\(selectedItemIds.count)개 삭제")
+                            isEditMode = false
+                            selectedItemIds.removeAll()
+                        }
+                    ) : .none
+                )
                 
                 CustomSearchBar(text: $searchText, type: .normal)
                     .padding(.horizontal, 20)
@@ -44,12 +63,24 @@ struct MyClosetView: View {
             
             ScrollView {
                 LazyVGrid(columns: columns, spacing: 0) {
-                    ForEach(0..<15, id: \.self) { _ in
+                    ForEach(0..<15, id: \.self) { idx in
                         CustomClothCard(
                             imageName: "sampleCloth",
                             brand: "나이키",
-                            title: "Cable knit cardigan navy blue"
-                        )
+                            title: "Cable knit cardigan navy blue",
+                            isEditMode: isEditMode,
+                            isSelected: selectedItemIds.contains(idx)
+                        ) {
+                            if isEditMode {
+                                if selectedItemIds.contains(idx) {
+                                    selectedItemIds.remove(idx)
+                                } else {
+                                    selectedItemIds.insert(idx)
+                                }
+                            } else {
+                                print("\(idx)번 상세 이동")
+                            }
+                        }
                     }
                 }
             }
@@ -58,9 +89,7 @@ struct MyClosetView: View {
         .sheet(isPresented: $isShowingSeasonSheet) {
             CustomSeasonSheet(
                 initialSelected: selectedSeasons,
-                onClose: {
-                    isShowingSeasonSheet = false
-                },
+                onClose: { isShowingSeasonSheet = false },
                 onApply: { seasons in
                     selectedSeasons = seasons
                     isShowingSeasonSheet = false
@@ -161,31 +190,41 @@ struct MyClosetView: View {
             Spacer()
             
             HStack(spacing: 8) {
-                Button {
-                    isShowingSeasonSheet = true
-                } label: {
-                    HStack(spacing: 4) {
-                        Text(seasonFilterText)
-                            .font(.codive_body3_regular)
-                            .foregroundStyle(selectedSeasons.isEmpty ? Color.Codive.grayscale1 : Color("main1"))
-                        
-                        Image(selectedSeasons.isEmpty ? "filter" : "filter_brown")
-                            .resizable()
-                            .frame(width: 20, height: 20)
+                // 필터 버튼과 구분선을 하나의 그룹으로 묶고 투명도로 제어
+                HStack(spacing: 8) {
+                    Button {
+                        isShowingSeasonSheet = true
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text(seasonFilterText)
+                                .font(.codive_body3_regular)
+                                .foregroundStyle(selectedSeasons.isEmpty ? Color.Codive.grayscale1 : Color("main1"))
+                            
+                            Image(selectedSeasons.isEmpty ? "filter" : "filter_brown")
+                                .resizable()
+                                .frame(width: 20, height: 20)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    
+                    Text("|")
+                        .foregroundStyle(Color.Codive.grayscale6)
+                }
+                .opacity(isEditMode ? 0 : 1) // 편집 모드일 때 투명하게 (공간은 유지)
+                .disabled(isEditMode)      // 클릭 방지
+                
+                Button(isEditMode ? "취소" : "편집") {
+                    withAnimation {
+                        isEditMode.toggle()
+                        if !isEditMode { selectedItemIds.removeAll() }
                     }
                 }
-                .buttonStyle(.plain)
-                
-                Text("|")
-                    .foregroundStyle(Color.Codive.grayscale6)
-                
-                Button("편집") { }
-                    .font(.codive_body3_regular)
-                    .foregroundStyle(Color.Codive.grayscale1)
+                .font(.codive_body3_regular)
+                .foregroundStyle(Color.Codive.grayscale1)
             }
         }
         .padding(.horizontal, 20)
-        .padding(.vertical, 12)
+        .frame(height: 44)
     }
     
     private var seasonFilterText: String {
@@ -193,10 +232,8 @@ struct MyClosetView: View {
             return "계절 필터"
         } else {
             let orderedSeasons: [Season] = [.spring, .summer, .fall, .winter]
-            return orderedSeasons
-                .filter { selectedSeasons.contains($0) }
-                .map { $0.displayName }
-                .joined(separator: ", ")
+            let selectedList = orderedSeasons.filter { selectedSeasons.contains($0) }
+            return selectedList.map { $0.displayName }.joined(separator: ", ")
         }
     }
 }

@@ -11,29 +11,50 @@ struct CustomClothCard: View {
     let imageName: String
     let brand: String
     let title: String
+    
+    // 편집 모드 관련 프로퍼티 추가
+    var isEditMode: Bool = false
+    var isSelected: Bool = false
+    
     var action: () -> Void = {}
 
     var body: some View {
         Button(action: { action() }, label: {
-            // 카드 전체를 3:4 비율로 고정
             VStack(alignment: .leading, spacing: 0) {
-                // 1. 상품 이미지 영역 (회색 배경)
-                ZStack {
-                    Color.Codive.grayscale7 // 또는 Color.gray
+                ZStack(alignment: .topTrailing) { // 선택 원 배치를 위해 topTrailing 설정
+                    // 1. 상품 이미지
+                    ZStack {
+                        Color.Codive.grayscale7
+                        
+                        Image(imageName)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                        
+                        // 선택 시 회색 오버레이 (삭제 선택.png 참고)
+                        if isEditMode && isSelected {
+                            Color.black.opacity(0.1)
+                        }
+                    }
+                    .clipped()
                     
-                    Image(imageName)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
+                    // 2. 편집 모드일 때 나타나는 선택 원
+                    if isEditMode {
+                        Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                            .resizable()
+                            .frame(width: 24, height: 24)
+                            .foregroundStyle(isSelected ? Color.Codive.point1 : Color.white)
+                            .background(isSelected ? Color.white : Color.black.opacity(0.2))
+                            .clipShape(Circle())
+                            .padding(8)
+                    }
                 }
-                .clipped()
-                // 이미지가 카드 높이의 약 75~80%를 차지하도록 유도 (비율에 따라 조정 가능)
                 .frame(maxWidth: .infinity)
                 .layoutPriority(1)
 
-                // 2. 텍스트 영역
+                // 3. 텍스트 영역
                 VStack(alignment: .leading, spacing: 2) {
                     Text(brand)
-                        .font(.codive_body4_regular) // 크기에 맞춰 조금 더 작은 폰트 권장
+                        .font(.codive_body4_regular)
                         .foregroundStyle(Color.Codive.grayscale4)
                         .lineLimit(1)
 
@@ -48,7 +69,7 @@ struct CustomClothCard: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(Color.white)
             }
-            .aspectRatio(3/4, contentMode: .fit) // 카드당 3:4 비율 적용
+            .aspectRatio(3/4, contentMode: .fit)
         })
         .buttonStyle(.plain)
     }
