@@ -41,12 +41,14 @@ struct LookBookCard: View {
     
                 // 아이콘 표시 및 클릭 영역 확보
                 if iconType != .none {
-                    iconButton
-                        .padding(12)
-                        .contentShape(Rectangle()) // 터치 영역 확장
-                        .onTapGesture {
-                            onIconTap?() // 아이콘 클릭 시 액션 실행
-                        }
+                    Button {
+                        onIconTap?() // 아이콘 클릭 시 액션 실행
+                    } label: {
+                        iconButton
+                            .padding(12)
+                            .contentShape(Rectangle()) // 터치 영역 확장
+                    }
+                    .buttonStyle(.plain)
                 }
             }
             

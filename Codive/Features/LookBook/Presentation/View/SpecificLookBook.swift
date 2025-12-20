@@ -80,22 +80,25 @@ struct SpecificLookBook: View {
                     ) {
                         ForEach(viewModel.lookBookList) { lookbook in
                             
-                            // 편집 모드일 때는 체크마크, 아닐 때는 하트 표시
-                            LookBookCard(
-                                imageURL: lookbook.imageURL,
-                                cardTitle: lookbook.cardTitle,
-                                iconType: viewModel.isEditing ? .checkmark : .heart,
-                                isSelected: viewModel.isEditing
-                                    ? viewModel.selectedCodiIds.contains(lookbook.id)
-                                    : likedCodyIds.contains(lookbook.id)
-                            ) {
-                                // 우상단 아이콘(하트 혹은 체크박스) 클릭 시
-                                if viewModel.isEditing {
-                                    viewModel.toggleSelection(id: lookbook.id)
-                                } else {
-                                    handleLikeTap(codyId: lookbook.id)
+                            VStack(spacing: 0) {
+                                // 편집 모드일 때는 체크마크, 아닐 때는 하트 표시
+                                LookBookCard(
+                                    imageURL: lookbook.imageURL,
+                                    cardTitle: lookbook.cardTitle,
+                                    iconType: viewModel.isEditing ? .checkmark : .heart,
+                                    isSelected: viewModel.isEditing
+                                        ? viewModel.selectedCodiIds.contains(lookbook.id)
+                                        : likedCodyIds.contains(lookbook.id)
+                                ) {
+                                    // 우상단 아이콘(하트 혹은 체크박스) 클릭 시
+                                    if viewModel.isEditing {
+                                        viewModel.toggleSelection(id: lookbook.id)
+                                    } else {
+                                        handleLikeTap(codyId: lookbook.id)
+                                    }
                                 }
                             }
+                            .contentShape(Rectangle())
                             .onTapGesture {
                                 // 카드 전체 클릭 시
                                 if viewModel.isEditing {

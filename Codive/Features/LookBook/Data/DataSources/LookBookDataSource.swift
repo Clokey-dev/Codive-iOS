@@ -14,12 +14,36 @@ final class LookBookDataSource {
     /// LookBook 메인 화면에 노출되는 룩북 카드 더미 데이터
     /// 각 LookBook은 id, 대표 이미지, 카드 제목을 가진다.
     private var dummyLookBooks: [LookBookEntity] = [
-        LookBookEntity(id: 1, imageURL: "https://image.msscdn.net/images/goods_img/20230823/3505663/3505663_16927703370903_500.jpg", cardTitle: "영화관 데이트 룩"),
-        LookBookEntity(id: 2, imageURL: "https://image.msscdn.net/images/goods_img/20240115/3792446/3792446_17053040307044_500.jpg", cardTitle: "편안한 데일리 코디"),
-        LookBookEntity(id: 3, imageURL: "https://image.msscdn.net/images/goods_img/20230209/3067644/3067644_16759086395254_500.jpg", cardTitle: "봄 스타일링 추천"),
-        LookBookEntity(id: 4, imageURL: "https://image.msscdn.net/images/goods_img/20230912/3553250/3553250_16945037307524_500.jpg", cardTitle: "파티/모임 코디"),
-        LookBookEntity(id: 5, imageURL: "https://image.msscdn.net/images/goods_img/20221031/2902341/2902341_1_500.jpg", cardTitle: "오피스 캐주얼"),
-        LookBookEntity(id: 6, imageURL: "https://image.msscdn.net/images/goods_img/20230302/3119129/3119129_16777353986884_500.jpg", cardTitle: "운동/액티브웨어")
+        LookBookEntity(
+            id: 1,
+            imageURL: "https://images.unsplash.com/photo-1520975916090-3105956dac38?w=600&q=80",
+            cardTitle: "영화관 데이트 룩"
+        ),
+        LookBookEntity(
+            id: 2,
+            imageURL: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80",
+            cardTitle: "편안한 데일리 코디"
+        ),
+        LookBookEntity(
+            id: 3,
+            imageURL: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=600&q=80",
+            cardTitle: "스트릿 캐주얼"
+        ),
+        LookBookEntity(
+            id: 4,
+            imageURL: "https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?w=600&q=80",
+            cardTitle: "파티/모임 코디"
+        ),
+        LookBookEntity(
+            id: 5,
+            imageURL: "https://images.unsplash.com/photo-1523381294911-8d3cead13475?w=600&q=80",
+            cardTitle: "미니멀 데일리"
+        ),
+        LookBookEntity(
+            id: 6,
+            imageURL: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&q=80",
+            cardTitle: "운동/액티브웨어"
+        )
     ]
 
     // MARK: - Dummy Codis by LookBook
