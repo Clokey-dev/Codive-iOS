@@ -19,9 +19,8 @@ struct SpecificLookBook: View {
     /// 화면 상태 및 비즈니스 로직을 담당하는 ViewModel
     @StateObject private var viewModel: SpecificLookBookViewModel
 
-    /// 좋아요(하트) 상태를 즉각적으로 반영하기 위한 로컬 상태
-    /// ViewModel의 서버 상태와 별도로 UI 반응성을 위해 사용
-    @State private var selectedCodyIds: Set<Int> = []
+    // 좋아요(하트) 상태 UI 반응성을 위한 로컬 상태
+    @State private var likedCodyIds: Set<Int> = []
 
     // MARK: - Initializer
 
@@ -44,11 +43,17 @@ struct SpecificLookBook: View {
             CustomNavigationBar(
                 title: "데이트 룩",
                 onBack: viewModel.handleBackTap,
-                rightButton: .overflow(
+                rightButton: viewModel.isEditing
+                ? .text(
+                    title: TextLiteral.Common.delete,
+                    isEnabled: !viewModel.selectedCodiIds.isEmpty,
+                    action: viewModel.handleCompleteAction
+                )
+                : .overflow(
                     menuType: .feed,
                     menuActions: [
                         { viewModel.navigateToAddCodi() },
-                        { print("편집하기 tapped") }
+                        { viewModel.handleDeleteAction() } // 편집하기 클릭 시 삭제 모드 진입
                     ]
                 )
             )
@@ -70,30 +75,34 @@ struct SpecificLookBook: View {
 
                 } else {
                     LazyVGrid(
-                        columns: Array(
-                            repeating: GridItem(.flexible(), spacing: 16),
-                            count: 2
-                        ),
+                        columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: 2),
                         spacing: 16
                     ) {
                         ForEach(viewModel.lookBookList) { lookbook in
-
-                            // MARK: Codi Card
-
-                            /// 코디 카드
-                            /// - 하트 버튼: 좋아요 토글
-                            /// - 카드 전체 탭: 코디 상세 화면 이동
+                            
+                            // 편집 모드일 때는 체크마크, 아닐 때는 하트 표시
                             LookBookCard(
                                 imageURL: lookbook.imageURL,
                                 cardTitle: lookbook.cardTitle,
-                                iconType: .heart,
-                                isSelected: selectedCodyIds.contains(lookbook.id)
+                                iconType: viewModel.isEditing ? .checkmark : .heart,
+                                isSelected: viewModel.isEditing
+                                    ? viewModel.selectedCodiIds.contains(lookbook.id)
+                                    : likedCodyIds.contains(lookbook.id)
                             ) {
-                                handleCodyTap(codyId: lookbook.id)
+                                // 우상단 아이콘(하트 혹은 체크박스) 클릭 시
+                                if viewModel.isEditing {
+                                    viewModel.toggleSelection(id: lookbook.id)
+                                } else {
+                                    handleLikeTap(codyId: lookbook.id)
+                                }
                             }
                             .onTapGesture {
-                                // 카드 전체 클릭 시 코디 상세 화면으로 이동
-                                viewModel.navigateToCodiDetail(codiId: lookbook.id)
+                                // 카드 전체 클릭 시
+                                if viewModel.isEditing {
+                                    viewModel.toggleSelection(id: lookbook.id)
+                                } else {
+                                    viewModel.navigateToCodiDetail(codiId: lookbook.id)
+                                }
                             }
                         }
                     }
@@ -119,34 +128,28 @@ struct SpecificLookBook: View {
 
         /// 화면 배경색 설정
         .background(Color.white)
+        // 삭제 확인 알림 추가
+        .alert(
+            TextLiteral.LookBook.alertDeleteTitle,
+            isPresented: $viewModel.isShowingDeleteAlert
+        ) {
+            Button(TextLiteral.Common.delete, role: .destructive) {
+                viewModel.confirmDelete()
+            }
+            Button(TextLiteral.Common.cancel, role: .cancel) { }
+        } message: {
+            Text(TextLiteral.LookBook.alertDeleteSubTitle)
+        }
     }
 
     // MARK: - Like Handling Logic
-
-    /// 코디 좋아요(하트) 토글 처리
-    /// - 로컬 상태를 먼저 변경해 UI 반응성을 확보
-    /// - 이후 ViewModel을 통해 서버 상태와 동기화
-    private func handleCodyTap(codyId: Int) {
-        let isCurrentlyLiked = selectedCodyIds.contains(codyId)
-
+    private func handleLikeTap(codyId: Int) {
+        let isCurrentlyLiked = likedCodyIds.contains(codyId)
         if isCurrentlyLiked {
-            selectedCodyIds.remove(codyId)
+            likedCodyIds.remove(codyId)
         } else {
-            selectedCodyIds.insert(codyId)
+            likedCodyIds.insert(codyId)
         }
-
-        // ViewModel을 통한 서버 데이터 동기화
-        viewModel.toggleLike(
-            codyId: codyId,
-            isLiked: !isCurrentlyLiked
-        )
+        viewModel.toggleLike(codyId: codyId, isLiked: !isCurrentlyLiked)
     }
-}
-
-// MARK: - Preview
-
-#Preview {
-    SpecificLookBook(
-        viewModel: SpecificLookBookViewModel.preview
-    )
 }

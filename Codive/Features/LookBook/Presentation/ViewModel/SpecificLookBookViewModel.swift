@@ -39,6 +39,16 @@ final class SpecificLookBookViewModel: ObservableObject {
     /// 에러 발생 시 사용자에게 표시할 메시지
     @Published var errorMessage: String?
 
+    // MARK: - Published State (Editing)
+    /// 편집 모드 여부 (삭제 모드)
+    @Published var isEditing: Bool = false
+    
+    /// 선택된 코디 ID 집합
+    @Published var selectedCodiIds: Set<Int> = []
+    
+    /// 삭제 확인 Alert 표시 여부
+    @Published var isShowingDeleteAlert: Bool = false
+
     // MARK: - Initializer
 
     /// ViewModel 생성자
@@ -54,7 +64,6 @@ final class SpecificLookBookViewModel: ObservableObject {
         self.navigationRouter = navigationRouter
         self.useCase = useCase
         self.lookbookId = lookbookId
-        print("SpecificLookBookViewModel initialized for LookBook ID: \(lookbookId)")
     }
 
     // MARK: - Data Fetching
@@ -76,12 +85,62 @@ final class SpecificLookBookViewModel: ObservableObject {
         }
     }
 
-    // MARK: - Like Action
+    // MARK: - Editing Actions
 
-    /// 코디 좋아요 상태 변경 요청
-    /// - Parameters:
-    ///   - codyId: 좋아요 상태를 변경할 코디 ID
-    ///   - isLiked: 변경할 좋아요 상태
+    /// 편집 모드 토글 (종료 시 선택 내역 초기화)
+    func toggleEditingMode() {
+        isEditing.toggle()
+        if !isEditing {
+            selectedCodiIds = []
+        }
+    }
+
+    /// 특정 코디 선택/해제 처리
+    func toggleSelection(id: Int) {
+        if selectedCodiIds.contains(id) {
+            selectedCodiIds.remove(id)
+        } else {
+            selectedCodiIds.insert(id)
+        }
+    }
+
+    /// 삭제 버튼 탭 처리 (편집 모드 진입)
+    func handleDeleteAction() {
+        isEditing = true
+    }
+
+    /// 삭제 완료(상단 삭제 텍스트) 버튼 탭 처리
+    func handleCompleteAction() {
+        guard !selectedCodiIds.isEmpty else {
+            toggleEditingMode()
+            return
+        }
+        isShowingDeleteAlert = true
+    }
+
+    /// 삭제 확인 Alert에서 확인 버튼 클릭 시
+    func confirmDelete() {
+        isShowingDeleteAlert = false
+        isLoading = true
+
+        let idsToDelete = Array(selectedCodiIds)
+
+        Task {
+            do {
+                // 참고: useCase에 deleteCodis가 구현되어 있어야 합니다.
+                // try await useCase.deleteCodis(ids: idsToDelete)
+                
+                // 삭제 후 목록 새로고침 및 편집모드 종료
+                fetchCodis()
+                toggleEditingMode()
+            } catch {
+                self.errorMessage = "삭제에 실패했습니다: \(error.localizedDescription)"
+                self.isLoading = false
+            }
+        }
+    }
+
+    // MARK: - Like Action
     func toggleLike(codyId: Int, isLiked: Bool) {
         Task {
             do {
@@ -93,39 +152,30 @@ final class SpecificLookBookViewModel: ObservableObject {
     }
 
     // MARK: - Navigation
-
-    /// 코디 추가 화면(AddCodiView)으로 이동
     func navigateToAddCodi() {
         navigationRouter.navigate(to: .addCodi(lookbookId: lookbookId))
     }
 
-    /// 코디 상세 화면(CodiDetailView)으로 이동
-    /// - Parameter codiId: 선택된 코디 ID
     func navigateToCodiDetail(codiId: Int) {
         navigationRouter.navigate(to: .codiDetail(codiId: codiId))
     }
 
-    /// 상단 백 버튼 탭 처리
     func handleBackTap() {
-        navigationRouter.navigateBack()
+        if isEditing {
+            toggleEditingMode()
+        } else {
+            navigationRouter.navigateBack()
+        }
     }
 }
 
-// MARK: - Preview / Mock
-
+// (이하 preview 코드는 동일)
 extension SpecificLookBookViewModel {
-
-    /// SwiftUI Preview 및 테스트용 Mock ViewModel
     static var preview: SpecificLookBookViewModel {
         let mockRouter = NavigationRouter()
         let mockDataSource = LookBookDataSource()
         let mockRepository = LookBookRepositoryImpl(datasource: mockDataSource)
         let mockUseCase = LookBookUseCase(repository: mockRepository)
-
-        return SpecificLookBookViewModel(
-            navigationRouter: mockRouter,
-            useCase: mockUseCase,
-            lookbookId: 1
-        )
+        return SpecificLookBookViewModel(navigationRouter: mockRouter, useCase: mockUseCase, lookbookId: 1)
     }
 }
