@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@MainActor
 protocol DraggableImageViewModelProtocol: ObservableObject {
     var images: [DraggableImageEntity] { get set }
     var currentlyDraggedID: Int? { get set }
