@@ -14,6 +14,9 @@ struct MyClosetView: View {
     @State private var selectedSeasons: Set<Season> = []
     @State private var isShowingSeasonSheet: Bool = false
     
+    // 애니메이션을 위한 네임스페이스
+    @Namespace private var categoryAnimation
+    
     private let columns = [
         GridItem(.flexible(), spacing: 0),
         GridItem(.flexible(), spacing: 0),
@@ -88,19 +91,33 @@ struct MyClosetView: View {
     
     @ViewBuilder
     private func categoryTabItem(name: String) -> some View {
+        let isSelected = selectedMainCategory == name
+        
         VStack(spacing: 12) {
             Text(name)
                 .font(.codive_body1_medium)
-                .foregroundStyle(selectedMainCategory == name ? Color.Codive.grayscale1 : Color.Codive.grayscale3)
+                .foregroundStyle(isSelected ? Color.Codive.grayscale1 : Color.Codive.grayscale3)
             
-            Rectangle()
-                .fill(selectedMainCategory == name ? Color.Codive.point1 : Color.clear)
-                .frame(height: 2)
+            ZStack {
+                if isSelected {
+                    Rectangle()
+                        .fill(Color.Codive.point1)
+                        .frame(height: 2)
+                        .matchedGeometryEffect(id: "underline", in: categoryAnimation)
+                } else {
+                    Rectangle()
+                        .fill(Color.clear)
+                        .frame(height: 2)
+                }
+            }
         }
+        .contentShape(Rectangle())
         .onTapGesture {
-            selectedMainCategory = name
-            if let firstSub = CategoryConstants.all.first(where: { $0.name == name })?.subcategories.first {
-                selectedSubCategory = firstSub
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                selectedMainCategory = name
+                if let firstSub = CategoryConstants.all.first(where: { $0.name == name })?.subcategories.first {
+                    selectedSubCategory = firstSub
+                }
             }
         }
     }
@@ -123,7 +140,9 @@ struct MyClosetView: View {
                         )
                         .contentShape(Rectangle())
                         .onTapGesture {
-                            selectedSubCategory = sub
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                selectedSubCategory = sub
+                            }
                         }
                 }
             }
