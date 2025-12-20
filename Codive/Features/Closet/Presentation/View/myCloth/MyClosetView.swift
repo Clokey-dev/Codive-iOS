@@ -62,23 +62,38 @@ struct MyClosetView: View {
             .background(Color.white)
             
             ScrollView {
-                LazyVGrid(columns: columns, spacing: 0) {
-                    ForEach(0..<15, id: \.self) { idx in
-                        CustomClothCard(
-                            imageName: "sampleCloth",
-                            brand: "나이키",
-                            title: "Cable knit cardigan navy blue",
-                            isEditMode: isEditMode,
-                            isSelected: selectedItemIds.contains(idx)
-                        ) {
-                            if isEditMode {
-                                if selectedItemIds.contains(idx) {
-                                    selectedItemIds.remove(idx)
+                let items: [Int] = []
+
+                if items.isEmpty {
+                    EmptyStateView(
+                        headerTitle: nil,
+                        title: "해당 계절 옷이 없어요.",
+                        description: "계절에 맞는 옷을 채워넣어보세요.\n디지털 옷장에서 쉽게 관리할 수 있어요.",
+                        buttonText: "옷 추가하기",
+                        action: {
+                            // 옷 추가 액션 연결
+                        }
+                    )
+                    .padding(.top, 150)
+                } else {
+                    LazyVGrid(columns: columns, spacing: 0) {
+                        ForEach(items, id: \.self) { idx in
+                            CustomClothCard(
+                                imageName: "sampleCloth",
+                                brand: "나이키",
+                                title: "Cable knit cardigan navy blue",
+                                isEditMode: isEditMode,
+                                isSelected: selectedItemIds.contains(idx)
+                            ) {
+                                if isEditMode {
+                                    if selectedItemIds.contains(idx) {
+                                        selectedItemIds.remove(idx)
+                                    } else {
+                                        selectedItemIds.insert(idx)
+                                    }
                                 } else {
-                                    selectedItemIds.insert(idx)
+                                    print("\(idx)번 상세 이동")
                                 }
-                            } else {
-                                print("\(idx)번 상세 이동")
                             }
                         }
                     }

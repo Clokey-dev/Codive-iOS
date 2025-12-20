@@ -10,7 +10,7 @@ import SwiftUI
 struct EmptyStateView: View {
     
     // MARK: - Properties
-    let headerTitle: String
+    let headerTitle: String?
     let title: String
     let description: String
     let buttonText: String
@@ -18,10 +18,15 @@ struct EmptyStateView: View {
     
     // MARK: - Body
     var body: some View {
-        VStack {
-            Text(headerTitle)
-                .font(.codive_title2)
-                .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(spacing: 0) {
+            if let headerTitle = headerTitle {
+                Text(headerTitle)
+                    .font(.codive_title2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.bottom, 80)
+            } else {
+                Spacer()
+            }
 
             VStack(spacing: 8) {
                 Text(title)
@@ -34,7 +39,6 @@ struct EmptyStateView: View {
                     .multilineTextAlignment(.center)
                     .lineSpacing(2)
             }
-            .padding(.top, 80)
             
             CustomButton(
                 text: buttonText,
@@ -42,6 +46,10 @@ struct EmptyStateView: View {
                 action: action
             )
             .padding(.top, 24)
+            
+            if headerTitle == nil {
+                Spacer() 
+            }
         }
         .padding(.horizontal, 20)
     }
