@@ -39,9 +39,26 @@ final class ClosetDIContainer {
         return DefaultAddClothUseCase(repository: clothRepository)
     }
 
+    func makeFetchMyClosetClothItemsUseCase() -> FetchMyClosetClothItemsUseCase {
+        return FetchMyClosetClothItemsUseCase(repository: clothRepository)
+    }
+
+    func makeDeleteClothItemsUseCase() -> DeleteClothItemsUseCase {
+        return DeleteClothItemsUseCase(repository: clothRepository)
+    }
+
+    // MARK: - ViewModels
+    func makeMyClosetViewModel() -> MyClosetViewModel {
+        return MyClosetViewModel(
+            navigationRouter: navigationRouter,
+            fetchMyClosetClothItemsUseCase: makeFetchMyClosetClothItemsUseCase(),
+            deleteClothItemsUseCase: makeDeleteClothItemsUseCase()
+        )
+    }
+
     // MARK: - Views
     func makeMyClosetView() -> some View {
-        return MyClosetView(navigationRouter: navigationRouter)
+        return MyClosetView(viewModel: makeMyClosetViewModel())
             .navigationBarHidden(true)
     }
 }

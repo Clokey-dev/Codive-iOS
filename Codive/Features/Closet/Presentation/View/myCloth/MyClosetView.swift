@@ -10,22 +10,15 @@ import SwiftUI
 struct MyClosetView: View {
 
     // MARK: - Properties
-    private let navigationRouter: NavigationRouter
+    @StateObject private var viewModel: MyClosetViewModel
 
-    @State private var searchText: String = ""
-    @State private var selectedMainCategory: String = "전체"
-    @State private var selectedSubCategory: String = ""
-    @State private var selectedSeasons: Set<Season> = []
+    // UI 전용 State (ViewModel과 무관)
     @State private var isShowingSeasonSheet: Bool = false
-
-    @State private var isEditMode: Bool = false
-    @State private var selectedItemIds: Set<Int> = []
-
     @Namespace private var categoryAnimation
 
     // MARK: - Initializer
-    init(navigationRouter: NavigationRouter) {
-        self.navigationRouter = navigationRouter
+    init(viewModel: MyClosetViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel)
     }
     
     private let columns = [
@@ -38,72 +31,65 @@ struct MyClosetView: View {
         VStack(spacing: 0) {
             VStack(spacing: 0) {
                 CustomNavigationBar(
-                    title: isEditMode ? "옷장 편집" : "옷장 전체",
+                    title: viewModel.isEditMode ? "옷장 편집" : "옷장 전체",
                     onBack: {
-                        if isEditMode {
-                            isEditMode = false
-                            selectedItemIds.removeAll()
-                        } else {
-                            navigationRouter.navigateBack()
-                        }
+                        viewModel.navigateBack()
                     },
-                    rightButton: isEditMode ? .text(
+                    rightButton: viewModel.isEditMode ? .text(
                         title: "삭제",
-                        isEnabled: !selectedItemIds.isEmpty,
+                        isEnabled: viewModel.isDeleteEnabled,
                         action: {
-                            print("\(selectedItemIds.count)개 삭제")
-                            isEditMode = false
-                            selectedItemIds.removeAll()
+                            Task {
+                                await viewModel.deleteSelectedItems()
+                            }
                         }
                     ) : .none
                 )
                 
-                CustomSearchBar(text: $searchText, type: .normal)
+                CustomSearchBar(text: $viewModel.searchText, type: .normal)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 10)
-                
+
                 mainCategoryTab
-                
-                if selectedMainCategory != "전체" {
+
+                if viewModel.selectedMainCategory != "전체" {
                     subCategorySection
                 }
-                
+
                 infoBar
             }
             .background(Color.white)
             
             ScrollView {
-                let items: [Int] = []
-
-                if items.isEmpty {
+                if viewModel.isLoading {
+                    ProgressView()
+                        .padding(.top, 150)
+                } else if viewModel.clothItems.isEmpty {
                     EmptyStateView(
                         headerTitle: nil,
                         title: "해당 계절 옷이 없어요.",
                         description: "계절에 맞는 옷을 채워넣어보세요.\n디지털 옷장에서 쉽게 관리할 수 있어요.",
                         buttonText: "옷 추가하기",
                         action: {
-                            // 옷 추가 액션 연결
+                            // TODO: 옷 추가 네비게이션
                         }
                     )
                     .padding(.top, 150)
                 } else {
                     LazyVGrid(columns: columns, spacing: 0) {
-                        ForEach(items, id: \.self) { idx in
+                        ForEach(viewModel.clothItems) { cloth in
                             CustomClothCard(
-                                imageName: "sampleCloth",
-                                brand: "나이키",
-                                title: "Cable knit cardigan navy blue",
-                                isEditMode: isEditMode,
-                                isSelected: selectedItemIds.contains(idx)
+                                imageName: cloth.imageUrl,
+                                brand: cloth.brand ?? "",
+                                title: cloth.name ?? "",
+                                isEditMode: viewModel.isEditMode,
+                                isSelected: viewModel.selectedItemIds.contains(cloth.id)
                             ) {
-                                if isEditMode {
-                                    if selectedItemIds.contains(idx) {
-                                        selectedItemIds.remove(idx)
-                                    } else {
-                                        selectedItemIds.insert(idx)
-                                    }
+                                if viewModel.isEditMode {
+                                    viewModel.toggleItemSelection(cloth.id)
                                 } else {
-                                    print("\(idx)번 상세 이동")
+                                    // TODO: 옷 상세 네비게이션
+                                    print("\(cloth.id)번 상세 이동")
                                 }
                             }
                         }
@@ -115,15 +101,18 @@ struct MyClosetView: View {
         .ignoresSafeArea(.all, edges: .bottom)
         .sheet(isPresented: $isShowingSeasonSheet) {
             CustomSeasonSheet(
-                initialSelected: selectedSeasons,
+                initialSelected: viewModel.selectedSeasons,
                 onClose: { isShowingSeasonSheet = false },
                 onApply: { seasons in
-                    selectedSeasons = seasons
+                    viewModel.updateSeasons(seasons)
                     isShowingSeasonSheet = false
                 }
             )
             .presentationDetents([.height(358)])
             .presentationDragIndicator(.hidden)
+        }
+        .task {
+            await viewModel.loadClothItems()
         }
     }
     
@@ -147,13 +136,13 @@ struct MyClosetView: View {
     
     @ViewBuilder
     private func categoryTabItem(name: String) -> some View {
-        let isSelected = selectedMainCategory == name
-        
+        let isSelected = viewModel.selectedMainCategory == name
+
         VStack(spacing: 12) {
             Text(name)
                 .font(.codive_body1_medium)
                 .foregroundStyle(isSelected ? Color.Codive.grayscale1 : Color.Codive.grayscale3)
-            
+
             ZStack {
                 if isSelected {
                     Rectangle()
@@ -170,17 +159,14 @@ struct MyClosetView: View {
         .contentShape(Rectangle())
         .onTapGesture {
             withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
-                selectedMainCategory = name
-                if let firstSub = CategoryConstants.all.first(where: { $0.name == name })?.subcategories.first {
-                    selectedSubCategory = firstSub
-                }
+                viewModel.updateMainCategory(name)
             }
         }
     }
     
     private var subCategorySection: some View {
-        let subcategories = CategoryConstants.all.first(where: { $0.name == selectedMainCategory })?.subcategories ?? []
-        
+        let subcategories = CategoryConstants.all.first(where: { $0.name == viewModel.selectedMainCategory })?.subcategories ?? []
+
         return ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 ForEach(subcategories, id: \.self) { sub in
@@ -189,15 +175,15 @@ struct MyClosetView: View {
                         .padding(.horizontal, 14)
                         .padding(.vertical, 7)
                         .background(Color.white)
-                        .foregroundStyle(selectedSubCategory == sub ? Color.Codive.point1 : Color.Codive.grayscale1)
+                        .foregroundStyle(viewModel.selectedSubCategory == sub ? Color.Codive.point1 : Color.Codive.grayscale1)
                         .overlay(
                             RoundedRectangle(cornerRadius: 20)
-                                .stroke(selectedSubCategory == sub ? Color.Codive.point1 : Color.Codive.grayscale6, lineWidth: 1)
+                                .stroke(viewModel.selectedSubCategory == sub ? Color.Codive.point1 : Color.Codive.grayscale6, lineWidth: 1)
                         )
                         .contentShape(Rectangle())
                         .onTapGesture {
                             withAnimation(.easeInOut(duration: 0.2)) {
-                                selectedSubCategory = sub
+                                viewModel.updateSubCategory(sub)
                             }
                         }
                 }
@@ -210,12 +196,12 @@ struct MyClosetView: View {
     
     private var infoBar: some View {
         HStack {
-            Text("총 32개")
+            Text("총 \(viewModel.totalCount)개")
                 .font(.codive_body3_regular)
                 .foregroundStyle(Color.Codive.grayscale3)
-            
+
             Spacer()
-            
+
             HStack(spacing: 8) {
                 // 필터 버튼과 구분선을 하나의 그룹으로 묶고 투명도로 제어
                 HStack(spacing: 8) {
@@ -225,25 +211,24 @@ struct MyClosetView: View {
                         HStack(spacing: 4) {
                             Text(seasonFilterText)
                                 .font(.codive_body3_regular)
-                                .foregroundStyle(selectedSeasons.isEmpty ? Color.Codive.grayscale1 : Color("main1"))
-                            
-                            Image(selectedSeasons.isEmpty ? "filter" : "filter_brown")
+                                .foregroundStyle(viewModel.selectedSeasons.isEmpty ? Color.Codive.grayscale1 : Color("main1"))
+
+                            Image(viewModel.selectedSeasons.isEmpty ? "filter" : "filter_brown")
                                 .resizable()
                                 .frame(width: 20, height: 20)
                         }
                     }
                     .buttonStyle(.plain)
-                    
+
                     Text("|")
                         .foregroundStyle(Color.Codive.grayscale6)
                 }
-                .opacity(isEditMode ? 0 : 1) // 편집 모드일 때 투명하게 (공간은 유지)
-                .disabled(isEditMode)      // 클릭 방지
-                
-                Button(isEditMode ? "취소" : "편집") {
+                .opacity(viewModel.isEditMode ? 0 : 1) // 편집 모드일 때 투명하게 (공간은 유지)
+                .disabled(viewModel.isEditMode)      // 클릭 방지
+
+                Button(viewModel.isEditMode ? "취소" : "편집") {
                     withAnimation {
-                        isEditMode.toggle()
-                        if !isEditMode { selectedItemIds.removeAll() }
+                        viewModel.toggleEditMode()
                     }
                 }
                 .font(.codive_body3_regular)
@@ -255,11 +240,11 @@ struct MyClosetView: View {
     }
     
     private var seasonFilterText: String {
-        if selectedSeasons.isEmpty {
+        if viewModel.selectedSeasons.isEmpty {
             return "계절 필터"
         } else {
             let orderedSeasons: [Season] = [.spring, .summer, .fall, .winter]
-            let selectedList = orderedSeasons.filter { selectedSeasons.contains($0) }
+            let selectedList = orderedSeasons.filter { viewModel.selectedSeasons.contains($0) }
             return selectedList.map { $0.displayName }.joined(separator: ", ")
         }
     }
@@ -267,6 +252,6 @@ struct MyClosetView: View {
 
 #Preview {
     let appDIContainer = AppDIContainer()
-    let navigationRouter = appDIContainer.navigationRouter
-    return MyClosetView(navigationRouter: navigationRouter)
+    let closetDIContainer = appDIContainer.closetDIContainer
+    return closetDIContainer.makeMyClosetView()
 }
