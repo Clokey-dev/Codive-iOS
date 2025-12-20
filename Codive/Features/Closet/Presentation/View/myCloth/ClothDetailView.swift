@@ -8,15 +8,12 @@
 import SwiftUI
 
 struct ClothDetailView: View {
-    @Environment(\.dismiss) private var dismiss
-    
-    // 임시 데이터 (실제 데이터 모델 연동 가능)
-    let brand: String = "로렌하이"
-    let name: String = "스트링 리본 핑크 셔링 블라우스"
-    let category: String = "상의 > 블라우스"
-    let season: String = "봄"
-    let purchaseUrl: String = "www.http://"
-    let imageUrl: String = "sampleCloth"
+    @StateObject private var viewModel: ClothDetailViewModel
+
+    // MARK: - Initializer
+    init(viewModel: ClothDetailViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -24,35 +21,35 @@ struct ClothDetailView: View {
             CustomNavigationBar(
                 title: "옷 상세",
                 onBack: {
-                    dismiss()
+                    viewModel.navigateBack()
                 },
                 rightButton: .menu(
                     imageName: "more",
                     isSystemIcon: false,
                     isEnabled: true
                 ) {
-                    print("메뉴 클릭")
+                    viewModel.handleMenuTap()
                 }
             )
             
             ScrollView {
                 VStack(spacing: 32) {
                     // 1. 상품 이미지 영역
-                    Image(imageUrl)
+                    Image(viewModel.imageUrl)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(maxWidth: .infinity)
                         .aspectRatio(1, contentMode: .fit)
                         .background(Color.Codive.grayscale7)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
-                    
+
                     // 2. 정보 리스트 영역
                     VStack(spacing: 20) {
-                        infoRow(label: "카테고리", value: category)
-                        infoRow(label: "계절", value: season)
-                        infoRow(label: "옷 이름", value: name)
-                        infoRow(label: "브랜드", value: brand)
-                        infoRow(label: "구매 url", value: purchaseUrl)
+                        infoRow(label: "카테고리", value: viewModel.categoryText)
+                        infoRow(label: "계절", value: viewModel.seasonText)
+                        infoRow(label: "옷 이름", value: viewModel.name)
+                        infoRow(label: "브랜드", value: viewModel.brand)
+                        infoRow(label: "구매 url", value: viewModel.purchaseUrl)
                     }
                 }
                 .padding(.horizontal, 20)
@@ -62,6 +59,25 @@ struct ClothDetailView: View {
         }
         .navigationBarHidden(true)
         .background(Color.white)
+        .confirmationDialog("", isPresented: $viewModel.showActionSheet) {
+            Button("편집") {
+                viewModel.handleEdit()
+            }
+            Button("삭제", role: .destructive) {
+                viewModel.handleDeleteRequest()
+            }
+            Button("취소", role: .cancel) {}
+        }
+        .alert("옷 삭제", isPresented: $viewModel.showDeleteAlert) {
+            Button("취소", role: .cancel) {}
+            Button("삭제", role: .destructive) {
+                Task {
+                    await viewModel.confirmDelete()
+                }
+            }
+        } message: {
+            Text("이 옷을 삭제하시겠습니까?")
+        }
     }
     
     // 공통 정보 행 컴포넌트
@@ -86,5 +102,18 @@ struct ClothDetailView: View {
 }
 
 #Preview {
-    ClothDetailView()
+    let appDIContainer = AppDIContainer()
+    let closetDIContainer = appDIContainer.closetDIContainer
+
+    let sampleCloth = Cloth(
+        id: 1,
+        imageUrl: "sampleCloth",
+        name: "스트링 리본 핑크 셔링 블라우스",
+        brand: "로렌하이",
+        purchaseUrl: "www.http://",
+        categoryId: 1,
+        seasons: [.spring]
+    )
+
+    return closetDIContainer.makeClothDetailView(cloth: sampleCloth)
 }

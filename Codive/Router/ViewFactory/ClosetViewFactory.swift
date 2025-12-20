@@ -24,6 +24,8 @@ final class ClosetViewFactory {
         switch destination {
         case .myCloset:
             closetDIContainer?.makeMyClosetView()
+        case .clothDetail(let cloth):
+            closetDIContainer?.makeClothDetailView(cloth: cloth)
         default:
             EmptyView()
         }

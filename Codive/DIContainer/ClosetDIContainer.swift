@@ -56,9 +56,22 @@ final class ClosetDIContainer {
         )
     }
 
+    func makeClothDetailViewModel(cloth: Cloth) -> ClothDetailViewModel {
+        return ClothDetailViewModel(
+            cloth: cloth,
+            navigationRouter: navigationRouter,
+            deleteClothItemsUseCase: makeDeleteClothItemsUseCase()
+        )
+    }
+
     // MARK: - Views
     func makeMyClosetView() -> some View {
         return MyClosetView(viewModel: makeMyClosetViewModel())
+            .navigationBarHidden(true)
+    }
+
+    func makeClothDetailView(cloth: Cloth) -> some View {
+        return ClothDetailView(viewModel: makeClothDetailViewModel(cloth: cloth))
             .navigationBarHidden(true)
     }
 }

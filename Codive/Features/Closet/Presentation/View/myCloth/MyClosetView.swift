@@ -88,8 +88,7 @@ struct MyClosetView: View {
                                 if viewModel.isEditMode {
                                     viewModel.toggleItemSelection(cloth.id)
                                 } else {
-                                    // TODO: 옷 상세 네비게이션
-                                    print("\(cloth.id)번 상세 이동")
+                                    viewModel.navigateToClothDetail(cloth)
                                 }
                             }
                         }
