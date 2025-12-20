@@ -7,11 +7,12 @@
 
 import SwiftUI
 
+// MARK: - NavigationBarRightButton
 enum NavigationBarRightButton {
     case none
     case text(title: String, isEnabled: Bool, action: () -> Void)
-    case icon(systemName: String, isEnabled: Bool, action: () -> Void)
-    case menu(systemName: String, isEnabled: Bool, action: () -> Void)
+    case icon(imageName: String, isSystemIcon: Bool = true, isEnabled: Bool, action: () -> Void)
+    case menu(imageName: String, isSystemIcon: Bool = true, isEnabled: Bool, action: () -> Void)
 }
 
 struct CustomNavigationBar: View {
@@ -38,7 +39,7 @@ struct CustomNavigationBar: View {
             
             Spacer()
             
-            // 오른쪽 버튼
+            // 오른쪽 버튼 영역
             rightButtonView
                 .frame(width: 44, height: 44)
                 .padding(.trailing, 10)
@@ -61,88 +62,54 @@ struct CustomNavigationBar: View {
             }
             .disabled(!isEnabled)
             
-        case .icon(let systemName, let isEnabled, let action):
+        case .icon(let imageName, let isSystemIcon, let isEnabled, let action):
             Button(action: action) {
-                Image(systemName: systemName)
-                    .font(.system(size: 20, weight: .medium))
-                    .foregroundStyle(isEnabled ? Color.Codive.grayscale3 : Color.Codive.grayscale5)
+                renderImage(name: imageName, isSystem: isSystemIcon, isEnabled: isEnabled)
             }
             .disabled(!isEnabled)
             
-        case .menu(let systemName, let isEnabled, let action):
+        case .menu(let imageName, let isSystemIcon, let isEnabled, let action):
             Button(action: action) {
-                Image(systemName: systemName)
-                    .font(.system(size: 20, weight: .medium))
-                    .foregroundStyle(isEnabled ? Color.Codive.grayscale3 : Color.Codive.grayscale5)
+                renderImage(name: imageName, isSystem: isSystemIcon, isEnabled: isEnabled)
             }
             .disabled(!isEnabled)
+        }
+    }
+    
+    @ViewBuilder
+    private func renderImage(name: String, isSystem: Bool, isEnabled: Bool) -> some View {
+        if isSystem {
+            Image(systemName: name)
+                .font(.system(size: 20, weight: .medium))
+                .foregroundStyle(isEnabled ? Color.Codive.grayscale3 : Color.Codive.grayscale5)
+        } else {
+            Image(name)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 20, height: 20)
+                .foregroundStyle(isEnabled ? Color.Codive.grayscale3 : Color.Codive.grayscale5)
         }
     }
 }
 
 #Preview {
     VStack(spacing: 0) {
-        // 1. 버튼 없는 기본 네비게이션
-        CustomNavigationBar(title: "옷 추가") {
-            print("뒤로가기")
-        }
-        
+        CustomNavigationBar(title: "테스트") { print("Back") }
         Divider()
-        
-        // 2. 오른쪽에 메뉴 버튼 (활성)
+        // 에셋 "more" 버튼 테스트
         CustomNavigationBar(
-            title: "옷 상세",
-            onBack: { print("뒤로가기") },
-            rightButton: .menu(
-                systemName: "ellipsis",
-                isEnabled: true
-            ) {
-                print("메뉴 버튼")
+            title: "에셋 아이콘",
+            onBack: { },
+            rightButton: .menu(imageName: "more", isSystemIcon: false, isEnabled: true) {
+                print("More tapped")
             }
         )
-        
         Divider()
-        
-        // 3. 오른쪽에 텍스트 버튼 (비활성)
         CustomNavigationBar(
-            title: "태그하기",
-            onBack: { print("뒤로가기") },
-            rightButton: .text(
-                title: "완료",
-                isEnabled: false
-            ) {
-                print("완료 버튼")
-            }
+            title: "완료 버튼",
+            onBack: { },
+            rightButton: .text(title: "완료", isEnabled: true) { }
         )
-        
-        Divider()
-        
-        // 4. 오른쪽에 텍스트 버튼 (활성)
-        CustomNavigationBar(
-            title: "옷 수정",
-            onBack: { print("뒤로가기") },
-            rightButton: .text(
-                title: "완료",
-                isEnabled: true
-            ) {
-                print("완료 버튼")
-            }
-        )
-        
-        Divider()
-        
-        // 5. 오른쪽에 텍스트 버튼 (활성 - 삭제)
-        CustomNavigationBar(
-            title: "옷장 편집",
-            onBack: { print("뒤로가기") },
-            rightButton: .text(
-                title: "삭제",
-                isEnabled: true
-            ) {
-                print("삭제 버튼")
-            }
-        )
-        
         Spacer()
     }
 }

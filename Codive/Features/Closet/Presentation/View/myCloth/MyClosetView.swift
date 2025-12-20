@@ -94,6 +94,7 @@ struct MyClosetView: View {
                             }
                         }
                     }
+                    .padding(.bottom, 30)
                 }
             }
         }
