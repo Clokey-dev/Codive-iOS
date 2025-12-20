@@ -21,7 +21,7 @@ struct CustomClothCard: View {
     var body: some View {
         Button(action: { action() }, label: {
             VStack(alignment: .leading, spacing: 0) {
-                ZStack(alignment: .topTrailing) { // 선택 원 배치를 위해 topTrailing 설정
+                ZStack(alignment: .topTrailing) {
                     // 1. 상품 이미지
                     ZStack {
                         Color.Codive.grayscale7
@@ -41,8 +41,8 @@ struct CustomClothCard: View {
                     if isEditMode {
                         Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                             .resizable()
-                            .frame(width: 24, height: 24)
-                            .foregroundStyle(isSelected ? Color.Codive.point1 : Color.white)
+                            .frame(width: 18, height: 18)
+                            .foregroundStyle(isSelected ? Color.Codive.main1 : Color.white)
                             .background(isSelected ? Color.white : Color.black.opacity(0.2))
                             .clipShape(Circle())
                             .padding(8)
