@@ -8,15 +8,26 @@
 import SwiftUI
 
 struct ClosetView: View {
+
+    // MARK: - Properties
+    @StateObject private var navigationRouter: NavigationRouter
+    private let closetDIContainer: ClosetDIContainer
+
+    // MARK: - Initializer
+    init(closetDIContainer: ClosetDIContainer) {
+        self.closetDIContainer = closetDIContainer
+        _navigationRouter = StateObject(wrappedValue: closetDIContainer.navigationRouter)
+    }
+
     // MARK: - Body
     var body: some View {
         ScrollView {
             VStack(spacing: 30) {
-                MyClosetSectionView()
+                MyClosetSectionView(navigationRouter: navigationRouter)
                     .padding(.top, 15)
-                
+
                 WardrobeReportView()
-                
+
                 MyLookbookSectionView()
                 Spacer(minLength: 45)
             }
@@ -25,5 +36,7 @@ struct ClosetView: View {
 }
 
 #Preview {
-    ClosetView()
+    let appDIContainer = AppDIContainer()
+    let closetDIContainer = appDIContainer.closetDIContainer
+    return ClosetView(closetDIContainer: closetDIContainer)
 }

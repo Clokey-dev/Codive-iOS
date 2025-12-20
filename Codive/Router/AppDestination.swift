@@ -32,7 +32,8 @@ enum AppDestination: Hashable, Identifiable {
     case notification
     case feedDetail(feedId: Int)
     case comment(feedId: Int)
-    
+    case myCloset
+
     var id: Self { self }
     
     // MARK: - UI 제어
@@ -53,9 +54,13 @@ enum AppDestination: Hashable, Identifiable {
         // Search, Alarm Flow
         case .search, .searchResult, .notification:
             return true
-            
+
         // Feed Flow
         case .feedDetail, .comment:
+            return true
+
+        // Closet Flow - 전체 화면
+        case .myCloset:
             return true
 
         // 다른 플로우 전체 화면은 여기에 추가
@@ -86,6 +91,10 @@ enum AppDestination: Hashable, Identifiable {
 
         // Feed Flow - 자체 네비게이션 바 있음
         case .feedDetail, .comment:
+            return false
+
+        // Closet Flow - 자체 네비게이션 바 있음
+        case .myCloset:
             return false
 
         default:

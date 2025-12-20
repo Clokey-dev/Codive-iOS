@@ -6,8 +6,19 @@
 //
 
 import Foundation
+import SwiftUI
 
+@MainActor
 final class ClosetDIContainer {
+
+    // MARK: - Properties
+    let navigationRouter: NavigationRouter
+    lazy var closetViewFactory = ClosetViewFactory(closetDIContainer: self)
+
+    // MARK: - Initializer
+    init(navigationRouter: NavigationRouter) {
+        self.navigationRouter = navigationRouter
+    }
 
     // MARK: - DataSources
     private lazy var clothDataSource: ClothDataSource = {
@@ -26,5 +37,10 @@ final class ClosetDIContainer {
 
     func makeAddClothUseCase() -> AddClothUseCase {
         return DefaultAddClothUseCase(repository: clothRepository)
+    }
+
+    // MARK: - Views
+    func makeMyClosetView() -> some View {
+        return MyClosetView(navigationRouter: navigationRouter)
     }
 }

@@ -8,16 +8,25 @@
 import SwiftUI
 
 struct MyClosetView: View {
+
+    // MARK: - Properties
+    private let navigationRouter: NavigationRouter
+
     @State private var searchText: String = ""
     @State private var selectedMainCategory: String = "전체"
     @State private var selectedSubCategory: String = ""
     @State private var selectedSeasons: Set<Season> = []
     @State private var isShowingSeasonSheet: Bool = false
-    
+
     @State private var isEditMode: Bool = false
     @State private var selectedItemIds: Set<Int> = []
-    
+
     @Namespace private var categoryAnimation
+
+    // MARK: - Initializer
+    init(navigationRouter: NavigationRouter) {
+        self.navigationRouter = navigationRouter
+    }
     
     private let columns = [
         GridItem(.flexible(), spacing: 0),
@@ -34,6 +43,8 @@ struct MyClosetView: View {
                         if isEditMode {
                             isEditMode = false
                             selectedItemIds.removeAll()
+                        } else {
+                            navigationRouter.navigateBack()
                         }
                     },
                     rightButton: isEditMode ? .text(
@@ -101,6 +112,7 @@ struct MyClosetView: View {
             }
         }
         .background(Color.white)
+        .ignoresSafeArea(.all, edges: .bottom)
         .sheet(isPresented: $isShowingSeasonSheet) {
             CustomSeasonSheet(
                 initialSelected: selectedSeasons,
@@ -254,5 +266,7 @@ struct MyClosetView: View {
 }
 
 #Preview {
-    MyClosetView()
+    let appDIContainer = AppDIContainer()
+    let navigationRouter = appDIContainer.navigationRouter
+    return MyClosetView(navigationRouter: navigationRouter)
 }

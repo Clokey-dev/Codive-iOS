@@ -8,10 +8,16 @@
 import SwiftUI
 
 struct MyClosetSectionView: View {
-    
+
     // MARK: - Properties
     let totalItems = 10
-    
+    private let navigationRouter: NavigationRouter
+
+    // MARK: - Initializer
+    init(navigationRouter: NavigationRouter) {
+        self.navigationRouter = navigationRouter
+    }
+
     // MARK: - Body
     var body: some View {
         VStack(spacing: 16) {
@@ -19,10 +25,12 @@ struct MyClosetSectionView: View {
                 Text("내 옷")
                     .font(.codive_title2)
                     .foregroundStyle(Color.Codive.grayscale1)
-                
+
                 Spacer()
-                
-                Button(action: {}) {
+
+                Button(action: {
+                    navigationRouter.navigate(to: .myCloset)
+                }) {
                     HStack(spacing: 2) {
                         Text("더보기")
                         Image(systemName: "chevron.right")
@@ -58,5 +66,7 @@ struct MyClosetSectionView: View {
 }
 
 #Preview {
-    MyClosetSectionView()
+    let appDIContainer = AppDIContainer()
+    let navigationRouter = appDIContainer.navigationRouter
+    return MyClosetSectionView(navigationRouter: navigationRouter)
 }

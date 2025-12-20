@@ -15,6 +15,7 @@ struct MainTabView: View {
     private let appDIContainer: AppDIContainer
     private let addDIContainer: AddDIContainer
     private let homeDIContainer: HomeDIContainer
+    private let closetDIContainer: ClosetDIContainer
     private let feedDIContainer: FeedDIContainer
     private let searchDIContainer: SearchDIContainer
     private let notificationDIContainer: NotificationDIContainer
@@ -25,6 +26,7 @@ struct MainTabView: View {
         self.appDIContainer = appDIContainer
         self.addDIContainer = appDIContainer.makeAddDIContainer()
         self.homeDIContainer = appDIContainer.makeHomeDIContainer()
+        self.closetDIContainer = appDIContainer.closetDIContainer
         self.feedDIContainer = appDIContainer.makeFeedDIContainer()
         self.searchDIContainer = appDIContainer.makeSearchDIContainer()
         self.notificationDIContainer = appDIContainer.makeNotificationDIContainer()
@@ -56,7 +58,7 @@ struct MainTabView: View {
                             HomeView(homeDIContainer: homeDIContainer)
                                 .ignoresSafeArea(.all, edges: .bottom)
                         case .closet:
-                            ClosetView()
+                            ClosetView(closetDIContainer: closetDIContainer)
                         case .add:
                             AddView(addDIContainer: addDIContainer)
                                 .ignoresSafeArea(.all, edges: .bottom)
@@ -69,9 +71,9 @@ struct MainTabView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                     // MARK: - Tab Bar
-                    if shouldShowTabBar {
-                        TabBar(selectedTab: $viewModel.selectedTab)
-                    }
+                    TabBar(selectedTab: $viewModel.selectedTab)
+                        .zIndex(shouldShowTabBar ? 1 : 0)
+                        .allowsHitTesting(shouldShowTabBar)
                 }
             }
             .ignoresSafeArea(.keyboard, edges: .bottom)
@@ -79,7 +81,7 @@ struct MainTabView: View {
             if let destination = navigationRouter.currentDestination {
                 destinationView(for: destination)
                     .transition(.move(edge: .trailing))
-                    .zIndex(1)
+                    .zIndex(2)
             }
         }
         .animation(.easeInOut(duration: 0.3), value: navigationRouter.currentDestination)
@@ -136,6 +138,8 @@ struct MainTabView: View {
             homeDIContainer.makeEditCategoryView()
         case .codiBoard:
             homeDIContainer.makeCodiBoardView()
+        case .myCloset:
+            closetDIContainer.makeMyClosetView()
 
         default:
             EmptyView()
