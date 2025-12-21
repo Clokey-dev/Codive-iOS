@@ -125,7 +125,7 @@ struct MainTabView: View {
             homeDIContainer.makeCodiBoardView()
         case .myCloset:
             closetDIContainer.makeMyClosetView()
-        case .clothDetail:
+        case .clothDetail, .clothEdit:
             closetDIContainer.closetViewFactory.makeView(for: destination)
 
         // Add Flow

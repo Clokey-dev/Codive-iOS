@@ -64,6 +64,13 @@ final class ClosetDIContainer {
         )
     }
 
+    func makeClothEditViewModel(cloth: Cloth) -> ClothEditViewModel {
+        return ClothEditViewModel(
+            cloth: cloth,
+            navigationRouter: navigationRouter
+        )
+    }
+
     // MARK: - Views
     func makeMyClosetView() -> some View {
         return MyClosetView(viewModel: makeMyClosetViewModel())
@@ -72,6 +79,11 @@ final class ClosetDIContainer {
 
     func makeClothDetailView(cloth: Cloth) -> some View {
         return ClothDetailView(viewModel: makeClothDetailViewModel(cloth: cloth))
+            .navigationBarHidden(true)
+    }
+
+    func makeClothEditView(cloth: Cloth) -> some View {
+        return ClothEditView(viewModel: makeClothEditViewModel(cloth: cloth))
             .navigationBarHidden(true)
     }
 }

@@ -34,6 +34,7 @@ enum AppDestination: Hashable, Identifiable {
     case comment(feedId: Int)
     case myCloset
     case clothDetail(cloth: Cloth)
+    case clothEdit(cloth: Cloth)
 
     var id: Self { self }
     
@@ -61,7 +62,7 @@ enum AppDestination: Hashable, Identifiable {
             return true
 
         // Closet Flow - 전체 화면
-        case .myCloset, .clothDetail:
+        case .myCloset, .clothDetail, .clothEdit:
             return true
 
         // 다른 플로우 전체 화면은 여기에 추가
@@ -95,7 +96,7 @@ enum AppDestination: Hashable, Identifiable {
             return false
 
         // Closet Flow - 자체 네비게이션 바 있음
-        case .myCloset, .clothDetail:
+        case .myCloset, .clothDetail, .clothEdit:
             return false
 
         default:

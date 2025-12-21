@@ -88,8 +88,7 @@ final class ClothDetailViewModel: ObservableObject {
     }
 
     func handleEdit() {
-        // TODO: 옷 편집 화면으로 이동
-        print("옷 편집: \(cloth.id)")
+        navigationRouter.navigate(to: .clothEdit(cloth: cloth))
     }
 
     func handleDeleteRequest() {
