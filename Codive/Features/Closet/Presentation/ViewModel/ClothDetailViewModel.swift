@@ -31,17 +31,11 @@ final class ClothDetailViewModel: ObservableObject {
     }
 
     var categoryText: String {
-        guard let categoryId = cloth.categoryId else {
+        guard let categoryId = cloth.categoryId,
+              let category = CategoryConstants.category(byId: categoryId) else {
             return "카테고리 없음"
         }
 
-        // categoryId는 1부터 시작 (배열 인덱스는 0부터)
-        let categoryIndex = categoryId - 1
-        guard categoryIndex >= 0 && categoryIndex < CategoryConstants.all.count else {
-            return "카테고리 없음"
-        }
-
-        let category = CategoryConstants.all[categoryIndex]
         return category.name
         // TODO: 서브 카테고리 추가되면 "상의 > 티셔츠" 형식으로 변경
     }

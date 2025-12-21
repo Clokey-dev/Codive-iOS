@@ -8,7 +8,7 @@
 import Foundation
 
 struct CategoryItem: Identifiable, Hashable {
-    let id = UUID()
+    let id: Int
     let name: String
     let subcategories: [String]
 }

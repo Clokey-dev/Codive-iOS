@@ -96,10 +96,8 @@ final class DefaultClothDataSource: ClothDataSource {
 
         // 1. 메인 카테고리 필터링
         if let mainCategory = mainCategory, mainCategory != "전체" {
-            // CategoryConstants에서 해당 카테고리의 ID 찾기
-            if let categoryIndex = CategoryConstants.all.firstIndex(where: { $0.name == mainCategory }) {
-                let categoryId = categoryIndex + 1 // ID는 1부터 시작
-                filteredItems = filteredItems.filter { $0.categoryId == categoryId }
+            if let category = CategoryConstants.category(byName: mainCategory) {
+                filteredItems = filteredItems.filter { $0.categoryId == category.id }
             }
         }
 

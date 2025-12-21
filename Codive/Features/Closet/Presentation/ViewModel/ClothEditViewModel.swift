@@ -85,23 +85,9 @@ final class ClothEditViewModel: ObservableObject, ClothEditViewModelInput, Cloth
         self.navigationRouter = navigationRouter
 
         // 기존 Cloth 데이터로 폼 초기화
-        let category: CategoryItem?
-        let subcategory: String?
-
-        if let categoryId = cloth.categoryId {
-            let categoryIndex = categoryId - 1
-            if categoryIndex >= 0 && categoryIndex < CategoryConstants.all.count {
-                category = CategoryConstants.all[categoryIndex]
-                // TODO: 서버에서 subcategory 정보가 오면 설정
-                subcategory = category?.subcategories.first
-            } else {
-                category = nil
-                subcategory = nil
-            }
-        } else {
-            category = nil
-            subcategory = nil
-        }
+        let category = cloth.categoryId.flatMap { CategoryConstants.category(byId: $0) }
+        // TODO: 서버에서 subcategory 정보가 오면 설정
+        let subcategory = category?.subcategories.first
 
         self.clothForm = ClothFormData(
             name: cloth.name ?? "",
