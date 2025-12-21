@@ -27,16 +27,19 @@ struct MyClosetSectionView: View {
 
                 Spacer()
 
-                Button(action: {
-                    viewModel.navigateToMyCloset()
-                }) {
-                    HStack(spacing: 2) {
-                        Text("더보기")
-                        Image(systemName: "chevron.right")
+                Button(
+                    action: {
+                        viewModel.navigateToMyCloset()
+                    },
+                    label: {
+                        HStack(spacing: 2) {
+                            Text("더보기")
+                            Image(systemName: "chevron.right")
+                        }
+                        .font(.codive_body3_regular)
+                        .foregroundStyle(Color.Codive.grayscale2)
                     }
-                    .font(.codive_body3_regular)
-                    .foregroundStyle(Color.Codive.grayscale2)
-                }
+                )
             }
             .padding(.horizontal, 20)
             
@@ -49,11 +52,10 @@ struct MyClosetSectionView: View {
                     headerTitle: nil,
                     title: "옷장이 비어있어요",
                     description: "옷을 추가해보세요",
-                    buttonText: "옷 추가하기",
-                    action: {
-                        // TODO: 옷 추가 네비게이션
-                    }
-                )
+                    buttonText: "옷 추가하기"
+                ) {
+                    // TODO: 옷 추가 네비게이션
+                }
                 .frame(height: 200)
             } else {
                 ScrollView(.horizontal, showsIndicators: false) {

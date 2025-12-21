@@ -37,13 +37,12 @@ struct MyClosetView: View {
                     },
                     rightButton: viewModel.isEditMode ? .text(
                         title: "삭제",
-                        isEnabled: viewModel.isDeleteEnabled,
-                        action: {
-                            Task {
-                                await viewModel.deleteSelectedItems()
-                            }
+                        isEnabled: viewModel.isDeleteEnabled
+                    ) {
+                        Task {
+                            await viewModel.deleteSelectedItems()
                         }
-                    ) : .none
+                    } : .none
                 )
                 
                 CustomSearchBar(text: $viewModel.searchText, type: .normal)
@@ -69,11 +68,10 @@ struct MyClosetView: View {
                         headerTitle: nil,
                         title: "해당 계절 옷이 없어요.",
                         description: "계절에 맞는 옷을 채워넣어보세요.\n디지털 옷장에서 쉽게 관리할 수 있어요.",
-                        buttonText: "옷 추가하기",
-                        action: {
-                            // TODO: 옷 추가 네비게이션
-                        }
-                    )
+                        buttonText: "옷 추가하기"
+                    ) {
+                        // TODO: 옷 추가 네비게이션
+                    }
                     .padding(.top, 150)
                 } else {
                     LazyVGrid(columns: columns, spacing: 0) {
@@ -165,7 +163,7 @@ struct MyClosetView: View {
     }
     
     private var subCategorySection: some View {
-        let subcategories = CategoryConstants.all.first(where: { $0.name == viewModel.selectedMainCategory })?.subcategories ?? []
+        let subcategories = CategoryConstants.all.first { $0.name == viewModel.selectedMainCategory }?.subcategories ?? []
 
         return ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {

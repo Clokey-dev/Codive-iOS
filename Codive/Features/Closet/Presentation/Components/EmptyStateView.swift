@@ -60,9 +60,8 @@ struct EmptyStateView: View {
         headerTitle: "나의 옷장",
         title: "옷장이 비어있어요.",
         description: "옷을 추가해 나만의 디지털 옷장을 만들고,\n필요할 때 언제든 한눈에 확인하세요.",
-        buttonText: "옷 추가하기",
-        action: {}
-    )
+        buttonText: "옷 추가하기"
+    ) {}
 }
 
 #Preview("리포트 예시") {
@@ -70,7 +69,6 @@ struct EmptyStateView: View {
         headerTitle: "나의 리포트",
         title: "아직 분석 결과가 없어요.",
         description: "옷을 추가해 나만의 옷 리포트를 받아보세요. 옷장 인사이트를 얻을 수 있어요.",
-        buttonText: "옷 추가하기",
-        action: {}
-    )
+        buttonText: "옷 추가하기"
+    ) {}
 }

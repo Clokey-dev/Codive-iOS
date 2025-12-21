@@ -39,14 +39,17 @@ struct MyLookbookSectionView: View {
                 
                 Spacer()
                 
-                Button(action: { print("더보기") }) {
-                    HStack(spacing: 2) {
-                        Text("더보기")
-                        Image(systemName: "chevron.right")
+                Button(
+                    action: { print("더보기") },
+                    label: {
+                        HStack(spacing: 2) {
+                            Text("더보기")
+                            Image(systemName: "chevron.right")
+                        }
+                        .font(.codive_body3_regular)
+                        .foregroundStyle(Color.Codive.grayscale2)
                     }
-                    .font(.codive_body3_regular)
-                    .foregroundStyle(Color.Codive.grayscale2)
-                }
+                )
             }
             .padding(.horizontal, 20)
             

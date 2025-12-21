@@ -2,7 +2,7 @@
 //  ClothEditViewModel.swift
 //  Codive
 //
-//  Created by Claude on 12/21/25.
+//  Created by 황상환 on 12/21/25.
 //
 
 import Foundation
@@ -153,24 +153,9 @@ final class ClothEditViewModel: ObservableObject, ClothEditViewModelInput, Cloth
 
     func completeEditing() {
         Task {
-            do {
-                // TODO: UpdateClothUseCase 구현 후 연결
-                // let input = ClothInput(
-                //     name: clothForm.name,
-                //     brand: clothForm.brand,
-                //     purchaseUrl: clothForm.purchaseUrl,
-                //     categoryId: nil, // TODO: category name → server ID 매핑
-                //     seasons: clothForm.selectedSeasons
-                // )
-                // _ = try await updateClothUseCase.execute(clothId: cloth.id, input: input)
-
-                print("옷 수정 완료: \(cloth.id)")
-                navigationRouter.navigateBack()
-            } catch {
-                // 에러 처리
-                print("옷 수정 실패: \(error.localizedDescription)")
-                // TODO: 에러 알럿 표시
-            }
+            // TODO: UpdateClothUseCase 구현 후 연결
+            print("옷 수정 완료: \(cloth.id)")
+            navigationRouter.navigateBack()
         }
     }
 }
