@@ -21,8 +21,10 @@ struct ClosetView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 30) {
-                MyClosetSectionView()
-                    .padding(.top, 15)
+                MyClosetSectionView(
+                    viewModel: closetDIContainer.makeMyClosetSectionViewModel()
+                )
+                .padding(.top, 15)
 
                 WardrobeReportView()
 

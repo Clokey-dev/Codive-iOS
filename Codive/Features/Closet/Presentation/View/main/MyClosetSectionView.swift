@@ -10,8 +10,12 @@ import SwiftUI
 struct MyClosetSectionView: View {
 
     // MARK: - Properties
-    let totalItems = 10
-    @EnvironmentObject private var navigationRouter: NavigationRouter
+    @StateObject private var viewModel: MyClosetSectionViewModel
+
+    // MARK: - Initializer
+    init(viewModel: MyClosetSectionViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
 
     // MARK: - Body
     var body: some View {
@@ -24,7 +28,7 @@ struct MyClosetSectionView: View {
                 Spacer()
 
                 Button(action: {
-                    navigationRouter.navigate(to: .myCloset)
+                    viewModel.navigateToMyCloset()
                 }) {
                     HStack(spacing: 2) {
                         Text("더보기")
@@ -36,33 +40,63 @@ struct MyClosetSectionView: View {
             }
             .padding(.horizontal, 20)
             
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-                    ForEach(stride(from: 0, to: totalItems, by: 2).map { $0 }, id: \.self) { i in
-                        VStack(spacing: 12) {
-                            ClothingCardView(
-                                brand: i % 2 == 0 ? "나이키" : "No brand",
-                                name: i % 2 == 0 ? "Cable knit cardigan" : "상의 > 니트"
-                            )
-                            
-                            if i + 1 < totalItems {
+            if viewModel.isLoading {
+                ProgressView()
+                    .frame(height: 200)
+                    .frame(maxWidth: .infinity)
+            } else if viewModel.clothItems.isEmpty {
+                EmptyStateView(
+                    headerTitle: nil,
+                    title: "옷장이 비어있어요",
+                    description: "옷을 추가해보세요",
+                    buttonText: "옷 추가하기",
+                    action: {
+                        // TODO: 옷 추가 네비게이션
+                    }
+                )
+                .frame(height: 200)
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        // 2개씩 묶어서 세로로 표시
+                        ForEach(stride(from: 0, to: viewModel.clothItems.count, by: 2).map { $0 }, id: \.self) { i in
+                            VStack(spacing: 12) {
+                                // 첫 번째 아이템
                                 ClothingCardView(
-                                    brand: (i + 1) % 2 == 0 ? "나이키" : "No brand",
-                                    name: (i + 1) % 2 == 0 ? "Cable knit cardigan" : "상의 > 니트"
+                                    brand: viewModel.clothItems[i].brand ?? "No brand",
+                                    name: viewModel.clothItems[i].name ?? "이름 없음"
                                 )
+                                .onTapGesture {
+                                    viewModel.navigateToClothDetail(viewModel.clothItems[i])
+                                }
+
+                                // 두 번째 아이템 (있을 경우)
+                                if i + 1 < viewModel.clothItems.count {
+                                    ClothingCardView(
+                                        brand: viewModel.clothItems[i + 1].brand ?? "No brand",
+                                        name: viewModel.clothItems[i + 1].name ?? "이름 없음"
+                                    )
+                                    .onTapGesture {
+                                        viewModel.navigateToClothDetail(viewModel.clothItems[i + 1])
+                                    }
+                                }
                             }
                         }
                     }
+                    .padding(.horizontal, 20)
                 }
-                .padding(.horizontal, 20)
             }
+        }
+        .task {
+            await viewModel.loadClothItems()
         }
     }
 }
 
 #Preview {
     let appDIContainer = AppDIContainer()
-    let navigationRouter = appDIContainer.navigationRouter
-    return MyClosetSectionView()
-        .environmentObject(navigationRouter)
+    let closetDIContainer = appDIContainer.closetDIContainer
+    return MyClosetSectionView(
+        viewModel: closetDIContainer.makeMyClosetSectionViewModel()
+    )
 }

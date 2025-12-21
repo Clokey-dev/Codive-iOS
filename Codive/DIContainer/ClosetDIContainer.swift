@@ -56,6 +56,13 @@ final class ClosetDIContainer {
         )
     }
 
+    func makeMyClosetSectionViewModel() -> MyClosetSectionViewModel {
+        return MyClosetSectionViewModel(
+            navigationRouter: navigationRouter,
+            fetchMyClosetClothItemsUseCase: makeFetchMyClosetClothItemsUseCase()
+        )
+    }
+
     func makeClothDetailViewModel(cloth: Cloth) -> ClothDetailViewModel {
         return ClothDetailViewModel(
             cloth: cloth,
