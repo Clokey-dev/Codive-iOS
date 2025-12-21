@@ -62,10 +62,7 @@ struct MainTabView: View {
                             AddView(addDIContainer: addDIContainer)
                                 .ignoresSafeArea(.all, edges: .bottom)
                         case .feed:
-                            FeedView(
-                                viewModel: feedDIContainer.makeFeedViewModel(),
-                                feedDIContainer: feedDIContainer
-                            )
+                            FeedView(viewModel: feedDIContainer.makeFeedViewModel())
                         case .profile:
                             ProfileView()
                         }

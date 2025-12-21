@@ -11,7 +11,6 @@ struct FeedView: View {
 
     // MARK: - Properties
     @StateObject private var viewModel: FeedViewModel
-    private let feedDIContainer: FeedDIContainer
 
     // MARK: Filter States
     // Top Bar States
@@ -23,9 +22,8 @@ struct FeedView: View {
     @State private var selectedSheetStyles: Set<String> = []
     @State private var selectedSheetSituations: Set<String> = []
 
-    init(viewModel: FeedViewModel, feedDIContainer: FeedDIContainer) {
+    init(viewModel: FeedViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
-        self.feedDIContainer = feedDIContainer
     }
 
     private let columns: [GridItem] = [
@@ -183,13 +181,13 @@ struct FeedView_Previews: PreviewProvider {
         let noFeedsVM = noFeedsContainer.makeFeedViewModel()
 
         return Group {
-            FeedView(viewModel: defaultVM, feedDIContainer: defaultContainer)
+            FeedView(viewModel: defaultVM)
                 .previewDisplayName("Default")
 
-            FeedView(viewModel: noFollowingVM, feedDIContainer: noFollowingContainer)
+            FeedView(viewModel: noFollowingVM)
                 .previewDisplayName("Empty (No Following)")
 
-            FeedView(viewModel: noFeedsVM, feedDIContainer: noFeedsContainer)
+            FeedView(viewModel: noFeedsVM)
                 .previewDisplayName("Empty (No Feeds)")
         }
     }
