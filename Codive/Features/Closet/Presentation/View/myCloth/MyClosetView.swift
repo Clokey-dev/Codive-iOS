@@ -210,7 +210,7 @@ struct MyClosetView: View {
                         HStack(spacing: 4) {
                             Text(seasonFilterText)
                                 .font(.codive_body3_regular)
-                                .foregroundStyle(viewModel.selectedSeasons.isEmpty ? Color.Codive.grayscale1 : Color("main1"))
+                                .foregroundStyle(viewModel.selectedSeasons.isEmpty ? Color.Codive.grayscale1 : Color.Codive.main1)
 
                             Image(viewModel.selectedSeasons.isEmpty ? "filter" : "filter_brown")
                                 .resizable()
