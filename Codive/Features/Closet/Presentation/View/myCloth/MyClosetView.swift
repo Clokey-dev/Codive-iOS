@@ -95,6 +95,7 @@ struct MyClosetView: View {
                 }
             }
         }
+        .navigationBarHidden(true)
         .background(Color.white)
         .ignoresSafeArea(.all, edges: .bottom)
         .sheet(isPresented: $isShowingSeasonSheet) {
