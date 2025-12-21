@@ -30,6 +30,9 @@ enum AppDestination: Hashable {
     case search
     case searchResult(query: String)
     case notification
+    case wardrobeFavorite(items: [CategoryFavoriteItem])
+    case wardrobeItemStats(stats: [ItemUsageStat])
+    case wardrobeUsage(stats: WardrobeUsageStat)
     
     // MARK: - 하단 탭바
     /// 이 화면이 탭바를 덮어야 하는가?

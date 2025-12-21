@@ -102,6 +102,15 @@ struct MainTabView: View {
         case .notification:
             notificationDIContainer.makeNotificationView()
             
+        case .wardrobeFavorite(let items):
+            FavoriteByCategoryView(items: items)
+            
+        case .wardrobeItemStats(let stats):
+            ItemDataView(stats: stats)
+            
+        case .wardrobeUsage(let stats):
+            WearingDataView(stats: stats)
+            
         default:
             EmptyView()
         }
