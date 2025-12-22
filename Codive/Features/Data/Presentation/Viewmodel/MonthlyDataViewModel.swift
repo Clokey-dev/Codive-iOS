@@ -8,29 +8,6 @@
 import SwiftUI
 import Combine
 
-// TODO: 추후 Domain Layer의 Entity로 이동 고려
-struct CategoryFavoriteItem: Identifiable, Hashable {
-    let id = UUID()
-    let categoryName: String 
-    let items: [DonutSegment]
-}
-
-struct ItemUsageStat: Identifiable, Hashable {
-    let id = UUID()
-    let itemName: String
-    let usageCount: Int
-}
-
-struct WardrobeUsageStat: Hashable {
-    let totalCount: Int
-    let wornCount: Int
-    
-    var usagePercent: Int {
-        guard totalCount > 0 else { return 0 }
-        return Int(round((Double(wornCount) / Double(totalCount)) * 100))
-    }
-}
-
 class MonthlyDataViewModel: ObservableObject {
     
     // MARK: - Published Properties

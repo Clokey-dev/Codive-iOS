@@ -64,6 +64,8 @@ struct DonutChartView<CenterContent: View>: View {
         .aspectRatio(1, contentMode: .fit)
     }
 
+    private let maxGapPortion: Double = 0.6
+    
     // 각 세그먼트의 시작/끝 각도 계산
     private func computedSegments(
         totalSize: CGFloat,
@@ -72,12 +74,12 @@ struct DonutChartView<CenterContent: View>: View {
     ) -> [ComputedSegment] {
 
         let total = segments.map(\.value).reduce(0, +)
-        guard total > 0, segments.isEmpty == false else { return [] }
-
+        guard total > 0, !segments.isEmpty else { return [] }
+        
         let n = Double(segments.count)
 
         // gap이 너무 커서 available이 음수가 되지 않도록 방어
-        let safeGap = max(0, min(gapDegrees, (360.0 / n) * 0.6))
+        let safeGap = max(0, min(gapDegrees, (360.0 / n) * maxGapPortion))
         let available = 360.0 - safeGap * n
 
         var current = 0.0
@@ -92,6 +94,7 @@ struct DonutChartView<CenterContent: View>: View {
 
             result.append(
                 ComputedSegment(
+                    id: seg.id,
                     segment: seg,
                     startAngle: start,
                     endAngle: end,
@@ -113,15 +116,6 @@ struct DonutChartView<CenterContent: View>: View {
         let endAngle: Double
         let innerRadius: CGFloat
         let outerRadius: CGFloat
-
-        init(segment: DonutSegment, startAngle: Double, endAngle: Double, innerRadius: CGFloat, outerRadius: CGFloat) {
-            self.id = segment.id
-            self.segment = segment
-            self.startAngle = startAngle
-            self.endAngle = endAngle
-            self.innerRadius = innerRadius
-            self.outerRadius = outerRadius
-        }
     }
 }
 

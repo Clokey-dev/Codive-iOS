@@ -33,7 +33,7 @@ struct FavoriteByCategoryView: View {
                 .padding(.bottom, 24)
             }
         }
-        .background(Color("white"))
+        .background(Color.white)
         .navigationBarHidden(true)
     }
 }
@@ -41,6 +41,10 @@ struct FavoriteByCategoryView: View {
 private struct CategoryDonutSection: View {
     let item: CategoryFavoriteItem
     @State private var selectedID: DonutSegment.ID?
+    @State private var isBottomSheetPresented = false
+    @State private var bottomSheetTitle = ""
+    @State private var bottomSheetItems: [DataBottomSheetClothItem] = []
+    @State private var isFirstLoad = true
 
     private var total: Double {
         item.items.map(\.value).reduce(0, +)
@@ -69,6 +73,19 @@ private struct CategoryDonutSection: View {
                     .foregroundStyle(Color.Codive.grayscale1)
             }
             .frame(width: 196, height: 196)
+            .onChange(of: selectedID) { newValue in
+                if isFirstLoad {
+                    isFirstLoad = false
+                    return
+                }
+                if let seg = item.items.first(where: { $0.id == newValue }) {
+                    bottomSheetTitle = seg.payload ?? item.categoryName
+                    // Mock Data: 값에 따라 개수 임의 생성 (3~10개)
+                    let count = Int(seg.value) > 0 ? Int(seg.value) + 2 : 5
+                    bottomSheetItems = makeMockItems(count: count)
+                    isBottomSheetPresented = true
+                }
+            }
 
             if let seg = selectedSegment {
                 BubbleLabelView(
@@ -83,6 +100,25 @@ private struct CategoryDonutSection: View {
         .padding(.vertical, 6)
         .onAppear {
             selectedID = item.items.first?.id
+            // onAppear 시점에는 아직 사용자가 탭한 게 아니므로 isFirstLoad는 true 유지
+            // 하지만 onChange가 호출될 수 있으므로 약간의 지연 후 false 처리하거나
+            // 여기서는 selectedID 할당이 onChange를 즉시 호출하므로 위 onChange 가드문으로 방어
+        }
+        .dataBottomSheet(
+            isPresented: $isBottomSheetPresented,
+            dataBottomSheetTitle: bottomSheetTitle,
+            totalCount: bottomSheetItems.count,
+            items: bottomSheetItems
+        )
+    }
+
+    private func makeMockItems(count: Int) -> [DataBottomSheetClothItem] {
+        (0..<count).map { i in
+            DataBottomSheetClothItem(
+                imageName: "samplecloth",
+                brand: "Nike",
+                title: "Mock Item \(i + 1)"
+            )
         }
     }
 }
@@ -110,62 +146,6 @@ private struct BubbleLabelView: View {
         )
     }
 }
-
-private struct SpeechBubbleShape: Shape {
-    let radius: CGFloat = 10
-    let tailSize: CGFloat = 6
-    let tailWidth: CGFloat = 14
-
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        let bubbleHeight = rect.height - tailSize
-
-        path.move(to: CGPoint(x: radius, y: 0))
-
-        path.addLine(to: CGPoint(x: rect.width - radius, y: 0))
-        path.addArc(
-            center: CGPoint(x: rect.width - radius, y: radius),
-            radius: radius,
-            startAngle: .degrees(-90),
-            endAngle: .degrees(0),
-            clockwise: false
-        )
-
-        path.addLine(to: CGPoint(x: rect.width, y: bubbleHeight - radius))
-        path.addArc(
-            center: CGPoint(x: rect.width - radius, y: bubbleHeight - radius),
-            radius: radius,
-            startAngle: .degrees(0),
-            endAngle: .degrees(90),
-            clockwise: false
-        )
-
-        path.addLine(to: CGPoint(x: rect.midX + (tailWidth / 2), y: bubbleHeight))
-        path.addLine(to: CGPoint(x: rect.midX, y: rect.height))
-        path.addLine(to: CGPoint(x: rect.midX - (tailWidth / 2), y: bubbleHeight))
-
-        path.addLine(to: CGPoint(x: radius, y: bubbleHeight))
-        path.addArc(
-            center: CGPoint(x: radius, y: bubbleHeight - radius),
-            radius: radius,
-            startAngle: .degrees(90),
-            endAngle: .degrees(180),
-            clockwise: false
-        )
-
-        path.addLine(to: CGPoint(x: 0, y: radius))
-        path.addArc(
-            center: CGPoint(x: radius, y: radius),
-            radius: radius,
-            startAngle: .degrees(180),
-            endAngle: .degrees(270),
-            clockwise: false
-        )
-
-        return path
-    }
-}
-
 #Preview {
     FavoriteByCategoryView(items: [
         CategoryFavoriteItem(

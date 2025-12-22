@@ -28,6 +28,7 @@ struct CustomClothCard: View {
                 Text(brand)
                     .font(.codive_body3_regular)
                     .foregroundStyle(Color("Grayscale4"))
+                    .padding(.horizontal, 8)
 
                 // 상품명
                 Text(title)
@@ -35,6 +36,8 @@ struct CustomClothCard: View {
                     .foregroundStyle(Color("Grayscale2"))
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
+                    .padding(.horizontal, 8)
+
             }
         })
         .buttonStyle(.plain)

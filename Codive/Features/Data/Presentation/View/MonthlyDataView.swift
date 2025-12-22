@@ -103,7 +103,7 @@ struct FavoriteByCategory: View {
                         )
                         .frame(width: 300, height: 182)
                         .onTapGesture {
-                            navigationRouter.navigate(to: AppDestination.wardrobeFavorite(items: items))
+                            navigationRouter.navigate(to: AppDestination.wardrobeFavorite(items: [item]))
                         }
                     }
                 }
@@ -200,7 +200,7 @@ private struct PercentBubbleView: View {
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
             .background(
-                SpeechBubbleShape()
+                SpeechBubbleShape(radius: 8, tailSize: 4, tailWidth: 12)
                     .fill(Color.white)
                     .shadow(color: Color.black.opacity(0.08), radius: 6, x: 0, y: 3)
             )
@@ -214,6 +214,7 @@ struct ItemData: View {
     @EnvironmentObject private var navigationRouter: NavigationRouter
     
     private let maxBarHeight: CGFloat = 140
+    private let minBarHeight: CGFloat = 8
     
     // 가장 많이 입은 횟수를 기준으로 높이 비율 계산
     private var maxCount: Int {
@@ -232,7 +233,12 @@ struct ItemData: View {
                                 // 횟수 표시
                                 RoundedRectangle(cornerRadius: 8, style: .continuous)
                                     .fill(barColor(for: idx))
-                                    .frame(height: max(8, CGFloat(item.usageCount) / CGFloat(maxCount) * maxBarHeight))
+                                    .frame(
+                                        height: max(
+                                            minBarHeight,
+                                            CGFloat(item.usageCount) / CGFloat(maxCount) * maxBarHeight
+                                        )
+                                    )
                                 
                                 Text(item.itemName)
                                     .font(.codive_body3_medium)
@@ -298,7 +304,7 @@ struct WearingData: View {
         
         let segments: [DonutSegment] = [
             DonutSegment(value: Double(safeWorn), color: Color.Codive.point1, payload: "입음"),
-            DonutSegment(value: Double(notWorn), color: Color(red: 0.97, green: 0.92, blue: 0.86), payload: "미착용")
+            DonutSegment(value: Double(notWorn), color: Color.Codive.point4, payload: "미착용")
         ]
         
         return VStack(spacing: 10) {
@@ -333,58 +339,6 @@ struct WearingData: View {
         }
     }
 }
-
-//
-// DonutChartView에서 말풍선 사용을 위한 Shape
-//
-private struct SpeechBubbleShape: Shape {
-    
-    let radius: CGFloat = 8
-    let tailSize: CGFloat = 4
-    let tailWidth: CGFloat = 12
-    
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        let bubbleHeight = rect.height - tailSize
-        
-        path.move(to: CGPoint(x: radius, y: 0))
-        
-        path.addLine(to: CGPoint(x: rect.width - radius, y: 0))
-        path.addArc(center: CGPoint(x: rect.width - radius, y: radius),
-                    radius: radius,
-                    startAngle: .degrees(-90),
-                    endAngle: .degrees(0),
-                    clockwise: false)
-        
-        path.addLine(to: CGPoint(x: rect.width, y: bubbleHeight - radius))
-        path.addArc(center: CGPoint(x: rect.width - radius, y: bubbleHeight - radius),
-                    radius: radius,
-                    startAngle: .degrees(0),
-                    endAngle: .degrees(90),
-                    clockwise: false)
-        
-        path.addLine(to: CGPoint(x: rect.midX + (tailWidth / 2), y: bubbleHeight))
-        path.addLine(to: CGPoint(x: rect.midX, y: rect.height))
-        path.addLine(to: CGPoint(x: rect.midX - (tailWidth / 2), y: bubbleHeight))
-        
-        path.addLine(to: CGPoint(x: radius, y: bubbleHeight))
-        path.addArc(center: CGPoint(x: radius, y: bubbleHeight - radius),
-                    radius: radius,
-                    startAngle: .degrees(90),
-                    endAngle: .degrees(180),
-                    clockwise: false)
-        
-        path.addLine(to: CGPoint(x: 0, y: radius))
-        path.addArc(center: CGPoint(x: radius, y: radius),
-                    radius: radius,
-                    startAngle: .degrees(180),
-                    endAngle: .degrees(270),
-                    clockwise: false)
-        
-        return path
-    }
-}
-
 #Preview {
     MonthlyDataView()
         .environmentObject(NavigationRouter())
