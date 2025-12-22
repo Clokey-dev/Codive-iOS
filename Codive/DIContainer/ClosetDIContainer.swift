@@ -6,8 +6,19 @@
 //
 
 import Foundation
+import SwiftUI
 
+@MainActor
 final class ClosetDIContainer {
+
+    // MARK: - Properties
+    let navigationRouter: NavigationRouter
+    lazy var closetViewFactory = ClosetViewFactory(closetDIContainer: self)
+
+    // MARK: - Initializer
+    init(navigationRouter: NavigationRouter) {
+        self.navigationRouter = navigationRouter
+    }
 
     // MARK: - DataSources
     private lazy var clothDataSource: ClothDataSource = {
@@ -26,5 +37,57 @@ final class ClosetDIContainer {
 
     func makeAddClothUseCase() -> AddClothUseCase {
         return DefaultAddClothUseCase(repository: clothRepository)
+    }
+
+    func makeFetchMyClosetClothItemsUseCase() -> FetchMyClosetClothItemsUseCase {
+        return FetchMyClosetClothItemsUseCase(repository: clothRepository)
+    }
+
+    func makeDeleteClothItemsUseCase() -> DeleteClothItemsUseCase {
+        return DeleteClothItemsUseCase(repository: clothRepository)
+    }
+
+    // MARK: - ViewModels
+    func makeMyClosetViewModel() -> MyClosetViewModel {
+        return MyClosetViewModel(
+            navigationRouter: navigationRouter,
+            fetchMyClosetClothItemsUseCase: makeFetchMyClosetClothItemsUseCase(),
+            deleteClothItemsUseCase: makeDeleteClothItemsUseCase()
+        )
+    }
+
+    func makeMyClosetSectionViewModel() -> MyClosetSectionViewModel {
+        return MyClosetSectionViewModel(
+            navigationRouter: navigationRouter,
+            fetchMyClosetClothItemsUseCase: makeFetchMyClosetClothItemsUseCase()
+        )
+    }
+
+    func makeClothDetailViewModel(cloth: Cloth) -> ClothDetailViewModel {
+        return ClothDetailViewModel(
+            cloth: cloth,
+            navigationRouter: navigationRouter,
+            deleteClothItemsUseCase: makeDeleteClothItemsUseCase()
+        )
+    }
+
+    func makeClothEditViewModel(cloth: Cloth) -> ClothEditViewModel {
+        return ClothEditViewModel(
+            cloth: cloth,
+            navigationRouter: navigationRouter
+        )
+    }
+
+    // MARK: - Views
+    func makeMyClosetView() -> some View {
+        return MyClosetView(viewModel: makeMyClosetViewModel())
+    }
+
+    func makeClothDetailView(cloth: Cloth) -> some View {
+        return ClothDetailView(viewModel: makeClothDetailViewModel(cloth: cloth))
+    }
+
+    func makeClothEditView(cloth: Cloth) -> some View {
+        return ClothEditView(viewModel: makeClothEditViewModel(cloth: cloth))
     }
 }

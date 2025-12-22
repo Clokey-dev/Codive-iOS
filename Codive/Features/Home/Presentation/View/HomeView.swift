@@ -15,7 +15,6 @@ struct HomeView: View {
     
     init(homeDIContainer: HomeDIContainer) {
         self.homeDIContainer = homeDIContainer
-        self._navigationRouter = ObservedObject(wrappedValue: homeDIContainer.navigationRouter)
         _viewModel = StateObject(wrappedValue: homeDIContainer.makeHomeViewModel())
     }
     
