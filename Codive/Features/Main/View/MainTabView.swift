@@ -20,6 +20,7 @@ struct MainTabView: View {
     private let searchDIContainer: SearchDIContainer
     private let notificationDIContainer: NotificationDIContainer
     private let commentDIContainer: CommentDIContainer
+    private let lookBookDIContainer: LookBookDIContainer
 
     // MARK: - Initializer
     init(appDIContainer: AppDIContainer) {
@@ -31,6 +32,7 @@ struct MainTabView: View {
         self.searchDIContainer = appDIContainer.makeSearchDIContainer()
         self.notificationDIContainer = appDIContainer.makeNotificationDIContainer()
         self.commentDIContainer = appDIContainer.makeCommentDIContainer()
+        self.lookBookDIContainer = appDIContainer.makeLookBookDIContainer()
 
         self._navigationRouter = ObservedObject(wrappedValue: appDIContainer.navigationRouter)
         let viewModel = MainTabViewModel(navigationRouter: appDIContainer.navigationRouter)
@@ -139,6 +141,10 @@ struct MainTabView: View {
         // Add Flow
         case .recordAdd, .clothPhotoSelect, .photoEdit, .photoEditForCloth, .recordDetail, .photoTag, .clothAdd:
             addDIContainer.addViewFactory.makeView(for: destination)
+
+        // LookBook Flow
+        case .lookbook, .specificLookbook, .addCodi, .addCodiDetail, .addBeforeCodi, .codiDetail, .editCodi:
+            lookBookDIContainer.lookBookViewFactory.makeView(for: destination)
 
         default:
             EmptyView()

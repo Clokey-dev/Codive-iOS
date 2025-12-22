@@ -11,8 +11,8 @@ import SwiftUI
 enum NavigationBarRightButton {
     case none
     case text(title: String, isEnabled: Bool, action: () -> Void)
-    case icon(systemName: String, isEnabled: Bool, action: () -> Void)
-    case menu(systemName: String, isEnabled: Bool, action: () -> Void)
+//    case icon(systemName: String, isEnabled: Bool, action: () -> Void)
+//    case menu(systemName: String, isEnabled: Bool, action: () -> Void)
     case overflow(menuType: MenuType, menuActions: [() -> Void])
     case icon(imageName: String, isSystemIcon: Bool = true, isEnabled: Bool, action: () -> Void)
     case menu(imageName: String, isSystemIcon: Bool = true, isEnabled: Bool, action: () -> Void)
