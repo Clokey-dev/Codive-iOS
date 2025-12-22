@@ -346,7 +346,7 @@ private struct CalendarDayItem: Hashable {
 }
 
 // MARK: - Shadow + Hex
-private extension Color {
+ extension Color {
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         var int: UInt64 = 0
@@ -358,7 +358,7 @@ private extension Color {
     }
 }
 
-private extension View {
+extension View {
     func codiveCardShadow() -> some View {
         shadow(color: Color(hex: "#636363").opacity(0.06), radius: 8, x: 0, y: 2)
     }
