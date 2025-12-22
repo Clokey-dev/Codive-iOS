@@ -11,4 +11,14 @@ import Foundation
 protocol ClothRepository {
     func fetchClothItems(category: String?) async throws -> [ProductItem]
     func saveClothes(_ inputs: [ClothInput], images: [Data]) async throws -> [Cloth]
+
+    // MyCloset 전용 메서드
+    func fetchMyClosetClothItems(
+        mainCategory: String?,
+        subCategory: String?,
+        seasons: Set<Season>,
+        searchText: String?
+    ) async throws -> [Cloth]
+
+    func deleteClothItems(_ clothIds: [Int]) async throws
 }

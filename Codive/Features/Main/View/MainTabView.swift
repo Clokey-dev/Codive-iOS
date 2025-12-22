@@ -15,6 +15,7 @@ struct MainTabView: View {
     private let appDIContainer: AppDIContainer
     private let addDIContainer: AddDIContainer
     private let homeDIContainer: HomeDIContainer
+    private let closetDIContainer: ClosetDIContainer
     private let feedDIContainer: FeedDIContainer
     private let searchDIContainer: SearchDIContainer
     private let notificationDIContainer: NotificationDIContainer
@@ -25,6 +26,7 @@ struct MainTabView: View {
         self.appDIContainer = appDIContainer
         self.addDIContainer = appDIContainer.makeAddDIContainer()
         self.homeDIContainer = appDIContainer.makeHomeDIContainer()
+        self.closetDIContainer = appDIContainer.closetDIContainer
         self.feedDIContainer = appDIContainer.makeFeedDIContainer()
         self.searchDIContainer = appDIContainer.makeSearchDIContainer()
         self.notificationDIContainer = appDIContainer.makeNotificationDIContainer()
@@ -37,8 +39,7 @@ struct MainTabView: View {
     
     // MARK: - Body
     var body: some View {
-        ZStack {
-            // 기본 탭바 UI
+        NavigationStack(path: $navigationRouter.path) {
             VStack(spacing: 0) {
                 if shouldShowTopBar {
                     TopNavigationBar(
@@ -56,7 +57,7 @@ struct MainTabView: View {
                             HomeView(homeDIContainer: homeDIContainer)
                                 .ignoresSafeArea(.all, edges: .bottom)
                         case .closet:
-                            ClosetView()
+                            ClosetView(closetDIContainer: closetDIContainer)
                         case .add:
                             AddView(addDIContainer: addDIContainer)
                                 .ignoresSafeArea(.all, edges: .bottom)
@@ -69,46 +70,29 @@ struct MainTabView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                     // MARK: - Tab Bar
-                    if shouldShowTabBar {
-                        TabBar(selectedTab: $viewModel.selectedTab)
-                    }
+                    TabBar(selectedTab: $viewModel.selectedTab)
+                        .zIndex(shouldShowTabBar ? 1 : 0)
+                        .allowsHitTesting(shouldShowTabBar)
                 }
             }
-            .ignoresSafeArea(.keyboard, edges: .bottom)
-
-            if let destination = navigationRouter.currentDestination {
+            .navigationDestination(for: AppDestination.self) { destination in
                 destinationView(for: destination)
-                    .transition(.move(edge: .trailing))
-                    .zIndex(1)
             }
+            .ignoresSafeArea(.keyboard, edges: .bottom)
         }
-        .animation(.easeInOut(duration: 0.3), value: navigationRouter.currentDestination)
-        .sheet(item: $navigationRouter.sheetDestination, onDismiss: {
-            navigationRouter.dismissSheet()
-        }, content: { destination in
-            destinationView(for: destination)
-                .presentationDetents([.medium, .large])
-        })
+        .environmentObject(navigationRouter)
     }
     
     // MARK: - Computed Properties
 
     /// 상단 네비게이션 바를 표시할지 여부
     private var shouldShowTopBar: Bool {
-        // destination은 ZStack으로 위에 덮이므로 체크하지 않음
-        // Add 탭에서만 상단바 숨김
         return viewModel.selectedTab != .add
     }
 
     /// 하단 탭 바를 표시할지 여부
     private var shouldShowTabBar: Bool {
-        // destination이 있고 탭바를 덮어야 하면 숨김
-        if let destination = navigationRouter.currentDestination {
-            return !destination.shouldCoverTabBar
-        }
-
-        // destination이 없으면 항상 표시
-        return true
+        navigationRouter.path.isEmpty
     }
 
     private var showSearchButton: Bool {
@@ -136,6 +120,14 @@ struct MainTabView: View {
             homeDIContainer.makeEditCategoryView()
         case .codiBoard:
             homeDIContainer.makeCodiBoardView()
+        case .myCloset:
+            closetDIContainer.makeMyClosetView()
+        case .clothDetail, .clothEdit:
+            closetDIContainer.closetViewFactory.makeView(for: destination)
+
+        // Add Flow
+        case .recordAdd, .clothPhotoSelect, .photoEdit, .photoEditForCloth, .recordDetail, .photoTag, .clothAdd:
+            addDIContainer.addViewFactory.makeView(for: destination)
 
         default:
             EmptyView()
