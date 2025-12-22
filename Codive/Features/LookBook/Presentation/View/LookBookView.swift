@@ -45,6 +45,10 @@ struct LookBookView: View {
             ZStack {
                 mainLayout
                 addLookBookDialogOverlay
+
+                if viewModel.isLoading {
+                    LoadingView(backgroundStyle: .white)
+                }
             }
             .navigationDestination(for: AppDestination.self) { destination in
                 lookBookDIContainer
@@ -58,7 +62,7 @@ struct LookBookView: View {
                 isPresented: $viewModel.isShowingDeleteAlert
             ) {
                 Button(TextLiteral.Common.delete, role: .destructive) {
-                    viewModel.confirmDelete()
+                    viewModel.beginDelete()
                 }
                 Button(TextLiteral.Common.cancel, role: .cancel) { }
             } message: {

@@ -167,20 +167,26 @@ struct AddCodiView: View {
             if viewModel.isShowingBottomSheet {
                 bottomSheetOverlay
             }
+            
+            // MARK: Success Overlay
+
+            if viewModel.isShowingSuccessView {
+                CustomSuccessView(message: viewModel.successMessage)
+                    .transition(.opacity)
+                    .zIndex(1000)
+            }
         }
 
         // MARK: - View Modifiers
 
-        /// 기본 NavigationBar 숨김 (CustomNavigationBar 사용)
+        /// 기본 NavigationBar 숨김
         .navigationBarHidden(true)
 
         /// 화면 배경색 설정
         .background(Color.white)
 
         /// 코디 추가 성공 시 풀스크린 성공 화면 표시
-        .fullScreenCover(isPresented: $viewModel.isShowingSuccessView) {
-            CustomSuccessView(message: viewModel.successMessage)
-        }
+        .animation(.easeInOut(duration: 0.2), value: viewModel.isShowingSuccessView)
     }
 
     // MARK: - Bottom Sheet Overlay View

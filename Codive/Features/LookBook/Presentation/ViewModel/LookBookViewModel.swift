@@ -134,17 +134,28 @@ final class LookBookViewModel: ObservableObject {
         isShowingDeleteAlert = true
     }
 
+    /// 삭제 확인 Alert에서 삭제 버튼 탭 시 호출
+    /// - Alert를 먼저 닫고(=dismiss), 즉시 로딩 오버레이를 띄운 뒤
+    ///   실제 삭제 로직(confirmDelete)을 실행한다.
+    func beginDelete() {
+        isShowingDeleteAlert = false
+        isLoading = true
+        
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 150_000_000)
+            self.confirmDelete()
+        }
+    }
+
     /// 삭제 확인 Alert에서 확인 버튼 탭 시 호출
     /// 실제 삭제 API를 호출하고 목록을 갱신한다.
     func confirmDelete() {
-        isShowingDeleteAlert = false
-        isLoading = true
-
         let idsToDelete = Array(selectedLookBookIds)
 
         Task {
             do {
                 try await useCase.deleteLookBooks(ids: idsToDelete)
+                self.isLoading = false
                 self.fetchLookBooks()
                 self.toggleEditingMode()
             } catch {
