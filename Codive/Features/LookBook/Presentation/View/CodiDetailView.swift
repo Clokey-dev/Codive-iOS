@@ -7,62 +7,45 @@
 
 import SwiftUI
 
-/// 코디 상세 화면
-/// - 역할:
-///   - 하나의 코디를 대표 이미지 중심으로 전시
-///   - 코디에 포함된 의류 아이템을 하단 선택바로 탐색
-///   - 코디 수정 / 삭제 액션 제공
-///   - 코디 이름 및 메모 정보 표시
 struct CodiDetailView: View {
-
+    
     // MARK: - State Object
-
-    /// 화면 상태 및 비즈니스 로직을 담당하는 ViewModel
-    /// View 생명주기 동안 유지되도록 StateObject 사용
+    
     @StateObject private var viewModel: CodiDetailViewModel
-
+    
     // MARK: - Initializer
-
-    /// View 생성자
-    /// 외부에서 주입받은 ViewModel을 StateObject로 래핑한다.
+    
     init(viewModel: CodiDetailViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
-
+    
     // MARK: - Body
-
+    
     var body: some View {
         GeometryReader { geometry in
             VStack(spacing: 0) {
-
+                
                 // MARK: Top Navigation Bar
-
-                /// 상단 네비게이션 바
-                /// - 뒤로가기 버튼
-                /// - 오버플로우 메뉴 (수정 / 삭제)
+                
                 topBar
-
+                
                 // MARK: Scrollable Content
-
+                
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
-
+                        
                         // MARK: Codi Display Area
-
-                        /// 코디 대표 이미지 전시 영역
-                        /// HomeHasCodiView와 동일한 레이아웃 구조를 사용
+                        
                         codiDisplayArea(width: geometry.size.width)
-
+                        
                         // MARK: Cloth Selector Toggle Area
-
-                        /// 태그 버튼 클릭 시 노출되는 의류 선택 바
+                        
                         if viewModel.showClothSelector {
                             clothSelector
                         }
-
+                        
                         // MARK: Codi Info Section
-
-                        /// 코디 이름 / 메모 정보 표시
+                        
                         if let detail = viewModel.codiDetail {
                             CodiInfoSection(
                                 name: detail.name,
@@ -73,20 +56,11 @@ struct CodiDetailView: View {
                 }
             }
         }
-        // MARK: - View Lifecycle & Modifiers
-
-        /// 기본 NavigationBar 숨김 (CustomNavigationBar 사용)
         .navigationBarHidden(true)
-
-        /// 화면 배경색 설정
         .background(Color.white)
-
-        /// 화면 진입 시 코디 상세 데이터 로드
         .onAppear {
             viewModel.fetchCodiDetail()
         }
-
-        /// 코디 삭제 확인 Alert
         .alert(TextLiteral.LookBook.codiDelete, isPresented: $viewModel.showDeleteAlert) {
             Button(TextLiteral.Common.cancel, role: .cancel) { }
             Button(TextLiteral.Common.delete, role: .destructive) {
@@ -96,12 +70,9 @@ struct CodiDetailView: View {
             Text(TextLiteral.LookBook.alertDeleteTitle)
         }
     }
-
+    
     // MARK: - Top Bar
-
-    /// 상단 네비게이션 바 View
-    /// - 제목: 코디 이름
-    /// - 오른쪽 버튼: 수정 / 삭제 메뉴
+    
     private var topBar: some View {
         CustomNavigationBar(
             title: viewModel.codiDetail?.name ?? TextLiteral.LookBook.codiDetail,
@@ -117,18 +88,14 @@ struct CodiDetailView: View {
         .zIndex(10)
         .padding(.leading, 15)
     }
-
+    
     // MARK: - Codi Display Area
-
-    /// 코디 대표 이미지 표시 영역
-    /// - 정사각형 비율 유지
-    /// - 배경 + 테두리 + 이미지 레이어 구조
-    /// - 좌하단 태그 버튼으로 의류 선택바 토글
+    
     private func codiDisplayArea(width: CGFloat) -> some View {
         ZStack(alignment: .bottomLeading) {
-
+            
             // MARK: Background Frame
-
+            
             RoundedRectangle(cornerRadius: 15)
                 .fill(Color.gray.opacity(0.1))
                 .frame(
@@ -140,10 +107,9 @@ struct CodiDetailView: View {
                         .stroke(Color.gray.opacity(0.4), lineWidth: 1)
                 }
                 .padding(.horizontal, 20)
-
+            
             // MARK: Codi Image
-
-            /// 서버에서 내려온 코디 대표 이미지 표시
+            
             if let detail = viewModel.codiDetail {
                 RemoteFillImage(urlString: detail.imageURL)
                     .frame(width: width - 80, height: width - 80)
@@ -152,10 +118,9 @@ struct CodiDetailView: View {
                         y: (width - 40) / 2
                     )
             }
-
+            
             // MARK: Tag Button
-
-            /// 의류 선택 바 토글 버튼
+            
             Button(action: viewModel.toggleClothSelector) {
                 Image("ic_tag")
                     .resizable()
@@ -165,17 +130,14 @@ struct CodiDetailView: View {
             .padding(.bottom, 16)
         }
     }
-
+    
     // MARK: - Cloth Selector
-
-    /// 코디에 포함된 의류 아이템 선택 바
-    /// - 선택된 의류의 브랜드/이름 표시
-    /// - 가로 스크롤 형태의 아이템 리스트
+    
     private var clothSelector: some View {
         VStack(alignment: .leading, spacing: 8) {
-
+            
             // MARK: Selected Cloth Info
-
+            
             /// 현재 선택된 의류 정보 표시
             if let selectedIndex = viewModel.selectedIndex,
                selectedIndex < viewModel.clothItems.count {
@@ -184,9 +146,9 @@ struct CodiDetailView: View {
                 )
                 .padding(.horizontal, 20)
             }
-
+            
             // MARK: Cloth Item List
-
+            
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
                     ForEach(
@@ -228,7 +190,7 @@ struct CodiDetailView: View {
 private struct CodiInfoSection: View {
     let name: String
     let memo: String
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 8) {
@@ -250,7 +212,7 @@ private struct CodiInfoSection: View {
 /// 선택된 의류의 브랜드 / 이름 표시 뷰
 private struct SelectedClothInfo: View {
     let entity: CodiItem
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(entity.brand)
@@ -268,7 +230,7 @@ private struct SelectedClothInfo: View {
 /// 서버 이미지 비율 유지 표시용 이미지 뷰
 private struct RemoteFillImage: View {
     let urlString: String
-
+    
     var body: some View {
         AsyncImage(url: URL(string: urlString)) { phase in
             if let image = phase.image {

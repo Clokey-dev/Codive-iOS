@@ -20,7 +20,7 @@ struct LookBookCard: View {
     let iconType: CardIconType
     let isSelected: Bool
     var onIconTap: (() -> Void)? // 아이콘 클릭 액션 추가
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             ZStack(alignment: .topTrailing) {
@@ -38,7 +38,7 @@ struct LookBookCard: View {
                 .frame(width: 160, height: 160)
                 .cornerRadius(16)
                 .clipped()
-    
+                
                 // 아이콘 표시 및 클릭 영역 확보
                 if iconType != .none {
                     Button {

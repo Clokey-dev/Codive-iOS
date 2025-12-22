@@ -52,7 +52,7 @@ struct SelectedCodi: Hashable {
     let name: String
     let memo: String
     var combinedItems: [DraggableImageEntity]?
-
+    
     init(
         codiId: Int?,      
         imageURL: String?,

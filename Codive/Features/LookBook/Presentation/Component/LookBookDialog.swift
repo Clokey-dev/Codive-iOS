@@ -59,7 +59,7 @@ struct LookBookDialog: View {
             .background(Color.white)
             .cornerRadius(12)
             .shadow(radius: 10)
-
+            
             Button(
                 action: {
                     dismissAction?()

@@ -7,30 +7,29 @@
 
 import SwiftUI
 
-/// 특정 룩북 상세 화면(SpecificLookBookView)에서 사용되는 ViewModel
 @MainActor
 final class SpecificLookBookViewModel: ObservableObject {
-
+    
     // MARK: - Dependencies
-
+    
     private let navigationRouter: NavigationRouter
     private let useCase: LookBookUseCase
     let lookbookId: Int
-
+    
     // MARK: - Published State (Data)
-
+    
     @Published var lookBookList: [LookBookEntity] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
-
+    
     // MARK: - Published State (Editing)
-
+    
     @Published var isEditing: Bool = false
     @Published var selectedCodiIds: Set<Int> = []
     @Published var isShowingDeleteAlert: Bool = false
-
+    
     // MARK: - Initializer
-
+    
     init(
         navigationRouter: NavigationRouter,
         useCase: LookBookUseCase,
@@ -40,13 +39,13 @@ final class SpecificLookBookViewModel: ObservableObject {
         self.useCase = useCase
         self.lookbookId = lookbookId
     }
-
+    
     // MARK: - Data Fetching
-
+    
     func fetchCodis() {
         isLoading = true
         errorMessage = nil
-
+        
         Task {
             do {
                 let list = try await useCase.fetchCodis(forLookbookId: lookbookId)
@@ -57,16 +56,16 @@ final class SpecificLookBookViewModel: ObservableObject {
             isLoading = false
         }
     }
-
+    
     // MARK: - Editing Actions
-
+    
     func toggleEditingMode() {
         isEditing.toggle()
         if !isEditing {
             selectedCodiIds = []
         }
     }
-
+    
     func toggleSelection(id: Int) {
         if selectedCodiIds.contains(id) {
             selectedCodiIds.remove(id)
@@ -74,11 +73,11 @@ final class SpecificLookBookViewModel: ObservableObject {
             selectedCodiIds.insert(id)
         }
     }
-
+    
     func handleDeleteAction() {
         isEditing = true
     }
-
+    
     func handleCompleteAction() {
         guard !selectedCodiIds.isEmpty else {
             toggleEditingMode()
@@ -86,28 +85,26 @@ final class SpecificLookBookViewModel: ObservableObject {
         }
         isShowingDeleteAlert = true
     }
-
+    
     func beginDelete() {
         isShowingDeleteAlert = false
         isLoading = true
-
-        Task { @MainActor in
+        
+        Task {
             try? await Task.sleep(nanoseconds: 150_000_000)
             self.confirmDelete()
         }
     }
-
+    
     func confirmDelete() {
         Task {
-            // 실제 삭제 API 연동 위치
-
             fetchCodis()
             toggleEditingMode()
         }
     }
-
+    
     // MARK: - Like Action
-
+    
     func toggleLike(codyId: Int, isLiked: Bool) {
         Task {
             do {
@@ -117,17 +114,17 @@ final class SpecificLookBookViewModel: ObservableObject {
             }
         }
     }
-
+    
     // MARK: - Navigation
-
+    
     func navigateToAddCodi() {
         navigationRouter.navigate(to: .addCodi(lookbookId: lookbookId))
     }
-
+    
     func navigateToCodiDetail(codiId: Int) {
         navigationRouter.navigate(to: .codiDetail(codiId: codiId))
     }
-
+    
     func handleBackTap() {
         if isEditing {
             toggleEditingMode()

@@ -8,9 +8,9 @@
 import Foundation
 
 final class LookBookDataSource {
-
+    
     // MARK: - Dummy LookBook List
-
+    
     /// LookBook 메인 화면에 노출되는 룩북 카드 더미 데이터
     /// 각 LookBook은 id, 대표 이미지, 카드 제목을 가진다.
     private var dummyLookBooks: [LookBookEntity] = [
@@ -45,9 +45,9 @@ final class LookBookDataSource {
             cardTitle: "운동/액티브웨어"
         )
     ]
-
+    
     // MARK: - Dummy Codis by LookBook
-
+    
     /// 룩북 ID를 key로 하는 코디 목록 더미 데이터
     /// 특정 LookBook 상세 화면에서 사용된다.
     private var lookbookCodis: [Int: [LookBookEntity]] = [
@@ -56,15 +56,15 @@ final class LookBookDataSource {
             LookBookEntity(id: 12, imageURL: "https://image.msscdn.net/images/style/detail/37390/detail_37390_1_500.jpg", cardTitle: "따뜻한 카페 데이트"),
             LookBookEntity(id: 13, imageURL: "https://image.msscdn.net/images/style/detail/37385/detail_37385_1_500.jpg", cardTitle: "활동적인 피크닉 룩"),
             LookBookEntity(id: 14, imageURL: "https://image.msscdn.net/images/style/detail/37380/detail_37380_1_500.jpg", cardTitle: "뮤지컬 관람 코디")
-        ],
+           ],
         2: [ // 데일리 룩 (ID: 2)
             LookBookEntity(id: 21, imageURL: "https://image.msscdn.net/images/style/detail/37375/detail_37375_1_500.jpg", cardTitle: "캐주얼 오버핏"),
             LookBookEntity(id: 22, imageURL: "https://image.msscdn.net/images/style/detail/37370/detail_37370_1_500.jpg", cardTitle: "편한 집앞 마실룩")
-        ]
+           ]
     ]
-
+    
     // MARK: - Dummy Codi Detail
-
+    
     /// 코디 상세 화면에서 사용하는 더미 데이터
     /// 코디 ID를 key로 하여 상세 정보(상의/하의/신발/메모/날짜)를 제공한다.
     private var codiDetails: [Int: CodiDetailEntity] = [
@@ -109,9 +109,9 @@ final class LookBookDataSource {
             date: "2025.08.14"
         )
     ]
-
+    
     // MARK: - Dummy Product List
-
+    
     /// 코디 구성 아이템 선택 화면에서 사용하는 상품 더미 데이터
     private var dummyProducts: [ProductItem] = [
         ProductItem(id: 1, imageName: "https://pngimg.com/uploads/jacket/jacket_PNG8055.png", isTodayCloth: true, brand: "아디다스", name: "트랙탑"),
@@ -121,9 +121,9 @@ final class LookBookDataSource {
         ProductItem(id: 5, imageName: "https://pngimg.com/uploads/running_shoes/running_shoes_PNG5823.png", isTodayCloth: true, brand: "뉴발란스", name: "990v6"),
         ProductItem(id: 6, imageName: "https://pngimg.com/uploads/cap/cap_PNG5687.png", isTodayCloth: false, brand: "뉴에라", name: "볼캡")
     ]
-
+    
     // MARK: - Dummy Before Codi List
-
+    
     /// 코디 추가 전 선택 화면에서 사용하는 이전 코디 목록 더미 데이터
     private var dummyBeforeCodi: [BeforeCodiEntity] = [
         BeforeCodiEntity(id: 1, imageURL: "https://image.msscdn.net/images/style/detail/37395/detail_37395_1_500.jpg", date: "2025.08.09", name: "로맨틱 시사회 룩", memo: "영화관 데이트하기 좋은 스타일"),
@@ -133,51 +133,51 @@ final class LookBookDataSource {
         BeforeCodiEntity(id: 5, imageURL: "https://image.msscdn.net/images/style/detail/37385/detail_37385_1_500.jpg", date: "2025.08.11", name: "활동적인 피크닉 룩", memo: "야외 활동하기 좋은 스타일"),
         BeforeCodiEntity(id: 6, imageURL: "https://image.msscdn.net/images/style/detail/37380/detail_37380_1_500.jpg", date: "2025.08.14", name: "뮤지컬 관람 코디", memo: "공연장에 입고 가기 좋은 코디")
     ]
-
+    
     // MARK: - Fetch APIs
-
+    
     /// LookBook 목록 조회
     func fetchLookBookList() async throws -> [LookBookEntity] {
         try await Task.sleep(nanoseconds: 500_000_000)
         return dummyLookBooks
     }
-
+    
     /// 이전 코디 목록 조회
     func fetchBeforeCodiList() async throws -> [BeforeCodiEntity] {
         try await Task.sleep(nanoseconds: 500_000_000)
         return dummyBeforeCodi
     }
-
+    
     /// 특정 LookBook에 속한 코디 목록 조회
     func fetchCodisForLookBook(id lookbookId: Int) async throws -> [LookBookEntity] {
         try await Task.sleep(nanoseconds: 500_000_000)
         return lookbookCodis[lookbookId] ?? []
     }
-
+    
     /// 코디 상세 정보 조회
     func fetchCodiDetail(codiId: Int) async throws -> CodiDetailEntity? {
         try await Task.sleep(nanoseconds: 300_000_000)
         return codiDetails[codiId]
     }
-
+    
     /// 상품 목록 조회
     func fetchProductList() async throws -> [ProductItem] {
         try await Task.sleep(nanoseconds: 300_000_000)
         return dummyProducts
     }
-
+    
     // MARK: - Mutating APIs
-
+    
     /// LookBook 삭제
     /// - Parameter ids: 삭제할 룩북 ID 배열
     func deleteLookBooks(ids: [Int]) async throws {
         try await Task.sleep(nanoseconds: 500_000_000)
         print("서버에 삭제 요청: lookbookId \(ids)")
-
+        
         dummyLookBooks.removeAll { ids.contains($0.id) }
         print("삭제 후 남은 LookBook: \(dummyLookBooks.map { $0.id })")
     }
-
+    
     /// 코디 좋아요 상태 변경
     func toggleLike(codyId: Int, isLiked: Bool) async throws {
         try await Task.sleep(nanoseconds: 300_000_000)
