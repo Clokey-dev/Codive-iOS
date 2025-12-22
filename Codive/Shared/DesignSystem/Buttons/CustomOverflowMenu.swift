@@ -174,7 +174,6 @@ private extension CustomOverflowMenu {
     
     func performAction(at index: Int) {
         guard index < menuActions.count else { return }
-//        menuActions[index]()
         closeMenu()
         
         // 2) 다음 런루프에서 액션 실행 (네비게이션/시트 전환 시 UI 레이어 충돌 방지)
