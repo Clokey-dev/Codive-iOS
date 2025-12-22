@@ -7,19 +7,9 @@
 
 import SwiftUI
 
+// MARK: - View
 struct OtherProfileView: View {
-
-    // MARK: - Mock (나중에 API로 교체)
-    private let username: String = "ham_dog"
-    private let displayName: String = "햄스터강아지"
-    private let introText: String = "햄스터가 되고 싶은 강아지입니다"
-    private let followerCount: Int = 22
-    private let followingCount: Int = 20
-
-    // MARK: - State
-    @State private var isFollowing: Bool = false
-    @State private var month: Date = Date()
-    @State private var selectedDate: Date? = Date()
+    @StateObject private var viewModel = OtherProfileViewModel()
 
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -49,7 +39,7 @@ struct OtherProfileView: View {
     private var topBar: some View {
         HStack(spacing: 17) {
             Button {
-                // back action
+                viewModel.onBackTapped()
             } label: {
                 Image("back")
                     .resizable()
@@ -57,14 +47,14 @@ struct OtherProfileView: View {
                     .frame(width: 24, height: 24)
             }
 
-            Text(username)
+            Text(viewModel.username)
                 .font(.codive_title1)
                 .foregroundStyle(Color.Codive.grayscale1)
 
             Spacer(minLength: 0)
 
             Button {
-                // more action
+                viewModel.onMoreTapped()
             } label: {
                 Image("more")
                     .resizable()
@@ -84,33 +74,33 @@ struct OtherProfileView: View {
                 .frame(width: 80, height: 80)
                 .clipShape(Circle())
 
-            Text(displayName)
+            Text(viewModel.displayName)
                 .font(.codive_title2)
                 .foregroundStyle(Color.Codive.grayscale1)
                 .padding(.top, 9)
 
             HStack(spacing: 20) {
                 Button {
-                    // follower tap
+                    viewModel.onFollowerTapped()
                 } label: {
                     HStack(spacing: 6) {
                         Text("팔로워")
                             .font(.codive_body1_medium)
                             .foregroundStyle(Color.Codive.grayscale1)
-                        Text("\(followerCount)")
+                        Text("\(viewModel.followerCount)")
                             .font(.codive_body1_medium)
                             .foregroundStyle(Color.Codive.grayscale1)
                     }
                 }
 
                 Button {
-                    // following tap
+                    viewModel.onFollowingTapped()
                 } label: {
                     HStack(spacing: 6) {
                         Text("팔로잉")
                             .font(.codive_body1_medium)
                             .foregroundStyle(Color.Codive.grayscale1)
-                        Text("\(followingCount)")
+                        Text("\(viewModel.followingCount)")
                             .font(.codive_body1_medium)
                             .foregroundStyle(Color.Codive.grayscale1)
                     }
@@ -118,7 +108,7 @@ struct OtherProfileView: View {
             }
             .padding(.top, 4)
 
-            Text(introText)
+            Text(viewModel.introText)
                 .font(.codive_body2_regular)
                 .foregroundStyle(Color.Codive.grayscale4)
                 .padding(.top, 4)
@@ -131,19 +121,19 @@ struct OtherProfileView: View {
 
     private var followButton: some View {
         Button {
-            isFollowing.toggle()
+            viewModel.onFollowButtonTapped()
         } label: {
-            Text(isFollowing ? "팔로잉" : "팔로우")
+            Text(viewModel.isFollowing ? "팔로잉" : "팔로우")
                 .font(.codive_body2_medium)
                 .foregroundStyle(Color.white)
                 .frame(width: 76, height: 32)
-                .background(isFollowing ? Color.Codive.main0 : Color.Codive.main4)
+                .background(viewModel.isFollowing ? Color.Codive.main0 : Color.Codive.main4)
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
         .buttonStyle(.plain)
     }
 
-    // MARK: - Favorite Codi (ProfileView와 동일)
+    // MARK: - Favorite Codi
     private var favoriteCodiSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -154,7 +144,7 @@ struct OtherProfileView: View {
                 Spacer(minLength: 0)
 
                 Button {
-                    // 더보기
+                    viewModel.onMoreFavoriteCodiTapped()
                 } label: {
                     HStack(spacing: 6) {
                         Text("더보기")
@@ -191,7 +181,7 @@ struct OtherProfileView: View {
                 .foregroundStyle(Color.Codive.grayscale1)
                 .padding(.horizontal, 20)
 
-            CalendarMonthView(month: $month, selectedDate: $selectedDate)
+            CalendarMonthView(month: $viewModel.month, selectedDate: $viewModel.selectedDate)
                 .padding(16)
                 .background(Color.white)
                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
@@ -200,6 +190,7 @@ struct OtherProfileView: View {
         }
     }
 }
+
 #Preview {
     OtherProfileView()
 }
