@@ -123,7 +123,10 @@ let project = Project(
                 .external(name: "KakaoSDKUser"),
                 
                 // 네트워킹
-                .external(name: "Moya")
+                .external(name: "Moya"),
+                
+                // CodiveAPI
+                .external(name: "CodiveAPI")
             ],
             settings: .settings(
                 base: [
