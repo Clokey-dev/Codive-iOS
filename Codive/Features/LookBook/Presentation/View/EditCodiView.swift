@@ -141,11 +141,3 @@ struct EditCodiView: View {
         .background(Color.white)
     }
 }
-
-// MARK: - Preview
-
-#Preview {
-    EditCodiView(
-        viewModel: EditCodiViewModel.preview
-    )
-}

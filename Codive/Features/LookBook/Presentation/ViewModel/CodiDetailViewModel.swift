@@ -160,22 +160,3 @@ final class CodiDetailViewModel: ObservableObject {
         navigationRouter.navigateBack()
     }
 }
-
-// MARK: - Preview / Mock
-
-extension CodiDetailViewModel {
-
-    /// SwiftUI Preview 및 테스트용 Mock ViewModel
-    static var preview: CodiDetailViewModel {
-        let mockRouter = NavigationRouter()
-        let mockDataSource = LookBookDataSource()
-        let mockRepository = LookBookRepositoryImpl(datasource: mockDataSource)
-        let mockUseCase = LookBookUseCase(repository: mockRepository)
-
-        return CodiDetailViewModel(
-            navigationRouter: mockRouter,
-            useCase: mockUseCase,
-            codiId: 11
-        )
-    }
-}

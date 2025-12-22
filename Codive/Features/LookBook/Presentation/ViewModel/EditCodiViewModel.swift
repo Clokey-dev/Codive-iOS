@@ -117,22 +117,3 @@ final class EditCodiViewModel: ObservableObject {
         navigationRouter.navigateBack()
     }
 }
-
-// MARK: - Preview / Mock
-
-extension EditCodiViewModel {
-
-    /// SwiftUI Preview 및 테스트용 Mock ViewModel
-    static var preview: EditCodiViewModel {
-        let mockRouter = NavigationRouter()
-        let mockDataSource = LookBookDataSource()
-        let mockRepository = LookBookRepositoryImpl(datasource: mockDataSource)
-        let mockUseCase = LookBookUseCase(repository: mockRepository)
-
-        return EditCodiViewModel(
-            navigationRouter: mockRouter,
-            useCase: mockUseCase,
-            lookbookId: 1
-        )
-    }
-}

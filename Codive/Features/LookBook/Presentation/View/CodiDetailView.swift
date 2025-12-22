@@ -281,11 +281,3 @@ private struct RemoteFillImage: View {
         }
     }
 }
-
-// MARK: - Preview
-
-#Preview {
-    CodiDetailView(
-        viewModel: CodiDetailViewModel.preview
-    )
-}

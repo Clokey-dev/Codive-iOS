@@ -120,23 +120,3 @@ final class AddBeforeCodiViewModel: ObservableObject {
         navigationRouter.navigate(to: .specificLookbook(lookbookId: id))
     }
 }
-
-// MARK: - Preview / Mock
-
-extension AddBeforeCodiViewModel {
-
-    /// SwiftUI Preview 및 테스트용 Mock ViewModel
-    /// 실제 네트워크 대신 더미 DataSource 기반으로 동작한다.
-    static var preview: AddBeforeCodiViewModel {
-        let mockRouter = NavigationRouter()
-        let mockDataSource = LookBookDataSource()
-        let mockRepository = LookBookRepositoryImpl(datasource: mockDataSource)
-        let mockUseCase = LookBookUseCase(repository: mockRepository)
-
-        return AddBeforeCodiViewModel(
-            navigationRouter: mockRouter,
-            useCase: mockUseCase,
-            lookbookId: 1
-        )
-    }
-}

@@ -110,11 +110,3 @@ struct AddBeforeCodiView: View {
         }
     }
 }
-
-// MARK: - Preview
-
-#Preview {
-    AddBeforeCodiView(
-        viewModel: AddBeforeCodiViewModel.preview
-    )
-}

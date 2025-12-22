@@ -158,14 +158,3 @@ final class SpecificLookBookViewModel: ObservableObject {
         }
     }
 }
-
-// (이하 preview 코드는 동일)
-extension SpecificLookBookViewModel {
-    static var preview: SpecificLookBookViewModel {
-        let mockRouter = NavigationRouter()
-        let mockDataSource = LookBookDataSource()
-        let mockRepository = LookBookRepositoryImpl(datasource: mockDataSource)
-        let mockUseCase = LookBookUseCase(repository: mockRepository)
-        return SpecificLookBookViewModel(navigationRouter: mockRouter, useCase: mockUseCase, lookbookId: 1)
-    }
-}

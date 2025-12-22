@@ -154,22 +154,3 @@ final class AddCodiViewModel: ObservableObject {
         navigationRouter.navigate(to: .addBeforeCodi(lookbookId: lookbookId))
     }
 }
-
-// MARK: - Preview / Mock
-
-extension AddCodiViewModel {
-
-    /// SwiftUI Preview 및 테스트용 Mock ViewModel
-    static var preview: AddCodiViewModel {
-        let mockRouter = NavigationRouter()
-        let mockDataSource = LookBookDataSource()
-        let mockRepository = LookBookRepositoryImpl(datasource: mockDataSource)
-        let mockUseCase = LookBookUseCase(repository: mockRepository)
-
-        return AddCodiViewModel(
-            navigationRouter: mockRouter,
-            useCase: mockUseCase,
-            lookbookId: 1
-        )
-    }
-}

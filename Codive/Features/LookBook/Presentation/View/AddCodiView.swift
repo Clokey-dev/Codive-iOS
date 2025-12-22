@@ -214,9 +214,3 @@ struct AddCodiView: View {
         }
     }
 }
-
-// MARK: - Preview
-
-#Preview {
-    AddCodiView(viewModel: AddCodiViewModel.preview)
-}
