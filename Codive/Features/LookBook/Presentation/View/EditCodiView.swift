@@ -46,7 +46,7 @@ struct EditCodiView: View {
                     title: viewModel.codiName, // 코디 명 실시간 반영
                     onBack: { viewModel.handleBackTap() },
                     rightButton: .text(
-                        title: "완료",
+                        title: TextLiteral.Common.complete,
                         isEnabled: viewModel.isButtonEnabled,
                         action: viewModel.handleCompleteTap
                     )
@@ -102,15 +102,15 @@ struct EditCodiView: View {
                     /// 코디 이름 / 개인 메모 입력 영역
                     VStack(spacing: 12) {
                         CustomTextField1(
-                            title: "코디 명",
-                            placeholder: "코디 명을 입력해주세요",
+                            title: TextLiteral.LookBook.codiNameTitle,
+                            placeholder: TextLiteral.LookBook.hintCodiNameTitle,
                             text: $viewModel.codiName,
                             showRequiredMark: true
                         )
 
                         CustomTextField1(
-                            title: "개인 메모",
-                            placeholder: "메모를 입력해주세요",
+                            title: TextLiteral.LookBook.memoTitle,
+                            placeholder: TextLiteral.LookBook.hintMemo,
                             text: $viewModel.memo
                         )
                     }
@@ -123,7 +123,7 @@ struct EditCodiView: View {
             /// 수정 완료 버튼
             /// - 수정 조건 충족 시에만 활성화
             CustomButton(
-                text: "수정 완료하기",
+                text: TextLiteral.LookBook.editCodiComplete,
                 widthType: .fixed,
                 isEnabled: viewModel.isButtonEnabled
             ) {

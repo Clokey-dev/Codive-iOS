@@ -38,7 +38,7 @@ struct AddBeforeCodiView: View {
             /// 상단 네비게이션 바
             /// 뒤로가기 버튼을 통해 이전 화면으로 이동
             CustomNavigationBar(
-                title: "이전 코디",
+                title: TextLiteral.LookBook.beforeCodi,
                 onBack: viewModel.handleBackTap
             )
 
@@ -65,7 +65,7 @@ struct AddBeforeCodiView: View {
 
                 /// 이전 코디가 하나도 없을 경우 표시
                 } else if viewModel.lookBookList.isEmpty {
-                    Text("해당 룩북에 코디가 없습니다.")
+                    Text(TextLiteral.LookBook.noBeforeCodice)
                         .foregroundColor(.gray)
                         .padding(.top, 100)
 

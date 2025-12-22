@@ -40,10 +40,10 @@ struct AddCodiDetailView: View {
             /// - 뒤로가기 버튼
             /// - 선택된 상품이 있을 때만 활성화되는 완료 버튼
             CustomNavigationBar(
-                title: "새 코디 만들기",
+                title: TextLiteral.LookBook.makeNewCodi,
                 onBack: viewModel.handleBackTap,
                 rightButton: .text(
-                    title: "완료",
+                    title: TextLiteral.Common.complete,
                     isEnabled: !viewModel.selectedProductIds.isEmpty,
                     action: viewModel.handleComplete
                 )
@@ -71,9 +71,9 @@ struct AddCodiDetailView: View {
 
                         /// 화면 상단 안내 문구
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("옷을 선택해 새로운 코디를 만들어보세요!")
+                            Text(TextLiteral.LookBook.makeNewCodiDescription1)
                                 .font(.system(size: 18, weight: .bold))
-                            Text("아이템은 최대 10개까지 등록할 수 있어요")
+                            Text(TextLiteral.LookBook.makeNewCodiDescription2)
                                 .font(.system(size: 14))
                                 .foregroundColor(.secondary)
                         }
@@ -90,7 +90,7 @@ struct AddCodiDetailView: View {
                                 .fill(Color(UIColor.systemGray6))
                                 .frame(width: boardSize, height: boardSize)
                                 .overlay(
-                                    Text("아이템을 선택해 주세요")
+                                    Text(TextLiteral.LookBook.selectItem)
                                         .foregroundColor(.gray)
                                         .opacity(viewModel.images.isEmpty ? 1 : 0)
                                 )

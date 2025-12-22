@@ -87,13 +87,13 @@ struct CodiDetailView: View {
         }
 
         /// 코디 삭제 확인 Alert
-        .alert("코디 삭제", isPresented: $viewModel.showDeleteAlert) {
-            Button("취소", role: .cancel) { }
-            Button("삭제", role: .destructive) {
+        .alert(TextLiteral.LookBook.codiDelete, isPresented: $viewModel.showDeleteAlert) {
+            Button(TextLiteral.Common.cancel, role: .cancel) { }
+            Button(TextLiteral.Common.delete, role: .destructive) {
                 viewModel.deleteCodi()
             }
         } message: {
-            Text("해당 코디를 삭제하시겠습니까?\n한 번 삭제된 기록은 복구할 수 없습니다")
+            Text(TextLiteral.LookBook.alertDeleteTitle)
         }
     }
 
@@ -104,7 +104,7 @@ struct CodiDetailView: View {
     /// - 오른쪽 버튼: 수정 / 삭제 메뉴
     private var topBar: some View {
         CustomNavigationBar(
-            title: viewModel.codiDetail?.name ?? "코디 상세",
+            title: viewModel.codiDetail?.name ?? TextLiteral.LookBook.codiDetail,
             onBack: viewModel.handleBackTap,
             rightButton: .overflow(
                 menuType: .closet,
@@ -232,11 +232,11 @@ private struct CodiInfoSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 8) {
-                Text("코디 명").font(.headline)
+                Text(TextLiteral.LookBook.codiNameTitle).font(.headline)
                 Text(name).font(.body)
             }
             VStack(alignment: .leading, spacing: 8) {
-                Text("개인 메모").font(.headline)
+                Text(TextLiteral.LookBook.memoTitle).font(.headline)
                 Text(memo)
                     .font(.body)
                     .foregroundColor(.gray)

@@ -65,15 +65,15 @@ struct LookBookView: View {
                 Text(TextLiteral.LookBook.alertDeleteSubTitle)
             }
             .alert(
-                "정말 나가시겠습니까?",
+                TextLiteral.LookBook.exitDescription,
                 isPresented: $viewModel.isShowingCancelConfirmAlert
             ) {
-                Button("나가기", role: .destructive) {
+                Button(TextLiteral.Home.leave, role: .destructive) {
                     viewModel.confirmCancelDialog()
                 }
-                Button("취소", role: .cancel) { }
+                Button(TextLiteral.Common.cancel, role: .cancel) { }
             } message: {
-                Text("작성중인 내용은 복구할 수 없습니다")
+                Text(TextLiteral.LookBook.noRecovery)
             }
             .onAppear {
                 if viewModel.lookBookList.isEmpty && !viewModel.isLoading {

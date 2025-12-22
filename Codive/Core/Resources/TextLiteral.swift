@@ -180,13 +180,20 @@ enum TextLiteral {
         static let addLookBookButtonTitle = "등록하기"
         static let addCodiCompleteButton = "코디 완성하기"
         static let codiUpload = "코디 업로드"
-        static let alertDeleteTitle = "해당 룩북을 삭제하시겠습니까?"
+        static let alertDeleteTitle = "해당 룩북을 삭제하시겠습니까?\n한 번 삭제된 기록은 복구할 수 없습니다"
         static let alertDeleteSubTitle = "한 번 삭제된 기록은 복구할 수 없습니다"
         static let loadingTitle = "룩북 로드 중..."
         static let addNewCodi = "새로운 코디 추가하기"
         static let getBeforeCodi = "이전 코디 불러오기"
         static let makeNewCodiDescription1 = "옷을 선택해 새로운 코디를 만들어보세요!"
         static let makeNewCodiDescription2 = "아이템은 최대 10개까지 등록할 수 있어요"
+        static let noBeforeCodice = "해당 룩북에 코디가 없습니다."
+        static let selectItem = "아이템을 선택해 주세요"
+        static let codiDetail = "코디 상세"
+        static let codiDelete = "코디 삭제"
+        static let editCodiComplete = "수정 완료하기"
+        static let exitDescription = "정말 나가시겠습니까?"
+        static let noRecovery = "작성중인 내용은 복구할 수 없습니다"
     }
 
     // MARK: - Setting (설정)
