@@ -160,7 +160,6 @@ final class LookBookViewModel: ObservableObject {
     }
     
     func navigateToSpecificLookBook(id: Int) {
-        let title = lookBookList.first(where: { $0.id == id })?.cardTitle ?? ""
         navigationRouter.navigate(
             to: .specificLookbook(
                 lookbookId: id
