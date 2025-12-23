@@ -12,26 +12,38 @@ struct CustomTextField1: View {
     // MARK: - Properties
     let title: String
     let placeholder: String
+    let showRequiredMark: Bool
     @Binding var text: String
     
     // MARK: - Initializer
     init(
         title: String,
         placeholder: String = "",
-        text: Binding<String>
+        text: Binding<String>,
+        showRequiredMark: Bool = false
     ) {
         self.title = title
         self.placeholder = placeholder
         self._text = text
+        self.showRequiredMark = showRequiredMark
     }
     
     // MARK: - Body
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             // Title
-            Text(title)
-                .font(.codive_title2)
-                .foregroundStyle(Color.Codive.grayscale1)
+            HStack(alignment: .top, spacing: 4) {
+                Text(title)
+                    .font(.codive_title2)
+                    .foregroundStyle(Color.Codive.grayscale1)
+
+                if showRequiredMark {
+                    Text("*")
+                        .font(.codive_title2)
+                        .foregroundStyle(Color.Codive.point1)
+                        .offset(x: -4, y: -4)
+                }
+            }
             
             // TextField
             TextField(placeholder, text: $text)
@@ -69,6 +81,13 @@ struct CustomTextField1: View {
             title: "브랜드",
             placeholder: "브랜드를 입력해주세요.",
             text: .constant("나이키")
+        )
+        
+        CustomTextField1(
+            title: "브랜드",
+            placeholder: "브랜드를 입력해주세요.",
+            text: .constant("나이키"),
+            showRequiredMark: true
         )
     }
     .padding(.horizontal, 20)

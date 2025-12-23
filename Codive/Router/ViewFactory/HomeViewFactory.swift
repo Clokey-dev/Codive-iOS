@@ -26,6 +26,8 @@ final class HomeViewFactory {
             homeDIContainer?.makeEditCategoryView()
         case .codiBoard:
             homeDIContainer?.makeCodiBoardView()
+        case .lookbook:
+            homeDIContainer?.makeLookBookView()
         default:
             EmptyView()
         }
