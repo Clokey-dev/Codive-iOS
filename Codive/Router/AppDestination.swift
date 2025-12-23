@@ -30,6 +30,9 @@ enum AppDestination: Hashable, Identifiable {
     case search
     case searchResult(query: String)
     case notification
+    case wardrobeFavorite(items: [CategoryFavoriteItem])
+    case wardrobeItemStats(stats: [ItemUsageStat])
+    case wardrobeUsage(stats: WardrobeUsageStat)
     case feedDetail(feedId: Int)
     case comment(feedId: Int)
     case myCloset

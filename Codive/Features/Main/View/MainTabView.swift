@@ -112,6 +112,14 @@ struct MainTabView: View {
             searchDIContainer.makeSearchResultView(initialQuery: query)
         case .notification:
             notificationDIContainer.makeNotificationView()
+            
+        case .wardrobeFavorite(let items):
+            FavoriteByCategoryView(items: items)            
+        case .wardrobeItemStats(let stats):
+            ItemDataView(stats: stats)
+        case .wardrobeUsage(let stats):
+            WearingDataView(stats: stats)
+            
         case .feedDetail(let feedId):
             feedDIContainer.makeFeedDetailView(feedId: feedId)
         case .comment(let feedId):
