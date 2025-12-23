@@ -13,8 +13,13 @@ final class CodiDetailViewModel: ObservableObject {
     // MARK: - Dependencies
     
     private let navigationRouter: NavigationRouter
-    private let useCase: LookBookUseCase
+    private let codiUseCase: CodiUseCase
+
+    /// 현재 조회 중인 코디 ID
     let codiId: Int
+
+    /// 현재 코디가 속한 룩북 ID (편집 화면으로 이동 시 컨텍스트 유지)
+    let lookbookId: Int
     
     // MARK: - Published State (Data)
     
@@ -43,12 +48,14 @@ final class CodiDetailViewModel: ObservableObject {
     
     init(
         navigationRouter: NavigationRouter,
-        useCase: LookBookUseCase,
-        codiId: Int
+        codiUseCase: CodiUseCase,
+        codiId: Int,
+        lookbookId: Int
     ) {
         self.navigationRouter = navigationRouter
-        self.useCase = useCase
+        self.codiUseCase = codiUseCase
         self.codiId = codiId
+        self.lookbookId = lookbookId
     }
     
     // MARK: - Data Fetching
@@ -59,7 +66,7 @@ final class CodiDetailViewModel: ObservableObject {
         
         Task {
             do {
-                let detail = try await useCase.fetchCodiDetail(codiId: codiId)
+                let detail = try await codiUseCase.fetchCodiDetail(codiId: codiId)
                 self.codiDetail = detail
             } catch {
                 self.errorMessage = error.localizedDescription
@@ -97,7 +104,7 @@ final class CodiDetailViewModel: ObservableObject {
         
         navigationRouter.navigate(
             to: .editCodi(
-                lookbookId: 0,
+                lookbookId: lookbookId,
                 selectedCodiData: data
             )
         )

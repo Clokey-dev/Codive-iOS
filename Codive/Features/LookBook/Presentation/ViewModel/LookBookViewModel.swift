@@ -13,7 +13,7 @@ final class LookBookViewModel: ObservableObject {
     // MARK: - Dependencies
     
     let navigationRouter: NavigationRouter
-    private let useCase: LookBookUseCase
+    private let listUseCase: LookBookListUseCase
     
     // MARK: - Published State (Data)
     
@@ -36,10 +36,10 @@ final class LookBookViewModel: ObservableObject {
     
     init(
         navigationRouter: NavigationRouter,
-        useCase: LookBookUseCase
+        listUseCase: LookBookListUseCase
     ) {
         self.navigationRouter = navigationRouter
-        self.useCase = useCase
+        self.listUseCase = listUseCase
     }
     
     // MARK: - Data Fetching
@@ -50,7 +50,7 @@ final class LookBookViewModel: ObservableObject {
         
         Task {
             do {
-                let list = try await useCase.fetchLookBookList()
+                let list = try await listUseCase.fetchLookBookList()
                 self.lookBookList = list
                 
                 if list.isEmpty {
@@ -107,7 +107,7 @@ final class LookBookViewModel: ObservableObject {
         
         Task {
             do {
-                try await useCase.deleteLookBooks(ids: idsToDelete)
+                try await listUseCase.deleteLookBooks(ids: idsToDelete)
                 self.isLoading = false
                 self.fetchLookBooks()
                 self.toggleEditingMode()
@@ -160,6 +160,11 @@ final class LookBookViewModel: ObservableObject {
     }
     
     func navigateToSpecificLookBook(id: Int) {
-        navigationRouter.navigate(to: .specificLookbook(lookbookId: id))
+        let title = lookBookList.first(where: { $0.id == id })?.cardTitle ?? ""
+        navigationRouter.navigate(
+            to: .specificLookbook(
+                lookbookId: id
+            )
+        )
     }
 }

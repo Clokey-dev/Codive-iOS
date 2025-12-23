@@ -13,7 +13,8 @@ final class AddCodiDetailViewModel: ObservableObject, DraggableImageViewModelPro
     // MARK: - Dependencies
     
     private let navigationRouter: NavigationRouter
-    private let useCase: LookBookUseCase
+    private let productUseCase: ProductUseCase
+    private let lookbookId: Int
     
     // MARK: - Published State (Product / Filter)
     
@@ -45,10 +46,12 @@ final class AddCodiDetailViewModel: ObservableObject, DraggableImageViewModelPro
     
     init(
         navigationRouter: NavigationRouter,
-        useCase: LookBookUseCase
+        productUseCase: ProductUseCase,
+        lookbookId: Int
     ) {
         self.navigationRouter = navigationRouter
-        self.useCase = useCase
+        self.productUseCase = productUseCase
+        self.lookbookId = lookbookId
         
         Task { await fetchProducts() }
     }
@@ -57,7 +60,7 @@ final class AddCodiDetailViewModel: ObservableObject, DraggableImageViewModelPro
     
     func fetchProducts() async {
         do {
-            self.products = try await useCase.fetchProductList()
+            self.products = try await productUseCase.fetchProductList()
         } catch {
             print("상품 목록 로드 실패: \(error)")
         }
@@ -138,8 +141,8 @@ final class AddCodiDetailViewModel: ObservableObject, DraggableImageViewModelPro
     
     func handleComplete() {
         let data = SelectedCodi(
-            codiId: 0,
-            imageURL: "",
+            codiId: nil,
+            imageURL: nil,
             name: "",
             memo: "",
             combinedItems: images
@@ -147,7 +150,7 @@ final class AddCodiDetailViewModel: ObservableObject, DraggableImageViewModelPro
         
         navigationRouter.navigate(
             to: .addCodi(
-                lookbookId: 0,
+                lookbookId: lookbookId,
                 selectedCodiData: data
             )
         )

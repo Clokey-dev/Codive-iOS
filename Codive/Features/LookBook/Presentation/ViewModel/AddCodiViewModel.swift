@@ -13,7 +13,6 @@ final class AddCodiViewModel: ObservableObject {
     // MARK: - Dependencies
     
     private let navigationRouter: NavigationRouter
-    private let useCase: LookBookUseCase
     let lookbookId: Int
     
     // MARK: - Published State (Codi Info)
@@ -37,12 +36,10 @@ final class AddCodiViewModel: ObservableObject {
     
     init(
         navigationRouter: NavigationRouter,
-        useCase: LookBookUseCase,
         lookbookId: Int,
         selectedCodiData: SelectedCodi? = nil
     ) {
         self.navigationRouter = navigationRouter
-        self.useCase = useCase
         self.lookbookId = lookbookId
         
         if let data = selectedCodiData {
@@ -93,7 +90,7 @@ final class AddCodiViewModel: ObservableObject {
     
     func navigateToNewCodi() {
         isShowingBottomSheet = false
-        navigationRouter.navigate(to: .addCodiDetail)
+        navigationRouter.navigate(to: .addCodiDetail(lookbookId: lookbookId))
     }
     
     func handleRecallCodi() {

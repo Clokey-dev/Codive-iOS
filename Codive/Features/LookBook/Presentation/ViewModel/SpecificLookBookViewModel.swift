@@ -13,8 +13,11 @@ final class SpecificLookBookViewModel: ObservableObject {
     // MARK: - Dependencies
     
     private let navigationRouter: NavigationRouter
-    private let useCase: LookBookUseCase
+    private let detailUseCase: LookBookDetailUseCase
+    private let codiUseCase: CodiUseCase
+
     let lookbookId: Int
+    let lookbookTitle: String
     
     // MARK: - Published State (Data)
     
@@ -32,12 +35,16 @@ final class SpecificLookBookViewModel: ObservableObject {
     
     init(
         navigationRouter: NavigationRouter,
-        useCase: LookBookUseCase,
-        lookbookId: Int
+        detailUseCase: LookBookDetailUseCase,
+        codiUseCase: CodiUseCase,
+        lookbookId: Int,
+        lookbookTitle: String = ""
     ) {
         self.navigationRouter = navigationRouter
-        self.useCase = useCase
+        self.detailUseCase = detailUseCase
+        self.codiUseCase = codiUseCase
         self.lookbookId = lookbookId
+        self.lookbookTitle = lookbookTitle
     }
     
     // MARK: - Data Fetching
@@ -48,7 +55,7 @@ final class SpecificLookBookViewModel: ObservableObject {
         
         Task {
             do {
-                let list = try await useCase.fetchCodis(forLookbookId: lookbookId)
+                let list = try await detailUseCase.fetchCodis(forLookbookId: lookbookId)
                 self.lookBookList = list
             } catch {
                 self.errorMessage = "데이터 로드에 실패했습니다: \(error.localizedDescription)"
@@ -108,7 +115,7 @@ final class SpecificLookBookViewModel: ObservableObject {
     func toggleLike(codyId: Int, isLiked: Bool) {
         Task {
             do {
-                try await useCase.toggleLike(codyId: codyId, isLiked: isLiked)
+                try await codiUseCase.toggleLike(codyId: codyId, isLiked: isLiked)
             } catch {
                 self.errorMessage = "좋아요 상태 변경에 실패했습니다: \(error.localizedDescription)"
             }
@@ -122,7 +129,7 @@ final class SpecificLookBookViewModel: ObservableObject {
     }
     
     func navigateToCodiDetail(codiId: Int) {
-        navigationRouter.navigate(to: .codiDetail(codiId: codiId))
+        navigationRouter.navigate(to: .codiDetail(codiId: codiId, lookbookId: lookbookId))
     }
     
     func handleBackTap() {

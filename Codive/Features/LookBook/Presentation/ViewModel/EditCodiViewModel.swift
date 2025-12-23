@@ -13,7 +13,6 @@ final class EditCodiViewModel: ObservableObject {
     // MARK: - Dependencies
     
     private let navigationRouter: NavigationRouter
-    private let useCase: LookBookUseCase
     let lookbookId: Int
     let codiId: Int?
     
@@ -42,12 +41,10 @@ final class EditCodiViewModel: ObservableObject {
     
     init(
         navigationRouter: NavigationRouter,
-        useCase: LookBookUseCase,
         lookbookId: Int,
         selectedCodiData: SelectedCodi? = nil
     ) {
         self.navigationRouter = navigationRouter
-        self.useCase = useCase
         self.lookbookId = lookbookId
         self.codiId = selectedCodiData?.codiId
         

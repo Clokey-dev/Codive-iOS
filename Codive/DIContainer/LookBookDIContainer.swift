@@ -18,12 +18,26 @@ final class LookBookDIContainer {
 
     // MARK: - Data Layer
     lazy var lookBookDataSource = LookBookDataSource()
-    
+
     lazy var lookBookRepository: LookBookRepository =
         LookBookRepositoryImpl(datasource: lookBookDataSource)
 
-    // MARK: - Domain Layer
-    lazy var lookBookUseCase = LookBookUseCase(repository: lookBookRepository)
+    // MARK: - Domain Layer (UseCases)
+
+    /// 룩북 목록/삭제
+    lazy var lookBookListUseCase = LookBookListUseCase(repository: lookBookRepository)
+
+    /// 룩북 상세(특정 룩북의 코디 리스트)
+    lazy var lookBookDetailUseCase = LookBookDetailUseCase(repository: lookBookRepository)
+
+    /// 코디 상세/좋아요
+    lazy var codiUseCase = CodiUseCase(repository: lookBookRepository)
+
+    /// 상품 목록
+    lazy var productUseCase = ProductUseCase(repository: lookBookRepository)
+
+    /// 이전 코디 목록
+    lazy var beforeCodiUseCase = BeforeCodiUseCase(repository: lookBookRepository)
 
     // MARK: - Initializer
     init(navigationRouter: NavigationRouter) {
@@ -34,7 +48,7 @@ final class LookBookDIContainer {
     func makeLookBookViewModel() -> LookBookViewModel {
         return LookBookViewModel(
             navigationRouter: navigationRouter,
-            useCase: lookBookUseCase
+            listUseCase: lookBookListUseCase
         )
     }
 
@@ -46,17 +60,28 @@ final class LookBookDIContainer {
     }
 
     // MARK: - Specific LookBook
-    func makeSpecificLookBookViewModel(lookbookId: Int) -> SpecificLookBookViewModel {
+    func makeSpecificLookBookViewModel(
+        lookbookId: Int,
+        lookbookTitle: String = ""
+    ) -> SpecificLookBookViewModel {
         return SpecificLookBookViewModel(
             navigationRouter: navigationRouter,
-            useCase: lookBookUseCase,
-            lookbookId: lookbookId
+            detailUseCase: lookBookDetailUseCase,
+            codiUseCase: codiUseCase,
+            lookbookId: lookbookId,
+            lookbookTitle: lookbookTitle
         )
     }
 
-    func makeSpecificLookBookView(lookbookId: Int) -> SpecificLookBook {
+    func makeSpecificLookBookView(
+        lookbookId: Int,
+        lookbookTitle: String = ""
+    ) -> SpecificLookBook {
         return SpecificLookBook(
-            viewModel: makeSpecificLookBookViewModel(lookbookId: lookbookId)
+            viewModel: makeSpecificLookBookViewModel(
+                lookbookId: lookbookId,
+                lookbookTitle: lookbookTitle
+            )
         )
     }
 
@@ -67,7 +92,6 @@ final class LookBookDIContainer {
     ) -> AddCodiViewModel {
         return AddCodiViewModel(
             navigationRouter: navigationRouter,
-            useCase: lookBookUseCase,
             lookbookId: lookbookId,
             selectedCodiData: selectedCodiData
         )
@@ -86,16 +110,17 @@ final class LookBookDIContainer {
     }
 
     // MARK: - Add Codi Detail
-    func makeAddCodiDetailViewModel() -> AddCodiDetailViewModel {
+    func makeAddCodiDetailViewModel(lookbookId: Int) -> AddCodiDetailViewModel {
         return AddCodiDetailViewModel(
             navigationRouter: navigationRouter,
-            useCase: lookBookUseCase
+            productUseCase: productUseCase,
+            lookbookId: lookbookId
         )
     }
 
-    func makeAddCodiDetailView() -> AddCodiDetailView {
+    func makeAddCodiDetailView(lookbookId: Int) -> AddCodiDetailView {
         return AddCodiDetailView(
-            viewModel: makeAddCodiDetailViewModel()
+            viewModel: makeAddCodiDetailViewModel(lookbookId: lookbookId)
         )
     }
 
@@ -103,7 +128,7 @@ final class LookBookDIContainer {
     func makeAddBeforeCodiViewModel(lookbookId: Int) -> AddBeforeCodiViewModel {
         return AddBeforeCodiViewModel(
             navigationRouter: navigationRouter,
-            useCase: lookBookUseCase,
+            beforeCodiUseCase: beforeCodiUseCase,
             lookbookId: lookbookId
         )
     }
@@ -115,17 +140,27 @@ final class LookBookDIContainer {
     }
 
     // MARK: - Codi Detail
-    func makeCodiDetailViewModel(codiId: Int) -> CodiDetailViewModel {
+    func makeCodiDetailViewModel(
+        codiId: Int,
+        lookbookId: Int
+    ) -> CodiDetailViewModel {
         return CodiDetailViewModel(
             navigationRouter: navigationRouter,
-            useCase: lookBookUseCase,
-            codiId: codiId
+            codiUseCase: codiUseCase,
+            codiId: codiId,
+            lookbookId: lookbookId
         )
     }
 
-    func makeCodiDetailView(codiId: Int) -> CodiDetailView {
+    func makeCodiDetailView(
+        codiId: Int,
+        lookbookId: Int
+    ) -> CodiDetailView {
         return CodiDetailView(
-            viewModel: makeCodiDetailViewModel(codiId: codiId)
+            viewModel: makeCodiDetailViewModel(
+                codiId: codiId,
+                lookbookId: lookbookId
+            )
         )
     }
 
@@ -136,7 +171,6 @@ final class LookBookDIContainer {
     ) -> EditCodiViewModel {
         return EditCodiViewModel(
             navigationRouter: navigationRouter,
-            useCase: lookBookUseCase,
             lookbookId: lookbookId,
             selectedCodiData: selectedCodiData
         )

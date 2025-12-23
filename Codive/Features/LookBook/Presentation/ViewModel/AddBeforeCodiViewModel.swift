@@ -13,7 +13,7 @@ final class AddBeforeCodiViewModel: ObservableObject {
     // MARK: - Dependencies
     
     let navigationRouter: NavigationRouter
-    private let useCase: LookBookUseCase
+    private let beforeCodiUseCase: BeforeCodiUseCase
     let lookbookId: Int
     
     // MARK: - Published State (UI State)
@@ -27,11 +27,11 @@ final class AddBeforeCodiViewModel: ObservableObject {
     
     init(
         navigationRouter: NavigationRouter,
-        useCase: LookBookUseCase,
+        beforeCodiUseCase: BeforeCodiUseCase,
         lookbookId: Int
     ) {
         self.navigationRouter = navigationRouter
-        self.useCase = useCase
+        self.beforeCodiUseCase = beforeCodiUseCase
         self.lookbookId = lookbookId
     }
     
@@ -43,7 +43,7 @@ final class AddBeforeCodiViewModel: ObservableObject {
         
         Task {
             do {
-                let list = try await useCase.fetchBeforeCodiList()
+                let list = try await beforeCodiUseCase.fetchBeforeCodiList()
                 self.lookBookList = list
             } catch {
                 self.errorMessage = "데이터 로드에 실패했습니다: \(error.localizedDescription)"
@@ -68,7 +68,7 @@ final class AddBeforeCodiViewModel: ObservableObject {
     
     func navigateToAddCodiWithData(codi: BeforeCodiEntity) {
         let selectedData = SelectedCodi(
-            codiId: 0,
+            codiId: codi.id,
             imageURL: codi.imageURL,
             name: codi.name,
             memo: codi.memo
