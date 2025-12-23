@@ -1,0 +1,28 @@
+//
+//  FeedRepository.swift
+//  Codive
+//
+//  Created by 황상환 on 2025/11/29.
+//
+
+import Foundation
+
+protocol FeedRepository {
+    // MARK: - 피드 전체 조회
+    func fetchFeeds(
+        page: Int,
+        limit: Int,
+        styleIds: [Int]?,
+        situationIds: [Int]?,
+        followingOnly: Bool
+    ) async throws -> [Feed]
+    
+    // MARK: - 피드 상세 조회
+    func fetchFeedDetail(feedId: Int) async throws -> Feed
+    
+    // MARK: - 좋아요 토글
+    func toggleLike(feedId: Int) async throws
+    
+    // MARK: - 좋아요 누른 유저 목록 조회
+    func fetchLikers(feedId: Int) async throws -> [User]
+}

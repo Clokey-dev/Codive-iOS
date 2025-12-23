@@ -7,12 +7,12 @@
 
 import Foundation
 
-enum AppDestination: Hashable {
+enum AppDestination: Hashable, Identifiable {
     case login
     case signup
     case main
     case recordAdd
-    case clothPhotoSelect  // 옷 추가를 위한 사진 선택
+    case clothPhotoSelect 
     case clothAdd(photos: [SelectedPhoto])
     case photoEdit(photos: [SelectedPhoto])
     case photoEditForCloth(photos: [SelectedPhoto])
@@ -33,9 +33,17 @@ enum AppDestination: Hashable {
     case wardrobeFavorite(items: [CategoryFavoriteItem])
     case wardrobeItemStats(stats: [ItemUsageStat])
     case wardrobeUsage(stats: WardrobeUsageStat)
+    case feedDetail(feedId: Int)
+    case comment(feedId: Int)
+    case myCloset
+    case clothDetail(cloth: Cloth)
+    case clothEdit(cloth: Cloth)
+
+    var id: Self { self }
     
-    // MARK: - 하단 탭바
-    /// 이 화면이 탭바를 덮어야 하는가?
+    // MARK: - UI 제어
+
+    /// 이 화면이 하단 탭바를 덮어야 하는가?
     /// - 전체 화면으로 표시되어야 하는 플로우는 true 반환
     /// - 기본적으로 탭바는 표시됨 (false)
     var shouldCoverTabBar: Bool {
@@ -43,21 +51,59 @@ enum AppDestination: Hashable {
         // Add Flow - 기록 추가 관련 전체 화면
         case .recordAdd, .clothPhotoSelect, .clothAdd, .photoEdit, .photoEditForCloth, .recordDetail, .photoTag:
             return true
-        
+
         // Home Flow
         case .editCategory, .codiBoard:
             return true
-            
+
         // Search, Alarm Flow
         case .search, .searchResult, .notification:
             return true
-            
+
+        // Feed Flow
+        case .feedDetail, .comment:
+            return true
+
+        // Closet Flow - 전체 화면
+        case .myCloset, .clothDetail, .clothEdit:
+            return true
+
         // 다른 플로우 전체 화면은 여기에 추가
         // case .closetEdit, .feedCreate:
         //     return true
-            
+
         default:
             return false
+        }
+    }
+
+    /// 이 화면에서 상단 네비게이션 바를 표시해야 하는가?
+    /// - false: 상단바 숨김 (전체 화면)
+    /// - true: 상단바 표시
+    var shouldShowTopBar: Bool {
+        switch self {
+        // Add Flow - 전체 화면이므로 상단바 숨김
+        case .recordAdd, .clothPhotoSelect, .clothAdd, .photoEdit, .photoEditForCloth, .recordDetail, .photoTag:
+            return false
+
+        // Home Flow - 상단바 표시
+        case .editCategory, .codiBoard:
+            return true
+
+        // Search, Alarm Flow - 자체 네비게이션 바 있음
+        case .search, .searchResult, .notification:
+            return false
+
+        // Feed Flow - 자체 네비게이션 바 있음
+        case .feedDetail, .comment:
+            return false
+
+        // Closet Flow - 자체 네비게이션 바 있음
+        case .myCloset, .clothDetail, .clothEdit:
+            return false
+
+        default:
+            return true
         }
     }
 }

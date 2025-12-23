@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Cloth: Identifiable, Codable, Equatable {
+public struct Cloth: Identifiable, Equatable, Hashable {
 
     public let id: Int
     public let imageUrl: String
@@ -36,7 +36,7 @@ public struct Cloth: Identifiable, Codable, Equatable {
     }
 }
 
-public enum Season: String, Codable, CaseIterable, Identifiable {
+public enum Season: String, CaseIterable, Identifiable {
     case spring = "SPRING"
     case summer = "SUMMER"
     case fall = "FALL"

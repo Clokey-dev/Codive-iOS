@@ -95,11 +95,19 @@ struct CustomSeasonSheet: View {
             .padding(.horizontal, 20)
             .padding(.vertical, 16)
         }
-        .background(
-            Color.white
-                .ignoresSafeArea()
+        .background(Color.white) // First background
+        .clipShape(
+            .rect(
+                topLeadingRadius: 24,
+                bottomLeadingRadius: 0,
+                bottomTrailingRadius: 0,
+                topTrailingRadius: 24
+            )
         )
-        .clipShape(RoundedCorner(radius: 24, corners: [.topLeft, .topRight]))
+        .background( // Second background
+            Color.white
+                .ignoresSafeArea(edges: .bottom)
+        )
     }
 
     // 선택 토글

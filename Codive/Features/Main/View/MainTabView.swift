@@ -15,17 +15,23 @@ struct MainTabView: View {
     private let appDIContainer: AppDIContainer
     private let addDIContainer: AddDIContainer
     private let homeDIContainer: HomeDIContainer
+    private let closetDIContainer: ClosetDIContainer
+    private let feedDIContainer: FeedDIContainer
     private let searchDIContainer: SearchDIContainer
     private let notificationDIContainer: NotificationDIContainer
-    
+    private let commentDIContainer: CommentDIContainer
+
     // MARK: - Initializer
     init(appDIContainer: AppDIContainer) {
         self.appDIContainer = appDIContainer
         self.addDIContainer = appDIContainer.makeAddDIContainer()
         self.homeDIContainer = appDIContainer.makeHomeDIContainer()
+        self.closetDIContainer = appDIContainer.closetDIContainer
+        self.feedDIContainer = appDIContainer.makeFeedDIContainer()
         self.searchDIContainer = appDIContainer.makeSearchDIContainer()
         self.notificationDIContainer = appDIContainer.makeNotificationDIContainer()
-        
+        self.commentDIContainer = appDIContainer.makeCommentDIContainer()
+
         self._navigationRouter = ObservedObject(wrappedValue: appDIContainer.navigationRouter)
         let viewModel = MainTabViewModel(navigationRouter: appDIContainer.navigationRouter)
         self._viewModel = StateObject(wrappedValue: viewModel)
@@ -33,61 +39,66 @@ struct MainTabView: View {
     
     // MARK: - Body
     var body: some View {
-        VStack(spacing: 0) {
-            if shouldShowTopBar {
-                TopNavigationBar(
-                    showSearchButton: showSearchButton,
-                    showNotificationButton: showNotificationButton,
-                    onSearchTap: viewModel.handleSearchTap,
-                    onNotificationTap: viewModel.handleNotificationTap
-                )
-            }
-            
-            ZStack(alignment: .bottom) {
-                Group {
-                    switch viewModel.selectedTab {
-                    case .home:
-                        HomeView(homeDIContainer: homeDIContainer)
-                            .ignoresSafeArea(.all, edges: .bottom)
-                    case .closet:
-                        ClosetView()
-                    case .add:
-                        AddView(addDIContainer: addDIContainer)
-                            .ignoresSafeArea(.all, edges: .bottom)
-                    case .feed:
-                        FeedView()
-                    case .profile:
-                        ProfileView()
-                    }
+        NavigationStack(path: $navigationRouter.path) {
+            VStack(spacing: 0) {
+                if shouldShowTopBar {
+                    TopNavigationBar(
+                        showSearchButton: showSearchButton,
+                        showNotificationButton: showNotificationButton,
+                        onSearchTap: viewModel.handleSearchTap,
+                        onNotificationTap: viewModel.handleNotificationTap
+                    )
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .overlay {
-                    if let destination = navigationRouter.currentDestination {
-                        destinationView(for: destination)
-                            .transition(.move(edge: .trailing))
+
+                ZStack(alignment: .bottom) {
+                    Group {
+                        switch viewModel.selectedTab {
+                        case .home:
+                            HomeView(homeDIContainer: homeDIContainer)
+                                .ignoresSafeArea(.all, edges: .bottom)
+                        case .closet:
+                            ClosetView(closetDIContainer: closetDIContainer)
+                        case .add:
+                            AddView(addDIContainer: addDIContainer)
+                                .ignoresSafeArea(.all, edges: .bottom)
+                        case .feed:
+                            FeedView(viewModel: feedDIContainer.makeFeedViewModel())
+                        case .profile:
+                            ProfileView()
+                        }
                     }
-                }
-                
-                // MARK: - Tab Bar
-                if navigationRouter.currentDestination == nil ||
-                    navigationRouter.currentDestination?.shouldCoverTabBar == false {
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                    // MARK: - Tab Bar
                     TabBar(selectedTab: $viewModel.selectedTab)
+                        .zIndex(shouldShowTabBar ? 1 : 0)
+                        .allowsHitTesting(shouldShowTabBar)
                 }
             }
+            .navigationDestination(for: AppDestination.self) { destination in
+                destinationView(for: destination)
+            }
+            .ignoresSafeArea(.keyboard, edges: .bottom)
         }
-        .ignoresSafeArea(.keyboard, edges: .bottom)
+        .environmentObject(navigationRouter)
     }
     
     // MARK: - Computed Properties
+
+    /// 상단 네비게이션 바를 표시할지 여부
     private var shouldShowTopBar: Bool {
-        viewModel.selectedTab != .add &&
-        !(viewModel.selectedTab == .home && !navigationRouter.path.isEmpty)
+        return viewModel.selectedTab != .add
     }
-    
+
+    /// 하단 탭 바를 표시할지 여부
+    private var shouldShowTabBar: Bool {
+        navigationRouter.path.isEmpty
+    }
+
     private var showSearchButton: Bool {
         true
     }
-    
+
     private var showNotificationButton: Bool {
         true
     }
@@ -103,14 +114,29 @@ struct MainTabView: View {
             notificationDIContainer.makeNotificationView()
             
         case .wardrobeFavorite(let items):
-            FavoriteByCategoryView(items: items)
-            
+            FavoriteByCategoryView(items: items)            
         case .wardrobeItemStats(let stats):
             ItemDataView(stats: stats)
-            
         case .wardrobeUsage(let stats):
             WearingDataView(stats: stats)
             
+        case .feedDetail(let feedId):
+            feedDIContainer.makeFeedDetailView(feedId: feedId)
+        case .comment(let feedId):
+            commentDIContainer.makeCommentView(feedId: feedId)
+        case .editCategory:
+            homeDIContainer.makeEditCategoryView()
+        case .codiBoard:
+            homeDIContainer.makeCodiBoardView()
+        case .myCloset:
+            closetDIContainer.makeMyClosetView()
+        case .clothDetail, .clothEdit:
+            closetDIContainer.closetViewFactory.makeView(for: destination)
+
+        // Add Flow
+        case .recordAdd, .clothPhotoSelect, .photoEdit, .photoEditForCloth, .recordDetail, .photoTag, .clothAdd:
+            addDIContainer.addViewFactory.makeView(for: destination)
+
         default:
             EmptyView()
         }

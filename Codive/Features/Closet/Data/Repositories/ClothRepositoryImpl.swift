@@ -58,4 +58,22 @@ final class ClothRepositoryImpl: ClothRepository {
         return responseDTOs.map { $0.toEntity() }
         */
     }
+
+    func fetchMyClosetClothItems(
+        mainCategory: String?,
+        subCategory: String?,
+        seasons: Set<Season>,
+        searchText: String?
+    ) async throws -> [Cloth] {
+        return try await dataSource.fetchMyClosetClothItems(
+            mainCategory: mainCategory,
+            subCategory: subCategory,
+            seasons: seasons,
+            searchText: searchText
+        )
+    }
+
+    func deleteClothItems(_ clothIds: [Int]) async throws {
+        try await dataSource.deleteClothItems(clothIds)
+    }
 }

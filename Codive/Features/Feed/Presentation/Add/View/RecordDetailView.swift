@@ -81,6 +81,7 @@ private extension RecordDetailView {
                             TaggableImageView(
                                 image: photo.croppedImage,
                                 tags: $viewModel.selectedPhotos[index].clothTags,
+                                selectedTagId: nil,
                                 onTagRemove: { _ in },
                                 isDraggable: false
                             )
