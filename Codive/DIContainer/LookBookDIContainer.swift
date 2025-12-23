@@ -63,8 +63,7 @@ final class LookBookDIContainer {
     
     func makeLookBookView() -> LookBookView {
         return LookBookView(
-            viewModel: makeLookBookViewModel(),
-            lookBookDIContainer: self
+            viewModel: makeLookBookViewModel()
         )
     }
     

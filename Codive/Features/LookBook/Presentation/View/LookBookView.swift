@@ -13,68 +13,54 @@ struct LookBookView: View {
     
     @StateObject private var viewModel: LookBookViewModel
     
-    @ObservedObject private var navigationRouter: NavigationRouter
-    
-    private let lookBookDIContainer: LookBookDIContainer
-    
     // MARK: - Initializer
     
-    init(
-        viewModel: LookBookViewModel,
-        lookBookDIContainer: LookBookDIContainer
-    ) {
+    init(viewModel: LookBookViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
-        self.navigationRouter = viewModel.navigationRouter
-        self.lookBookDIContainer = lookBookDIContainer
     }
     
     // MARK: - Body
     
     var body: some View {
-        NavigationStack(path: $navigationRouter.path) {
-            ZStack {
-                mainLayout
-                addLookBookDialogOverlay
-                
-                if viewModel.isLoading {
-                    LoadingView(backgroundStyle: .white)
-                }
-            }
-            .navigationDestination(for: AppDestination.self) { destination in
-                lookBookDIContainer
-                    .lookBookViewFactory
-                    .makeView(for: destination)
-            }
-            .navigationBarHidden(true)
-            .background(Color.white)
-            .alert(
-                TextLiteral.LookBook.alertDeleteTitle,
-                isPresented: $viewModel.isShowingDeleteAlert
-            ) {
-                Button(TextLiteral.Common.delete, role: .destructive) {
-                    viewModel.beginDelete()
-                }
-                Button(TextLiteral.Common.cancel, role: .cancel) { }
-            } message: {
-                Text(TextLiteral.LookBook.alertDeleteSubTitle)
-            }
-            .alert(
-                TextLiteral.LookBook.exitDescription,
-                isPresented: $viewModel.isShowingCancelConfirmAlert
-            ) {
-                Button(TextLiteral.Home.leave, role: .destructive) {
-                    viewModel.confirmCancelDialog()
-                }
-                Button(TextLiteral.Common.cancel, role: .cancel) { }
-            } message: {
-                Text(TextLiteral.LookBook.noRecovery)
-            }
-            .onAppear {
-                if viewModel.lookBookList.isEmpty && !viewModel.isLoading {
-                    viewModel.fetchLookBooks()
-                }
+        ZStack {
+            mainLayout
+            addLookBookDialogOverlay
+            
+            if viewModel.isLoading {
+                LoadingView(backgroundStyle: .white)
             }
         }
+        .background(Color.white)
+        .alert(
+            TextLiteral.LookBook.alertDeleteTitle,
+            isPresented: $viewModel.isShowingDeleteAlert
+        ) {
+            Button(TextLiteral.Common.delete, role: .destructive) {
+                viewModel.beginDelete()
+            }
+            Button(TextLiteral.Common.cancel, role: .cancel) { }
+        } message: {
+            Text(TextLiteral.LookBook.alertDeleteSubTitle)
+        }
+        .alert(
+            TextLiteral.LookBook.exitDescription,
+            isPresented: $viewModel.isShowingCancelConfirmAlert
+        ) {
+            Button(TextLiteral.Home.leave, role: .destructive) {
+                viewModel.confirmCancelDialog()
+            }
+            Button(TextLiteral.Common.cancel, role: .cancel) { }
+        } message: {
+            Text(TextLiteral.LookBook.noRecovery)
+        }
+        .onAppear {
+            if viewModel.lookBookList.isEmpty && !viewModel.isLoading {
+                viewModel.fetchLookBooks()
+            }
+        }
+        .navigationBarBackButtonHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
+        .toolbarBackground(.hidden, for: .navigationBar)
     }
     
     // MARK: - Main Layout
