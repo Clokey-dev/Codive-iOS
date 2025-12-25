@@ -140,6 +140,10 @@ enum TextLiteral {
         static let leave = "나가기"
         static let noClothTitle = "아직 옷이 없어요!"
         static let noClothDescription = "옷을 추가해 날씨에\n맞게 코디 해봐요."
+        static let popUpTitle = "오늘의 코디 완성!"
+        static let popUpSubtitle = "오늘의 코디는 홈 화면에서 하루 동안만 유지\n됩니다. 추가로 기록하려면 피드에 남겨보세요!"
+        static let close = "닫기"
+        static let record = "기록하기"
     }
     
     enum Search {
