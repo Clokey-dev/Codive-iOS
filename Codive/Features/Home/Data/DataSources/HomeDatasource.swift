@@ -95,7 +95,6 @@ final class HomeDatasource {
             currentTemp: currentTemp,
             symbolName: symbolName,
             dailyForecasts: Array(dailyForecasts),
-            // MARK: - 수정: 위치 이름을 추가
             locationName: locationName
         )
         
@@ -110,7 +109,7 @@ final class HomeDatasource {
         }
 
         return [
-            CategoryEntity(id: 1, title: "상의", itemCount: 1),
+            CategoryEntity(id: 1, title: "상의", itemCount: 2),
             CategoryEntity(id: 2, title: "바지", itemCount: 1),
             CategoryEntity(id: 3, title: "스커트", itemCount: 0),
             CategoryEntity(id: 4, title: "아우터", itemCount: 0),
@@ -128,9 +127,44 @@ final class HomeDatasource {
         categories.forEach { print("\($0.id): \($0.title): \($0.itemCount)") }
     }
     
-    // MARK: - Cloth Items
+    // MARK: - Cloth Items (API Mock)
+    func fetchClothItems(request: ClothListRequestDTO) async throws -> [ClothListResponseDTO] {
+        // TODO: 실제 API 호출로 교체
+        // let response = try await apiClient.get("/api/clothes", parameters: request.toQueryParameters())
+        
+        print("===== 🔵 Cloth List Request Mock =====")
+        print("Request Parameters:", request.toQueryParameters())
+        
+        // Mock Response Data
+        await Task.sleep(500_000_000) // 0.5초 딜레이 (네트워크 시뮬레이션)
+        
+        let mockResponse: [ClothListResponseDTO] = [
+            ClothListResponseDTO(
+                clothId: 1,
+                clothImageUrl: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800"
+            ),
+            ClothListResponseDTO(
+                clothId: 2,
+                clothImageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800"
+            ),
+            ClothListResponseDTO(
+                clothId: 3,
+                clothImageUrl: "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=800"
+            ),
+            ClothListResponseDTO(
+                clothId: 4,
+                clothImageUrl: "https://images.unsplash.com/photo-1584735175315-9d5df23860b1?w=800"
+            )
+        ]
+        
+        print("Response Count:", mockResponse.count)
+        print("===== ✅ Mock response complete =====")
+        
+        return mockResponse
+    }
+    
     func loadClothItems() -> [HomeClothEntity] {
-        // TODO: 서버 연동 시 실제 API 응답으로 교체
+        // 기존 메서드는 유지 (하위 호환성)
         return [
             HomeClothEntity(
                 id: 1,

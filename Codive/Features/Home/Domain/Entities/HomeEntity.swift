@@ -78,3 +78,52 @@ struct CodiItemEntity: Identifiable {
 struct DateEntity {
     let formattedDate: String
 }
+
+// MARK: - Cloth List Request DTO
+struct ClothListRequestDTO {
+    let lastClothId: Int64?
+    let size: Int
+    let categoryId: Int64?
+    let season: String?
+    
+    func toQueryParameters() -> [String: String] {
+        var params: [String: String] = [:]
+        
+        if let lastClothId = lastClothId {
+            params["lastClothId"] = String(lastClothId)
+        }
+        params["size"] = String(size)
+        if let categoryId = categoryId {
+            params["categoryId"] = String(categoryId)
+        }
+        if let season = season {
+            params["season"] = season
+        }
+        
+        return params
+    }
+}
+
+// MARK: - Cloth List Response DTO
+struct ClothListResponseDTO: Codable {
+    let clothId: Int64
+    let clothImageUrl: String
+}
+
+// MARK: - DTO to Entity Mapping
+extension ClothListResponseDTO {
+    func toEntity(categoryId: Int) -> HomeClothEntity {
+        return HomeClothEntity(
+            id: Int(clothId),
+            categoryId: categoryId,
+            imageUrl: clothImageUrl
+        )
+    }
+}
+
+// MARK: - Multiple Response Mapping
+extension Array where Element == ClothListResponseDTO {
+    func toEntities(categoryId: Int) -> [HomeClothEntity] {
+        return self.map { $0.toEntity(categoryId: categoryId) }
+    }
+}

@@ -35,6 +35,15 @@ final class HomeRepositoryImpl: HomeRepository {
         dataSource.loadClothItems()
     }
     
+    // 새로운 API 기반 메서드
+    func fetchClothItems(request: ClothListRequestDTO) async throws -> [HomeClothEntity] {
+        let dtoList = try await dataSource.fetchClothItems(request: request)
+        
+        // categoryId를 request에서 가져오거나 기본값 사용
+        let categoryId = Int(request.categoryId ?? 1)
+        return dtoList.toEntities(categoryId: categoryId)
+    }
+    
     // MARK: - Codi Items
     func fetchInitialImages() -> [DraggableImageEntity] {
         dataSource.loadInitialImages()

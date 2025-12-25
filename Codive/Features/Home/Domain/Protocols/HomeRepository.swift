@@ -17,6 +17,7 @@ protocol HomeRepository {
     
     // MARK: - Cloth Items
     func fetchClothItems() -> [HomeClothEntity]
+    func fetchClothItems(request: ClothListRequestDTO) async throws -> [HomeClothEntity]
     
     // MARK: - Initial Images
     func fetchInitialImages() -> [DraggableImageEntity]

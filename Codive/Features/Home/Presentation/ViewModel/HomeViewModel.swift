@@ -75,6 +75,71 @@ final class HomeViewModel: ObservableObject {
         let clothItems = categoryUseCase.loadClothItems()
         clothItemsByCategory = Dictionary(grouping: clothItems) { $0.categoryId }
     }
+
+    // MARK: - 새로운 API 방식 (비동기)
+    func loadActiveCategoriesWithAPI() async {
+        let categories = categoryUseCase.loadCategories()
+        activeCategories = categories
+        
+        // 각 카테고리별로 옷 아이템 로드
+        var allClothItems: [HomeClothEntity] = []
+        
+        for category in categories {
+            do {
+                let items = try await categoryUseCase.loadClothItems(
+                    lastClothId: nil,
+                    size: 20,
+                    categoryId: Int64(category.id),
+                    season: nil
+                )
+                allClothItems.append(contentsOf: items)
+            } catch {
+                print("Failed to load cloth items for category \(category.id): \(error)")
+            }
+        }
+        
+        // 카테고리별로 그룹화
+        clothItemsByCategory = Dictionary(grouping: allClothItems) { $0.categoryId }
+    }
+
+    // MARK: - 특정 카테고리만 로드
+    func loadClothItems(for categoryId: Int) async {
+        do {
+            let items = try await categoryUseCase.loadClothItems(
+                lastClothId: nil,
+                size: 20,
+                categoryId: Int64(categoryId),
+                season: nil
+            )
+            
+            // 해당 카테고리의 아이템 업데이트
+            clothItemsByCategory[categoryId] = items
+        } catch {
+            print("Failed to load cloth items: \(error)")
+        }
+    }
+
+    // MARK: - 페이지네이션 (더 불러오기)
+    func loadMoreClothItems(for categoryId: Int) async {
+        guard let existingItems = clothItemsByCategory[categoryId],
+              let lastItem = existingItems.last else {
+            return
+        }
+        
+        do {
+            let newItems = try await categoryUseCase.loadClothItems(
+                lastClothId: Int64(lastItem.id),
+                size: 20,
+                categoryId: Int64(categoryId),
+                season: nil
+            )
+            
+            // 기존 아이템에 추가
+            clothItemsByCategory[categoryId] = existingItems + newItems
+        } catch {
+            print("Failed to load more items: \(error)")
+        }
+    }
     
     func loadDummyCodi() {
         codiItems = todayCodiUseCase.loadTodaysCodi()

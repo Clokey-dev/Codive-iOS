@@ -73,6 +73,7 @@ struct HomeView: View {
             }
             .task {
                 await viewModel.loadWeather(for: nil)
+                await viewModel.loadActiveCategoriesWithAPI()
             }
             .onChange(of: navigationRouter.currentDestination) { newDestination in
                 if newDestination == nil {
