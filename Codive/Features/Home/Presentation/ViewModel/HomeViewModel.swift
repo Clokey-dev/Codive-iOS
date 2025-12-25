@@ -71,7 +71,7 @@ final class HomeViewModel: ObservableObject {
         
         // 옷 데이터: 카테고리별로 그룹화
         let clothItems = categoryUseCase.loadClothItems()
-        clothItemsByCategory = Dictionary(grouping: clothItems, by: { $0.categoryId })
+        clothItemsByCategory = Dictionary(grouping: clothItems) { $0.categoryId }
     }
     
     func loadDummyCodi() {

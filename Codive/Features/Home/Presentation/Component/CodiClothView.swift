@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-
 // MARK: - Card (단일 슬롯)
 
 struct ClothCardView: View {
