@@ -17,14 +17,17 @@ final class CodiBoardViewModel: ObservableObject, DraggableImageViewModelProtoco
     
     private let codiBoardUseCase: CodiBoardUseCase
     private let navigationRouter: NavigationRouter
+    private weak var homeViewModel: HomeViewModel?
     
     // MARK: - Initializer
     init(
         navigationRouter: NavigationRouter,
-        codiBoardUseCase: CodiBoardUseCase
+        codiBoardUseCase: CodiBoardUseCase,
+        homeViewModel: HomeViewModel? = nil
     ) {
         self.navigationRouter = navigationRouter
         self.codiBoardUseCase = codiBoardUseCase
+        self.homeViewModel = homeViewModel
         loadInitialData()
     }
     
@@ -41,6 +44,18 @@ final class CodiBoardViewModel: ObservableObject, DraggableImageViewModelProtoco
     // MARK: - Actions
     func handleConfirmCodi() {
         codiBoardUseCase.saveCodiItems(images)
+        
+        // 코디 이미지 URL 생성 (실제로는 저장된 이미지의 URL을 가져와야 함)
+        let imageURL = images.first?.imageURL
+        
+        // 뒤로 이동
+        navigationRouter.navigateBack()
+        
+        // 팝업 표시
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            self?.homeViewModel?.showCompletionPopup(imageURL: imageURL)
+        }
+        
         isConfirmed = true
     }
     

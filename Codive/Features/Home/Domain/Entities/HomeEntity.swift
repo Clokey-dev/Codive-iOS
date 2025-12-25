@@ -46,6 +46,7 @@ struct DraggableImageEntity: Identifiable, Hashable {
     var position: CGPoint
     var scale: CGFloat
     var rotationAngle: Double
+    let imageURL: String? = nil
 }
 
 // MARK: - Codi Coordinate Request (for server)

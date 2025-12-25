@@ -21,6 +21,9 @@ final class HomeDIContainer {
     
     let locationService: LocationService = SystemLocationService()
     
+    // HomeViewModel 싱글톤 인스턴스 저장
+    private var homeViewModel: HomeViewModel?
+    
     // MARK: - DataSources
     private lazy var homeDatasource: HomeDatasource = {
         HomeDatasource(locationService: locationService)
@@ -61,13 +64,20 @@ final class HomeDIContainer {
     // MARK: - ViewModels
     
     func makeHomeViewModel() -> HomeViewModel {
-        return HomeViewModel(
+        if let existingViewModel = homeViewModel {
+            return existingViewModel
+        }
+        
+        let viewModel = HomeViewModel(
             navigationRouter: navigationRouter,
             fetchWeatherUseCase: makeFetchWeatherUseCase(),
             todayCodiUseCase: makeTodayCodiUseCase(),
             dateUseCase: makeDateUseCase(),
             categoryUseCase: makeCategoryUseCase()
         )
+
+        homeViewModel = viewModel
+        return viewModel
     }
     
     func makeEditCategoryViewModel() -> EditCategoryViewModel {
@@ -79,7 +89,8 @@ final class HomeDIContainer {
     func makeCodiBoardViewModel() -> CodiBoardViewModel {
         return CodiBoardViewModel(
             navigationRouter: navigationRouter,
-            codiBoardUseCase: makeCodiBoardUseCase()
+            codiBoardUseCase: makeCodiBoardUseCase(),
+            homeViewModel: homeViewModel
         )
     }
     

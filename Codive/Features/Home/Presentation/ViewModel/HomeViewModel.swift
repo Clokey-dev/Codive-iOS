@@ -26,6 +26,10 @@ final class HomeViewModel: ObservableObject {
     @Published var activeCategories: [CategoryEntity] = []
     @Published var clothItemsByCategory: [Int: [HomeClothEntity]] = [:]
     
+    // 팝업 관련 프로퍼티 추가
+    @Published var showCompletePopUp: Bool = false
+    @Published var completedCodiImageURL: String?
+    
     let navigationRouter: NavigationRouter
     
     // MARK: - UseCases
@@ -65,11 +69,9 @@ final class HomeViewModel: ObservableObject {
     }
 
     func loadActiveCategories() {
-        // 카테고리: 저장된 값 또는 기본값을 CategoryUseCase를 통해 로딩
         let categories = categoryUseCase.loadCategories()
         activeCategories = categories
         
-        // 옷 데이터: 카테고리별로 그룹화
         let clothItems = categoryUseCase.loadClothItems()
         clothItemsByCategory = Dictionary(grouping: clothItems) { $0.categoryId }
     }
@@ -112,6 +114,23 @@ final class HomeViewModel: ObservableObject {
     
     func handleEditCategory() {
         navigationRouter.navigate(to: .editCategory)
+    }
+    
+    // MARK: - Popup Actions
+    func showCompletionPopup(imageURL: String?) {
+        completedCodiImageURL = imageURL
+        showCompletePopUp = true
+    }
+    
+    func handlePopupRecord() {
+        showCompletePopUp = false
+        // 기록하기 로직 구현
+        // 예: navigationRouter.navigate(to: .recordCodi)
+    }
+    
+    func handlePopupClose() {
+        showCompletePopUp = false
+        completedCodiImageURL = nil
     }
     
     // MARK: - Lifecycle
