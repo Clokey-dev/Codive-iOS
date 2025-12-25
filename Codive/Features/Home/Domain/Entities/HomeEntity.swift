@@ -49,21 +49,6 @@ struct DraggableImageEntity: Identifiable, Hashable {
     let imageURL: String? = nil
 }
 
-// MARK: - Codi Coordinate Request (for server)
-struct CodiCoordinateRequestDTO: Codable {
-    let coordinateImageUrl: String
-    let Payload: [CodiCoordinatePayloadDTO]
-}
-
-struct CodiCoordinatePayloadDTO: Codable {
-    let clothId: Int64
-    let locationX: Double
-    let locationY: Double
-    let ratio: Double
-    let degree: Double
-    let order: Int
-}
-
 // MARK: - Codi Item
 struct CodiItemEntity: Identifiable {
     let id: Int
@@ -126,4 +111,19 @@ extension Array where Element == ClothListResponseDTO {
     func toEntities(categoryId: Int) -> [HomeClothEntity] {
         return self.map { $0.toEntity(categoryId: categoryId) }
     }
+}
+
+// MARK: - Codi Coordinate Request (for server)
+struct CodiCoordinateRequestDTO: Codable {
+    let coordinateImageUrl: String
+    let Payload: [CodiCoordinatePayloadDTO]
+}
+
+struct CodiCoordinatePayloadDTO: Codable {
+    let clothId: Int64
+    let locationX: Double
+    let locationY: Double
+    let ratio: Double
+    let degree: Double
+    let order: Int
 }

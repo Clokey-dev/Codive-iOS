@@ -49,9 +49,9 @@ final class HomeRepositoryImpl: HomeRepository {
         dataSource.loadInitialImages()
     }
     
-    func saveCodiCoordinate(_ request: CodiCoordinateRequestDTO) {
-        dataSource.saveCodiCoordinate(request)
-    }
+    func saveCodiCoordinate(_ request: CodiCoordinateRequestDTO) async throws {
+            try await dataSource.saveCodiCoordinate(request)
+        }
     
     func fetchCodiItems() -> [CodiItemEntity] {
         dataSource.loadDummyCodiItems()

@@ -200,20 +200,29 @@ final class HomeDatasource {
             DraggableImageEntity(id: 6, name: "image6", position: CGPoint(x: 250, y: 240), scale: 1.0, rotationAngle: 0.0)
         ]
     }
-    
-    func saveCodiCoordinate(_ request: CodiCoordinateRequestDTO) {
-        print("===== 📦 Codi Coordinate Request Mock =====")
-        print("coordinateImageUrl:", request.coordinateImageUrl)
-        print("Payload count:", request.Payload.count)
+
+    // MARK: - Codi Items (API Mock)
+    func saveCodiCoordinate(_ request: CodiCoordinateRequestDTO) async throws {
         
+        print("===== 📦 Codi Coordinate Request Mock (Server API Call) =====")
+        print("Snapshot Image URL: \(request.coordinateImageUrl)")
+        print("Total Items: \(request.Payload.count)")
+        
+        // 네트워크 지연 시뮬레이션
+        try await Task.sleep(nanoseconds: 500_000_000)
+
         for (index, item) in request.Payload.enumerated() {
-            let pos = String(format: "(%.1f, %.1f)", item.locationX, item.locationY)
-            let ratioStr = String(format: "%.2f", item.ratio)
-            let degreeStr = String(format: "%.2f", item.degree)
-            print("[\(index)] clothId: \(item.clothId), pos: \(pos), ratio: \(ratioStr), degree: \(degreeStr), order: \(item.order)")
+            print("""
+            [Item \(index)] 
+              - clothId: \(item.clothId)
+              - position: (\(item.locationX), \(item.locationY))
+              - ratio(scale): \(item.ratio)
+              - degree: \(item.degree)
+              - order: \(item.order)
+            """)
         }
         
-        print("===== ✅ Mock request complete =====")
+        print("===== ✅ Mock Server Response: Success =====")
     }
     
     func loadDummyCodiItems() -> [CodiItemEntity] {

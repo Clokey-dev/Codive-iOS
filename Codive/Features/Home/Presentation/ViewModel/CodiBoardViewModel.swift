@@ -43,20 +43,26 @@ final class CodiBoardViewModel: ObservableObject, DraggableImageViewModelProtoco
     
     // MARK: - Actions
     func handleConfirmCodi() {
-        codiBoardUseCase.saveCodiItems(images)
-        
-        // 코디 이미지 URL 생성 (실제로는 저장된 이미지의 URL을 가져와야 함)
-        let imageURL = images.first?.imageURL
-        
-        // 뒤로 이동
-        navigationRouter.navigateBack()
-        
-        // 팝업 표시
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-            self?.homeViewModel?.showCompletionPopup(imageURL: imageURL)
+        Task {
+            do {
+                // 서버에 데이터 전송
+                try await codiBoardUseCase.saveCodiItems(images)
+                
+                // 전송 완료 후 UI 로직 실행
+                await MainActor.run {
+                    let imageURL = images.first?.imageURL
+                    navigationRouter.navigateBack()
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                        self?.homeViewModel?.showCompletionPopup(imageURL: imageURL)
+                    }
+                    self.isConfirmed = true
+                }
+            } catch {
+                print("코디 저장 실패: \(error.localizedDescription)")
+                // 필요 시 사용자에게 알림(에러 팝업 등)
+            }
         }
-        
-        isConfirmed = true
     }
     
     // MARK: - Image Manipulation (DraggableImageViewModelProtocol)
