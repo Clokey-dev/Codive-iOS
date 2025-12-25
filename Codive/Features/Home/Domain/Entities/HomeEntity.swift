@@ -45,7 +45,22 @@ struct DraggableImageEntity: Identifiable, Hashable {
     let name: String
     var position: CGPoint
     var scale: CGFloat
-    var rotationAngle: Double 
+    var rotationAngle: Double
+}
+
+// MARK: - Codi Coordinate Request (for server)
+struct CodiCoordinateRequestDTO: Codable {
+    let coordinateImageUrl: String
+    let Payload: [CodiCoordinatePayloadDTO]
+}
+
+struct CodiCoordinatePayloadDTO: Codable {
+    let clothId: Int64
+    let locationX: Double
+    let locationY: Double
+    let ratio: Double
+    let degree: Double
+    let order: Int
 }
 
 // MARK: - Codi Item

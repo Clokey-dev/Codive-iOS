@@ -22,7 +22,7 @@ protocol HomeRepository {
     func fetchInitialImages() -> [DraggableImageEntity]
     
     // MARK: - Codi Items
-    func saveCodiItems(_ images: [DraggableImageEntity])
+    func saveCodiCoordinate(_ request: CodiCoordinateRequestDTO)
     func fetchCodiItems() -> [CodiItemEntity]
     
     // MARK: - Date

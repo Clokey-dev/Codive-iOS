@@ -40,8 +40,8 @@ final class HomeRepositoryImpl: HomeRepository {
         dataSource.loadInitialImages()
     }
     
-    func saveCodiItems(_ images: [DraggableImageEntity]) {
-        dataSource.saveCodiItems(images)
+    func saveCodiCoordinate(_ request: CodiCoordinateRequestDTO) {
+        dataSource.saveCodiCoordinate(request)
     }
     
     func fetchCodiItems() -> [CodiItemEntity] {

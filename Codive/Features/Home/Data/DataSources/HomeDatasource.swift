@@ -167,14 +167,19 @@ final class HomeDatasource {
         ]
     }
     
-    func saveCodiItems(_ images: [DraggableImageEntity]) {
-        print("코디 저장 완료 (\(images.count)개)")
-        for image in images {
-            let pos = "pos: (\(Int(image.position.x)), \(Int(image.position.y)))"
-            let scaleStr = "scale: \(String(format: "%.2f", image.scale))"
-            let rotStr = "rotation: \(String(format: "%.2f", image.rotationAngle))°"
-            print("• \(image.name) →", pos + ",", scaleStr + ",", rotStr)
+    func saveCodiCoordinate(_ request: CodiCoordinateRequestDTO) {
+        print("===== 📦 Codi Coordinate Request Mock =====")
+        print("coordinateImageUrl:", request.coordinateImageUrl)
+        print("Payload count:", request.Payload.count)
+        
+        for (index, item) in request.Payload.enumerated() {
+            let pos = String(format: "(%.1f, %.1f)", item.locationX, item.locationY)
+            let ratioStr = String(format: "%.2f", item.ratio)
+            let degreeStr = String(format: "%.2f", item.degree)
+            print("[\(index)] clothId: \(item.clothId), pos: \(pos), ratio: \(ratioStr), degree: \(degreeStr), order: \(item.order)")
         }
+        
+        print("===== ✅ Mock request complete =====")
     }
     
     func loadDummyCodiItems() -> [CodiItemEntity] {
