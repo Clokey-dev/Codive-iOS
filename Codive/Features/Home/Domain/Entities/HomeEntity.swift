@@ -32,6 +32,13 @@ struct CategoryEntity: Identifiable, Codable {
     var itemCount: Int
 }
 
+// MARK: - Home Cloth
+struct HomeClothEntity: Identifiable, Codable {
+    let id: Int
+    let categoryId: Int
+    let imageUrl: String
+}
+
 // MARK: - Draggable Image
 struct DraggableImageEntity: Identifiable, Hashable {
     let id: Int

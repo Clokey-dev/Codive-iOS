@@ -24,8 +24,7 @@ final class HomeViewModel: ObservableObject {
     @Published var selectedItemID: Int?
     @Published var codiItems: [CodiItemEntity] = []
     @Published var activeCategories: [CategoryEntity] = []
-    
-    @AppStorage("SavedCategories") private var savedCategoriesData: Data?
+    @Published var clothItemsByCategory: [Int: [HomeClothEntity]] = [:]
     
     let navigationRouter: NavigationRouter
     
@@ -33,18 +32,21 @@ final class HomeViewModel: ObservableObject {
     private let fetchWeatherUseCase: FetchWeatherUseCase
     private let todayCodiUseCase: TodayCodiUseCase
     private let dateUseCase: DateUseCase
+    private let categoryUseCase: CategoryUseCase
     
     // MARK: - Initializer
     init(
         navigationRouter: NavigationRouter,
         fetchWeatherUseCase: FetchWeatherUseCase,
         todayCodiUseCase: TodayCodiUseCase,
-        dateUseCase: DateUseCase
+        dateUseCase: DateUseCase,
+        categoryUseCase: CategoryUseCase
     ) {
         self.navigationRouter = navigationRouter
         self.fetchWeatherUseCase = fetchWeatherUseCase
         self.todayCodiUseCase = todayCodiUseCase
         self.dateUseCase = dateUseCase
+        self.categoryUseCase = categoryUseCase
         
         loadDummyCodi()
         loadToday()
@@ -63,25 +65,13 @@ final class HomeViewModel: ObservableObject {
     }
 
     func loadActiveCategories() {
-        let allCategories: [CategoryEntity]
-        if let data = savedCategoriesData,
-           let decoded = try? JSONDecoder().decode([CategoryEntity].self, from: data) {
-            allCategories = decoded
-        } else {
-            allCategories = [
-                CategoryEntity(id: 1, title: "상의", itemCount: 1),
-                CategoryEntity(id: 2, title: "바지", itemCount: 1),
-                CategoryEntity(id: 3, title: "스커트", itemCount: 0),
-                CategoryEntity(id: 4, title: "아우터", itemCount: 0),
-                CategoryEntity(id: 5, title: "신발", itemCount: 1),
-                CategoryEntity(id: 6, title: "가방", itemCount: 0),
-                CategoryEntity(id: 7, title: "패션 소품", itemCount: 0)
-            ]
-        }
+        // 카테고리: 저장된 값 또는 기본값을 CategoryUseCase를 통해 로딩
+        let categories = categoryUseCase.loadCategories()
+        activeCategories = categories
         
-        activeCategories = allCategories.flatMap { category in
-            Array(repeating: category, count: category.itemCount)
-        }
+        // 옷 데이터: 카테고리별로 그룹화
+        let clothItems = categoryUseCase.loadClothItems()
+        clothItemsByCategory = Dictionary(grouping: clothItems, by: { $0.categoryId })
     }
     
     func loadDummyCodi() {

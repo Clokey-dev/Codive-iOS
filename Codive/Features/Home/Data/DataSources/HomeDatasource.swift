@@ -128,6 +128,33 @@ final class HomeDatasource {
         categories.forEach { print("\($0.id): \($0.title): \($0.itemCount)") }
     }
     
+    // MARK: - Cloth Items
+    func loadClothItems() -> [HomeClothEntity] {
+        // TODO: 서버 연동 시 실제 API 응답으로 교체
+        return [
+            HomeClothEntity(
+                id: 1,
+                categoryId: 1,
+                imageUrl: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800"
+            ),
+            HomeClothEntity(
+                id: 2,
+                categoryId: 1,
+                imageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800"
+            ),
+            HomeClothEntity(
+                id: 3,
+                categoryId: 2,
+                imageUrl: "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=800"
+            ),
+            HomeClothEntity(
+                id: 4,
+                categoryId: 5,
+                imageUrl: "https://images.unsplash.com/photo-1584735175315-9d5df23860b1?w=800"
+            )
+        ]
+    }
+    
     // MARK: - Codi Items
     func loadInitialImages() -> [DraggableImageEntity] {
         return [

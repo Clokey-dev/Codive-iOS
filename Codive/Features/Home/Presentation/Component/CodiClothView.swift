@@ -7,16 +7,11 @@
 
 import SwiftUI
 
-// MARK: - Model
-
-struct ClothItem: Identifiable {
-    let id = UUID()
-}
 
 // MARK: - Card (단일 슬롯)
 
 struct ClothCardView: View {
-    let item: ClothItem
+    let item: HomeClothEntity
     let width: CGFloat
     
     var body: some View {
@@ -33,6 +28,35 @@ struct ClothCardView: View {
                     )
                     .frame(height: 124)
                     .frame(width: 124)
+                    .overlay {
+                        // 서버 URL 혹은 로컬 에셋 이름 모두 대응 가능하게 처리
+                        if let url = URL(string: item.imageUrl), item.imageUrl.hasPrefix("http") {
+                            AsyncImage(url: url) { phase in
+                                switch phase {
+                                case .empty:
+                                    ProgressView()
+                                case .success(let image):
+                                    image
+                                        .resizable()
+                                        .scaledToFit()
+                                case .failure:
+                                    Image(systemName: "photo")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .foregroundColor(.gray)
+                                @unknown default:
+                                    EmptyView()
+                                }
+                            }
+                            .clipShape(RoundedRectangle(cornerRadius: 15))
+                        } else {
+                            // 로컬 에셋 이름으로 처리
+                            Image(item.imageUrl)
+                                .resizable()
+                                .scaledToFit()
+                                .clipShape(RoundedRectangle(cornerRadius: 15))
+                        }
+                    }
             }
             .frame(width: width)
         }
@@ -42,7 +66,7 @@ struct ClothCardView: View {
 // MARK: - Carousel
 
 struct CodiClothCarouselView: View {
-    let items: [ClothItem]
+    let items: [HomeClothEntity]
     @Binding var currentIndex: Int
     let spacing: CGFloat
     let activeScale: CGFloat
@@ -178,7 +202,7 @@ struct CodiClothCarouselView: View {
 
 struct CodiClothView: View {
     let title: String
-    let items: [ClothItem]
+    let items: [HomeClothEntity]
     let isEmptyState: Bool
     
     private let spacing: CGFloat = 10
@@ -188,7 +212,7 @@ struct CodiClothView: View {
     @State private var currentIndex: Int
     
     init(title: String,
-         items: [ClothItem] = [],
+         items: [HomeClothEntity] = [],
          isEmptyState: Bool) {
         
         self.title = title

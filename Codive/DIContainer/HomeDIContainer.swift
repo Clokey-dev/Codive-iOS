@@ -65,7 +65,8 @@ final class HomeDIContainer {
             navigationRouter: navigationRouter,
             fetchWeatherUseCase: makeFetchWeatherUseCase(),
             todayCodiUseCase: makeTodayCodiUseCase(),
-            dateUseCase: makeDateUseCase()
+            dateUseCase: makeDateUseCase(),
+            categoryUseCase: makeCategoryUseCase()
         )
     }
     

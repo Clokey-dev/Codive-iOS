@@ -15,6 +15,9 @@ protocol HomeRepository {
     func fetchCategories() -> [CategoryEntity]
     func saveCategories(_ categories: [CategoryEntity])
     
+    // MARK: - Cloth Items
+    func fetchClothItems() -> [HomeClothEntity]
+    
     // MARK: - Initial Images
     func fetchInitialImages() -> [DraggableImageEntity]
     

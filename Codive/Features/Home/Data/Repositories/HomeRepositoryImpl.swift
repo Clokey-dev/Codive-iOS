@@ -29,6 +29,11 @@ final class HomeRepositoryImpl: HomeRepository {
     func saveCategories(_ categories: [CategoryEntity]) {
         dataSource.saveCategories(categories)
     }
+
+    // MARK: - Cloth Items
+    func fetchClothItems() -> [HomeClothEntity] {
+        dataSource.loadClothItems()
+    }
     
     // MARK: - Codi Items
     func fetchInitialImages() -> [DraggableImageEntity] {

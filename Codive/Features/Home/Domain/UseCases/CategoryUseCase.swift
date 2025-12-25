@@ -17,6 +17,10 @@ final class CategoryUseCase {
         return repository.fetchCategories()
     }
 
+    func loadClothItems() -> [HomeClothEntity] {
+        return repository.fetchClothItems()
+    }
+
     func updateCategories(_ categories: [CategoryEntity]) {
         repository.saveCategories(categories)
     }

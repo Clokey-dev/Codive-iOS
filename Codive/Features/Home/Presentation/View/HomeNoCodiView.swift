@@ -46,10 +46,12 @@ struct HomeNoCodiView: View {
     private var codiClothList: some View {
         VStack(spacing: 16) {
             ForEach(viewModel.activeCategories) { category in
+                let clothItems = viewModel.clothItemsByCategory[category.id] ?? []
+                
                 CodiClothView(
                     title: category.title,
-                    items: [],                           // 아직 실제 ClothItem 배열이 없으니까 빈 배열
-                    isEmptyState: category.itemCount == 0 // 외부에서 비어있는지 여부를 넘겨줌
+                    items: clothItems,
+                    isEmptyState: clothItems.isEmpty
                 )
             }
         }
