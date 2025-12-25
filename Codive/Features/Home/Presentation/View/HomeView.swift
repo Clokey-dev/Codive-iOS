@@ -51,6 +51,7 @@ struct HomeView: View {
                         }
                     }
                 }
+                .padding(.bottom, 72)
             }
             .background(alignment: .center) {
                 Color.white

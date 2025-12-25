@@ -46,7 +46,11 @@ struct HomeNoCodiView: View {
     private var codiClothList: some View {
         VStack(spacing: 16) {
             ForEach(viewModel.activeCategories) { category in
-                CodiClothView(title: category.title)
+                CodiClothView(
+                    title: category.title,
+                    items: [],                           // 아직 실제 ClothItem 배열이 없으니까 빈 배열
+                    isEmptyState: category.itemCount == 0 // 외부에서 비어있는지 여부를 넘겨줌
+                )
             }
         }
         .padding(.horizontal, 20)
@@ -58,7 +62,7 @@ struct HomeNoCodiView: View {
             let totalWidth = geometry.size.width - 40
             let availableWidth = totalWidth - 16
             let button1Width = availableWidth / 3
-            let button2Width = availableWidth * 2 / 3 
+            let button2Width = availableWidth * 2 / 3
 
             HStack(spacing: 16) {
                 Button(action: viewModel.handleCodiBoardTap) {

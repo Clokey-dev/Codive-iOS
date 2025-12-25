@@ -138,6 +138,8 @@ enum TextLiteral {
         static let changeAlertTitle = "변경사항이 있습니다"
         static let changeAlertMessage = "변경사항을 저장하지 않고 나가시겠습니까?"
         static let leave = "나가기"
+        static let noClothTitle = "아직 옷이 없어요!"
+        static let noClothDescription = "옷을 추가해 날씨에\n맞게 코디 해봐요."
     }
     
     enum Search {
