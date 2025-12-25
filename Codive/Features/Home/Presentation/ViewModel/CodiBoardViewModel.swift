@@ -15,19 +15,22 @@ final class CodiBoardViewModel: ObservableObject, DraggableImageViewModelProtoco
     @Published var images: [DraggableImageEntity] = []
     @Published var currentlyDraggedID: Int?
     
-    private let useCase: HomeUseCase
+    private let codiBoardUseCase: CodiBoardUseCase
     private let navigationRouter: NavigationRouter
     
     // MARK: - Initializer
-    init(navigationRouter: NavigationRouter, useCase: HomeUseCase) {
+    init(
+        navigationRouter: NavigationRouter,
+        codiBoardUseCase: CodiBoardUseCase
+    ) {
         self.navigationRouter = navigationRouter
-        self.useCase = useCase
+        self.codiBoardUseCase = codiBoardUseCase
         loadInitialData()
     }
     
     // MARK: - Data Loading
     private func loadInitialData() {
-        images = useCase.loadCodiBoardImages()
+        images = codiBoardUseCase.loadCodiBoardImages()
     }
     
     // MARK: - Navigation
@@ -37,7 +40,7 @@ final class CodiBoardViewModel: ObservableObject, DraggableImageViewModelProtoco
     
     // MARK: - Actions
     func handleConfirmCodi() {
-        useCase.saveCodiItems(images)
+        codiBoardUseCase.saveCodiItems(images)
         isConfirmed = true
     }
     

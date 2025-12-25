@@ -21,38 +21,73 @@ final class HomeDIContainer {
     
     let locationService: LocationService = SystemLocationService()
     
-    lazy var homeDatasource = HomeDatasource(locationService: locationService)
+    // MARK: - DataSources
+    private lazy var homeDatasource: HomeDatasource = {
+        HomeDatasource(locationService: locationService)
+    }()
     
-    lazy var homeRepository: HomeRepository = HomeRepositoryImpl(
-        dataSource: homeDatasource
-    )
+    // MARK: - Repositories
+    private lazy var homeRepository: HomeRepository = {
+        HomeRepositoryImpl(dataSource: homeDatasource)
+    }()
     
-    lazy var homeUseCase = HomeUseCase(repository: homeRepository)
+    // MARK: - UseCases (각 기능별)
+    
+    func makeFetchWeatherUseCase() -> FetchWeatherUseCase {
+        FetchWeatherUseCase(repository: homeRepository)
+    }
+    
+    func makeCategoryUseCase() -> CategoryUseCase {
+        CategoryUseCase(repository: homeRepository)
+    }
+    
+    func makeCodiBoardUseCase() -> CodiBoardUseCase {
+        CodiBoardUseCase(repository: homeRepository)
+    }
+    
+    func makeTodayCodiUseCase() -> TodayCodiUseCase {
+        TodayCodiUseCase(repository: homeRepository)
+    }
+    
+    func makeDateUseCase() -> DateUseCase {
+        DateUseCase(repository: homeRepository)
+    }
     
     // MARK: - Initializer
     init(navigationRouter: NavigationRouter) {
         self.navigationRouter = navigationRouter
     }
     
+    // MARK: - ViewModels
+    
     func makeHomeViewModel() -> HomeViewModel {
         return HomeViewModel(
             navigationRouter: navigationRouter,
-            useCase: homeUseCase
+            fetchWeatherUseCase: makeFetchWeatherUseCase(),
+            todayCodiUseCase: makeTodayCodiUseCase(),
+            dateUseCase: makeDateUseCase()
         )
     }
     
     func makeEditCategoryViewModel() -> EditCategoryViewModel {
-        return EditCategoryViewModel(navigationRouter: navigationRouter)
+        return EditCategoryViewModel(
+            navigationRouter: navigationRouter
+        )
     }
     
     func makeCodiBoardViewModel() -> CodiBoardViewModel {
         return CodiBoardViewModel(
-            navigationRouter: navigationRouter, useCase: homeUseCase
+            navigationRouter: navigationRouter,
+            codiBoardUseCase: makeCodiBoardUseCase()
         )
     }
     
+    // MARK: - Views
+    
     func makeEditCategoryView() -> EditCategoryView {
-        return EditCategoryView(viewModel: makeEditCategoryViewModel())
+        return EditCategoryView(
+            viewModel: makeEditCategoryViewModel()
+        )
     }
     
     func makeCodiBoardView() -> CodiBoardView {

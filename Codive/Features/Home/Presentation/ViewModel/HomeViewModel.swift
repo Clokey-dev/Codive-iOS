@@ -28,12 +28,23 @@ final class HomeViewModel: ObservableObject {
     @AppStorage("SavedCategories") private var savedCategoriesData: Data?
     
     let navigationRouter: NavigationRouter
-    private let useCase: HomeUseCase
+    
+    // MARK: - UseCases
+    private let fetchWeatherUseCase: FetchWeatherUseCase
+    private let todayCodiUseCase: TodayCodiUseCase
+    private let dateUseCase: DateUseCase
     
     // MARK: - Initializer
-    init(navigationRouter: NavigationRouter, useCase: HomeUseCase) {
+    init(
+        navigationRouter: NavigationRouter,
+        fetchWeatherUseCase: FetchWeatherUseCase,
+        todayCodiUseCase: TodayCodiUseCase,
+        dateUseCase: DateUseCase
+    ) {
         self.navigationRouter = navigationRouter
-        self.useCase = useCase
+        self.fetchWeatherUseCase = fetchWeatherUseCase
+        self.todayCodiUseCase = todayCodiUseCase
+        self.dateUseCase = dateUseCase
         
         loadDummyCodi()
         loadToday()
@@ -43,7 +54,7 @@ final class HomeViewModel: ObservableObject {
     // MARK: - Data Loading
     func loadWeather(for location: CLLocation?) async {
         do {
-            let data = try await useCase.execute(for: location)
+            let data = try await fetchWeatherUseCase.execute(for: location)
             weatherData = data
         } catch {
             print("Failed to fetch weather:", error)
@@ -74,11 +85,11 @@ final class HomeViewModel: ObservableObject {
     }
     
     func loadDummyCodi() {
-        codiItems = useCase.loadTodaysCodi()
+        codiItems = todayCodiUseCase.loadTodaysCodi()
     }
 
     func loadToday() {
-        let entity = useCase.getToday()
+        let entity = dateUseCase.getToday()
         self.todayString = entity.formattedDate
     }
     
