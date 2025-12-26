@@ -206,11 +206,11 @@ final class HomeViewModel: ObservableObject {
     // MARK: - Feature Placeholders
     func rememberCodi() {}
     
-    func selectEditCodi() {}
-    
-    func addLookbook() {
+    func selectEditCodi() {
         navigationRouter.navigate(to: .lookbook)
     }
+    
+    func addLookbook() {}
     
     func sharedCodi() {}
 }
