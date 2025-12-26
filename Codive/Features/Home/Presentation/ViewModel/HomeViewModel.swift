@@ -30,6 +30,10 @@ final class HomeViewModel: ObservableObject {
     @Published var showCompletePopUp: Bool = false
     @Published var completedCodiImageURL: String?
     
+    // 바텀시트 관련 프로퍼티 추가
+    @Published var showLookBookSheet: Bool = false
+    @Published var lookBookList: [LookBookBottomSheetEntity] = []
+    
     let navigationRouter: NavigationRouter
     
     // MARK: - UseCases
@@ -37,6 +41,7 @@ final class HomeViewModel: ObservableObject {
     private let todayCodiUseCase: TodayCodiUseCase
     private let dateUseCase: DateUseCase
     private let categoryUseCase: CategoryUseCase
+    private let addToLookBookUseCase: AddToLookBookUseCase
     
     // MARK: - Initializer
     init(
@@ -44,13 +49,15 @@ final class HomeViewModel: ObservableObject {
         fetchWeatherUseCase: FetchWeatherUseCase,
         todayCodiUseCase: TodayCodiUseCase,
         dateUseCase: DateUseCase,
-        categoryUseCase: CategoryUseCase
+        categoryUseCase: CategoryUseCase,
+        addToLookBookUseCase: AddToLookBookUseCase
     ) {
         self.navigationRouter = navigationRouter
         self.fetchWeatherUseCase = fetchWeatherUseCase
         self.todayCodiUseCase = todayCodiUseCase
         self.dateUseCase = dateUseCase
         self.categoryUseCase = categoryUseCase
+        self.addToLookBookUseCase = addToLookBookUseCase
         
         loadDummyCodi()
         loadToday()
@@ -210,7 +217,25 @@ final class HomeViewModel: ObservableObject {
         navigationRouter.navigate(to: .lookbook)
     }
     
-    func addLookbook() {}
+    func addLookbook() {
+        print("DEBUG: addLookbook() called") // 호출 여부 확인
+        Task {
+            do {
+                let list = try await addToLookBookUseCase.execute()
+                self.lookBookList = list
+                self.showLookBookSheet = true
+                print("DEBUG: showLookBookSheet set to true, list count: \(list.count)")
+            } catch {
+                print("DEBUG: Failed to load lookbooks: \(error)")
+            }
+        }
+    }
+    
+    func selectLookBook(_ entity: LookBookBottomSheetEntity) {
+        print("Selected LookBook ID: \(entity.lookbookId)")
+        showLookBookSheet = false
+        // 추가 성공 팝업 등을 띄우는 로직으로 이어질 수 있음
+    }
     
     func sharedCodi() {}
 }

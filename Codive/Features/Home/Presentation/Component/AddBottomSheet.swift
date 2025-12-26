@@ -129,20 +129,6 @@ struct BottomSheet<Content: View>: View {
     }
 }
 
-// MARK: - LookBook Bottom Sheet Entity
-
-/// 룩북 선택 바텀시트에 표시될 항목 정보를 담는 엔티티
-struct LookBookBottomSheetEntity: Identifiable, Hashable {
-    let lookbookId: Int
-    let codiId: Int
-    let imageUrl: String
-    let title: String
-    let count: Int
-    
-    /// ForEach 에 사용하기 위한 고유 id (룩북 기준)
-    var id: Int { lookbookId }
-}
-
 // MARK: - LookBook Card View
 
 /// 썸네일, 제목, 코디 개수를 보여주는 룩북 카드 컴포넌트

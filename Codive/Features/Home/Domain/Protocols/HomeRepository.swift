@@ -28,4 +28,6 @@ protocol HomeRepository {
     
     // MARK: - Date
     func getToday() -> DateEntity
+    
+    func fetchLookBookList() async throws -> [LookBookBottomSheetEntity]
 }

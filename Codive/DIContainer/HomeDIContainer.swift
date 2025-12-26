@@ -56,6 +56,10 @@ final class HomeDIContainer {
         DateUseCase(repository: homeRepository)
     }
     
+    func makeAddToLookBookUseCase() -> AddToLookBookUseCase {
+        AddToLookBookUseCase(repository: homeRepository)
+    }
+    
     // MARK: - Initializer
     init(navigationRouter: NavigationRouter) {
         self.navigationRouter = navigationRouter
@@ -73,7 +77,8 @@ final class HomeDIContainer {
             fetchWeatherUseCase: makeFetchWeatherUseCase(),
             todayCodiUseCase: makeTodayCodiUseCase(),
             dateUseCase: makeDateUseCase(),
-            categoryUseCase: makeCategoryUseCase()
+            categoryUseCase: makeCategoryUseCase(),
+            addToLookBookUseCase: makeAddToLookBookUseCase()
         )
 
         homeViewModel = viewModel

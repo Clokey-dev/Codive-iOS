@@ -127,3 +127,16 @@ struct CodiCoordinatePayloadDTO: Codable {
     let degree: Double
     let order: Int
 }
+
+// MARK: - LookBook Bottom Sheet Entity
+
+/// 룩북 선택 바텀시트에 표시될 항목 정보를 담는 엔티티
+// MARK: - LookBook BottomSheet Entity
+struct LookBookBottomSheetEntity: Identifiable, Codable {
+    var id = UUID()
+    let lookbookId: Int
+    let codiId: Int
+    let imageUrl: String
+    let title: String
+    let count: Int
+}

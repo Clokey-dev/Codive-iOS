@@ -10,14 +10,14 @@ import CoreLocation
 
 struct HomeView: View {
     private let homeDIContainer: HomeDIContainer
-    @StateObject private var viewModel: HomeViewModel
+    @ObservedObject var viewModel: HomeViewModel
     @ObservedObject private var navigationRouter: NavigationRouter
     @State private var scrollViewID = UUID()
     
-    init(homeDIContainer: HomeDIContainer) {
+    init(homeDIContainer: HomeDIContainer, viewModel: HomeViewModel) {
         self.homeDIContainer = homeDIContainer
+        self.viewModel = viewModel
         self._navigationRouter = ObservedObject(wrappedValue: homeDIContainer.navigationRouter)
-        _viewModel = StateObject(wrappedValue: homeDIContainer.makeHomeViewModel())
     }
     
     var body: some View {

@@ -61,4 +61,8 @@ final class HomeRepositoryImpl: HomeRepository {
     func getToday() -> DateEntity {
         dataSource.fetchToday()
     }
+    
+    func fetchLookBookList() async throws -> [LookBookBottomSheetEntity] {
+        return try await dataSource.fetchLookBookList()
+    }
 }

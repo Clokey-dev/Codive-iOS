@@ -244,4 +244,16 @@ final class HomeDatasource {
         let todayString = formatter.string(from: Date())
         return DateEntity(formattedDate: todayString)
     }
+    
+    // MARK: - LookBook (API Mock)
+    func fetchLookBookList() async throws -> [LookBookBottomSheetEntity] {
+        // 네트워크 지연 시뮬레이션
+        try await Task.sleep(nanoseconds: 300_000_000)
+        
+        return [
+            LookBookBottomSheetEntity(lookbookId: 1, codiId: 101, imageUrl: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800", title: "운동룩", count: 6),
+            LookBookBottomSheetEntity(lookbookId: 2, codiId: 102, imageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800", title: "출근룩", count: 12),
+            LookBookBottomSheetEntity(lookbookId: 3, codiId: 103, imageUrl: "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=800", title: "데이트룩", count: 16)
+        ]
+    }
 }
