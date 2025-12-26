@@ -23,6 +23,7 @@ final class HomeViewModel: ObservableObject {
     @Published var todayString: String = ""
     @Published var selectedItemID: Int?
     @Published var codiItems: [CodiItemEntity] = []
+    @Published var selectedItemTags: [ClothTagEntity] = []
     @Published var activeCategories: [CategoryEntity] = []
     @Published var clothItemsByCategory: [Int: [HomeClothEntity]] = [:]
     
@@ -168,8 +169,26 @@ final class HomeViewModel: ObservableObject {
         selectedIndex = index
     }
     
+    // selectItem 메서드 수정
     func selectItem(_ id: Int?) {
         selectedItemID = id
+        if let id = id {
+            // 실제로는 repository를 통해 해당 clothId의 태그 리스트를 가져와야 합니다.
+            // 여기서는 조건에 맞는 Mock 데이터를 생성합니다.
+            self.selectedItemTags = [
+                ClothTagEntity(brand: "Brand Name", content: "texttexttexttexttexttext...", locationX: 0.5, locationY: 0.3)
+            ]
+        } else {
+            self.selectedItemTags = []
+        }
+    }
+
+    // 태그 위치 업데이트 (드래그 시 사용)
+    func updateTagPosition(tagId: UUID, x: CGFloat, y: CGFloat, imageSize: CGSize) {
+        if let index = selectedItemTags.firstIndex(where: { $0.id == tagId }) {
+            selectedItemTags[index].locationX = x / imageSize.width
+            selectedItemTags[index].locationY = y / imageSize.height
+        }
     }
     
     func handleSearchTap() {}

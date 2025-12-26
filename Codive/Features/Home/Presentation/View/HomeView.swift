@@ -23,42 +23,43 @@ struct HomeView: View {
     var body: some View {
         GeometryReader { outerGeometry in
             ZStack {
-                VStack(spacing: 0) {
-                    ScrollView {
-                        VStack {
-                            if let weather = viewModel.weatherData {
-                                WeatherCardView(weatherData: weather)
-                                    .padding(.horizontal, 20)
+                // 전체 배경
+                Color.white
+                    .ignoresSafeArea()
+                
+                ScrollView {
+                    VStack {
+                        // 날씨 카드
+                        if let weather = viewModel.weatherData {
+                            WeatherCardView(weatherData: weather)
+                                .padding(.horizontal, 20)
+                                .padding(.top, 16)
+                        } else {
+                            if let errorMessage = viewModel.weatherErrorMessage {
+                                Text(errorMessage)
+                                    .foregroundStyle(.red)
+                                    .multilineTextAlignment(.center)
                                     .padding(.top, 16)
+                                    .padding(.horizontal, 20)
                             } else {
-                                if let errorMessage = viewModel.weatherErrorMessage {
-                                    Text(errorMessage)
-                                        .foregroundStyle(.red)
-                                        .multilineTextAlignment(.center)
-                                        .padding(.top, 16)
-                                        .padding(.horizontal, 20)
-                                } else {
-                                    ProgressView(TextLiteral.Home.weatherLoading)
-                                        .padding(.top, 16)
-                                }
-                            }
-                            
-                            if viewModel.hasCodi {
-                                HomeHasCodiView(
-                                    viewModel: viewModel,
-                                    width: outerGeometry.size.width
-                                )
-                            } else {
-                                HomeNoCodiView(viewModel: viewModel)
+                                ProgressView(TextLiteral.Home.weatherLoading)
+                                    .padding(.top, 16)
                             }
                         }
+                        
+                        // 코디 여부에 따라 다른 뷰
+                        if viewModel.hasCodi {
+                            HomeHasCodiView(
+                                viewModel: viewModel,
+                                width: outerGeometry.size.width
+                            )
+                        } else {
+                            HomeNoCodiView(viewModel: viewModel)
+                        }
                     }
-                    .id(scrollViewID) // 스크롤 초기화를 위한 ID
-                    .padding(.bottom, 80)
+                    .padding(.bottom, 16)   // 필요하면 살짝만 여백
                 }
-                .background(alignment: .center) {
-                    Color.white
-                }
+                .id(scrollViewID)
                 
                 // 팝업 오버레이
                 if viewModel.showCompletePopUp {

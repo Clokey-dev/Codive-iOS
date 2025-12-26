@@ -227,12 +227,33 @@ final class HomeDatasource {
     
     func loadDummyCodiItems() -> [CodiItemEntity] {
         return [
-            CodiItemEntity(id: 1, imageName: "image1", x: 80, y: 80, width: 80, height: 80),
-            CodiItemEntity(id: 2, imageName: "image2", x: 160, y: 120, width: 90, height: 90),
-            CodiItemEntity(id: 3, imageName: "image3", x: 240, y: 160, width: 100, height: 100),
-            CodiItemEntity(id: 4, imageName: "image4", x: 120, y: 240, width: 70, height: 70),
-            CodiItemEntity(id: 5, imageName: "image5", x: 200, y: 280, width: 120, height: 120),
-            CodiItemEntity(id: 6, imageName: "image6", x: 250, y: 240, width: 110, height: 110)
+            // 상의 (왼쪽 위 근처)
+            CodiItemEntity(
+                id: 2,
+                imageName: "image4",
+                x: 100,   // ← 캔버스 가로의 약 25%
+                y: 100,   // ← 세로의 약 25%
+                width: 90,
+                height: 90
+            ),
+            // 바지 (오른쪽 중간쯤)
+            CodiItemEntity(
+                id: 3,
+                imageName: "image3",
+                x: 300,  // ← 가로 75%
+                y: 200,  // ← 세로 35% 근처
+                width: 100,
+                height: 100
+            ),
+            // 신발 (왼쪽 아래 근처)
+            CodiItemEntity(
+                id: 4,
+                imageName: "image2",
+                x: 150,  // ← 가로 35% 근처
+                y: 300,  // ← 세로 75%
+                width: 70,
+                height: 70
+            )
         ]
     }
     
