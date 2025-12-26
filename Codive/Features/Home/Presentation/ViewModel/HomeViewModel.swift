@@ -168,15 +168,22 @@ final class HomeViewModel: ObservableObject {
     func selectCloth(at index: Int) {
         selectedIndex = index
     }
-    
-    // selectItem 메서드 수정
+
     func selectItem(_ id: Int?) {
         selectedItemID = id
-        if let id = id {
-            // 실제로는 repository를 통해 해당 clothId의 태그 리스트를 가져와야 합니다.
-            // 여기서는 조건에 맞는 Mock 데이터를 생성합니다.
+        if let id = id, let item = codiItems.first(where: { $0.id == id }) {
+            // 이미지 중심 좌표(item.x)가 화면 중앙보다 오른쪽인지 왼쪽인지 판단
+            // (기준을 200으로 잡거나 UIScreen.main.bounds.width / 2로 설정)
+            let isImageOnRight = item.x > 200
+            
             self.selectedItemTags = [
-                ClothTagEntity(brand: "Brand Name", content: "texttexttexttexttexttext...", locationX: 0.5, locationY: 0.3)
+                ClothTagEntity(
+                    title: item.brandName,
+                    content: item.clothName, // 또는 item.description
+                    locationX: 0.5,
+                    locationY: 0.5,
+                    isRightSide: !isImageOnRight // 이미지가 오른쪽이면 태그는 왼쪽(false)
+                )
             ]
         } else {
             self.selectedItemTags = []

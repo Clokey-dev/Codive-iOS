@@ -75,30 +75,20 @@ struct HomeHasCodiView: View {
                             GeometryReader { proxy in
                                 let imageSize = proxy.size
                                 
-                                // 3. 선택된 아이템인 경우에만 태그 표시
                                 if viewModel.selectedItemID == item.id {
                                     ForEach(viewModel.selectedItemTags) { tag in
                                         CustomTagView(type: .basic(
-                                            title: tag.brand,
+                                            title: tag.title,
                                             content: tag.content
                                         ))
-                                        // 4. 절대 좌표 계산: 상대좌표 * 실제크기
                                         .position(
                                             x: tag.locationX * imageSize.width,
                                             y: tag.locationY * imageSize.height
                                         )
-                                        // 5. 드래그를 통한 위치 업데이트 (선택 사항)
-                                        .gesture(
-                                            DragGesture()
-                                                .onChanged { value in
-                                                    viewModel.updateTagPosition(
-                                                        tagId: tag.id,
-                                                        x: value.location.x,
-                                                        y: value.location.y,
-                                                        imageSize: imageSize
-                                                    )
-                                                }
-                                        )
+                                        // 이미지 위치에 따른 좌우 반전 오프셋 적용
+                                        // 태그 자체의 너비만큼 왼쪽 혹은 오른쪽으로 밀어줌
+                                        .offset(x: tag.isRightSide ? 120 : -120)
+                                        .animation(.spring(), value: tag.isRightSide)
                                     }
                                 }
                             }

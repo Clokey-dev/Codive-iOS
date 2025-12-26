@@ -231,15 +231,21 @@ final class HomeDatasource {
             CodiItemEntity(
                 id: 2,
                 imageName: "image4",
+                clothName: "체크 셔츠",
+                brandName: "Polo",
+                description: "사계절 착용 가능한 셔츠",
                 x: 100,   // ← 캔버스 가로의 약 25%
                 y: 100,   // ← 세로의 약 25%
-                width: 90,
-                height: 90
+                width: 70,
+                height: 70
             ),
             // 바지 (오른쪽 중간쯤)
             CodiItemEntity(
                 id: 3,
                 imageName: "image3",
+                clothName: "와이드 치노 팬츠",
+                brandName: "Basic Concept",
+                description: "사계절 착용 가능한 면 바지",
                 x: 300,  // ← 가로 75%
                 y: 200,  // ← 세로 35% 근처
                 width: 100,
@@ -249,10 +255,13 @@ final class HomeDatasource {
             CodiItemEntity(
                 id: 4,
                 imageName: "image2",
+                clothName: "Dr.Martens",
+                brandName: "Codive Studio",
+                description: "구두",
                 x: 150,  // ← 가로 35% 근처
                 y: 300,  // ← 세로 75%
-                width: 70,
-                height: 70
+                width: 90,
+                height: 90
             )
         ]
     }
