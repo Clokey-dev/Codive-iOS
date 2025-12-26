@@ -54,7 +54,7 @@ struct HomeView: View {
                         }
                     }
                     .id(scrollViewID) // 스크롤 초기화를 위한 ID
-                    .padding(.bottom, 72)
+                    .padding(.bottom, 80)
                 }
                 .background(alignment: .center) {
                     Color.white

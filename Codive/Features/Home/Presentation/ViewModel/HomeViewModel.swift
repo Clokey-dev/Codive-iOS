@@ -14,7 +14,7 @@ import CoreLocation
 final class HomeViewModel: ObservableObject {
     
     // MARK: - Properties
-    @Published var hasCodi: Bool = false
+    @Published var hasCodi: Bool = true
     @Published var selectedIndex: Int? = 0
     @Published var showClothSelector: Bool = false
     @Published var titleFrame: CGRect = .zero
