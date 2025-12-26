@@ -200,7 +200,7 @@ private struct PercentBubbleView: View {
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
             .background(
-                SpeechBubbleShape(radius: 8, tailSize: 4, tailWidth: 12)
+                SpeechBubbleShape()
                     .fill(Color.white)
                     .shadow(color: Color.black.opacity(0.08), radius: 6, x: 0, y: 3)
             )

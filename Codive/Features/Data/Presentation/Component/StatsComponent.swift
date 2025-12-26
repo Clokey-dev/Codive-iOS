@@ -155,37 +155,3 @@ private struct DonutSegmentView: View {
         .animation(.spring(), value: isSelected)
     }
 }
-
-// 섹터 Shape (rect 기반으로만 path 생성)
-private struct SectorShape: Shape {
-    var startAngle: Double
-    var endAngle: Double
-    var innerRadius: CGFloat
-    var outerRadius: CGFloat
-
-    var animatableData: AnimatablePair<Double, Double> {
-        get { .init(startAngle, endAngle) }
-        set { startAngle = newValue.first; endAngle = newValue.second }
-    }
-
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        let center = CGPoint(x: rect.midX, y: rect.midY)
-
-        let startRad = startAngle * .pi / 180
-        let endRad = endAngle * .pi / 180
-
-        path.addArc(center: center, radius: outerRadius,
-                    startAngle: Angle(radians: startRad),
-                    endAngle: Angle(radians: endRad),
-                    clockwise: false)
-
-        path.addArc(center: center, radius: innerRadius,
-                    startAngle: Angle(radians: endRad),
-                    endAngle: Angle(radians: startRad),
-                    clockwise: true)
-
-        path.closeSubpath()
-        return path
-    }
-}
