@@ -48,64 +48,59 @@ struct HomeHasCodiView: View {
             Spacer()
         }
     }
-    
+
     private var codiDisplayArea: some View {
-        ZStack(alignment: .bottomLeading) {
-            RoundedRectangle(cornerRadius: 15)
-                .fill(Color.Codive.grayscale7)
-                .frame(
-                    width: max(width - 40, 0),
-                    height: max(width - 40, 0)
-                )
-                .overlay(alignment: .center) {
-                    RoundedRectangle(cornerRadius: 15)
-                        .stroke(Color.gray.opacity(0.4), lineWidth: 1)
-                }
-                .padding(.horizontal, 20)
+        // 가장 바깥쪽 ZStack에 GeometryReader를 사용하여 전체 캔버스 크기를 잡습니다.
+        GeometryReader { canvasProxy in
+            let canvasSize = canvasProxy.size
             
-            ForEach(viewModel.codiItems) { item in
-                ZStack {
-                    // 1. 실제 이미지 표시
+            ZStack(alignment: .bottomLeading) {
+                // 1. 배경 사각형
+                RoundedRectangle(cornerRadius: 15)
+                    .fill(Color.Codive.grayscale7)
+                    .frame(width: canvasSize.width, height: canvasSize.height)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 15)
+                            .stroke(Color.gray.opacity(0.4), lineWidth: 1)
+                    }
+
+                // 2. 코디 아이템들 (이미지 레이어)
+                ForEach(viewModel.codiItems) { item in
                     Image(item.imageName)
                         .resizable()
                         .scaledToFit()
                         .frame(width: item.width, height: item.height)
-                        .overlay(
-                            // 2. GeometryReader를 사용하여 이미지 내부 좌표계 확보
-                            GeometryReader { proxy in
-                                let imageSize = proxy.size
-                                
-                                if viewModel.selectedItemID == item.id {
-                                    ForEach(viewModel.selectedItemTags) { tag in
-                                        CustomTagView(type: .basic(
-                                            title: tag.title,
-                                            content: tag.content
-                                        ))
-                                        .position(
-                                            x: tag.locationX * imageSize.width,
-                                            y: tag.locationY * imageSize.height
-                                        )
-                                        // 이미지 위치에 따른 좌우 반전 오프셋 적용
-                                        // 태그 자체의 너비만큼 왼쪽 혹은 오른쪽으로 밀어줌
-                                        .offset(x: tag.isRightSide ? 120 : -120)
-                                        .animation(.spring(), value: tag.isRightSide)
-                                    }
-                                }
-                            }
-                        )
+                        .position(x: item.x, y: item.y)
                 }
-                // 전체 캔버스에서의 위치
-                .position(x: item.x, y: item.y)
+                
+                if let selectedID = viewModel.selectedItemID,
+                   let selectedItem = viewModel.codiItems.first(where: { $0.id == selectedID }) {
+                    
+                    ForEach(viewModel.selectedItemTags) { tag in
+                        CustomTagView(type: .basic(
+                            title: tag.title,
+                            content: tag.content
+                        ))
+                        .position(
+                            x: selectedItem.x + (tag.locationX - 0.5) * selectedItem.width,
+                            y: selectedItem.y + (tag.locationY - 0.5) * selectedItem.height
+                        )
+                        .offset(x: tag.isRightSide ? 120 : -120)
+                        .transition(.opacity.combined(with: .scale))
+                        .zIndex(100) // 명시적으로 높은 zIndex 부여
+                    }
+                }
+
+                Button(action: viewModel.toggleClothSelector) {
+                    Image("ic_tag")
+                        .resizable()
+                        .frame(width: 28, height: 28)
+                }
+                .padding([.leading, .bottom], 16)
             }
-            
-            Button(action: viewModel.toggleClothSelector) {
-                Image("ic_tag")
-                    .resizable()
-                    .frame(width: 28, height: 28)
-            }
-            .padding(.leading, 36)
-            .padding(.bottom, 16)
         }
+        .frame(width: max(width - 40, 0), height: max(width - 40, 0))
+        .padding(.horizontal, 20)
     }
     
     private var clothSelector: some View {

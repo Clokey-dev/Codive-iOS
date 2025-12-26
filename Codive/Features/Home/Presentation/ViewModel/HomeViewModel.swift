@@ -162,6 +162,12 @@ final class HomeViewModel: ObservableObject {
     func toggleClothSelector() {
         withAnimation(.spring()) {
             showClothSelector.toggle()
+            
+            // 셀렉터가 닫힐 때(false가 될 때) 선택된 아이템 정보 초기화
+            if !showClothSelector {
+                selectedItemID = nil
+                selectedItemTags = []
+            }
         }
     }
     
@@ -170,23 +176,25 @@ final class HomeViewModel: ObservableObject {
     }
 
     func selectItem(_ id: Int?) {
-        selectedItemID = id
-        if let id = id, let item = codiItems.first(where: { $0.id == id }) {
-            // 이미지 중심 좌표(item.x)가 화면 중앙보다 오른쪽인지 왼쪽인지 판단
-            // (기준을 200으로 잡거나 UIScreen.main.bounds.width / 2로 설정)
-            let isImageOnRight = item.x > 200
-            
-            self.selectedItemTags = [
-                ClothTagEntity(
-                    title: item.brandName,
-                    content: item.clothName, // 또는 item.description
-                    locationX: 0.5,
-                    locationY: 0.5,
-                    isRightSide: !isImageOnRight // 이미지가 오른쪽이면 태그는 왼쪽(false)
-                )
-            ]
-        } else {
-            self.selectedItemTags = []
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+            selectedItemID = id
+            if let id = id, let item = codiItems.first(where: { $0.id == id }) {
+                // 이미지 중심 좌표(item.x)가 화면 중앙보다 오른쪽인지 왼쪽인지 판단
+                // (기준을 200으로 잡거나 UIScreen.main.bounds.width / 2로 설정)
+                let isImageOnRight = item.x > 200
+                
+                self.selectedItemTags = [
+                    ClothTagEntity(
+                        title: item.brandName,
+                        content: item.clothName, // 또는 item.description
+                        locationX: 0.5,
+                        locationY: 0.5,
+                        isRightSide: !isImageOnRight // 이미지가 오른쪽이면 태그는 왼쪽(false)
+                    )
+                ]
+            } else {
+                self.selectedItemTags = []
+            }
         }
     }
 

@@ -229,6 +229,18 @@ final class HomeDatasource {
         return [
             // 상의 (왼쪽 위 근처)
             CodiItemEntity(
+                id: 1,
+                imageName: "image1",
+                clothName: "모자",
+                brandName: "Polo",
+                description: "사계절 착용 가능한 모자",
+                x: 300,   // ← 캔버스 가로의 약 25%
+                y: 100,   // ← 세로의 약 25%
+                width: 70,
+                height: 70
+            ),
+            // 상의 (왼쪽 위 근처)
+            CodiItemEntity(
                 id: 2,
                 imageName: "image4",
                 clothName: "체크 셔츠",
