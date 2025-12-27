@@ -27,7 +27,7 @@ struct SplashView: View {
                 
                 HStack(alignment: .center, spacing: 2) {
                     Text(fullText)
-                        .font(.system(size: 60, weight: .bold))
+                        .font(.codive_splash)
                     
                     Rectangle()
                         .frame(width: cursorWidth, height: 50)
@@ -36,11 +36,11 @@ struct SplashView: View {
                 
                 HStack(alignment: .center, spacing: 2) {
                     Text(displayedText)
-                        .font(.system(size: 60, weight: .bold))
-                        .foregroundColor(Color(red: 50/255, green: 34/255, blue: 34/255))
+                        .font(.codive_splash)
+                        .foregroundColor(Color.Codive.main0)
                     
                     Rectangle()
-                        .fill(Color(red: 50/255, green: 34/255, blue: 34/255))
+                        .fill(Color.Codive.main0)
                         .frame(width: cursorWidth, height: 50)
                 }
             }
