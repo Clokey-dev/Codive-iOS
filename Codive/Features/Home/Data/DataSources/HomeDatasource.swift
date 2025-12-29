@@ -129,35 +129,37 @@ final class HomeDatasource {
     
     // MARK: - Cloth Items (API Mock)
     func fetchClothItems(request: ClothListRequestDTO) async throws -> [ClothListResponseDTO] {
-        // TODO: 실제 API 호출로 교체
-        // let response = try await apiClient.get("/api/clothes", parameters: request.toQueryParameters())
-        
         print("===== 🔵 Cloth List Request Mock =====")
         print("Request Parameters:", request.toQueryParameters())
         
-        // Mock Response Data
-        await Task.sleep(500_000_000) // 0.5초 딜레이 (네트워크 시뮬레이션)
+        // 카테고리 ID에 따라 다른 데이터를 반환
+        let categoryId = request.categoryId ?? 1
+        let mockResponse: [ClothListResponseDTO]
         
-        let mockResponse: [ClothListResponseDTO] = [
-            ClothListResponseDTO(
-                clothId: 1,
-                clothImageUrl: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800"
-            ),
-            ClothListResponseDTO(
-                clothId: 2,
-                clothImageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800"
-            ),
-            ClothListResponseDTO(
-                clothId: 3,
-                clothImageUrl: "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=800"
-            ),
-            ClothListResponseDTO(
-                clothId: 4,
-                clothImageUrl: "https://images.unsplash.com/photo-1584735175315-9d5df23860b1?w=800"
-            )
-        ]
+        switch categoryId {
+        case 1: // 상의
+            mockResponse = [
+                ClothListResponseDTO(clothId: 101, clothImageUrl: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800"), // 흰 티셔츠
+                ClothListResponseDTO(clothId: 102, clothImageUrl: "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=800")  // 셔츠
+            ]
+        case 2: // 바지
+            mockResponse = [
+                ClothListResponseDTO(clothId: 201, clothImageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800"), // 청바지
+                ClothListResponseDTO(clothId: 202, clothImageUrl: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800")  // 슬랙스
+            ]
+        case 5: // 신발
+            mockResponse = [
+                ClothListResponseDTO(clothId: 501, clothImageUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800"), // 빨간 운동화
+                ClothListResponseDTO(clothId: 502, clothImageUrl: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800")  // 갈색 구두
+            ]
+        default:
+            // 나머지 카테고리는 빈 배열 혹은 기본 이미지 반환
+            mockResponse = [
+                ClothListResponseDTO(clothId: Int64(categoryId * 100), clothImageUrl: "https://images.unsplash.com/photo-1584735175315-9d5df23860b1?w=800")
+            ]
+        }
         
-        print("Response Count:", mockResponse.count)
+        print("Response Count for Category \(categoryId):", mockResponse.count)
         print("===== ✅ Mock response complete =====")
         
         return mockResponse
