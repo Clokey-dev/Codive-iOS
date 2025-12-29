@@ -7,9 +7,15 @@
 
 import SwiftUI
 
+enum SearchResultSegment {
+    case account
+    case hashtag
+}
+
 struct SearchResultView: View {
     // MARK: - Properties
     @StateObject private var viewModel: SearchResultViewModel
+    @State private var selectedSegment: SearchResultSegment = .account
     
     // MARK: - Computed Properties
     private var sortOptionsString: [String] {
@@ -35,37 +41,25 @@ struct SearchResultView: View {
                 viewModel.executeNewSearch(query: viewModel.searchBarText)
             }
             
+            SearchResultSegmentControl(selectedSegment: $selectedSegment)
+                .padding(.top, 16)
+            
             ScrollView {
-                VStack {
-                    HStack {
-                        Text("\(TextLiteral.Search.totalCount) \(viewModel.posts.count)\(TextLiteral.Search.countUnit)")
-                            .font(Font.codive_body2_medium)
-                            .foregroundStyle(Color.Codive.grayscale3)
-                        Spacer()
-
-                        SortOption(
-                            mainText: TextLiteral.Search.sortAll,
-                            options: sortOptionsString,
-                            selectedOption: $viewModel.currentSort
-                        )
-                        .zIndex(10)
-                    }
-                    .padding(.top, 18)
-                    .zIndex(10)
-                    
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 11) {
-                        ForEach(viewModel.posts) { post in
-                            PostCard(
-                                postImageUrl: post.postImageUrl,
-                                profileImageUrl: post.profileImageUrl,
-                                nickname: post.nickname
-                            )
+                if selectedSegment == .account {
+                    VStack(spacing: 0) {
+                        ForEach(viewModel.users, id: \.userId) { user in
+                            CustomUserRow(
+                                user: user,
+                                buttonStyle: .none
+                            ) {
+                                // 버튼 동작
+                            }
                         }
                     }
                     .padding(.top, 18)
-                    .zIndex(1)
+                } else {
+                    Hashtag(viewModel: viewModel)
                 }
-                .padding(.bottom, 20)
             }
         }
         .navigationBarHidden(true)
@@ -73,7 +67,96 @@ struct SearchResultView: View {
         .padding(.horizontal, 20)
         // MARK: - Data Loading Trigger
         .onAppear {
-            viewModel.loadPosts()
+            viewModel.loadInitialData()
         }
+    }
+}
+
+// 아래 Hashtag / SearchResultSegmentControl는 너가 만든 버전 그대로 사용
+
+struct Hashtag: View {
+    @ObservedObject var viewModel: SearchResultViewModel
+    
+    // MARK: - Computed Properties
+    private var sortOptionsString: [String] {
+        viewModel.sortOptions.map { $0.displayName }
+    }
+    
+    // MARK: - Body
+    var body: some View {
+        VStack {
+            HStack {
+                Text("\(TextLiteral.Search.totalCount) \(viewModel.posts.count)\(TextLiteral.Search.countUnit)")
+                    .font(Font.codive_body2_medium)
+                    .foregroundStyle(Color.Codive.grayscale3)
+                Spacer()
+
+                SortOption(
+                    mainText: TextLiteral.Search.sortAll,
+                    options: sortOptionsString,
+                    selectedOption: $viewModel.currentSort
+                )
+                .zIndex(10)
+            }
+            .padding(.top, 18)
+            .zIndex(10)
+            
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 11) {
+                ForEach(viewModel.posts) { post in
+                    PostCard(
+                        postImageUrl: post.postImageUrl,
+                        profileImageUrl: post.profileImageUrl,
+                        nickname: post.nickname
+                    )
+                }
+            }
+            .padding(.top, 18)
+            .zIndex(1)
+        }
+        .padding(.bottom, 20)
+    }
+}
+
+struct SearchResultSegmentControl: View {
+    @Binding var selectedSegment: SearchResultSegment
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                segmentItem(title: "계정", segment: .account)
+                segmentItem(title: "해시태그", segment: .hashtag)
+            }
+            
+            Rectangle()
+                .frame(height: 1)
+                .foregroundStyle(Color.Codive.grayscale4)
+        }
+    }
+    
+    @ViewBuilder
+    private func segmentItem(title: String, segment: SearchResultSegment) -> some View {
+        Button {
+            selectedSegment = segment
+        } label: {
+            VStack(spacing: 6) {
+                Text(title)
+                    .font(.codive_body1_medium)
+                    .foregroundStyle(
+                        selectedSegment == segment
+                        ? Color.Codive.grayscale1
+                        : Color.Codive.grayscale3
+                    )
+                
+                Rectangle()
+                    .frame(height: 2)
+                    .foregroundStyle(
+                        selectedSegment == segment
+                        ? Color.Codive.main0
+                        : .clear
+                    )
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.plain)
     }
 }

@@ -9,7 +9,7 @@ import Foundation
 
 final class SearchDataSource {
     
-    // MARK: - Fetch Methods
+    // MARK: - Fetch Methods (기존)
     
     func fetchUserName() -> SearchEntity {
         return SearchEntity(username: "코디브")
@@ -55,7 +55,26 @@ final class SearchDataSource {
         }
     }
     
-    // MARK: - Private Methods
+    // MARK: - Fetch Methods (계정용 추가)
+    
+    /// 검색어를 기준으로 유저 목록을 필터링해서 반환
+    func fetchUsers(query: String) -> [SimpleUser] {
+        let allUsers = getAllUsers()
+        
+        // 전체 or 빈 문자열이면 전부 리턴
+        if query.isEmpty || query == "전체" {
+            return allUsers
+        }
+        
+        let lowercasedQuery = query.lowercased()
+        
+        return allUsers.filter { user in
+            user.nickname.lowercased().contains(lowercasedQuery)
+            || user.handle.lowercased().contains(lowercasedQuery)
+        }
+    }
+    
+    // MARK: - Private Methods (공통)
     
     private func createDate(year: Int, month: Int, day: Int) -> Date {
         var components = DateComponents()
@@ -64,6 +83,8 @@ final class SearchDataSource {
         components.day = day
         return Calendar.current.date(from: components) ?? Date()
     }
+    
+    // MARK: - Private Methods (게시글 더미)
     
     private func getAllPosts() -> [PostEntity] {
         return [
@@ -102,6 +123,37 @@ final class SearchDataSource {
                 likes: 50,
                 date: createDate(year: 2025, month: 11, day: 19),
                 description: "드뮤어룩 첼시부츠"
+            )
+        ]
+    }
+    
+    // MARK: - Private Methods (유저 더미)
+    
+    private func getAllUsers() -> [SimpleUser] {
+        return [
+            SimpleUser(
+                userId: 1,
+                nickname: "코디브 공식",
+                handle: "@codive_official",
+                avatarURL: URL(string: "https://picsum.photos/id/200/80/80")
+            ),
+            SimpleUser(
+                userId: 2,
+                nickname: "한금준",
+                handle: "@geumjoon",
+                avatarURL: URL(string: "https://picsum.photos/id/201/80/80")
+            ),
+            SimpleUser(
+                userId: 3,
+                nickname: "드뮤어룩 장인",
+                handle: "@demure_master",
+                avatarURL: URL(string: "https://picsum.photos/id/202/80/80")
+            ),
+            SimpleUser(
+                userId: 4,
+                nickname: "한강러버",
+                handle: "@hanriver_lover",
+                avatarURL: nil
             )
         ]
     }
