@@ -30,14 +30,14 @@ struct CustomButton: View {
         Button(action: action) {
             Text(text)
                 .font(Font.codive_title2)
-                .padding()
-                .modifier(TextStyleModifier(type: styleType, isEnabled: isEnabled, customTextColor: textColor))
-        }
+                            .padding()
+                            .modifier(TextStyleModifier(type: styleType, isEnabled: isEnabled, customTextColor: textColor))
+                            .frame(maxWidth: .infinity)        }
         .modifier(WidthModifier(type: widthType))
         .frame(height: 48)
         .modifier(ButtonStyleModifier(type: styleType, isEnabled: isEnabled))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
         .contentShape(Rectangle())
+        .clipShape(RoundedRectangle(cornerRadius: 10))
         .disabled(!isEnabled)
     }
 }
