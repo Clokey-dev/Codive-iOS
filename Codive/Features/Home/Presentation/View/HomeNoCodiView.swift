@@ -16,7 +16,9 @@ struct HomeNoCodiView: View {
             categoryButtons
             codiClothList
             Spacer()
-            bottomButtons
+            if !viewModel.isAllCategoriesEmpty {
+                bottomButtons
+            }
         }
         .onAppear {
             viewModel.onAppear()

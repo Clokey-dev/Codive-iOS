@@ -14,7 +14,7 @@ import CoreLocation
 final class HomeViewModel: ObservableObject {
     
     // MARK: - Properties
-    @Published var hasCodi: Bool = true
+    @Published var hasCodi: Bool = false
     @Published var selectedIndex: Int? = 0
     @Published var showClothSelector: Bool = false
     @Published var titleFrame: CGRect = .zero
@@ -34,6 +34,14 @@ final class HomeViewModel: ObservableObject {
     // 바텀시트 관련 프로퍼티 추가
     @Published var showLookBookSheet: Bool = false
     @Published var lookBookList: [LookBookBottomSheetEntity] = []
+    
+    var isAllCategoriesEmpty: Bool {
+        // activeCategories에 있는 각 카테고리의 아이템 개수를 모두 더함
+        let totalItemCount = activeCategories.reduce(0) { sum, category in
+            sum + (clothItemsByCategory[category.id]?.count ?? 0)
+        }
+        return totalItemCount == 0
+    }
     
     let navigationRouter: NavigationRouter
     
