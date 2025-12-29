@@ -7,11 +7,13 @@
 
 import SwiftUI
 
+// MARK: - Segment Type
 enum SearchResultSegment {
     case account
     case hashtag
 }
 
+// MARK: - Search Result
 struct SearchResultView: View {
     // MARK: - Properties
     @StateObject private var viewModel: SearchResultViewModel
@@ -45,6 +47,7 @@ struct SearchResultView: View {
                 .padding(.top, 16)
             
             ScrollView {
+                // MARK: - Account Result List
                 if selectedSegment == .account {
                     VStack(spacing: 0) {
                         ForEach(viewModel.users, id: \.userId) { user in
@@ -58,6 +61,7 @@ struct SearchResultView: View {
                     }
                     .padding(.top, 18)
                 } else {
+                    // MARK: - Hashtag Result Grid
                     Hashtag(viewModel: viewModel)
                 }
             }
@@ -72,8 +76,7 @@ struct SearchResultView: View {
     }
 }
 
-// 아래 Hashtag / SearchResultSegmentControl는 너가 만든 버전 그대로 사용
-
+// MARK: - Hashtag View
 struct Hashtag: View {
     @ObservedObject var viewModel: SearchResultViewModel
     
@@ -117,6 +120,7 @@ struct Hashtag: View {
     }
 }
 
+// MARK: - Segment Control
 struct SearchResultSegmentControl: View {
     @Binding var selectedSegment: SearchResultSegment
     
