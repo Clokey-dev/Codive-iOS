@@ -85,8 +85,11 @@ final class HomeViewModel: ObservableObject {
     }
 
     func loadActiveCategories() {
-        let categories = categoryUseCase.loadCategories()
-        activeCategories = categories
+        let allCategories = categoryUseCase.loadCategories()
+        print("전체 카테고리 개수: \(allCategories.count)")
+
+        self.activeCategories = allCategories.filter { $0.itemCount > 0 }
+        print("활성화된 카테고리: \(activeCategories.map { $0.title })")
         
         let clothItems = categoryUseCase.loadClothItems()
         clothItemsByCategory = Dictionary(grouping: clothItems) { $0.categoryId }
@@ -94,13 +97,17 @@ final class HomeViewModel: ObservableObject {
 
     // MARK: - 새로운 API 방식 (비동기)
     func loadActiveCategoriesWithAPI() async {
-        let categories = categoryUseCase.loadCategories()
-        activeCategories = categories
+        // 1. 모든 카테고리를 가져온 후 itemCount가 1 이상인 것만 필터링
+        let allCategories = categoryUseCase.loadCategories()
+        let filteredCategories = allCategories.filter { $0.itemCount > 0 }
         
-        // 각 카테고리별로 옷 아이템 로드
+        // 2. UI에 반영될 리스트를 필터링된 것으로 교체
+        self.activeCategories = filteredCategories
+        
         var allClothItems: [HomeClothEntity] = []
         
-        for category in categories {
+        // 3. 전체(categories)가 아닌 필터링된 리스트(filteredCategories)로 루프 실행
+        for category in filteredCategories {
             do {
                 let items = try await categoryUseCase.loadClothItems(
                     lastClothId: nil,
@@ -110,11 +117,11 @@ final class HomeViewModel: ObservableObject {
                 )
                 allClothItems.append(contentsOf: items)
             } catch {
-                print("Failed to load cloth items for category \(category.id): \(error)")
+                print("Failed to load items for category \(category.id): \(error)")
             }
         }
         
-        // 카테고리별로 그룹화
+        // 4. 결과 그룹화
         clothItemsByCategory = Dictionary(grouping: allClothItems) { $0.categoryId }
     }
 

@@ -56,9 +56,15 @@ final class EditCategoryViewModel: ObservableObject {
                 let category = defaultCategories[i]
                 if [1, 2, 5].contains(category.id) {
                     defaultCategories[i].itemCount = 1
+                } else {
+                    defaultCategories[i].itemCount = 0
                 }
             }
             self.categories = defaultCategories
+            // 초기 로드 시 바로 저장하여 Home에서도 동일하게 보이도록 함
+            if let encoded = try? JSONEncoder().encode(defaultCategories) {
+                savedCategoriesData = encoded
+            }
         }
         self.initialCategories = self.categories
     }

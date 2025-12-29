@@ -139,22 +139,22 @@ final class HomeDatasource {
         await Task.sleep(500_000_000) // 0.5초 딜레이 (네트워크 시뮬레이션)
         
         let mockResponse: [ClothListResponseDTO] = [
-//            ClothListResponseDTO(
-//                clothId: 1,
-//                clothImageUrl: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800"
-//            ),
-//            ClothListResponseDTO(
-//                clothId: 2,
-//                clothImageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800"
-//            ),
-//            ClothListResponseDTO(
-//                clothId: 3,
-//                clothImageUrl: "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=800"
-//            ),
-//            ClothListResponseDTO(
-//                clothId: 4,
-//                clothImageUrl: "https://images.unsplash.com/photo-1584735175315-9d5df23860b1?w=800"
-//            )
+            ClothListResponseDTO(
+                clothId: 1,
+                clothImageUrl: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800"
+            ),
+            ClothListResponseDTO(
+                clothId: 2,
+                clothImageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800"
+            ),
+            ClothListResponseDTO(
+                clothId: 3,
+                clothImageUrl: "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=800"
+            ),
+            ClothListResponseDTO(
+                clothId: 4,
+                clothImageUrl: "https://images.unsplash.com/photo-1584735175315-9d5df23860b1?w=800"
+            )
         ]
         
         print("Response Count:", mockResponse.count)
