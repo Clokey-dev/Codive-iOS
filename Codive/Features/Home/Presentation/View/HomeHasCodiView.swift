@@ -76,18 +76,37 @@ struct HomeHasCodiView: View {
                 if let selectedID = viewModel.selectedItemID,
                    let selectedItem = viewModel.codiItems.first(where: { $0.id == selectedID }) {
                     
+                    // 아이템이 캔버스의 왼쪽에 더 가까운지 오른쪽에 더 가까운지 판단
+                    let distanceToLeft = selectedItem.x
+                    let distanceToRight = canvasSize.width - selectedItem.x
+                    let shouldShowOnRight = distanceToLeft < distanceToRight
+                    
+                    // 태그의 기본 오프셋
+                    let tagOffset: CGFloat = 120
+                    
                     ForEach(viewModel.selectedItemTags) { tag in
+                        // 태그의 기본 위치 계산
+                        let baseX = selectedItem.x + (tag.locationX - 0.5) * selectedItem.width
+                        let baseY = selectedItem.y + (tag.locationY - 0.5) * selectedItem.height
+                        
+                        // 태그를 좌우로 배치
+                        let tagX = baseX + (shouldShowOnRight ? tagOffset : -tagOffset)
+                        
+                        // 태그가 캔버스 밖으로 나가지 않도록 조정
+                        // 태그의 대략적인 너비를 100으로 가정 (실제 너비에 맞게 조정 필요)
+                        let tagWidth: CGFloat = 100
+                        let tagHeight: CGFloat = 40
+                        
+                        let clampedX = min(max(tagX, tagWidth / 2), canvasSize.width - tagWidth / 2)
+                        let clampedY = min(max(baseY, tagHeight / 2), canvasSize.height - tagHeight / 2)
+                        
                         CustomTagView(type: .basic(
                             title: tag.title,
                             content: tag.content
                         ))
-                        .position(
-                            x: selectedItem.x + (tag.locationX - 0.5) * selectedItem.width,
-                            y: selectedItem.y + (tag.locationY - 0.5) * selectedItem.height
-                        )
-                        .offset(x: tag.isRightSide ? 120 : -120)
+                        .position(x: clampedX, y: clampedY)
                         .transition(.opacity.combined(with: .scale))
-                        .zIndex(100) // 명시적으로 높은 zIndex 부여
+                        .zIndex(100)
                     }
                 }
 

@@ -231,9 +231,9 @@ final class HomeDatasource {
             CodiItemEntity(
                 id: 1,
                 imageName: "image1",
-                clothName: "모자",
-                brandName: "Polo",
-                description: "사계절 착용 가능한 모자",
+                clothName: "시계",
+                brandName: "apple",
+                description: "사계절 착용 가능한 시계",
                 x: 300,   // ← 캔버스 가로의 약 25%
                 y: 100,   // ← 세로의 약 25%
                 width: 70,
@@ -274,6 +274,17 @@ final class HomeDatasource {
                 y: 300,  // ← 세로 75%
                 width: 90,
                 height: 90
+            ),
+            CodiItemEntity(
+                id: 5,
+                imageName: "image5",
+                clothName: "??",
+                brandName: "??",
+                description: "사계절 착용 가능한 ??",
+                x: 200,   // ← 캔버스 가로의 약 25%
+                y: 200,   // ← 세로의 약 25%
+                width: 100,
+                height: 100
             )
         ]
     }
