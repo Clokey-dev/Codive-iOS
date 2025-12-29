@@ -155,7 +155,7 @@ final class HomeDatasource {
         default:
             // 나머지 카테고리는 빈 배열 혹은 기본 이미지 반환
             mockResponse = [
-                ClothListResponseDTO(clothId: Int64(categoryId * 100), clothImageUrl: "https://images.unsplash.com/photo-1584735175315-9d5df23860b1?w=800")
+//                ClothListResponseDTO(clothId: Int64(categoryId * 100), clothImageUrl: "https://images.unsplash.com/photo-1584735175315-9d5df23860b1?w=800")
             ]
         }
         

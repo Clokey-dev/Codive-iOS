@@ -55,6 +55,7 @@ struct HomeNoCodiView: View {
                     items: clothItems,
                     isEmptyState: clothItems.isEmpty
                 )
+                .id("\(category.id)-\(clothItems.count)")
             }
         }
         .padding(.horizontal, 20)
