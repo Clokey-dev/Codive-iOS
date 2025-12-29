@@ -153,6 +153,8 @@ enum TextLiteral {
         static let totalCount = "총"
         static let countUnit = "개"
         static let sortAll = "전체"
+        static let account = "계정"
+        static let hashtag = "해시태그"
     }
     
     enum Notification {

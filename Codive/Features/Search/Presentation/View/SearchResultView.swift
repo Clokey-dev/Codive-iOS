@@ -38,13 +38,14 @@ struct SearchResultView: View {
                     viewModel.handleBackTap()
                 }
             )
+            .padding(.horizontal, 20)
             .zIndex(1)
             .onSubmit {
                 viewModel.executeNewSearch(query: viewModel.searchBarText)
             }
             
             SearchResultSegmentControl(selectedSegment: $selectedSegment)
-                .padding(.top, 16)
+                .padding(.top, 8)
             
             ScrollView {
                 // MARK: - Account Result List
@@ -63,12 +64,12 @@ struct SearchResultView: View {
                 } else {
                     // MARK: - Hashtag Result Grid
                     Hashtag(viewModel: viewModel)
+                        .padding(.horizontal, 20)
                 }
             }
         }
         .navigationBarHidden(true)
         .background(Color.white.ignoresSafeArea(.all))
-        .padding(.horizontal, 20)
         // MARK: - Data Loading Trigger
         .onAppear {
             viewModel.loadInitialData()
@@ -127,13 +128,13 @@ struct SearchResultSegmentControl: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
-                segmentItem(title: "계정", segment: .account)
-                segmentItem(title: "해시태그", segment: .hashtag)
+                segmentItem(title: TextLiteral.Search.account, segment: .account)
+                segmentItem(title: TextLiteral.Search.hashtag, segment: .hashtag)
             }
             
             Rectangle()
-                .frame(height: 1)
-                .foregroundStyle(Color.Codive.grayscale4)
+                .frame(height: 2)
+                .foregroundStyle(Color.Codive.grayscale6)
         }
     }
     
@@ -144,18 +145,22 @@ struct SearchResultSegmentControl: View {
         } label: {
             VStack(spacing: 6) {
                 Text(title)
-                    .font(.codive_body1_medium)
+                    .font(
+                        selectedSegment == segment
+                        ? .codive_body1_medium
+                        : .codive_body1_regular
+                    )
                     .foregroundStyle(
                         selectedSegment == segment
                         ? Color.Codive.grayscale1
-                        : Color.Codive.grayscale3
+                        : Color.Codive.grayscale4
                     )
                 
                 Rectangle()
                     .frame(height: 2)
                     .foregroundStyle(
                         selectedSegment == segment
-                        ? Color.Codive.main0
+                        ? Color.Codive.point1
                         : .clear
                     )
             }
