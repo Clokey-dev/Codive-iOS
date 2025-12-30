@@ -17,6 +17,7 @@ final class NotificationViewModel: ObservableObject {
     @Published var readNotifications: [NotificationEntity] = []
     
     @Published var isReported: Bool = false
+    @Published var reportType: ReportType? = nil
     
     // MARK: - Initializer
     init(navigationRouter: NavigationRouter, useCase: NotificationUseCase) {
@@ -30,7 +31,9 @@ final class NotificationViewModel: ObservableObject {
         self.unreadNotifications = allNotifications.filter { $0.readStatus == .unread }
         self.readNotifications = allNotifications.filter { $0.readStatus == .read }
         
-        self.isReported = useCase.fetchReportStatus().isReported
+        let reportStatus = useCase.fetchReportStatus()
+        self.isReported = reportStatus.isReported
+        self.reportType = reportStatus.reportType
     }
     
     // MARK: - Navigation

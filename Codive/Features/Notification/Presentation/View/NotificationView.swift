@@ -26,8 +26,8 @@ struct NotificationView: View {
             
             ScrollView {
                 VStack(spacing: 0) {
-                    if viewModel.isReported {
-                        ReportSubmissionGuide()
+                    if viewModel.isReported, let type = viewModel.reportType {
+                        ReportSubmissionGuide(reportType: type)
                     }
                     
                     // MARK: - Notification Sections

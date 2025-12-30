@@ -30,6 +30,12 @@ struct NotificationEntity: Codable, Identifiable {
     var id: Int { notificationId }
 }
 
+enum ReportType: String, Codable {
+    case feed = "FEED"
+    case comment = "COMMENT"
+}
+
 struct ReportEntity: Codable {
     let isReported: Bool
+    let reportType: ReportType? 
 }
