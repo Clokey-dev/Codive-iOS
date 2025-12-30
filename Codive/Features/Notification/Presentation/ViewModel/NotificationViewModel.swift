@@ -17,7 +17,7 @@ final class NotificationViewModel: ObservableObject {
     @Published var readNotifications: [NotificationEntity] = []
     
     @Published var isReported: Bool = false
-    @Published var reportType: ReportType? = nil
+    @Published var reportType: ReportType?
     
     // MARK: - Initializer
     init(navigationRouter: NavigationRouter, useCase: NotificationUseCase) {
