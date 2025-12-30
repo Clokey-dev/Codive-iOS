@@ -22,4 +22,13 @@ final class NotificationUseCase {
     func fetchReportStatus() -> ReportEntity {
         return repository.fetchReportStatus()
     }
+    
+    func markNotificationAsRead(notificationId: Int) async {
+        let request = NotificationReadRequestEntity(notificationId: notificationId)
+        do {
+            try await repository.markNotificationAsRead(request: request)
+        } catch {
+            print("알림 읽음 처리 실패: \(error)")
+        }
+    }
 }

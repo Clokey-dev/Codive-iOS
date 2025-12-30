@@ -64,4 +64,8 @@ final class NotificationDataSource {
     func fetchReportStatus() -> ReportEntity {
         return ReportEntity(isReported: true, reportType: .feed)
     }
+    
+    func patchNotificationRead(notificationId: Int) async throws {
+        print("서버에 알림 \(notificationId)번 읽음 처리 요청 전송")
+    }
 }

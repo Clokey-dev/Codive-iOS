@@ -8,4 +8,5 @@
 protocol NotificationRepository {
     func fetchNotifications() -> [NotificationEntity]
     func fetchReportStatus() -> ReportEntity
+    func markNotificationAsRead(request: NotificationReadRequestEntity) async throws
 }

@@ -22,4 +22,8 @@ final class NotificationRepositoryImpl: NotificationRepository {
     func fetchReportStatus() -> ReportEntity {
         return datasource.fetchReportStatus()
     }
+    
+    func markNotificationAsRead(request: NotificationReadRequestEntity) async throws {
+        try await datasource.patchNotificationRead(notificationId: request.notificationId)
+    }
 }
