@@ -72,6 +72,13 @@ struct NotificationView: View {
             VStack(spacing: 16) {
                 ForEach(notifications) { item in
                     NotificationRow(entity: item)
+                        .contentShape(Rectangle()) // 투명한 영역도 탭이 되도록 설정
+                        .onTapGesture {
+                            if item.readStatus == .unread {
+                                viewModel.markAsRead(notificationId: item.notificationId)
+                            }
+                            // 페이지 이동 로직 호출 구간
+                        }
                 }
             }
             .padding(.top, 12)
