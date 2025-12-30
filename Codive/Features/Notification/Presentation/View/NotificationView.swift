@@ -67,10 +67,7 @@ struct NotificationView: View {
 
             VStack(spacing: 16) {
                 ForEach(notifications) { item in
-                    NotificationRow(
-                        profileImageUrl: item.imageUrl,
-                        message: item.message
-                    )
+                    NotificationRow(entity: item)
                 }
             }
             .padding(.top, 12)

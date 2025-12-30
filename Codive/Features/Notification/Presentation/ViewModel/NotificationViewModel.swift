@@ -26,9 +26,9 @@ final class NotificationViewModel: ObservableObject {
     func loadData() {
         let allNotifications = useCase.fetchNotifications()
         
-        // isRead 상태를 기준으로 필터링
-        self.unreadNotifications = allNotifications.filter { !$0.isRead }
-        self.readNotifications = allNotifications.filter { $0.isRead }
+        // readStatus Enum 값을 직접 비교하여 필터링
+        self.unreadNotifications = allNotifications.filter { $0.readStatus == .unread }
+        self.readNotifications = allNotifications.filter { $0.readStatus == .read }
     }
     
     // MARK: - Navigation
