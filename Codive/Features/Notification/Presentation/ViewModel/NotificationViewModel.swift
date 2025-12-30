@@ -16,6 +16,8 @@ final class NotificationViewModel: ObservableObject {
     @Published var unreadNotifications: [NotificationEntity] = []
     @Published var readNotifications: [NotificationEntity] = []
     
+    @Published var isReported: Bool = false
+    
     // MARK: - Initializer
     init(navigationRouter: NavigationRouter, useCase: NotificationUseCase) {
         self.navigationRouter = navigationRouter
@@ -25,10 +27,10 @@ final class NotificationViewModel: ObservableObject {
     // MARK: - Methods
     func loadData() {
         let allNotifications = useCase.fetchNotifications()
-        
-        // readStatus Enum 값을 직접 비교하여 필터링
         self.unreadNotifications = allNotifications.filter { $0.readStatus == .unread }
         self.readNotifications = allNotifications.filter { $0.readStatus == .read }
+        
+        self.isReported = useCase.fetchReportStatus().isReported
     }
     
     // MARK: - Navigation

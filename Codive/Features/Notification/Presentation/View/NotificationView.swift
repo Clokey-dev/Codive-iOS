@@ -25,7 +25,11 @@ struct NotificationView: View {
                 }
             
             ScrollView {
-                VStack {
+                VStack(spacing: 0) {
+                    if viewModel.isReported {
+                        ReportSubmissionGuide()
+                    }
+                    
                     // MARK: - Notification Sections
                     notificationSection(
                         title: TextLiteral.Notification.notRead,

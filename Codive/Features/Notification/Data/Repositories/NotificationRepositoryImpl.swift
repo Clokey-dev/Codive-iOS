@@ -18,4 +18,8 @@ final class NotificationRepositoryImpl: NotificationRepository {
     func fetchNotifications() -> [NotificationEntity] {
         return datasource.fetchNotifications()
     }
+    
+    func fetchReportStatus() -> ReportEntity {
+        return datasource.fetchReportStatus()
+    }
 }

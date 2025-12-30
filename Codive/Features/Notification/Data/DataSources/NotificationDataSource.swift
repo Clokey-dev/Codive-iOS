@@ -60,4 +60,8 @@ final class NotificationDataSource {
             )
         ]
     }
+    
+    func fetchReportStatus() -> ReportEntity {
+        return ReportEntity(isReported: true)
+    }
 }

@@ -7,4 +7,5 @@
 
 protocol NotificationRepository {
     func fetchNotifications() -> [NotificationEntity]
+    func fetchReportStatus() -> ReportEntity
 }

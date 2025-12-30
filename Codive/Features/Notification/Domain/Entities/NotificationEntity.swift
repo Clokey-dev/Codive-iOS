@@ -29,3 +29,7 @@ struct NotificationEntity: Codable, Identifiable {
 
     var id: Int { notificationId }
 }
+
+struct ReportEntity: Codable {
+    let isReported: Bool
+}

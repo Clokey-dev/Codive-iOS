@@ -18,4 +18,8 @@ final class NotificationUseCase {
     func fetchNotifications() -> [NotificationEntity] {
         return repository.fetchNotifications()
     }
+    
+    func fetchReportStatus() -> ReportEntity {
+        return repository.fetchReportStatus()
+    }
 }
