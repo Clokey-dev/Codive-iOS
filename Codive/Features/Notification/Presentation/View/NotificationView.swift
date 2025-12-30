@@ -67,7 +67,7 @@ struct NotificationView: View {
                     .foregroundStyle(Color.Codive.grayscale3)
                 Spacer()
             }
-            .padding(.top, 32)
+            .padding(.top, 20)
 
             VStack(spacing: 16) {
                 ForEach(notifications) { item in
