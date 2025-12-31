@@ -76,6 +76,8 @@ struct SearchView: View {
                                             // 삭제 버튼은 별도로 동작 (SearchTagView 내부 Button)
                                             viewModel.deleteTag(tag: tag)
                                         }
+                                        .padding(.vertical, 2)
+                                        .padding(.horizontal, 2)
                                     }
                                     .buttonStyle(PlainButtonStyle()) // 기본 버튼 스타일 제거
                                 }
