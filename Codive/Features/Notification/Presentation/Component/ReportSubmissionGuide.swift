@@ -10,13 +10,12 @@ import SwiftUI
 struct ReportSubmissionGuide: View {
     let reportType: ReportType
     
-    // 타입에 따른 안내 문구 결정
     private var reportTargetText: String {
         switch reportType {
         case .feed:
-            return "게시글이"
+            return TextLiteral.Notification.feedType
         case .comment:
-            return "댓글이"
+            return TextLiteral.Notification.commentType
         }
     }
     
@@ -29,21 +28,19 @@ struct ReportSubmissionGuide: View {
                     .frame(width: 24, height: 24)
                     .foregroundColor(Color.Codive.point1)
                 
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("신고 접수 안내")
-                        .font(.codive_body1_medium)
-                        .foregroundColor(Color.Codive.grayscale1)
-                }
+                Text(TextLiteral.Notification.reportTitle)
+                    .font(.codive_body1_medium)
+                    .foregroundColor(Color.Codive.grayscale1)
+                
                 Spacer()
             }
             
             VStack(alignment: .leading, spacing: 4) {
-                // 동적 텍스트 적용
-                Text("회원님의 \(reportTargetText) 운영 정책 위반으로 신고되었습니다.")
+                Text(TextLiteral.Notification.reportBody1(reportTargetText))
                     .font(.codive_body2_regular)
                     .foregroundColor(Color.Codive.grayscale1)
                 
-                Text("확인 및 조치는 영업일 기준 3~5일정도 소요됩니다.")
+                Text(TextLiteral.Notification.reportBody2)
                     .font(.codive_body2_regular)
                     .foregroundColor(Color.Codive.grayscale1)
             }

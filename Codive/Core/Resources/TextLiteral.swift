@@ -162,6 +162,13 @@ enum TextLiteral {
         static let read = "읽음"
         static let notRead = "읽지 않음"
         static let noNewNoti = "새로운 알림이 없습니다."
+        static let feedType = "게시글"
+        static let commentType = "댓글"
+        static let reportTitle = "신고 접수 안내"
+        static func reportBody1(_ target: String) -> String {
+            "회원님의 \(target)이 운영 정책 위반으로 신고되었습니다."
+        }
+        static let reportBody2 = "확인 및 조치는 영업일 기준 3~5일정도 소요됩니다."
     }
     
     enum LookBook {
