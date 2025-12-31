@@ -15,6 +15,7 @@ enum SearchBarType {
 struct CustomSearchBar: View {
     @Binding var text: String
     var type: SearchBarType = .normal
+    var onSearch: () -> Void
     
     var body: some View {
         HStack {
@@ -42,8 +43,11 @@ struct CustomSearchBar: View {
                         .foregroundStyle(Color.Codive.grayscale1)
                 }
                 
-                Image(systemName: "magnifyingglass")
-                    .foregroundStyle(Color.Codive.main1)
+                Button(action: onSearch) {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundStyle(Color.Codive.main1)
+                        .padding(4)
+                }
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 12)
@@ -70,18 +74,25 @@ struct StatefulPreviewWrapper<Value>: View {
 #Preview {
     VStack(spacing: 16) {
         // 일반 타입
-        StatefulPreviewWrapper("") {
-            CustomSearchBar(text: $0, type: .normal)
+        StatefulPreviewWrapper("") { $text in
+            CustomSearchBar(
+                text: $text,
+                type: .normal
+            ) {
+                print("검색어: \(text)")
+            }
         }
 
         // 뒤로가기 버튼 타입
-        StatefulPreviewWrapper("") {
+        StatefulPreviewWrapper("") { $text in
             CustomSearchBar(
-                text: $0,
+                text: $text,
                 type: .withBackButton {
                     print("뒤로가기 버튼 눌림")
                 }
-            )
+            ) {
+                print("검색 실행: \(text)")
+            }
         }
     }
     .padding(.horizontal, 20)

@@ -25,7 +25,10 @@ struct SearchView: View {
                 type: .withBackButton {
                     viewModel.handleBackTap()
                 }
-            )
+            ) {
+                viewModel.executeSearch(query: searchText)
+                hideKeyboard()
+            }
             .onSubmit {
                 viewModel.executeSearch(query: searchText)
             }
@@ -110,18 +113,24 @@ struct SearchView: View {
                     }.padding(.top, 8)
                 }
                 .padding(.bottom, 20)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    hideKeyboard()
+                }
             }
         }
         .navigationBarHidden(true)
-        .background(Color.white.ignoresSafeArea(.all))
+        .background(
+            Color.white
+                .ignoresSafeArea(.all)
+                .onTapGesture { // 3. 배경 터치 시 키보드 내림
+                    hideKeyboard()
+                }
+        )
         .padding(.horizontal, 20)
         // MARK: - Data Loading Trigger
         .onAppear {
             viewModel.loadData()
-        }
-        .onTapGesture {
-            // 화면의 빈 곳을 터치하면 키보드를 내림
-            hideKeyboard()
         }
         // MARK: - Alert
         .alert(

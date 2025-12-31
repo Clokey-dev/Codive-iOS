@@ -30,7 +30,10 @@ struct SearchResultView: View {
                 type: .withBackButton {
                     viewModel.handleBackTap()
                 }
-            )
+            ) {
+                viewModel.executeNewSearch(query: viewModel.searchBarText)
+                hideKeyboard()
+            }
             .padding(.horizontal, 20)
             .zIndex(1)
             .onSubmit {
@@ -60,9 +63,19 @@ struct SearchResultView: View {
                         .padding(.horizontal, 20)
                 }
             }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                hideKeyboard()
+            }
         }
         .navigationBarHidden(true)
-        .background(Color.white.ignoresSafeArea(.all))
+        .background(
+            Color.white
+                .ignoresSafeArea(.all)
+                .onTapGesture { // 3. 배경 터치 시 키보드 내림
+                    hideKeyboard()
+                }
+        )
         // MARK: - Data Loading Trigger
         .onAppear {
             viewModel.loadInitialData()
