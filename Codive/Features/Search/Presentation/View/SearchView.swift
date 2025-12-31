@@ -63,7 +63,7 @@ struct SearchView: View {
                         .padding(.top, 8)
                     } else {
                         ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 16) {
+                            HStack(spacing: 10) {
                                 ForEach(viewModel.recentSearchTags) { tag in
                                     // 1. 태그 전체를 버튼화하여 클릭 액션 추가
                                     Button {
@@ -118,6 +118,10 @@ struct SearchView: View {
         // MARK: - Data Loading Trigger
         .onAppear {
             viewModel.loadData()
+        }
+        .onTapGesture {
+            // 화면의 빈 곳을 터치하면 키보드를 내림
+            hideKeyboard()
         }
         // MARK: - Alert
         .alert(
