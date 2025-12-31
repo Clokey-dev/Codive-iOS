@@ -59,6 +59,11 @@ final class SearchViewModel: ObservableObject {
         self.recentSearchTags = []
     }
     
+    func handleTagTap(tag: SearchTagEntity) {
+        // 검색 실행 로직 호출
+        executeSearch(query: tag.text)
+    }
+    
     // MARK: - Navigation
     func handleBackTap() {
         navigationRouter.navigateBack()
