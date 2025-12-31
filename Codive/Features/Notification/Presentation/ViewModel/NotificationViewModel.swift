@@ -41,19 +41,9 @@ final class NotificationViewModel: ObservableObject {
                 try await useCase.markNotificationAsRead(notificationId: notificationId)
                 
                 if let index = unreadNotifications.firstIndex(where: { $0.notificationId == notificationId }) {
-                    let readItem = unreadNotifications.remove(at: index)
-                    
-                    let updatedItem = NotificationEntity(
-                        notificationId: readItem.notificationId,
-                        notificationImageUrl: readItem.notificationImageUrl,
-                        notificationContent: readItem.notificationContent,
-                        redirectInfo: readItem.redirectInfo,
-                        redirectType: readItem.redirectType,
-                        readStatus: .read,
-                        createdAt: readItem.createdAt
-                    )
-                    
-                    readNotifications.insert(updatedItem, at: 0)
+                    var readItem = unreadNotifications.remove(at: index)
+                    readItem.readStatus = .read
+                    readNotifications.insert(readItem, at: 0)
                 }
             } catch {
                 readErrorMessage = "알림 읽음 처리에 실패했어요. 잠시 후 다시 시도해 주세요."

@@ -27,7 +27,7 @@ struct NotificationEntity: Codable, Identifiable {
     let notificationContent: String
     let redirectInfo: String
     let redirectType: RedirectType
-    let readStatus: ReadStatus
+    var readStatus: ReadStatus
     let createdAt: String
 
     var id: Int { notificationId }
