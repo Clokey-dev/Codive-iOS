@@ -12,10 +12,14 @@ struct CategoryCounterView: View {
     @Binding var count: Int
 
     let totalCount: Int
-    let maxLimit: Int = 10
-
-    private var minCount: Int {
-        return 0
+    let isFixed: Bool // 고정 여부 추가
+    
+    private let maxLimit: Int = 7
+    private let categoryLimit: Int = 1
+    
+    /// Treats count like an empty-state flag for lint clarity
+    private var isEmpty: Bool {
+        count == .zero
     }
 
     var body: some View {
@@ -26,42 +30,44 @@ struct CategoryCounterView: View {
             
             Spacer()
             
+            // 감소 버튼
             Button {
-                if count > minCount {
+                if !isFixed && !isEmpty {
                     count -= 1
                 }
             } label: {
                 Circle()
-                    .fill(count > minCount ? Color.Codive.main5 : Color.Codive.grayscale5)
+                    .fill(!isFixed && !isEmpty ? Color.Codive.main5 : Color.Codive.grayscale5)
                     .frame(width: 28, height: 28)
                     .overlay(
                         Image(systemName: "minus")
                             .font(.system(size: 14, weight: .bold))
-                            .foregroundStyle(count > minCount ? Color.Codive.main1 : Color.Codive.grayscale3)
+                            .foregroundStyle(!isFixed && !isEmpty ? Color.Codive.main1 : Color.Codive.grayscale3)
                     )
             }
-            .disabled(count <= minCount)
+            .disabled(isFixed || isEmpty)
             
             Text("\(count)")
                 .font(Font.codive_body1_medium)
                 .foregroundStyle(.black)
                 .frame(width: 24)
             
+            // 증가 버튼 (카테고리당 최대 1개 & 전체 합 7개 제한)
             Button {
-                if totalCount < maxLimit {
+                if !isFixed && count < categoryLimit && totalCount < maxLimit {
                     count += 1
                 }
             } label: {
                 Circle()
-                    .fill(totalCount < maxLimit ? Color.Codive.main5 : Color.Codive.grayscale5)
+                    .fill(!isFixed && count < categoryLimit && totalCount < maxLimit ? Color.Codive.main5 : Color.Codive.grayscale5)
                     .frame(width: 28, height: 28)
                     .overlay(
                         Image(systemName: "plus")
                             .font(.system(size: 14, weight: .bold))
-                            .foregroundStyle(totalCount < maxLimit ? Color.Codive.main1 : Color.Codive.grayscale3)
+                            .foregroundStyle(!isFixed && count < categoryLimit && totalCount < maxLimit ? Color.Codive.main1 : Color.Codive.grayscale3)
                     )
             }
-            .disabled(totalCount >= maxLimit)
+            .disabled(isFixed || count >= categoryLimit || totalCount >= maxLimit)
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 12)
@@ -83,7 +89,8 @@ private struct PreviewWrapper: View {
         CategoryCounterView(
             title: "상의",
             count: $topCount,
-            totalCount: 1
+            totalCount: 1,
+            isFixed: true
         )
         .padding()
     }

@@ -22,7 +22,7 @@ struct EditCategoryView: View {
             
             ScrollView {
                 VStack {
-                    Text("\(TextLiteral.Home.currentCategoryCount) (\(viewModel.totalCount)/10)")
+                    Text("\(TextLiteral.Home.currentCategoryCount) (\(viewModel.totalCount)/7)")
                         .font(Font.codive_title2)
                         .foregroundStyle(Color.Codive.grayscale1)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -33,7 +33,8 @@ struct EditCategoryView: View {
                             CategoryCounterView(
                                 title: category.title,
                                 count: $category.itemCount,
-                                totalCount: viewModel.totalCount
+                                totalCount: viewModel.totalCount,
+                                isFixed: viewModel.isFixed(category: category) // 고정 정보 전달
                             )
                         }
                     }

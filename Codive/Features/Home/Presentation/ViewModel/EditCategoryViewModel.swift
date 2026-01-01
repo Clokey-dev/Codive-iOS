@@ -12,6 +12,12 @@ final class EditCategoryViewModel: ObservableObject {
     
     // MARK: - Properties
     private let navigationRouter: NavigationRouter
+    
+    // 전체 최대 개수를 7로 설정
+    private let maxTotalCount = 7
+    // 고정 카테고리 ID (상의: 1, 바지: 2, 신발: 5)
+    private let fixedCategoryIds: Set<Int> = [1, 2, 5]
+    
     var totalCount: Int { categories.reduce(0) { $0 + $1.itemCount } }
     
     var hasChanges: Bool {
@@ -29,11 +35,11 @@ final class EditCategoryViewModel: ObservableObject {
     private var initialCategories: [CategoryEntity] = []
     
     private static var allCategories: [CategoryEntity] = [
-        CategoryEntity(id: 1, title: "상의", itemCount: 0),
-        CategoryEntity(id: 2, title: "바지", itemCount: 0),
+        CategoryEntity(id: 1, title: "상의", itemCount: 1),
+        CategoryEntity(id: 2, title: "바지", itemCount: 1),
         CategoryEntity(id: 3, title: "스커트", itemCount: 0),
         CategoryEntity(id: 4, title: "아우터", itemCount: 0),
-        CategoryEntity(id: 5, title: "신발", itemCount: 0),
+        CategoryEntity(id: 5, title: "신발", itemCount: 1),
         CategoryEntity(id: 6, title: "가방", itemCount: 0),
         CategoryEntity(id: 7, title: "패션 소품", itemCount: 0)
     ]
@@ -48,36 +54,42 @@ final class EditCategoryViewModel: ObservableObject {
     private func loadInitialData() {
         if let data = savedCategoriesData,
            let decodedCategories = try? JSONDecoder().decode([CategoryEntity].self, from: data) {
-            self.categories = decodedCategories
-        } else {
-            // 앱 최초 실행 시 또는 저장된 데이터가 없을 경우
-            var defaultCategories = Self.allCategories
-            for i in defaultCategories.indices {
-                let category = defaultCategories[i]
-                if [1, 2, 5].contains(category.id) {
-                    defaultCategories[i].itemCount = 1
-                } else {
-                    defaultCategories[i].itemCount = 0
+            // 저장된 데이터가 있더라도 고정 항목은 항상 1로 강제 유지
+            self.categories = decodedCategories.map { category in
+                var updated = category
+                if fixedCategoryIds.contains(category.id) {
+                    updated.itemCount = 1
                 }
+                return updated
             }
-            self.categories = defaultCategories
-            // 초기 로드 시 바로 저장하여 Home에서도 동일하게 보이도록 함
-            if let encoded = try? JSONEncoder().encode(defaultCategories) {
+        } else {
+            self.categories = Self.allCategories
+            if let encoded = try? JSONEncoder().encode(Self.allCategories) {
                 savedCategoriesData = encoded
             }
         }
         self.initialCategories = self.categories
     }
     
+    // 고정 여부 확인 함수
+    func isFixed(category: CategoryEntity) -> Bool {
+        return fixedCategoryIds.contains(category.id)
+    }
+    
     // MARK: - Category Count Handling
     func incrementCount(for category: CategoryEntity) {
+        // 고정 항목이거나, 이미 1개이거나, 전체 합이 7이면 중단
+        guard !isFixed(category: category) else { return }
         guard let index = categories.firstIndex(where: { $0.id == category.id }) else { return }
-        if totalCount < 10 {
+        
+        if categories[index].itemCount < 1 && totalCount < maxTotalCount {
             categories[index].itemCount += 1
         }
     }
     
     func decrementCount(for category: CategoryEntity) {
+        // 고정 항목이면 감소 불가
+        guard !isFixed(category: category) else { return }
         guard let index = categories.firstIndex(where: { $0.id == category.id }) else { return }
         if categories[index].itemCount > 0 {
             categories[index].itemCount -= 1
