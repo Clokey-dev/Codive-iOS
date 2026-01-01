@@ -68,21 +68,17 @@ struct SearchView: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 10) {
                                 ForEach(viewModel.recentSearchTags) { tag in
-                                    // 1. 태그 전체를 버튼화하여 클릭 액션 추가
                                     Button {
-                                        // 2. 검색창 텍스트 업데이트
                                         self.searchText = tag.text
-                                        // 3. ViewModel 검색 로직 실행
                                         viewModel.handleTagTap(tag: tag)
                                     } label: {
                                         SearchTagView(text: tag.text) {
-                                            // 삭제 버튼은 별도로 동작 (SearchTagView 내부 Button)
                                             viewModel.deleteTag(tag: tag)
                                         }
                                         .padding(.vertical, 2)
                                         .padding(.horizontal, 2)
                                     }
-                                    .buttonStyle(PlainButtonStyle()) // 기본 버튼 스타일 제거
+                                    .buttonStyle(PlainButtonStyle())
                                 }
                             }
                         }
@@ -123,7 +119,7 @@ struct SearchView: View {
         .background(
             Color.white
                 .ignoresSafeArea(.all)
-                .onTapGesture { // 3. 배경 터치 시 키보드 내림
+                .onTapGesture { 
                     hideKeyboard()
                 }
         )

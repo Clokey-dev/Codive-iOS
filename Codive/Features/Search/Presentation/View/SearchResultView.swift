@@ -38,6 +38,7 @@ struct SearchResultView: View {
             .zIndex(1)
             .onSubmit {
                 viewModel.executeNewSearch(query: viewModel.searchBarText)
+                hideKeyboard()
             }
             
             SearchResultSegmentControl(selectedSegment: $selectedSegment)
@@ -72,7 +73,7 @@ struct SearchResultView: View {
         .background(
             Color.white
                 .ignoresSafeArea(.all)
-                .onTapGesture { // 3. 배경 터치 시 키보드 내림
+                .onTapGesture { 
                     hideKeyboard()
                 }
         )

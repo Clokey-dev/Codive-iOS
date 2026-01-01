@@ -18,7 +18,7 @@ final class SearchResultViewModel: ObservableObject {
     private var initialQuery: String
     
     @Published var posts: [PostEntity] = []
-    @Published var users: [SimpleUser] = []         // 🔸 계정 탭용
+    @Published var users: [SimpleUser] = []         
     @Published var currentSort: String = "전체"
     @Published var searchBarText: String
     
@@ -66,8 +66,7 @@ final class SearchResultViewModel: ObservableObject {
     }
     
     // MARK: - Public Methods
-    
-    /// 게시글 + 유저를 한 번에 초기 로딩
+
     func loadInitialData() {
         loadPosts()
         loadUsers()
@@ -94,13 +93,11 @@ final class SearchResultViewModel: ObservableObject {
         
         self.initialQuery = trimmedQuery
         self.currentSort = "전체"
-        
-        // 🔸 새 검색 시 게시글 + 유저 둘 다 갱신
+
         loadPosts()
         loadUsers()
         
-        navigationRouter.navigate(to: .searchResult(query: trimmedQuery))
-        print("새로운 검색 실행: \(trimmedQuery)")
+        print("현재 페이지에서 검색 결과 갱신: \(trimmedQuery)")
     }
     
     // MARK: - Navigation
