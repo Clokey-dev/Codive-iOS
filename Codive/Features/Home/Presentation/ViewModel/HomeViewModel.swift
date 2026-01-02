@@ -26,6 +26,7 @@ final class HomeViewModel: ObservableObject {
     @Published var selectedItemTags: [ClothTagEntity] = []
     @Published var activeCategories: [CategoryEntity] = []
     @Published var clothItemsByCategory: [Int: [HomeClothEntity]] = [:]
+    @Published var selectedCodiClothes: [HomeClothEntity] = []
     
     // 팝업 관련 프로퍼티 추가
     @Published var showCompletePopUp: Bool = false
@@ -231,6 +232,15 @@ final class HomeViewModel: ObservableObject {
     }
     
     func handleConfirmCodiTap() {
+        // 1. 현재 화면에 노출된 각 카테고리의 첫 번째 아이템들을 수집 (ID 순 정렬)
+        let items = activeCategories
+            .sorted(by: { $0.id < $1.id })
+            .compactMap { clothItemsByCategory[$0.id]?.first }
+        
+        self.selectedCodiClothes = items
+        
+        // 2. 팝업 띄우기
+        self.showCompletePopUp = true
     }
     
     func handleEditCategory() {
@@ -247,6 +257,7 @@ final class HomeViewModel: ObservableObject {
         showCompletePopUp = false
         // 기록하기 로직 구현
         // 예: navigationRouter.navigate(to: .recordCodi)
+        self.hasCodi = true
     }
     
     func handlePopupClose() {

@@ -142,16 +142,36 @@ final class HomeDatasource {
                 ClothListResponseDTO(clothId: 101, clothImageUrl: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800"), // 흰 티셔츠
                 ClothListResponseDTO(clothId: 102, clothImageUrl: "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=800")  // 셔츠
             ]
-        case 2: // 바지
-            mockResponse = [
-                ClothListResponseDTO(clothId: 201, clothImageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800"), // 청바지
-                ClothListResponseDTO(clothId: 202, clothImageUrl: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800")  // 슬랙스
-            ]
-        case 5: // 신발
-            mockResponse = [
-                ClothListResponseDTO(clothId: 501, clothImageUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800"), // 빨간 운동화
-                ClothListResponseDTO(clothId: 502, clothImageUrl: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800")  // 갈색 구두
-            ]
+//        case 2: // 바지
+//            mockResponse = [
+//                ClothListResponseDTO(clothId: 201, clothImageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800"), // 청바지
+//                ClothListResponseDTO(clothId: 202, clothImageUrl: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800")  // 슬랙스
+//            ]
+//        case 3: // 바지
+//            mockResponse = [
+//                ClothListResponseDTO(clothId: 201, clothImageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800"), // 청바지
+//                ClothListResponseDTO(clothId: 202, clothImageUrl: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800")  // 슬랙스
+//            ]
+//        case 4: // 바지
+//            mockResponse = [
+//                ClothListResponseDTO(clothId: 201, clothImageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800"), // 청바지
+//                ClothListResponseDTO(clothId: 202, clothImageUrl: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800")  // 슬랙스
+//            ]
+//        case 5: // 신발
+//            mockResponse = [
+//                ClothListResponseDTO(clothId: 501, clothImageUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800"), // 빨간 운동화
+//                ClothListResponseDTO(clothId: 502, clothImageUrl: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800")  // 갈색 구두
+//            ]
+//        case 6: // 바지
+//            mockResponse = [
+//                ClothListResponseDTO(clothId: 201, clothImageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800"), // 청바지
+//                ClothListResponseDTO(clothId: 202, clothImageUrl: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800")  // 슬랙스
+//            ]
+//        case 7: // 바지
+//            mockResponse = [
+//                ClothListResponseDTO(clothId: 201, clothImageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800"), // 청바지
+//                ClothListResponseDTO(clothId: 202, clothImageUrl: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800")  // 슬랙스
+//            ]
         default:
             // 나머지 카테고리는 빈 배열 혹은 기본 이미지 반환
             mockResponse = [

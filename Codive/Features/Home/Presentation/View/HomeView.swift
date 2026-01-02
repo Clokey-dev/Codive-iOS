@@ -57,17 +57,18 @@ struct HomeView: View {
                             HomeNoCodiView(viewModel: viewModel)
                         }
                     }
-                    .padding(.bottom, 16)   // 필요하면 살짝만 여백
+                    .padding(.bottom, 16)
                 }
                 .id(scrollViewID)
                 
                 // 팝업 오버레이
                 if viewModel.showCompletePopUp {
+                    // 수정된 부분: imageURL 대신 selectedClothes 리스트를 전달합니다.
                     CompletePopUp(
                         isPresented: $viewModel.showCompletePopUp,
                         onRecordTapped: viewModel.handlePopupRecord,
                         onCloseTapped: viewModel.handlePopupClose,
-                        imageURL: viewModel.completedCodiImageURL
+                        selectedClothes: viewModel.selectedCodiClothes
                     )
                     .zIndex(1)
                 }
