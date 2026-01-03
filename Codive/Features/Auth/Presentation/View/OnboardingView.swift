@@ -98,7 +98,7 @@ struct OnboardingView: View {
                     HStack(spacing: 8) {
                         ForEach(0..<pages.count, id: \.self) { index in
                             Circle()
-                                .fill(currentPage == index ? Color(hex: "FF7F00") : Color.gray.opacity(0.3))
+                                .fill(currentPage == index ? Color.Codive.point1 : Color.gray.opacity(0.3))
                                 .frame(width: 5, height: 5)
                         }
                     }
@@ -117,7 +117,7 @@ struct OnboardingView: View {
                             }
                             .frame(maxWidth: .infinity)
                             .frame(height: 56)
-                            .background(Color(hex: "FEE500"))
+                            .background(Color(red: 254/255, green: 229/255, blue: 0/255))
                             .cornerRadius(12)
                         }
 
@@ -163,31 +163,7 @@ struct OnboardingView: View {
     }
 }
 
-// MARK: - View Extension (특정 corner만 radius 적용)
-extension View {
-    func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
-        clipShape(RoundedCorner(radius: radius, corners: corners))
-    }
-}
-
-// MARK: - Color Extension
-extension Color {
-    init(hex: String) {
-        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-        var int: UInt64 = 0
-        Scanner(string: hex).scanHexInt64(&int)
-        let a, r, g, b: UInt64
-        switch hex.count {
-        case 3: (a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
-        case 6: (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
-        case 8: (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
-        default: (a, r, g, b) = (1, 1, 1, 0)
-        }
-        self.init(.sRGB, red: Double(r) / 255, green: Double(g) / 255, blue: Double(b) / 255, opacity: Double(a) / 255)
-    }
-}
-
-// MARK: - ViewModel Container (DI Container에서 사용)
+// MARK: - OnboardingContainerView (ViewModel 연결)
 struct OnboardingContainerView: View {
     @StateObject var viewModel: OnboardingViewModel
 
