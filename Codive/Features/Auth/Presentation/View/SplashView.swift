@@ -44,7 +44,7 @@ struct SplashView: View {
     }
 }
 
-// MARK: - SplashContainerView (로직 담당)
+// MARK: - SplashContainerView 
 struct SplashContainerView: View {
 
     @StateObject private var viewModel: SplashViewModel
@@ -55,8 +55,8 @@ struct SplashContainerView: View {
 
     var body: some View {
         SplashView(displayedText: viewModel.displayedText)
-            .onAppear {
-                viewModel.startAnimation()
+            .task {
+                await viewModel.startAnimation()
             }
     }
 }
@@ -69,37 +69,33 @@ final class SplashViewModel: ObservableObject {
 
     private let fullText: String = "Codive"
     private let typingSpeed: Double = 0.4
-    private var textIndex: Int = 0
-    private var timer: Timer?
     private let appRouter: AppRouter
 
     init(appRouter: AppRouter) {
         self.appRouter = appRouter
     }
 
-    func startAnimation() {
-        timer = Timer.scheduledTimer(withTimeInterval: typingSpeed, repeats: true) { [weak self] timer in
-            guard let self = self else {
-                timer.invalidate()
+    func startAnimation() async {
+        // 타이핑 애니메이션
+        for i in 1...fullText.count {
+            let endIndex = fullText.index(fullText.startIndex, offsetBy: i)
+            displayedText = String(fullText[..<endIndex])
+
+            do {
+                try await Task.sleep(for: .seconds(typingSpeed))
+            } catch {
                 return
             }
-
-            if self.textIndex < self.fullText.count {
-                self.textIndex += 1
-                let index = self.fullText.index(self.fullText.startIndex, offsetBy: self.textIndex)
-                self.displayedText = String(self.fullText[..<index])
-            } else {
-                timer.invalidate()
-                // 애니메이션 종료 후 0.5초 대기 후 다음 화면으로
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    self.appRouter.finishSplash()
-                }
-            }
         }
-    }
 
-    deinit {
-        timer?.invalidate()
+        // 애니메이션 종료 후 0.5초 대기
+        do {
+            try await Task.sleep(for: .seconds(0.5))
+            appRouter.finishSplash()
+        } catch {
+            // Task 취소됨
+            return
+        }
     }
 }
 

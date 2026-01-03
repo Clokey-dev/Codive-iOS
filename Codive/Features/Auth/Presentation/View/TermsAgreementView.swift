@@ -60,13 +60,12 @@ struct TermsAgreementView: View {
                 AgreementRow(
                     title: "전체 동의",
                     isAgreed: Binding(
-                        get: { isAllAgreed },
+                        get: { self.isAllAgreed },
                         set: { newValue in
-                            // isAllAgreed = newValue 대신 개별 State를 직접 변경합니다.
-                            isServiceAgreed = newValue
-                            isPrivacyAgreed = newValue
-                            isLocationAgreed = newValue
-                            isMarketingAgreed = newValue
+                            self.isServiceAgreed = newValue
+                            self.isPrivacyAgreed = newValue
+                            self.isLocationAgreed = newValue
+                            self.isMarketingAgreed = newValue
                         }
                     ),
                     isBold: true,
@@ -78,10 +77,10 @@ struct TermsAgreementView: View {
                     .padding(.vertical, 10)
                 
                 // 개별 항목들
-                AgreementRow(title: "(필수) 서비스 이용약관", isAgreed: $isServiceAgreed, isRequired: true)
-                AgreementRow(title: "(필수) 개인정보 수집/이용 동의", isAgreed: $isPrivacyAgreed, isRequired: true)
-                AgreementRow(title: "(필수) 위치 기반 서비스 이용약관 동의", isAgreed: $isLocationAgreed, isRequired: true)
-                AgreementRow(title: "(선택) 마케팅 정보수신 동의", isAgreed: $isMarketingAgreed, isRequired: false)
+                AgreementRow(title: "서비스 이용약관", isAgreed: $isServiceAgreed, isRequired: true)
+                AgreementRow(title: "개인정보 수집/이용 동의", isAgreed: $isPrivacyAgreed, isRequired: true)
+                AgreementRow(title: "위치 기반 서비스 이용약관 동의", isAgreed: $isLocationAgreed, isRequired: true)
+                AgreementRow(title: "마케팅 정보수신 동의", isAgreed: $isMarketingAgreed, isRequired: false)
             }
             .padding(.horizontal, 20)
             .padding(.bottom, 50)
@@ -121,7 +120,7 @@ struct AgreementRow: View {
                     Text(isRequired ? "(필수)" : "(선택)")
                         .foregroundColor(isRequired ? .Codive.point1 : .Codive.grayscale4)
                 }
-                Text(title.replacingOccurrences(of: "(필수) ", with: "").replacingOccurrences(of: "(선택) ", with: ""))
+                Text(title)
             }
             .font(isBold ? .codive_body1_bold : .codive_body1_regular)
             .foregroundColor(isBold ? .Codive.grayscale1 : .Codive.grayscale4)

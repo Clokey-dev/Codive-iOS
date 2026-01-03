@@ -30,9 +30,10 @@ struct CustomButton: View {
         Button(action: action) {
             Text(text)
                 .font(Font.codive_title2)
-                            .padding()
-                            .modifier(TextStyleModifier(type: styleType, isEnabled: isEnabled, customTextColor: textColor))
-                            .frame(maxWidth: .infinity)        }
+                .padding()
+                .modifier(TextStyleModifier(type: styleType, isEnabled: isEnabled, customTextColor: textColor))
+                .frame(maxWidth: .infinity)
+        }
         .modifier(WidthModifier(type: widthType))
         .frame(height: 48)
         .modifier(ButtonStyleModifier(type: styleType, isEnabled: isEnabled))

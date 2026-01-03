@@ -25,8 +25,8 @@ struct OnboardingView: View {
     let errorMessage: String?
     let onErrorDismiss: () -> Void
 
-    // 온보딩 데이터: 이미지와 멘트가 세트로 구성됨
-    private let pages = [
+    // 온보딩 데이터
+    private static let pages = [
         OnboardingPage(
             imageName: "onboarding_1",
             title: "오늘의 추천 코디",
@@ -55,10 +55,10 @@ struct OnboardingView: View {
             Color.Codive.main5
                 .ignoresSafeArea()
 
-            // 배경 이미지 (여백 포함)
+            // 배경 이미지
             TabView(selection: $currentPage) {
-                ForEach(0..<pages.count, id: \.self) { index in
-                    Image(pages[index].imageName)
+                ForEach(0..<Self.pages.count, id: \.self) { index in
+                    Image(Self.pages[index].imageName)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .padding(.horizontal, 70)
@@ -75,13 +75,13 @@ struct OnboardingView: View {
                 VStack{
                     // 온보딩 멘트 슬라이드
                     TabView(selection: $currentPage) {
-                        ForEach(0..<pages.count, id: \.self) { index in
+                        ForEach(0..<Self.pages.count, id: \.self) { index in
                             VStack(spacing: 5) {
-                                Text(pages[index].title)
+                                Text(Self.pages[index].title)
                                     .font(.codive_title2)
                                     .foregroundColor(Color.Codive.point1)
 
-                                Text(pages[index].description)
+                                Text(Self.pages[index].description)
                                     .font(.codive_body1_regular)
                                     .multilineTextAlignment(.center)
                                     .foregroundColor(.black.opacity(0.8))
@@ -96,7 +96,7 @@ struct OnboardingView: View {
 
                     // 인디케이터
                     HStack(spacing: 8) {
-                        ForEach(0..<pages.count, id: \.self) { index in
+                        ForEach(0..<Self.pages.count, id: \.self) { index in
                             Circle()
                                 .fill(currentPage == index ? Color.Codive.point1 : Color.gray.opacity(0.3))
                                 .frame(width: 5, height: 5)
@@ -106,7 +106,7 @@ struct OnboardingView: View {
 
                     // 로그인 버튼들
                     VStack(spacing: 12) {
-                        // 카카오 로그인 (노란색)
+                        // 카카오 로그인
                         Button(action: onKakaoLogin) {
                             HStack(spacing: 8) {
                                 Image(systemName: "message.fill")
@@ -121,7 +121,7 @@ struct OnboardingView: View {
                             .cornerRadius(12)
                         }
 
-                        // 애플 로그인 (검은색)
+                        // 애플 로그인 
                         Button(action: onAppleLogin) {
                             HStack(spacing: 8) {
                                 Image(systemName: "applelogo")
