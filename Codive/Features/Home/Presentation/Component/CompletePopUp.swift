@@ -14,29 +14,29 @@ struct CompletePopUp: View {
     
     // 수정: 단일 URL 대신 선택된 옷 리스트를 받음
     var selectedClothes: [HomeClothEntity]
-
+    
     var body: some View {
         ZStack {
             Color.black.opacity(0.7).ignoresSafeArea()
                 .onTapGesture { isPresented = false }
-
+            
             VStack {
                 popupCard
                     .padding(.horizontal, 32)
             }
         }
     }
-
+    
     private var popupCard: some View {
         VStack(spacing: 6) {
             Text(TextLiteral.Home.popUpTitle).font(.codive_title1).padding(.top, 32)
             Text(TextLiteral.Home.popUpSubtitle).font(.codive_body2_regular).padding(.horizontal, 24)
-
+            
             // 핵심 수정 부분: 이미지 합성 뷰
             CodiCompositeView(clothes: selectedClothes)
                 .frame(width: 204, height: 204)
                 .padding(.vertical, 16)
-
+            
             HStack(spacing: 9) {
                 CustomButton(text: TextLiteral.Home.close, widthType: .half, styleType: .border) {
                     isPresented = false
@@ -57,61 +57,83 @@ struct CompletePopUp: View {
 struct CodiCompositeView: View {
     let clothes: [HomeClothEntity]
     let containerSize: CGFloat = 204
-    let itemSize: CGFloat = 102 // 50% 사이즈 (204 / 2) - 필요에 따라 조절
-
+    let itemSize: CGFloat = 100 // 100*100 비율
+    
     var body: some View {
         ZStack {
-            // 투명 정사각형 배경
+            // 배경 영역
             Rectangle()
                 .fill(Color.clear)
                 .frame(width: containerSize, height: containerSize)
-
-            // Case 별 레이아웃 처리
+            
+            // 아이템 배치
             ForEach(0..<clothes.count, id: \.self) { index in
                 let position = calculatePosition(for: index, totalCount: clothes.count)
                 
                 AsyncImage(url: URL(string: clothes[index].imageUrl)) { image in
-                    image.resizable().scaledToFill()
+                    image.resizable()
+                        .scaledToFill()
                 } placeholder: {
                     Color.gray.opacity(0.2)
                 }
-                .frame(width: itemSize * 0.8, height: itemSize * 0.8) // 50% 수준으로 시각적 조정
+                .frame(width: itemSize, height: itemSize)
+                .background(Color.white)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
                 .position(x: position.x, y: position.y)
+                .zIndex(Double(index))
             }
         }
     }
-
+    
     private func calculatePosition(for index: Int, totalCount: Int) -> CGPoint {
         let center = containerSize / 2
-        let quarter = containerSize / 4
-        let eighth = containerSize / 8
-        let spacing = containerSize / 3 // 3열 배치용 간격
-
+        
+        let stepFor3 = itemSize - 25 // 세로 25 겹침 (간격 75)
+        let stepFor4 = itemSize - 36 // 세로 36 겹침 (간격 64)
+        let horizontalOverlap: CGFloat = 12
+        let horizontalStep = itemSize - horizontalOverlap // 수평 12 겹침 (간격 88)
+        
         switch totalCount {
-        case 1: // Case 1: 정중앙
+        case 1:
             return CGPoint(x: center, y: center)
             
-        case 2: // Case 2: HStack 중앙
-            return index == 0 ? CGPoint(x: quarter, y: center) : CGPoint(x: quarter * 3, y: center)
+        case 2:
+            let totalW = itemSize + stepFor3
+            let startX = (containerSize - totalW) / 2 + (itemSize / 2)
+            return CGPoint(x: startX + (CGFloat(index) * stepFor3), y: center)
             
-        case 3: // Case 3: VStack 1열 중앙
-            let yPos = [quarter, center, quarter * 3]
-            return CGPoint(x: center, y: yPos[index])
+        case 3:
+            let totalH = itemSize + (stepFor3 * 2)
+            let startY = (containerSize - totalH) / 2 + (itemSize / 2)
+            return CGPoint(x: center, y: startY + (CGFloat(index) * stepFor3))
             
-        case 4...7: // Case 4-7: 왼쪽/오른쪽 열 배치
-            let leftCount = totalCount == 7 ? 4 : 3
+        case 4...7:
+            // 열 구분 (7개일 때만 왼쪽이 4개, 그 외에는 왼쪽 3개 배치)
+            let leftCount = (totalCount == 7) ? 4 : 3
+            let rightCount = totalCount - leftCount
+            
+            // 1. 세로 시작점(startY) 계산: 왼쪽 열 기준 중앙 정렬
+            let leftStep = (leftCount == 4) ? stepFor4 : stepFor3
+            let leftTotalH = itemSize + (leftStep * CGFloat(leftCount - 1))
+            let startY = (containerSize - leftTotalH) / 2 + (itemSize / 2)
+            
+            // 2. 가로 위치(xPos) 계산: 두 열 사이 12pt 겹침 적용
+            // 두 열의 총 너비 = itemSize + horizontalStep (88) = 188
+            let totalW = itemSize + horizontalStep
+            let startX = (containerSize - totalW) / 2 + (itemSize / 2)
+            
             let isLeftColumn = index < leftCount
-            let xPos = isLeftColumn ? quarter : quarter * 3
-            
-            // 각 열 내부에서의 인덱스
             let internalIndex = isLeftColumn ? index : index - leftCount
             
-            // y축 계산 (왼쪽 상단 기준 정렬)
-            let rowSpacing = containerSize / CGFloat(max(leftCount, 1) + 1)
-            let yPos = rowSpacing * CGFloat(internalIndex + 1)
+            // 왼쪽 열은 startX, 오른쪽 열은 startX + 88
+            let xPos = isLeftColumn ? startX : startX + horizontalStep
             
-            return CGPoint(x: xPos, y: yPos)
-
+            // 3. 세로 위치(yPos) 계산
+            let currentColumnTotal = isLeftColumn ? leftCount : rightCount
+            let step = (currentColumnTotal == 4) ? stepFor4 : stepFor3
+            
+            return CGPoint(x: xPos, y: startY + (CGFloat(internalIndex) * step))
+            
         default:
             return CGPoint(x: center, y: center)
         }
