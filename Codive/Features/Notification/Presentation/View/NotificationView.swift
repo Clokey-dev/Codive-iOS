@@ -25,7 +25,11 @@ struct NotificationView: View {
                 }
             
             ScrollView {
-                VStack {
+                VStack(spacing: 0) {
+                    if viewModel.isReported, let type = viewModel.reportType {
+                        ReportSubmissionGuide(reportType: type)
+                    }
+                    
                     // MARK: - Notification Sections
                     notificationSection(
                         title: TextLiteral.Notification.notRead,
@@ -63,14 +67,18 @@ struct NotificationView: View {
                     .foregroundStyle(Color.Codive.grayscale3)
                 Spacer()
             }
-            .padding(.top, 32)
+            .padding(.top, 20)
 
             VStack(spacing: 16) {
                 ForEach(notifications) { item in
-                    NotificationRow(
-                        profileImageUrl: item.imageUrl,
-                        message: item.message
-                    )
+                    NotificationRow(entity: item)
+                        .contentShape(Rectangle()) // 투명한 영역도 탭이 되도록 설정
+                        .onTapGesture {
+                            if item.readStatus == .unread {
+                                viewModel.markAsRead(notificationId: item.notificationId)
+                            }
+                            // 페이지 이동 로직 호출 구간
+                        }
                 }
             }
             .padding(.top, 12)

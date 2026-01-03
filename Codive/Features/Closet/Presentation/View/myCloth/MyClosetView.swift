@@ -44,10 +44,14 @@ struct MyClosetView: View {
                         }
                     } : .none
                 )
-                
-                CustomSearchBar(text: $viewModel.searchText, type: .normal)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 10)
+                CustomSearchBar(
+                    text: $viewModel.searchText,
+                    type: .normal
+                ) {
+                    hideKeyboard()
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 10)
 
                 mainCategoryTab
 
