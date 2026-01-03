@@ -203,6 +203,8 @@ struct CodiClothView: View {
     let title: String
     let items: [HomeClothEntity]
     let isEmptyState: Bool
+    // 추가: 인덱스가 변경되었을 때 실행될 클로저
+    var onIndexChanged: ((Int) -> Void)?
     
     private let spacing: CGFloat = 10
     private let activeScale: CGFloat = 1.0
@@ -212,11 +214,13 @@ struct CodiClothView: View {
     
     init(title: String,
          items: [HomeClothEntity] = [],
-         isEmptyState: Bool) {
+         isEmptyState: Bool,
+         onIndexChanged: ((Int) -> Void)? = nil) { // 초기화 수정
         
         self.title = title
         self.items = items
         self.isEmptyState = isEmptyState
+        self.onIndexChanged = onIndexChanged
         
         let initialIndex = isEmptyState ? 1 : max(0, items.count / 2)
         _currentIndex = State(initialValue: initialIndex)
@@ -233,6 +237,10 @@ struct CodiClothView: View {
                     inactiveScale: inactiveScale,
                     isEmptyState: isEmptyState
                 )
+                // 인덱스가 바뀔 때마다 외부로 알려줌
+                .onChange(of: currentIndex) { newValue in
+                    onIndexChanged?(newValue)
+                }
                 
                 Text(title)
                     .font(.caption.bold())

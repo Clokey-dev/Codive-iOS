@@ -27,6 +27,7 @@ final class HomeViewModel: ObservableObject {
     @Published var activeCategories: [CategoryEntity] = []
     @Published var clothItemsByCategory: [Int: [HomeClothEntity]] = [:]
     @Published var selectedCodiClothes: [HomeClothEntity] = []
+    @Published var selectedIndicesByCategory: [Int: Int] = [:]
     
     // 팝업 관련 프로퍼티 추가
     @Published var showCompletePopUp: Bool = false
@@ -222,6 +223,10 @@ final class HomeViewModel: ObservableObject {
         }
     }
     
+    func updateSelectedIndex(for categoryId: Int, index: Int) {
+        selectedIndicesByCategory[categoryId] = index
+    }
+    
     func handleSearchTap() {}
     
     func handleNotificationTap() {}
@@ -232,14 +237,24 @@ final class HomeViewModel: ObservableObject {
     }
     
     func handleConfirmCodiTap() {
-        // 1. 현재 화면에 노출된 각 카테고리의 첫 번째 아이템들을 수집 (ID 순 정렬)
+        // 수정된 수집 로직: 저장된 인덱스를 기반으로 아이템 추출
         let items = activeCategories
             .sorted(by: { $0.id < $1.id })
-            .compactMap { clothItemsByCategory[$0.id]?.first }
+            .compactMap { category -> HomeClothEntity? in
+                guard let clothList = clothItemsByCategory[category.id] else { return nil }
+                
+                // 해당 카테고리에 저장된 인덱스가 있으면 사용, 없으면 0번째 사용
+                let selectedIndex = selectedIndicesByCategory[category.id] ?? 0
+                
+                // 배열 범위를 벗어나지 않도록 방어 코드 추가
+                if clothList.indices.contains(selectedIndex) {
+                    return clothList[selectedIndex]
+                } else {
+                    return clothList.first
+                }
+            }
         
         self.selectedCodiClothes = items
-        
-        // 2. 팝업 띄우기
         self.showCompletePopUp = true
     }
     

@@ -53,7 +53,11 @@ struct HomeNoCodiView: View {
                 CodiClothView(
                     title: category.title,
                     items: clothItems,
-                    isEmptyState: clothItems.isEmpty
+                    isEmptyState: clothItems.isEmpty,
+                    onIndexChanged: { newIndex in
+                        // 핵심: 사용자가 스크롤 할 때마다 ViewModel의 딕셔너리 업데이트
+                        viewModel.updateSelectedIndex(for: category.id, index: newIndex)
+                    }
                 )
                 .id("\(category.id)-\(clothItems.count)")
             }
