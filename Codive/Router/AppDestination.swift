@@ -30,6 +30,13 @@ enum AppDestination: Hashable, Identifiable {
     case search
     case searchResult(query: String)
     case notification
+    case lookbook
+    case specificLookbook(lookbookId: Int)
+    case addCodi(lookbookId: Int, selectedCodiData: SelectedCodi? = nil)
+    case editCodi(lookbookId: Int, selectedCodiData: SelectedCodi)
+    case addCodiDetail(lookbookId: Int)
+    case addBeforeCodi(lookbookId: Int)
+    case codiDetail(codiId: Int, lookbookId: Int)
     case feedDetail(feedId: Int)
     case comment(feedId: Int)
     case myCloset
@@ -56,7 +63,11 @@ enum AppDestination: Hashable, Identifiable {
         // Search, Alarm Flow
         case .search, .searchResult, .notification:
             return true
-
+            
+        // LookBook
+        case .lookbook, .specificLookbook, .addCodi, .addCodiDetail, .addBeforeCodi, .codiDetail, .editCodi:
+            return true
+            
         // Feed Flow
         case .feedDetail, .comment:
             return true

@@ -33,7 +33,7 @@ struct CategoryEntity: Identifiable, Codable {
 }
 
 // MARK: - Draggable Image
-struct DraggableImageEntity: Identifiable {
+struct DraggableImageEntity: Identifiable, Hashable {
     let id: Int
     let name: String
     var position: CGPoint

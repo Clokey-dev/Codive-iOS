@@ -1,3 +1,10 @@
+//
+//  HomeViewModel.swift
+//  Codive
+//
+//  Created by 한금준 on 10/13/25.
+//
+
 import SwiftUI
 import UIKit
 import Combine
@@ -7,7 +14,7 @@ import CoreLocation
 final class HomeViewModel: ObservableObject {
     
     // MARK: - Properties
-    @Published var hasCodi: Bool = false
+    @Published var hasCodi: Bool = true
     @Published var selectedIndex: Int? = 0
     @Published var showClothSelector: Bool = false
     @Published var titleFrame: CGRect = .zero
@@ -20,7 +27,7 @@ final class HomeViewModel: ObservableObject {
     
     @AppStorage("SavedCategories") private var savedCategoriesData: Data?
     
-    private let navigationRouter: NavigationRouter
+    let navigationRouter: NavigationRouter
     private let useCase: HomeUseCase
     
     // MARK: - Initializer
@@ -116,7 +123,9 @@ final class HomeViewModel: ObservableObject {
     
     func selectEditCodi() {}
     
-    func addLookbook() {}
+    func addLookbook() {
+        navigationRouter.navigate(to: .lookbook)
+    }
     
     func sharedCodi() {}
 }

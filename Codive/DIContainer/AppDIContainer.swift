@@ -54,6 +54,10 @@ final class AppDIContainer {
     func makeNotificationDIContainer() -> NotificationDIContainer {
         return NotificationDIContainer(navigationRouter: navigationRouter)
     }
+    
+    func makeLookBookDIContainer() -> LookBookDIContainer {
+        return LookBookDIContainer(navigationRouter: navigationRouter)
+    }
 
     func makeFeedDIContainer() -> FeedDIContainer {
         return FeedDIContainer(navigationRouter: navigationRouter)

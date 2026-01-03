@@ -7,25 +7,61 @@
 
 import SwiftUI
 
-struct DraggableImageView: View {
+@MainActor
+protocol DraggableImageViewModelProtocol: ObservableObject {
+    var images: [DraggableImageEntity] { get set }
+    var currentlyDraggedID: Int? { get set }
+    
+    func bringImageToFront(id: Int)
+    func updateImagePosition(id: Int, newPosition: CGPoint)
+    func updateImageScale(id: Int, newScale: CGFloat)
+    func updateImageRotation(id: Int, newRotation: Double)
+}
+
+struct DraggableImageView<ViewModel: DraggableImageViewModelProtocol>: View {
     @Binding var image: DraggableImageEntity
     let imageHalfSize: CGFloat
     let minBound: CGFloat
     let maxBound: CGFloat
-    @ObservedObject var viewModel: CodiBoardViewModel
+    @ObservedObject var viewModel: ViewModel
     
     var body: some View {
-        Image(image.name)
-            .resizable()
-            .scaledToFit()
-            .rotationEffect(.degrees(image.rotationAngle))
-            .scaleEffect(image.scale)
-            .frame(width: imageHalfSize * 2, height: imageHalfSize * 2)
-            .position(image.position)
-            .gesture(createCombinedGesture())
-            .onTapGesture {
-                viewModel.bringImageToFront(id: image.id)
+        Group {
+            // URL인지 로컬 이미지인지 판단
+            if let url = URL(string: image.name), image.name.hasPrefix("http") {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .empty:
+                        ProgressView()
+                            .frame(width: imageHalfSize * 2, height: imageHalfSize * 2)
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFit()
+                    case .failure:
+                        Image(systemName: "photo")
+                            .resizable()
+                            .scaledToFit()
+                            .foregroundColor(.gray)
+                    @unknown default:
+                        EmptyView()
+                    }
+                }
+            } else {
+                // 로컬 이미지
+                Image(image.name)
+                    .resizable()
+                    .scaledToFit()
             }
+        }
+        .rotationEffect(.degrees(image.rotationAngle))
+        .scaleEffect(image.scale)
+        .frame(width: imageHalfSize * 2, height: imageHalfSize * 2)
+        .position(image.position)
+        .gesture(createCombinedGesture())
+        .onTapGesture {
+            viewModel.bringImageToFront(id: image.id)
+        }
     }
     
     private func createCombinedGesture() -> some Gesture {
