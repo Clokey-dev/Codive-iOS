@@ -16,7 +16,7 @@ final class EditCategoryViewModel: ObservableObject {
     // 전체 최대 개수를 7로 설정
     private let maxTotalCount = 7
     // 고정 카테고리 ID (상의: 1, 바지: 2, 신발: 5)
-    private let fixedCategoryIds: Set<Int> = [1, 2, 5]
+    private let fixedCategoryIds: Set<Int> = []
     
     var totalCount: Int { categories.reduce(0) { $0 + $1.itemCount } }
     
@@ -78,23 +78,23 @@ final class EditCategoryViewModel: ObservableObject {
     
     // MARK: - Category Count Handling
     func incrementCount(for category: CategoryEntity) {
-        // 고정 항목이거나, 이미 1개이거나, 전체 합이 7이면 중단
-        guard !isFixed(category: category) else { return }
-        guard let index = categories.firstIndex(where: { $0.id == category.id }) else { return }
+            // 고정 제약이 없으므로 더 자유롭게 증가 가능
+            guard let index = categories.firstIndex(where: { $0.id == category.id }) else { return }
+            
+            // 개별 카테고리 최대 1개 & 전체 합 7개 미만일 때만 증가
+            if categories[index].itemCount < 1 && totalCount < maxTotalCount {
+                categories[index].itemCount += 1
+            }
+        }
         
-        if categories[index].itemCount < 1 && totalCount < maxTotalCount {
-            categories[index].itemCount += 1
+        func decrementCount(for category: CategoryEntity) {
+            guard let index = categories.firstIndex(where: { $0.id == category.id }) else { return }
+            
+            // 0보다 클 때만 감소 가능
+            if categories[index].itemCount > 0 {
+                categories[index].itemCount -= 1
+            }
         }
-    }
-    
-    func decrementCount(for category: CategoryEntity) {
-        // 고정 항목이면 감소 불가
-        guard !isFixed(category: category) else { return }
-        guard let index = categories.firstIndex(where: { $0.id == category.id }) else { return }
-        if categories[index].itemCount > 0 {
-            categories[index].itemCount -= 1
-        }
-    }
     
     // MARK: - Reset
     func resetCounts() {

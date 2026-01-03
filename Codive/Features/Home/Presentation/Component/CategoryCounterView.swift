@@ -12,7 +12,7 @@ struct CategoryCounterView: View {
     @Binding var count: Int
 
     let totalCount: Int
-    let isFixed: Bool // 고정 여부 추가
+    let isFixed: Bool
     
     private let maxLimit: Int = 7
     private let categoryLimit: Int = 1
@@ -30,7 +30,7 @@ struct CategoryCounterView: View {
             
             Spacer()
             
-            // 감소 버튼
+            // 감소 버튼: 이제 상의/하의 등도 isEmpty가 아니면(1이면) 0으로 줄일 수 있습니다.
             Button {
                 if !isFixed && !isEmpty {
                     count -= 1
@@ -52,7 +52,7 @@ struct CategoryCounterView: View {
                 .foregroundStyle(.black)
                 .frame(width: 24)
             
-            // 증가 버튼 (카테고리당 최대 1개 & 전체 합 7개 제한)
+            // 증가 버튼
             Button {
                 if !isFixed && count < categoryLimit && totalCount < maxLimit {
                     count += 1
