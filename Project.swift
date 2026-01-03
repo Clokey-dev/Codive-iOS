@@ -95,6 +95,10 @@ let project = Project(
                         [
                             "CFBundleURLName": "KAKAO",
                             "CFBundleURLSchemes": ["kakao$(KAKAO_APP_KEY)"]
+                        ],
+                        [
+                            "CFBundleURLName": "CODIVE",
+                            "CFBundleURLSchemes": ["codive"]
                         ]
                     ],
                     "LSApplicationQueriesSchemes": [

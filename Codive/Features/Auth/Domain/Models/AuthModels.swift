@@ -42,7 +42,9 @@ enum AuthError: Error, LocalizedError {
     case networkError(String)
     case userInfoError
     case unknown(String)
-    
+    case tokenParsingError
+    case keychainError(String)
+
     var errorDescription: String? {
         switch self {
         case .cancelled:
@@ -53,6 +55,16 @@ enum AuthError: Error, LocalizedError {
             return "사용자 정보를 가져오는데 실패했습니다"
         case .unknown(let message):
             return "알 수 없는 오류: \(message)"
+        case .tokenParsingError:
+            return "토큰 파싱 오류"
+        case .keychainError(let message):
+            return "토큰 저장 오류: \(message)"
         }
     }
+}
+
+// MARK: - Auth Token Response (서버 응답)
+struct AuthTokenResponse: Decodable {
+    let accessToken: String
+    let refreshToken: String
 }

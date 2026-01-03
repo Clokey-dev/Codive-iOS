@@ -10,6 +10,7 @@ import KakaoSDKUser
 import KakaoSDKAuth
 import KakaoSDKCommon
 import AuthenticationServices
+import UIKit
 
 // MARK: - Social Auth Service Protocol
 protocol SocialAuthServiceProtocol {
@@ -24,70 +25,73 @@ final class SocialAuthService: NSObject, SocialAuthServiceProtocol {
     
     private var appleContinuation: CheckedContinuation<AuthResult, Never>?
     
-    // MARK: - Kakao Login
+    // MARK: - Kakao Login (OIDC via ASWebAuthenticationSession)
     func kakaoLogin() async -> AuthResult {
+        let authURL = URL(string: "https://prod.clokey.store/oauth2/authorization/kakao")!
+
         return await withCheckedContinuation { continuation in
-            if UserApi.isKakaoTalkLoginAvailable() {
-                UserApi.shared.loginWithKakaoTalk { _, error in
-                    if let error = error {
-                        self.handleKakaoError(error, continuation: continuation)
+            let session = ASWebAuthenticationSession(
+                url: authURL,
+                callbackURLScheme: "codive"
+            ) { callbackURL, error in
+                // 에러 처리
+                if let error = error {
+                    if let authError = error as? ASWebAuthenticationSessionError {
+                        switch authError.code {
+                        case .canceledLogin:
+                            continuation.resume(returning: .failure(.cancelled))
+                        default:
+                            continuation.resume(returning: .failure(.networkError(error.localizedDescription)))
+                        }
                     } else {
-                        self.fetchKakaoUserInfo(continuation: continuation)
+                        continuation.resume(returning: .failure(.networkError(error.localizedDescription)))
                     }
+                    return
                 }
-            } else {
-                UserApi.shared.loginWithKakaoAccount { _, error in
-                    if let error = error {
-                        self.handleKakaoError(error, continuation: continuation)
-                    } else {
-                        self.fetchKakaoUserInfo(continuation: continuation)
-                    }
+
+                // 콜백 URL에서 토큰 파싱
+                guard let callbackURL = callbackURL else {
+                    continuation.resume(returning: .failure(.tokenParsingError))
+                    return
+                }
+
+                // URL 파라미터에서 토큰 추출
+                guard let components = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false),
+                      let queryItems = components.queryItems else {
+                    continuation.resume(returning: .failure(.tokenParsingError))
+                    return
+                }
+
+                let accessToken = queryItems.first(where: { $0.name == "accessToken" })?.value
+                let refreshToken = queryItems.first(where: { $0.name == "refreshToken" })?.value
+
+                guard let accessToken = accessToken,
+                      let refreshToken = refreshToken else {
+                    continuation.resume(returning: .failure(.tokenParsingError))
+                    return
+                }
+
+                // Keychain에 토큰 저장
+                do {
+                    try KeychainManager.shared.saveAccessToken(accessToken)
+                    try KeychainManager.shared.saveRefreshToken(refreshToken)
+
+                    // 성공 시 임시 사용자 정보 반환 (나중에 서버에서 받아야 함)
+                    let authUser = AuthUser(
+                        id: "temp_kakao_user",
+                        email: nil,
+                        name: nil,
+                        provider: .kakao
+                    )
+                    continuation.resume(returning: .success(authUser))
+                } catch {
+                    continuation.resume(returning: .failure(.keychainError(error.localizedDescription)))
                 }
             }
-        }
-    }
-    
-    private func fetchKakaoUserInfo(continuation: CheckedContinuation<AuthResult, Never>) {
-        UserApi.shared.me { user, error in
-            if error != nil {
-                continuation.resume(returning: .failure(.userInfoError))
-            } else if let user = user {
-                let authUser = AuthUser(
-                    id: "\(user.id ?? 0)",
-                    email: user.kakaoAccount?.email,
-                    name: user.kakaoAccount?.profile?.nickname,
-                    provider: .kakao
-                )
-                continuation.resume(returning: .success(authUser))
-            } else {
-                continuation.resume(returning: .failure(.userInfoError))
-            }
-        }
-    }
-    
-    private func handleKakaoError(_ error: Error, continuation: CheckedContinuation<AuthResult, Never>) {
-        if let sdkError = error as? SdkError {
-            switch sdkError {
-            case .ClientFailed(reason: .Cancelled, _):
-                continuation.resume(returning: .failure(.cancelled))
-                return
-            default:
-                break
-            }
-        }
-        
-        let errorMessage = error.localizedDescription.lowercased()
-        
-        if errorMessage.contains("cancelled") ||
-           errorMessage.contains("cancel") ||
-           errorMessage.contains("user_cancelled") ||
-           errorMessage.contains("취소") ||
-           errorMessage.contains("the operation couldn't be completed") ||
-           errorMessage.contains("sdkerror error 0") {
-            continuation.resume(returning: .failure(.cancelled))
-        } else {
-            print("카카오 로그인 에러: \(error.localizedDescription)")
-            continuation.resume(returning: .failure(.networkError(error.localizedDescription)))
+
+            session.presentationContextProvider = self
+            session.prefersEphemeralWebBrowserSession = false
+            session.start()
         }
     }
     
@@ -123,15 +127,15 @@ final class SocialAuthService: NSObject, SocialAuthServiceProtocol {
 
 // MARK: - Apple Sign In Delegate
 extension SocialAuthService: ASAuthorizationControllerDelegate {
-    
+
     func authorizationController(
         controller: ASAuthorizationController,
         didCompleteWithAuthorization authorization: ASAuthorization
     ) {
         defer { appleContinuation = nil }
-        
+
         guard let appleContinuation = appleContinuation else { return }
-        
+
         if let credential = authorization.credential as? ASAuthorizationAppleIDCredential {
             let authUser = AuthUser(
                 id: credential.user,
@@ -144,15 +148,15 @@ extension SocialAuthService: ASAuthorizationControllerDelegate {
             appleContinuation.resume(returning: .failure(.userInfoError))
         }
     }
-    
+
     func authorizationController(
         controller: ASAuthorizationController,
         didCompleteWithError error: Error
     ) {
         defer { appleContinuation = nil }
-        
+
         guard let appleContinuation = appleContinuation else { return }
-        
+
         if let authError = error as? ASAuthorizationError {
             switch authError.code {
             case .canceled:
@@ -163,5 +167,17 @@ extension SocialAuthService: ASAuthorizationControllerDelegate {
         } else {
             appleContinuation.resume(returning: .failure(.unknown(error.localizedDescription)))
         }
+    }
+}
+
+// MARK: - ASWebAuthenticationPresentationContextProviding
+extension SocialAuthService: ASWebAuthenticationPresentationContextProviding {
+    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+        // 현재 활성 윈도우 반환
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first else {
+            fatalError("No window found")
+        }
+        return window
     }
 }

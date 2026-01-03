@@ -41,14 +41,18 @@ final class OnboardingViewModel: ObservableObject {
         
         switch result {
         case .success(let user):
-            print("카카오 로그인 성공: \(user.name ?? "Unknown") (\(user.id))")
+            print("카카오 로그인 성공: \(user.id)")
             appRouter.navigateToMain()
-            
+
         case .failure(let error):
             switch error {
             case .cancelled:
                 print("카카오 로그인 취소됨")
                 return
+            case .tokenParsingError:
+                errorMessage = "로그인 처리 중 오류가 발생했습니다. 다시 시도해주세요."
+            case .keychainError:
+                errorMessage = "토큰 저장 중 오류가 발생했습니다. 다시 시도해주세요."
             case .networkError(let message):
                 if message.contains("The operation couldn't be completed") ||
                    message.contains("KakaoSDKCommon.SdkError error 0") {
