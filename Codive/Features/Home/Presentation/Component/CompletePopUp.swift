@@ -34,7 +34,7 @@ struct CompletePopUp: View {
             
             // 핵심 수정 부분: 이미지 합성 뷰
             CodiCompositeView(clothes: selectedClothes)
-                .frame(width: 204, height: 204)
+                .frame(width: 260, height: 260)
                 .padding(.vertical, 16)
             
             HStack(spacing: 9) {
@@ -56,15 +56,17 @@ struct CompletePopUp: View {
 // MARK: - 합성 레이아웃 뷰
 struct CodiCompositeView: View {
     let clothes: [HomeClothEntity]
-    let containerSize: CGFloat = 204
-    let itemSize: CGFloat = 100 // 100*100 비율
+    // 204 -> 260으로 변경 (아이템 3~4개 수직 배치 시 약 250pt 필요)
+    let containerSize: CGFloat = 260
+    let itemSize: CGFloat = 100
     
     var body: some View {
         ZStack {
-            // 배경 영역
+            // 배경 영역 (검정색 사각형이 이제 260 사이즈를 가집니다)
             Rectangle()
                 .fill(Color.clear)
                 .frame(width: containerSize, height: containerSize)
+                .cornerRadius(12) // 모서리를 살짝 깎으면 더 부드럽습니다
             
             // 아이템 배치
             ForEach(0..<clothes.count, id: \.self) { index in
@@ -83,6 +85,9 @@ struct CodiCompositeView: View {
                 .zIndex(Double(index))
             }
         }
+        // 중요: ZStack 자체에 프레임을 주어 밖으로 나가는 것을 방지합니다.
+        .frame(width: containerSize, height: containerSize)
+        .clipped()
     }
     
     private func calculatePosition(for index: Int, totalCount: Int) -> CGPoint {
@@ -139,12 +144,3 @@ struct CodiCompositeView: View {
         }
     }
 }
-
-//#Preview {
-//    CompletePopUp(
-//        isPresented: .constant(true),
-//        onRecordTapped: {},
-//        onCloseTapped: {},
-//        imageURL: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800"
-//    )
-//}
