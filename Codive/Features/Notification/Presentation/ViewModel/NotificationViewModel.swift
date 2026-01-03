@@ -16,6 +16,10 @@ final class NotificationViewModel: ObservableObject {
     @Published var unreadNotifications: [NotificationEntity] = []
     @Published var readNotifications: [NotificationEntity] = []
     
+    @Published var isReported: Bool = false
+    @Published var reportType: ReportType?
+    @Published var readErrorMessage: String?
+    
     // MARK: - Initializer
     init(navigationRouter: NavigationRouter, useCase: NotificationUseCase) {
         self.navigationRouter = navigationRouter
@@ -24,11 +28,33 @@ final class NotificationViewModel: ObservableObject {
     
     // MARK: - Methods
     func loadData() {
-        let allNotifications = useCase.fetchNotifications()
+        updateNotificationLists(useCase.fetchNotifications())
         
-        // isRead 상태를 기준으로 필터링
-        self.unreadNotifications = allNotifications.filter { !$0.isRead }
-        self.readNotifications = allNotifications.filter { $0.isRead }
+        let reportStatus = useCase.fetchReportStatus()
+        self.isReported = reportStatus.isReported
+        self.reportType = reportStatus.reportType
+    }
+    
+    func markAsRead(notificationId: Int) {
+        Task {
+            do {
+                try await useCase.markNotificationAsRead(notificationId: notificationId)
+                
+                if let index = unreadNotifications.firstIndex(where: { $0.notificationId == notificationId }) {
+                    var readItem = unreadNotifications.remove(at: index)
+                    readItem.readStatus = .read
+                    readNotifications.insert(readItem, at: 0)
+                }
+            } catch {
+                readErrorMessage = "알림 읽음 처리에 실패했어요. 잠시 후 다시 시도해 주세요."
+                print("알림 읽음 처리 실패: \(error)")
+            }
+        }
+    }
+    
+    private func updateNotificationLists(_ all: [NotificationEntity]) {
+        self.unreadNotifications = all.filter { $0.readStatus == .unread }
+        self.readNotifications = all.filter { $0.readStatus == .read }
     }
     
     // MARK: - Navigation

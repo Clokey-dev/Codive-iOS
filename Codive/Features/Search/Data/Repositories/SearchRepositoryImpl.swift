@@ -31,4 +31,8 @@ final class SearchRepositoryImpl: SearchRepository {
     func fetchPosts(query: String) -> [PostEntity] {
         return datasource.fetchPosts(query: query)
     }
+    
+    func fetchUsers(query: String) -> [SimpleUser] {
+        return datasource.fetchUsers(query: query)
+    }
 }

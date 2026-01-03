@@ -10,4 +10,5 @@ protocol SearchRepository {
     func fetchRecentSearchTags() -> [SearchTagEntity]
     func fetchRecommendedNews() -> [NewsEntity]
     func fetchPosts(query: String) -> [PostEntity]
+    func fetchUsers(query: String) -> [SimpleUser]
 }

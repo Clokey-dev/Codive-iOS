@@ -8,27 +8,35 @@
 import Foundation
 import SwiftUI
 
-// 앱의 최상위 상태 정의 - (인증 플로우 / 메인 플로우)
+// 앱의 최상위 상태 정의
 enum AppState {
-    case auth
-    case main
+    case splash      // 스플래시 화면
+    case auth        // 인증 플로우 (온보딩/로그인)
+    case main        // 메인 플로우
 }
 
 // 상태 전환 라우터
 @MainActor
 final class AppRouter: ObservableObject {
-    
-    // MARK: - 임시 자동로그인 플래그 (나중에 삭제 예정)
-    private let isAutoLoginEnabled = true
-    
+
     @Published var currentAppState: AppState
-    
+
     init() {
-        // 임시: 자동로그인이 활성화되어 있으면 바로 메인으로
-        self.currentAppState = isAutoLoginEnabled ? .main : .auth
+        // 앱 시작시 스플래시부터 시작
+        self.currentAppState = .splash
     }
-    
+
+    func finishSplash() {
+        // 스플래시 종료 후 인증 화면으로 이동
+        // TODO: 로그인 상태 확인 로직 추가 (토큰 있으면 .main)
+        currentAppState = .auth
+    }
+
     func navigateToMain() {
         currentAppState = .main
+    }
+
+    func logout() {
+        currentAppState = .auth
     }
 }

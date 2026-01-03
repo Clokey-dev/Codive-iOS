@@ -30,7 +30,9 @@ struct CustomProductBottomSheet: View {
             CustomSearchBar(
                 text: $searchText,
                 type: .normal
-            )
+            ) {
+                hideKeyboard()
+            }
             .padding(.horizontal, 20)
             
             // 카테고리 태그

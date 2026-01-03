@@ -31,4 +31,8 @@ final class SearchUseCase {
     func fetchPosts(query: String) -> [PostEntity] {
         return repository.fetchPosts(query: query)
     }
+    
+    func fetchUsers(query: String) -> [SimpleUser] {
+        return repository.fetchUsers(query: query)
+    }
 }
