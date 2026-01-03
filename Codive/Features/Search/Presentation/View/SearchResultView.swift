@@ -10,6 +10,7 @@ import SwiftUI
 struct SearchResultView: View {
     // MARK: - Properties
     @StateObject private var viewModel: SearchResultViewModel
+    @State private var selectedSegment: SearchResultSegment = .account
     
     // MARK: - Computed Properties
     private var sortOptionsString: [String] {
@@ -29,51 +30,56 @@ struct SearchResultView: View {
                 type: .withBackButton {
                     viewModel.handleBackTap()
                 }
-            )
+            ) {
+                viewModel.executeNewSearch(query: viewModel.searchBarText)
+                hideKeyboard()
+            }
+            .padding(.horizontal, 20)
             .zIndex(1)
             .onSubmit {
                 viewModel.executeNewSearch(query: viewModel.searchBarText)
+                hideKeyboard()
             }
             
+            SearchResultSegmentControl(selectedSegment: $selectedSegment)
+                .padding(.top, 8)
+            
             ScrollView {
-                VStack {
-                    HStack {
-                        Text("\(TextLiteral.Search.totalCount) \(viewModel.posts.count)\(TextLiteral.Search.countUnit)")
-                            .font(Font.codive_body2_medium)
-                            .foregroundStyle(Color.Codive.grayscale3)
-                        Spacer()
-
-                        SortOption(
-                            mainText: TextLiteral.Search.sortAll,
-                            options: sortOptionsString,
-                            selectedOption: $viewModel.currentSort
-                        )
-                        .zIndex(10)
-                    }
-                    .padding(.top, 18)
-                    .zIndex(10)
-                    
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 11) {
-                        ForEach(viewModel.posts) { post in
-                            PostCard(
-                                postImageUrl: post.postImageUrl,
-                                profileImageUrl: post.profileImageUrl,
-                                nickname: post.nickname
-                            )
+                // MARK: - Account Result List
+                if selectedSegment == .account {
+                    VStack(spacing: 0) {
+                        ForEach(viewModel.users, id: \.userId) { user in
+                            CustomUserRow(
+                                user: user,
+                                buttonStyle: .none
+                            ) {
+                                // 버튼 동작
+                            }
                         }
                     }
                     .padding(.top, 18)
-                    .zIndex(1)
+                } else {
+                    // MARK: - Hashtag Result Grid
+                    HashtagView(viewModel: viewModel)
+                        .padding(.horizontal, 20)
                 }
-                .padding(.bottom, 20)
+            }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                hideKeyboard()
             }
         }
         .navigationBarHidden(true)
-        .background(Color.white.ignoresSafeArea(.all))
-        .padding(.horizontal, 20)
+        .background(
+            Color.white
+                .ignoresSafeArea(.all)
+                .onTapGesture { 
+                    hideKeyboard()
+                }
+        )
         // MARK: - Data Loading Trigger
         .onAppear {
-            viewModel.loadPosts()
+            viewModel.loadInitialData()
         }
     }
 }

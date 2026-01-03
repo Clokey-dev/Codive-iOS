@@ -38,7 +38,7 @@ final class SearchViewModel: ObservableObject {
             print("검색어를 입력해 주세요.")
             return
         }
-        // query를 전달하도록 수정
+
         navigationRouter.navigate(to: .searchResult(query: trimmedQuery))
         print("검색 실행: \(trimmedQuery). SearchResultView로 이동 필요.")
     }
@@ -57,6 +57,10 @@ final class SearchViewModel: ObservableObject {
     func executeDeleteAll() {
         print("최근 검색어 전체 삭제 실행 완료")
         self.recentSearchTags = []
+    }
+    
+    func handleTagTap(tag: SearchTagEntity) {
+        executeSearch(query: tag.text)
     }
     
     // MARK: - Navigation
