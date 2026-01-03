@@ -39,8 +39,8 @@ final class AuthDIContainer {
     }
     
     // MARK: - Views
-    func makeOnboardingView() -> OnboardingView {
-        return OnboardingView(viewModel: makeOnboardingViewModel())
+    func makeOnboardingView() -> OnboardingContainerView {
+        return OnboardingContainerView(viewModel: self.makeOnboardingViewModel())
     }
     
     func makeAuthFlowView() -> AuthFlowView {

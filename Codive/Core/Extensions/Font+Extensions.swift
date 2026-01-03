@@ -45,6 +45,11 @@ public extension Font {
     /// regular 10
     static let codive_body4_regular = customPretendard(size: 10, weight: .regular)
     
+    // MARK: - Splash
+    
+    /// bold 60
+    static let codive_splash = customPretendard(size: 60, weight: .bold)
+    
     /// Pretendard 폰트를 쉽게 사용하기 위한 private 함수
     private static func customPretendard(size: CGFloat, weight: PretendardWeight) -> Font {
         return .custom(weight.name, size: size)
