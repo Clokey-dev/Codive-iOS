@@ -68,3 +68,15 @@ struct AuthTokenResponse: Decodable {
     let accessToken: String
     let refreshToken: String
 }
+
+// MARK: - Register Status
+enum RegisterStatus {
+    case notAgreed  // 약관 동의 필요
+    case registered // 약관 동의 완료
+}
+
+// MARK: - Auth Status Result
+enum AuthStatusResult {
+    case success(RegisterStatus)
+    case failure(AuthError)
+}

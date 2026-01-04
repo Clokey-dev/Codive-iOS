@@ -28,6 +28,8 @@ final class AuthViewFactory {
         case .signup:
             // SignUpView(viewModel: authDIContainer.makeSignUpViewModel())
             Text("회원가입 화면") // 임시
+        case .termsAgreement:
+            TermsAgreementView()
         default:
             EmptyView()
         }

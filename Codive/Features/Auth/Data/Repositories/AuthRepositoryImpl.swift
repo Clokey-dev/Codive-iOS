@@ -10,13 +10,18 @@ import Foundation
 // MARK: - Auth Repository Implementation
 @MainActor
 final class AuthRepositoryImpl: AuthRepository {
-    
+
     // MARK: - Properties
     private let socialAuthService: SocialAuthServiceProtocol
-    
+    private let authAPIService: AuthAPIServiceProtocol
+
     // MARK: - Initializer
-    init(socialAuthService: SocialAuthServiceProtocol) {
+    init(
+        socialAuthService: SocialAuthServiceProtocol,
+        authAPIService: AuthAPIServiceProtocol = AuthAPIService()
+    ) {
         self.socialAuthService = socialAuthService
+        self.authAPIService = authAPIService
     }
     
     // MARK: - AuthRepository Implementation
@@ -35,9 +40,13 @@ final class AuthRepositoryImpl: AuthRepository {
         // 4. 최종 AuthResult 반환
     }
     
+    func checkAuthStatus() async -> AuthStatusResult {
+        return await authAPIService.checkAuthStatus()
+    }
+
     func logout() async {
         await socialAuthService.logout()
-        
+
         // 향후 서버 연결 시 추가될 로직:
         // 1. 서버에 로그아웃 요청
         // 2. 로컬 토큰 삭제

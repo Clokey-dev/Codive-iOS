@@ -16,7 +16,7 @@
       "location" : "https://github.com/Clokey-dev/CodiveAPI",
       "state" : {
         "branch" : "main",
-        "revision" : "7e7082d9e2dbf14c4c4974fb20122fdca759276f"
+        "revision" : "b07f082c006752c9dec83e774dda68b17fbb40d9"
       }
     },
     {
@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/kakao/kakao-ios-sdk",
       "state" : {
-        "revision" : "f04b5655f3528e8c21a0ff7db047eeb138135394",
-        "version" : "2.26.0"
+        "revision" : "bebbd50e40843f5f54d2fe87d4f415771736f8ab",
+        "version" : "2.27.0"
       }
     },
     {

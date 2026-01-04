@@ -34,17 +34,39 @@ final class OnboardingViewModel: ObservableObject {
     func kakaoLoginButtonTapped() async {
         isLoading = true
         errorMessage = nil
-        
+
         let result = await authRepository.socialLogin(provider: .kakao)  // Repository 사용
-        
-        isLoading = false
-        
+
         switch result {
         case .success(let user):
             print("카카오 로그인 성공: \(user.id)")
-            appRouter.navigateToMain()
+
+            // 로그인 성공 후 회원 상태 체크
+            let statusResult = await authRepository.checkAuthStatus()
+
+            isLoading = false
+
+            switch statusResult {
+            case .success(let registerStatus):
+                switch registerStatus {
+                case .notAgreed:
+                    // 약관 동의 필요 -> 약관 동의 화면으로 이동
+                    print("약관 동의 필요 -> 약관 동의 화면으로 이동")
+                    navigationRouter.navigate(to: .termsAgreement)
+
+                case .registered:
+                    // 약관 동의 완료 -> 메인 화면으로 이동
+                    print("약관 동의 완료 -> 메인 화면으로 이동")
+                    appRouter.navigateToMain()
+                }
+
+            case .failure(let error):
+                errorMessage = "회원 정보 확인 중 오류가 발생했습니다: \(error.localizedDescription)"
+            }
 
         case .failure(let error):
+            isLoading = false
+
             switch error {
             case .cancelled:
                 print("카카오 로그인 취소됨")
