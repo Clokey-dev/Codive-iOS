@@ -63,7 +63,7 @@ struct MainTabView: View {
                         case .feed:
                             FeedView(viewModel: feedDIContainer.makeFeedViewModel())
                         case .profile:
-                            ProfileView()
+                            ProfileView(navigationRouter: navigationRouter)
                         }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -136,6 +136,10 @@ struct MainTabView: View {
             homeDIContainer.makeEditCategoryView()
         case .codiBoard:
             homeDIContainer.makeCodiBoardView()
+        case .favoriteCodiList(let showHeart):
+            FavoriteCodiListView(showHeart: showHeart, navigationRouter: navigationRouter)
+        case .settings:
+            ProfileSettingView(navigationRouter: navigationRouter)
 
         default:
             EmptyView()

@@ -32,6 +32,7 @@ enum AppDestination: Hashable, Identifiable {
     case notification
     case feedDetail(feedId: Int)
     case comment(feedId: Int)
+    case favoriteCodiList(showHeart: Bool)
     
     var id: Self { self }
     
@@ -56,6 +57,10 @@ enum AppDestination: Hashable, Identifiable {
             
         // Feed Flow
         case .feedDetail, .comment:
+            return true
+
+        // Profile Flow
+        case .favoriteCodiList, .settings:
             return true
 
         // 다른 플로우 전체 화면은 여기에 추가
@@ -86,6 +91,10 @@ enum AppDestination: Hashable, Identifiable {
 
         // Feed Flow - 자체 네비게이션 바 있음
         case .feedDetail, .comment:
+            return false
+
+        // Profile Flow - 자체 네비게이션 바 있음
+        case .favoriteCodiList, .settings:
             return false
 
         default:

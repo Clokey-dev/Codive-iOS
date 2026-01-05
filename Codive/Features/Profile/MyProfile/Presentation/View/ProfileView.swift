@@ -9,7 +9,13 @@ import SwiftUI
 
 // MARK: - View
 struct ProfileView: View {
-    @StateObject private var viewModel = ProfileViewModel()
+    @ObservedObject private var navigationRouter: NavigationRouter
+    @StateObject private var viewModel: ProfileViewModel
+
+    init(navigationRouter: NavigationRouter) {
+        self.navigationRouter = navigationRouter
+        self._viewModel = StateObject(wrappedValue: ProfileViewModel(navigationRouter: navigationRouter))
+    }
 
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -121,7 +127,7 @@ struct ProfileView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text("최애 코디")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.codive_title2)
                     .foregroundStyle(Color.Codive.grayscale1)
 
                 Spacer(minLength: 0)
@@ -146,13 +152,19 @@ struct ProfileView: View {
                     ForEach(0..<8, id: \.self) { _ in
                         RoundedRectangle(cornerRadius: 16, style: .continuous)
                             .fill(Color.white)
-                            .frame(width: 155, height: 155)
+                            .frame(width: 160, height: 160)
+                            .overlay(alignment: .topTrailing) {
+                                    Image("heart_on")
+                                        .frame(width: 15, height: 18)
+                                        .foregroundStyle(Color.Codive.point1)
+                                        .padding(14)
+                            }
                             .codiveCardShadow()
                     }
                 }
-                .padding(.horizontal, 20)
                 .padding(.top, 12)
             }
+            .padding(.horizontal, 20)
         }
     }
 
@@ -160,20 +172,22 @@ struct ProfileView: View {
     private var calendarSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("캘린더")
-                .font(.system(size: 16, weight: .semibold))
+                .font(.codive_title2)
                 .foregroundStyle(Color.Codive.grayscale1)
                 .padding(.horizontal, 20)
 
             CalendarMonthView(month: $viewModel.month, selectedDate: $viewModel.selectedDate)
                 .padding(16)
+                .frame(maxWidth: .infinity, alignment: .center)
                 .background(Color.white)
                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 .codiveCardShadow()
                 .padding(.horizontal, 20)
+                .padding(.top, 12)
         }
     }
 }
 
 #Preview {
-    ProfileView()
+    ProfileView(navigationRouter: NavigationRouter())
 }

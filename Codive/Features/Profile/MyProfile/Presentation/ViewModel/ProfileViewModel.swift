@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@MainActor
 class ProfileViewModel: ObservableObject {
     // MARK: - Mock Data
     @Published var username: String = "kiki01"
@@ -19,13 +20,21 @@ class ProfileViewModel: ObservableObject {
     @Published var month: Date = Date()                // 현재 표시 월
     @Published var selectedDate: Date? = Date()        // 선택된 날짜
     
+    // MARK: - Dependencies
+    private let navigationRouter: NavigationRouter
+    
+    // MARK: - Initializer
+    init(navigationRouter: NavigationRouter) {
+        self.navigationRouter = navigationRouter
+    }
+    
     // MARK: - Actions
     func onEditProfileTapped() {
         print("Edit profile tapped")
     }
     
     func onSettingsTapped() {
-        print("Settings tapped")
+        navigationRouter.navigate(to: .settings)
     }
     
     func onFollowerTapped() {
@@ -37,6 +46,6 @@ class ProfileViewModel: ObservableObject {
     }
     
     func onMoreFavoriteCodiTapped() {
-        print("More favorite codi tapped")
+        navigationRouter.navigate(to: .favoriteCodiList(showHeart: true))
     }
 }

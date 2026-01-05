@@ -10,8 +10,13 @@ import Combine
 
 // MARK: - View
 struct ProfileSettingView: View {
-    @Environment(\.dismiss) private var dismiss
-    @StateObject private var viewModel = ProfileSettingViewModel()
+    @ObservedObject private var navigationRouter: NavigationRouter
+    @StateObject private var viewModel: ProfileSettingViewModel
+
+    init(navigationRouter: NavigationRouter) {
+        self.navigationRouter = navigationRouter
+        self._viewModel = StateObject(wrappedValue: ProfileSettingViewModel())
+    }
 
     // MARK: - Focus
     enum Field: Hashable {
@@ -26,7 +31,7 @@ struct ProfileSettingView: View {
         VStack(spacing: 0) {
             CustomNavigationBar(
                 title: "프로필 설정",
-                onBack: { dismiss() },
+                onBack: { navigationRouter.navigateBack() },
                 rightButton: .none
             )
 
@@ -212,5 +217,5 @@ struct ProfileSettingView: View {
 }
 
 #Preview {
-    ProfileSettingView()
+    ProfileSettingView(navigationRouter: NavigationRouter())
 }

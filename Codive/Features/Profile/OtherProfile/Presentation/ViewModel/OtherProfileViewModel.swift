@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@MainActor
 class OtherProfileViewModel: ObservableObject {
     // MARK: - Mock Data
     @Published var username: String = "ham_dog"
@@ -19,14 +20,32 @@ class OtherProfileViewModel: ObservableObject {
     @Published var isFollowing: Bool = false
     @Published var month: Date = Date()
     @Published var selectedDate: Date? = Date()
+    @Published var isBlockMenuPresented: Bool = false
+    
+    // MARK: - Dependencies
+    private let navigationRouter: NavigationRouter
+    
+    // MARK: - Initializer
+    init(navigationRouter: NavigationRouter) {
+        self.navigationRouter = navigationRouter
+    }
     
     // MARK: - Actions
     func onBackTapped() {
         print("Back tapped")
     }
     
-    func onMoreTapped() {
-        print("More tapped")
+    func showBlockMenu() {
+        isBlockMenuPresented = true
+    }
+    
+    func dismissBlockMenu() {
+        isBlockMenuPresented = false
+    }
+    
+    func onBlockTapped() {
+        dismissBlockMenu()
+        print("Block tapped")
     }
     
     func onFollowerTapped() {
@@ -43,6 +62,6 @@ class OtherProfileViewModel: ObservableObject {
     }
     
     func onMoreFavoriteCodiTapped() {
-        print("More favorite codi tapped")
+        navigationRouter.navigate(to: .favoriteCodiList(showHeart: false))
     }
 }

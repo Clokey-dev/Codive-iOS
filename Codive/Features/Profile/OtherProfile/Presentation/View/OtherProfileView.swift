@@ -9,27 +9,47 @@ import SwiftUI
 
 // MARK: - View
 struct OtherProfileView: View {
-    @StateObject private var viewModel = OtherProfileViewModel()
+    @ObservedObject private var navigationRouter: NavigationRouter
+    @StateObject private var viewModel: OtherProfileViewModel
+
+    init(navigationRouter: NavigationRouter) {
+        self.navigationRouter = navigationRouter
+        self._viewModel = StateObject(wrappedValue: OtherProfileViewModel(navigationRouter: navigationRouter))
+    }
 
     var body: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(spacing: 0) {
-                topBar
+        ZStack(alignment: .topTrailing) {
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 0) {
+                    topBar
 
-                profileSection
-                    .padding(.top, 32)
+                    profileSection
+                        .padding(.top, 32)
 
-                Divider()
-                    .padding(.top, 24)
-                    .foregroundStyle(Color.Codive.grayscale7)
+                    Divider()
+                        .padding(.top, 24)
+                        .foregroundStyle(Color.Codive.grayscale7)
 
-                favoriteCodiSection
-                    .padding(.top, 24)
+                    favoriteCodiSection
+                        .padding(.top, 24)
 
-                calendarSection
-                    .padding(.top, 40)
+                    calendarSection
+                }
+            }
 
-                Spacer(minLength: 77)
+            if viewModel.isBlockMenuPresented {
+                Color.black
+                    .opacity(0.001)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        viewModel.dismissBlockMenu()
+                    }
+
+                BlockMenuPopup {
+                    viewModel.onBlockTapped()
+                }
+                .padding(.trailing, 20)
+                .padding(.top, 44)
             }
         }
         .background(Color.white)
@@ -54,7 +74,7 @@ struct OtherProfileView: View {
             Spacer(minLength: 0)
 
             Button {
-                viewModel.onMoreTapped()
+                viewModel.showBlockMenu()
             } label: {
                 Image("more")
                     .resizable()
@@ -138,7 +158,7 @@ struct OtherProfileView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text("최애 코디")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.codive_title2)
                     .foregroundStyle(Color.Codive.grayscale1)
 
                 Spacer(minLength: 0)
@@ -167,9 +187,9 @@ struct OtherProfileView: View {
                             .codiveCardShadow()
                     }
                 }
-                .padding(.horizontal, 20)
                 .padding(.top, 12)
             }
+            .padding(.horizontal, 20)
         }
     }
 
@@ -177,20 +197,22 @@ struct OtherProfileView: View {
     private var calendarSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("캘린더")
-                .font(.system(size: 16, weight: .semibold))
+                .font(.codive_title2)
                 .foregroundStyle(Color.Codive.grayscale1)
                 .padding(.horizontal, 20)
 
             CalendarMonthView(month: $viewModel.month, selectedDate: $viewModel.selectedDate)
                 .padding(16)
+                .frame(maxWidth: .infinity, alignment: .center)
                 .background(Color.white)
                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 .codiveCardShadow()
                 .padding(.horizontal, 20)
+                .padding(.top, 12)
         }
     }
 }
 
 #Preview {
-    OtherProfileView()
+    OtherProfileView(navigationRouter: NavigationRouter())
 }
