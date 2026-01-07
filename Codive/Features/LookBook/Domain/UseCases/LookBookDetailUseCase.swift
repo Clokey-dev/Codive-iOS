@@ -18,7 +18,7 @@ final class LookBookDetailUseCase {
     // MARK: - LookBook Detail (Codi List)
 
     /// 특정 룩북에 포함된 코디 목록 조회
-    func fetchCodis(forLookbookId id: Int) async throws -> [LookBookEntity] {
-        try await repository.fetchCodis(forLookbookId: id)
+    func fetchCodisForLookBook(forLookbookId id: Int) async throws -> [SpecificLookBookCodiEntity] {
+        try await repository.fetchCodisForLookBook(forLookbookId: id)
     }
 }

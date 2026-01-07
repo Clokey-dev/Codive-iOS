@@ -168,8 +168,8 @@ private struct LookBookContent: View {
         ) {
             ForEach(viewModel.lookBookList) { lookbook in
                 LookBookCard(
-                    imageURL: lookbook.imageURL,
-                    cardTitle: lookbook.cardTitle,
+                    imageURL: lookbook.imageUrl,
+                    cardTitle: lookbook.lookbookName,
                     iconType: viewModel.isEditing ? .checkmark : .none,
                     isSelected: viewModel.selectedLookBookIds.contains(lookbook.id)
                 )

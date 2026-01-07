@@ -79,28 +79,3 @@ struct LookBookCard: View {
         }
     }
 }
-
-struct LookBookCard_Previews: PreviewProvider {
-    static var previews: some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: 2), spacing: 16) {
-            LookBookCard(
-                imageURL: "https://via.placeholder.com/160/F08080/FFFFFF?text=Date+Look",
-                cardTitle: "영화관 데이트",
-                iconType: .heart,
-                isSelected: true
-            )
-            LookBookCard(
-                imageURL: "https://via.placeholder.com/160/ADD8E6/000000?text=Daily+Look",
-                cardTitle: "데일리 코디",
-                iconType: .checkmark,
-                isSelected: false
-            )
-            LookBookCard(
-                imageURL: "https://via.placeholder.com/160/90EE90/000000?text=Basic+Look",
-                cardTitle: "기본 스타일링",
-                iconType: .none,
-                isSelected: false
-            )
-        }
-    }
-}

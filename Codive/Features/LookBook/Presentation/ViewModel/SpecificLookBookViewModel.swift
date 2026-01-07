@@ -21,7 +21,8 @@ final class SpecificLookBookViewModel: ObservableObject {
     
     // MARK: - Published State (Data)
     
-    @Published var lookBookList: [LookBookEntity] = []
+    @Published var specificLookBookCodiList: [SpecificLookBookCodiEntity] = []
+    @Published private(set) var likedCodiIds: Set<Int> = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     
@@ -48,15 +49,15 @@ final class SpecificLookBookViewModel: ObservableObject {
     }
     
     // MARK: - Data Fetching
-    
+    // 특정 룩북의 코디 조회하기
     func fetchCodis() {
         isLoading = true
         errorMessage = nil
         
         Task {
             do {
-                let list = try await detailUseCase.fetchCodis(forLookbookId: lookbookId)
-                self.lookBookList = list
+                let list = try await detailUseCase.fetchCodisForLookBook(forLookbookId: lookbookId)
+                self.specificLookBookCodiList = list
             } catch {
                 self.errorMessage = "데이터 로드에 실패했습니다: \(error.localizedDescription)"
             }
@@ -66,13 +67,7 @@ final class SpecificLookBookViewModel: ObservableObject {
     
     // MARK: - Editing Actions
     
-    func toggleEditingMode() {
-        isEditing.toggle()
-        if !isEditing {
-            selectedCodiIds = []
-        }
-    }
-    
+    // 토글 - 추가하기
     func toggleSelection(id: Int) {
         if selectedCodiIds.contains(id) {
             selectedCodiIds.remove(id)
@@ -81,10 +76,20 @@ final class SpecificLookBookViewModel: ObservableObject {
         }
     }
     
+    // 토글 - 편집하기
+    func toggleEditingMode() {
+        isEditing.toggle()
+        if !isEditing {
+            selectedCodiIds = []
+        }
+    }
+    
+    // 코디 삭제 중
     func handleDeleteAction() {
         isEditing = true
     }
     
+    // topBar 삭제 버튼 동작
     func handleCompleteAction() {
         guard !selectedCodiIds.isEmpty else {
             toggleEditingMode()
@@ -93,6 +98,7 @@ final class SpecificLookBookViewModel: ObservableObject {
         isShowingDeleteAlert = true
     }
     
+    // alert 삭제 버튼 동작
     func beginDelete() {
         isShowingDeleteAlert = false
         isLoading = true
@@ -103,6 +109,7 @@ final class SpecificLookBookViewModel: ObservableObject {
         }
     }
     
+    // 완전 삭제 후 동기화
     func confirmDelete() {
         Task {
             fetchCodis()
@@ -112,6 +119,7 @@ final class SpecificLookBookViewModel: ObservableObject {
     
     // MARK: - Like Action
     
+    // 하트 동작
     func toggleLike(codyId: Int, isLiked: Bool) {
         Task {
             do {
@@ -124,14 +132,17 @@ final class SpecificLookBookViewModel: ObservableObject {
     
     // MARK: - Navigation
     
+    // 코디 추가하기 후 화면 전환
     func navigateToAddCodi() {
         navigationRouter.navigate(to: .addCodi(lookbookId: lookbookId))
     }
     
+    // 특정 코디 상세 뷰 전환
     func navigateToCodiDetail(codiId: Int) {
         navigationRouter.navigate(to: .codiDetail(codiId: codiId, lookbookId: lookbookId))
     }
     
+    // 뒤로가기
     func handleBackTap() {
         if isEditing {
             toggleEditingMode()

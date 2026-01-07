@@ -15,51 +15,61 @@ final class LookBookDataSource {
     /// 각 LookBook은 id, 대표 이미지, 카드 제목을 가진다.
     private var dummyLookBooks: [LookBookEntity] = [
         LookBookEntity(
-            id: 1,
-            imageURL: "https://images.unsplash.com/photo-1520975916090-3105956dac38?w=600&q=80",
-            cardTitle: "영화관 데이트 룩"
+            lookBookId: 1,
+            lookbookName: "영화관 데이트 룩",
+            imageUrl: "https://images.unsplash.com/photo-1520975916090-3105956dac38?w=600&q=80"
+            
         ),
         LookBookEntity(
-            id: 2,
-            imageURL: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80",
-            cardTitle: "편안한 데일리 코디"
+            lookBookId: 2,
+            lookbookName: "편안한 데일리 코디",
+            imageUrl: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80"
+            
         ),
         LookBookEntity(
-            id: 3,
-            imageURL: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=600&q=80",
-            cardTitle: "스트릿 캐주얼"
+            lookBookId: 3,
+            lookbookName: "스트릿 캐주얼",
+            imageUrl: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=600&q=80"
+            
         ),
         LookBookEntity(
-            id: 4,
-            imageURL: "https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?w=600&q=80",
-            cardTitle: "파티/모임 코디"
+            lookBookId: 4,
+            lookbookName: "파티/모임 코디",
+            imageUrl: "https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?w=600&q=80"
         ),
-        LookBookEntity(
-            id: 5,
-            imageURL: "https://images.unsplash.com/photo-1523381294911-8d3cead13475?w=600&q=80",
-            cardTitle: "미니멀 데일리"
-        ),
-        LookBookEntity(
-            id: 6,
-            imageURL: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&q=80",
-            cardTitle: "운동/액티브웨어"
-        )
     ]
     
     // MARK: - Dummy Codis by LookBook
     
     /// 룩북 ID를 key로 하는 코디 목록 더미 데이터
     /// 특정 LookBook 상세 화면에서 사용된다.
-    private var lookbookCodis: [Int: [LookBookEntity]] = [
+    private var lookbookDetailCodi: [Int: [SpecificLookBookCodiEntity]] = [
         1: [ // 데이트 룩 (ID: 1)
-            LookBookEntity(id: 11, imageURL: "https://image.msscdn.net/images/style/detail/37395/detail_37395_1_500.jpg", cardTitle: "로맨틱 시사회 룩"),
-            LookBookEntity(id: 12, imageURL: "https://image.msscdn.net/images/style/detail/37390/detail_37390_1_500.jpg", cardTitle: "따뜻한 카페 데이트"),
-            LookBookEntity(id: 13, imageURL: "https://image.msscdn.net/images/style/detail/37385/detail_37385_1_500.jpg", cardTitle: "활동적인 피크닉 룩"),
-            LookBookEntity(id: 14, imageURL: "https://image.msscdn.net/images/style/detail/37380/detail_37380_1_500.jpg", cardTitle: "뮤지컬 관람 코디")
+            SpecificLookBookCodiEntity(
+                coordinateId: 11,
+                coordinateName: "로맨틱 시사회 룩",
+                coordinateLiked: false,
+                imageUrl: "https://image.msscdn.net/images/style/detail/37395/detail_37395_1_500.jpg",
+                ),
+            SpecificLookBookCodiEntity(
+                coordinateId: 12,
+                coordinateName: "따뜻한 카페 데이트",
+                coordinateLiked: true,
+                imageUrl: "https://image.msscdn.net/images/style/detail/37390/detail_37390_1_500.jpg")
            ],
         2: [ // 데일리 룩 (ID: 2)
-            LookBookEntity(id: 21, imageURL: "https://image.msscdn.net/images/style/detail/37375/detail_37375_1_500.jpg", cardTitle: "캐주얼 오버핏"),
-            LookBookEntity(id: 22, imageURL: "https://image.msscdn.net/images/style/detail/37370/detail_37370_1_500.jpg", cardTitle: "편한 집앞 마실룩")
+            SpecificLookBookCodiEntity(
+                coordinateId: 21,
+                coordinateName: "캐주얼 오버핏",
+                coordinateLiked: true,
+                imageUrl: "https://image.msscdn.net/images/style/detail/37375/detail_37375_1_500.jpg",
+                ),
+            SpecificLookBookCodiEntity(
+                coordinateId: 22,
+                coordinateName: "편한 집앞 마실룩",
+                coordinateLiked: false,
+                imageUrl: "https://image.msscdn.net/images/style/detail/37370/detail_37370_1_500.jpg",
+                )
            ]
     ]
     
@@ -149,9 +159,9 @@ final class LookBookDataSource {
     }
     
     /// 특정 LookBook에 속한 코디 목록 조회
-    func fetchCodisForLookBook(id lookbookId: Int) async throws -> [LookBookEntity] {
+    func fetchCodisForLookBook(id lookbookId: Int) async throws -> [SpecificLookBookCodiEntity] {
         try await Task.sleep(nanoseconds: 500_000_000)
-        return lookbookCodis[lookbookId] ?? []
+        return lookbookDetailCodi[lookbookId] ?? []
     }
     
     /// 코디 상세 정보 조회

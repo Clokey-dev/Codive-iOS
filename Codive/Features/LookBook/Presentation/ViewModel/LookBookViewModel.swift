@@ -138,9 +138,9 @@ final class LookBookViewModel: ObservableObject {
         guard !trimmedTitle.isEmpty else { return }
         
         let newLookBook = LookBookEntity(
-            id: Int.random(in: 1000...9999),
-            imageURL: "https://via.placeholder.com/160",
-            cardTitle: trimmedTitle
+            lookBookId: Int.random(in: 1000...9999),
+            lookbookName: trimmedTitle,
+            imageUrl: "https://via.placeholder.com/160"
         )
         withAnimation {
             self.lookBookList.append(newLookBook)

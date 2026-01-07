@@ -7,10 +7,28 @@
 
 import Foundation
 
+// 룩북 조회 api의 responseDTO의 content
 struct LookBookEntity: Identifiable {
-    let id: Int
-    let imageURL: String
-    let cardTitle: String
+    let lookBookId: Int
+    let lookbookName: String
+    let imageUrl: String
+
+    var id: Int { lookBookId }
+}
+
+// 룩북 생성하기 api의 responseDTO
+struct CreateLookBookEntity {
+    let lookBookId: Int
+}
+
+// 개별 룩북 코디 목록 조회 api의 responseDTO의 content
+struct SpecificLookBookCodiEntity: Identifiable {
+    let coordinateId: Int
+    let coordinateName: String
+    let coordinateLiked: Bool
+    let imageUrl: String
+
+    var id: Int { coordinateId }
 }
 
 struct CodiDetailEntity: Identifiable {

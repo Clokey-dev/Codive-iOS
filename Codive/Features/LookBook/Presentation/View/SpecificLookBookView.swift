@@ -1,5 +1,5 @@
 //
-//  SpecificLookBook.swift
+//  SpecificLookBookView.swift
 //  Codive
 //
 //  Created by 한금준 on 11/27/25.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SpecificLookBook: View {
+struct SpecificLookBookView: View {
     
     // MARK: - State Object & Local State
     
@@ -58,27 +58,27 @@ struct SpecificLookBook: View {
                         ),
                         spacing: 16
                     ) {
-                        ForEach(viewModel.lookBookList) { lookbook in
+                        ForEach(viewModel.specificLookBookCodiList) { codi in
                             LookBookCard(
-                                imageURL: lookbook.imageURL,
-                                cardTitle: lookbook.cardTitle,
+                                imageURL: codi.imageUrl,
+                                cardTitle: codi.coordinateName,
                                 iconType: viewModel.isEditing ? .checkmark : .heart,
                                 isSelected: viewModel.isEditing
-                                ? viewModel.selectedCodiIds.contains(lookbook.id)
-                                : likedCodyIds.contains(lookbook.id)
+                                ? viewModel.selectedCodiIds.contains(codi.id)
+                                : likedCodyIds.contains(codi.id)
                             ) {
                                 if viewModel.isEditing {
-                                    viewModel.toggleSelection(id: lookbook.id)
+                                    viewModel.toggleSelection(id: codi.id)
                                 } else {
-                                    handleLikeTap(codyId: lookbook.id)
+                                    handleLikeTap(codyId: codi.id)
                                 }
                             }
                             .contentShape(Rectangle())
                             .onTapGesture {
                                 if viewModel.isEditing {
-                                    viewModel.toggleSelection(id: lookbook.id)
+                                    viewModel.toggleSelection(id: codi.id)
                                 } else {
-                                    viewModel.navigateToCodiDetail(codiId: lookbook.id)
+                                    viewModel.navigateToCodiDetail(codiId: codi.id)
                                 }
                             }
                         }
@@ -87,7 +87,7 @@ struct SpecificLookBook: View {
                     .padding(.top, 16)
                 }
                 .onAppear {
-                    if viewModel.lookBookList.isEmpty {
+                    if viewModel.specificLookBookCodiList.isEmpty {
                         viewModel.fetchCodis()
                     }
                 }

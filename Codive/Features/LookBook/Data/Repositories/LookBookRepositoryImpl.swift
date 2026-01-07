@@ -19,19 +19,18 @@ final class LookBookRepositoryImpl: LookBookRepository {
         return try await datasource.fetchLookBookList()
     }
     
+    // MARK: - LookBook Detail (Codi List)
+    /// 특정 LookBook에 속한 코디 목록 조회
+    /// - Parameter id: LookBook ID
+    /// - Returns: 해당 룩북에 포함된 코디 목록
+    func fetchCodisForLookBook(forLookbookId id: Int) async throws -> [SpecificLookBookCodiEntity] {
+        return try await datasource.fetchCodisForLookBook(id: id)
+    }
+    
     /// LookBook 삭제
     /// - Parameter ids: 삭제할 룩북 ID 배열
     func deleteLookBooks(ids: [Int]) async throws {
         try await datasource.deleteLookBooks(ids: ids)
-    }
-    
-    // MARK: - LookBook Detail (Codi List)
-    
-    /// 특정 LookBook에 속한 코디 목록 조회
-    /// - Parameter id: LookBook ID
-    /// - Returns: 해당 룩북에 포함된 코디 목록
-    func fetchCodis(forLookbookId id: Int) async throws -> [LookBookEntity] {
-        return try await datasource.fetchCodisForLookBook(id: id)
     }
     
     // MARK: - Codi Detail
