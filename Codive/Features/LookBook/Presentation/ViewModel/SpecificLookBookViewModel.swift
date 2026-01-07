@@ -50,6 +50,7 @@ final class SpecificLookBookViewModel: ObservableObject {
     
     // MARK: - Data Fetching
     // 특정 룩북의 코디 조회하기
+    // MARK: - Data Fetching
     func fetchCodis() {
         isLoading = true
         errorMessage = nil
@@ -58,10 +59,34 @@ final class SpecificLookBookViewModel: ObservableObject {
             do {
                 let list = try await detailUseCase.fetchCodisForLookBook(forLookbookId: lookbookId)
                 self.specificLookBookCodiList = list
+                
+                // 추가: 서버에서 받아온 좋아요 상태를 즉시 반영
+                let initiallyLikedIds = list.filter { $0.coordinateLiked }.map { $0.id }
+                self.likedCodiIds = Set(initiallyLikedIds)
             } catch {
                 self.errorMessage = "데이터 로드에 실패했습니다: \(error.localizedDescription)"
             }
             isLoading = false
+        }
+    }
+
+    // MARK: - Like Action
+    func toggleLike(codyId: Int) {
+        let isCurrentlyLiked = likedCodiIds.contains(codyId)
+        if isCurrentlyLiked {
+            likedCodiIds.remove(codyId)
+        } else {
+            likedCodiIds.insert(codyId)
+        }
+
+        Task {
+            do {
+                try await codiUseCase.toggleLike(codyId: codyId, isLiked: !isCurrentlyLiked)
+            } catch {
+                if isCurrentlyLiked { likedCodiIds.insert(codyId) }
+                else { likedCodiIds.remove(codyId) }
+                self.errorMessage = "좋아요 상태 변경에 실패했습니다."
+            }
         }
     }
     
@@ -120,15 +145,15 @@ final class SpecificLookBookViewModel: ObservableObject {
     // MARK: - Like Action
     
     // 하트 동작
-    func toggleLike(codyId: Int, isLiked: Bool) {
-        Task {
-            do {
-                try await codiUseCase.toggleLike(codyId: codyId, isLiked: isLiked)
-            } catch {
-                self.errorMessage = "좋아요 상태 변경에 실패했습니다: \(error.localizedDescription)"
-            }
-        }
-    }
+//    func toggleLike(codyId: Int, isLiked: Bool) {
+//        Task {
+//            do {
+//                try await codiUseCase.toggleLike(codyId: codyId, isLiked: isLiked)
+//            } catch {
+//                self.errorMessage = "좋아요 상태 변경에 실패했습니다: \(error.localizedDescription)"
+//            }
+//        }
+//    }
     
     // MARK: - Navigation
     

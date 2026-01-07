@@ -12,7 +12,7 @@ struct SpecificLookBookView: View {
     // MARK: - State Object & Local State
     
     @StateObject private var viewModel: SpecificLookBookViewModel
-    @State private var likedCodyIds: Set<Int> = []
+//    @State private var likedCodyIds: Set<Int> = []
     
     // MARK: - Initializer
     
@@ -65,12 +65,12 @@ struct SpecificLookBookView: View {
                                 iconType: viewModel.isEditing ? .checkmark : .heart,
                                 isSelected: viewModel.isEditing
                                 ? viewModel.selectedCodiIds.contains(codi.id)
-                                : likedCodyIds.contains(codi.id)
+                                : viewModel.likedCodiIds.contains(codi.id)
                             ) {
                                 if viewModel.isEditing {
                                     viewModel.toggleSelection(id: codi.id)
                                 } else {
-                                    handleLikeTap(codyId: codi.id)
+                                    viewModel.toggleLike(codyId: codi.id)
                                 }
                             }
                             .contentShape(Rectangle())
@@ -112,17 +112,5 @@ struct SpecificLookBookView: View {
         } message: {
             Text(TextLiteral.LookBook.alertDeleteSubTitle)
         }
-    }
-    
-    // MARK: - Like Handling Logic
-    
-    private func handleLikeTap(codyId: Int) {
-        let isCurrentlyLiked = likedCodyIds.contains(codyId)
-        if isCurrentlyLiked {
-            likedCodyIds.remove(codyId)
-        } else {
-            likedCodyIds.insert(codyId)
-        }
-        viewModel.toggleLike(codyId: codyId, isLiked: !isCurrentlyLiked)
     }
 }
