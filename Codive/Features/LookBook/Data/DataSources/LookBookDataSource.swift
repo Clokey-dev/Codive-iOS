@@ -18,25 +18,21 @@ final class LookBookDataSource {
             lookBookId: 1,
             lookbookName: "영화관 데이트 룩",
             imageUrl: "https://images.unsplash.com/photo-1520975916090-3105956dac38?w=600&q=80"
-            
         ),
         LookBookEntity(
             lookBookId: 2,
             lookbookName: "편안한 데일리 코디",
             imageUrl: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80"
-            
         ),
         LookBookEntity(
             lookBookId: 3,
             lookbookName: "스트릿 캐주얼",
             imageUrl: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=600&q=80"
-            
         ),
         LookBookEntity(
             lookBookId: 4,
             lookbookName: "파티/모임 코디",
-            imageUrl: "https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?w=600&q=80"
-        ),
+            imageUrl: "https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?w=600&q=80")
     ]
     
     // MARK: - Dummy Codis by LookBook
