@@ -15,17 +15,24 @@ final class LookBookRepositoryImpl: LookBookRepository {
     }
     
     // MARK: - LookBook List
+    
     func fetchLookBookList() async throws -> [LookBookEntity] {
         return try await datasource.fetchLookBookList()
     }
     
-    // MARK: - LookBook Detail (Codi List)
-    /// 특정 LookBook에 속한 코디 목록 조회
-    /// - Parameter id: LookBook ID
-    /// - Returns: 해당 룩북에 포함된 코디 목록
+    // MARK: - Codi List In LookBook
+
     func fetchCodisForLookBook(forLookbookId id: Int) async throws -> [SpecificLookBookCodiEntity] {
         return try await datasource.fetchCodisForLookBook(id: id)
     }
+    
+    // MARK: - Before Codi
+
+    func fetchBeforeCoordinateDaily() async throws -> [BeforeCoordinateDailyEntity] {
+        return try await datasource.fetchBeforeCoordinateDaily()
+    }
+    
+    // ---------------
     
     /// LookBook 삭제
     /// - Parameter ids: 삭제할 룩북 ID 배열
@@ -57,13 +64,5 @@ final class LookBookRepositoryImpl: LookBookRepository {
     /// 코디 구성에 사용되는 상품 목록 조회
     func fetchProductList() async throws -> [ProductItem] {
         return try await datasource.fetchProductList()
-    }
-    
-    // MARK: - Before Codi
-    
-    /// 이전에 저장된 코디 목록 조회
-    /// 코디 추가 전 선택 화면에서 사용된다.
-    func fetchBeforeCodi() async throws -> [BeforeCodiEntity] {
-        return try await datasource.fetchBeforeCodiList()
     }
 }

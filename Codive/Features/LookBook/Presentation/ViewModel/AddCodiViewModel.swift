@@ -13,7 +13,7 @@ final class AddCodiViewModel: ObservableObject {
     // MARK: - Dependencies
     
     private let navigationRouter: NavigationRouter
-    let lookbookId: Int
+    let coordinateId: Int
     
     // MARK: - Published State (Codi Info)
     
@@ -36,25 +36,10 @@ final class AddCodiViewModel: ObservableObject {
     
     init(
         navigationRouter: NavigationRouter,
-        lookbookId: Int,
-        selectedCodiData: SelectedCodi? = nil
+        coordinateId: Int,
     ) {
         self.navigationRouter = navigationRouter
-        self.lookbookId = lookbookId
-        
-        if let data = selectedCodiData {
-            self.selectedImageURL = data.imageURL
-            self.codiName = data.name
-            self.memo = data.memo
-            self.combinedItems = data.combinedItems ?? []
-            self.isNewlyCombined = true
-            
-            if !self.combinedItems.isEmpty {
-                self.successMessage = "옷코디를 완성했어요!"
-            } else {
-                self.successMessage = "코디를 추가했어요!"
-            }
-        }
+        self.coordinateId = coordinateId
     }
     
     // MARK: - Computed Properties
@@ -90,11 +75,11 @@ final class AddCodiViewModel: ObservableObject {
     
     func navigateToNewCodi() {
         isShowingBottomSheet = false
-        navigationRouter.navigate(to: .addCodiDetail(lookbookId: lookbookId))
+        navigationRouter.navigate(to: .addCodiDetail(lookbookId: coordinateId))
     }
     
     func handleRecallCodi() {
         isShowingBottomSheet = false
-        navigationRouter.navigate(to: .addBeforeCodi(lookbookId: lookbookId))
+        navigationRouter.navigate(to: .addBeforeCodi(lookbookId: coordinateId))
     }
 }

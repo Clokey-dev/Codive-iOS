@@ -44,7 +44,7 @@ struct AddBeforeCodiView: View {
                     Text(error)
                         .foregroundStyle(.red)
                         .padding()
-                } else if viewModel.lookBookList.isEmpty {
+                } else if viewModel.beforeCoordinateDailyList.isEmpty {
                     Text(TextLiteral.LookBook.noBeforeCodice)
                         .foregroundColor(.gray)
                         .padding(.top, 100)
@@ -56,9 +56,9 @@ struct AddBeforeCodiView: View {
                         ),
                         spacing: 16
                     ) {
-                        ForEach(viewModel.lookBookList) { lookbook in
+                        ForEach(viewModel.beforeCoordinateDailyList) { lookbook in
                             BeforeCodiCard(
-                                imageURL: lookbook.imageURL,
+                                imageURL: lookbook.imageUrl,
                                 date: lookbook.date,
                                 isSelected: false
                             )
@@ -74,7 +74,7 @@ struct AddBeforeCodiView: View {
         .navigationBarHidden(true)
         .background(Color.white)
         .onAppear {
-            viewModel.fetchLookBooks()
+            viewModel.fetchBeforeCoordinateDailyList()
         }
     }
 }

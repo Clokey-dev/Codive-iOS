@@ -69,6 +69,20 @@ final class LookBookDataSource {
            ]
     ]
     
+    // MARK: - Dummy Before Codi List
+    
+    /// 코디 추가 전 선택 화면에서 사용하는 이전 코디 목록 더미 데이터
+    private var dummyBeforeCoordinateDaily: [BeforeCoordinateDailyEntity] = [
+        BeforeCoordinateDailyEntity(
+            coordinateId: 1,
+            imageUrl: "https://image.msscdn.net/images/style/detail/37395/detail_37395_1_500.jpg",
+            date: "2025.08.09"),
+        BeforeCoordinateDailyEntity(
+            coordinateId: 2,
+            imageUrl: "https://image.msscdn.net/images/style/detail/37390/detail_37390_1_500.jpg",
+            date: "2025.08.01")
+    ]
+    
     // MARK: - Dummy Codi Detail
     
     /// 코디 상세 화면에서 사용하는 더미 데이터
@@ -128,18 +142,6 @@ final class LookBookDataSource {
         ProductItem(id: 6, imageName: "https://pngimg.com/uploads/cap/cap_PNG5687.png", isTodayCloth: false, brand: "뉴에라", name: "볼캡")
     ]
     
-    // MARK: - Dummy Before Codi List
-    
-    /// 코디 추가 전 선택 화면에서 사용하는 이전 코디 목록 더미 데이터
-    private var dummyBeforeCodi: [BeforeCodiEntity] = [
-        BeforeCodiEntity(id: 1, imageURL: "https://image.msscdn.net/images/style/detail/37395/detail_37395_1_500.jpg", date: "2025.08.09", name: "로맨틱 시사회 룩", memo: "영화관 데이트하기 좋은 스타일"),
-        BeforeCodiEntity(id: 2, imageURL: "https://image.msscdn.net/images/style/detail/37390/detail_37390_1_500.jpg", date: "2025.08.01", name: "따뜻한 카페 데이트", memo: "겨울 카페 데이트 코디"),
-        BeforeCodiEntity(id: 3, imageURL: "https://image.msscdn.net/images/style/detail/37370/detail_37370_1_500.jpg", date: "2025.08.03", name: "편한 집앞 마실룩", memo: "동네 산책하기 좋은 편한 옷"),
-        BeforeCodiEntity(id: 4, imageURL: "https://image.msscdn.net/images/style/detail/37370/detail_37370_1_500.jpg", date: "2025.08.08", name: "캐주얼 데일리", memo: "평소에 입기 좋은 무난한 코디"),
-        BeforeCodiEntity(id: 5, imageURL: "https://image.msscdn.net/images/style/detail/37385/detail_37385_1_500.jpg", date: "2025.08.11", name: "활동적인 피크닉 룩", memo: "야외 활동하기 좋은 스타일"),
-        BeforeCodiEntity(id: 6, imageURL: "https://image.msscdn.net/images/style/detail/37380/detail_37380_1_500.jpg", date: "2025.08.14", name: "뮤지컬 관람 코디", memo: "공연장에 입고 가기 좋은 코디")
-    ]
-    
     // MARK: - Fetch APIs
     
     /// LookBook 목록 조회
@@ -149,9 +151,9 @@ final class LookBookDataSource {
     }
     
     /// 이전 코디 목록 조회
-    func fetchBeforeCodiList() async throws -> [BeforeCodiEntity] {
+    func fetchBeforeCoordinateDaily() async throws -> [BeforeCoordinateDailyEntity] {
         try await Task.sleep(nanoseconds: 500_000_000)
-        return dummyBeforeCodi
+        return dummyBeforeCoordinateDaily
     }
     
     /// 특정 LookBook에 속한 코디 목록 조회

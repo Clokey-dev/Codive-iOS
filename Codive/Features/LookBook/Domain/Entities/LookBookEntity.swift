@@ -7,7 +7,7 @@
 
 import Foundation
 
-// 룩북 조회 api의 responseDTO의 content
+// 룩북 전체 조회 api의 responseDTO의 content
 struct LookBookEntity: Identifiable {
     let lookBookId: Int
     let lookbookName: String
@@ -31,6 +31,17 @@ struct SpecificLookBookCodiEntity: Identifiable {
     var id: Int { coordinateId }
 }
 
+// 과거 일일 코디 조회 api responseDTO의 content
+struct BeforeCoordinateDailyEntity: Identifiable {
+    let coordinateId: Int
+    let imageUrl: String
+    let date: String
+    
+    var id: Int { coordinateId }
+}
+
+//---------------------------------------------------------
+
 struct CodiDetailEntity: Identifiable {
     let id: Int
     let imageURL: String
@@ -45,14 +56,6 @@ struct CodiDetailEntity: Identifiable {
 // MARK: - Supporting Types
 struct SelectedCodiData: Hashable {
     let imageURL: String
-    let name: String
-    let memo: String
-}
-
-struct BeforeCodiEntity: Identifiable {
-    let id: Int
-    let imageURL: String
-    let date: String
     let name: String
     let memo: String
 }

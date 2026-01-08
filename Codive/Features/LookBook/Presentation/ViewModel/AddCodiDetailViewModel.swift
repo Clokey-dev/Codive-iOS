@@ -150,8 +150,7 @@ final class AddCodiDetailViewModel: ObservableObject, DraggableImageViewModelPro
         
         navigationRouter.navigate(
             to: .addCodi(
-                lookbookId: lookbookId,
-                selectedCodiData: data
+                coordinateId: lookbookId
             )
         )
     }

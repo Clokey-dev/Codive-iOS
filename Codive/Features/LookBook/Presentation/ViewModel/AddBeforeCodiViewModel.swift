@@ -14,11 +14,11 @@ final class AddBeforeCodiViewModel: ObservableObject {
     
     let navigationRouter: NavigationRouter
     private let beforeCodiUseCase: BeforeCodiUseCase
-    let lookbookId: Int
+    let coordinateId: Int
     
     // MARK: - Published State (UI State)
     
-    @Published var lookBookList: [BeforeCodiEntity] = []
+    @Published var beforeCoordinateDailyList: [BeforeCoordinateDailyEntity] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     @Published var selectedLookBookIds: Set<Int> = []
@@ -28,23 +28,23 @@ final class AddBeforeCodiViewModel: ObservableObject {
     init(
         navigationRouter: NavigationRouter,
         beforeCodiUseCase: BeforeCodiUseCase,
-        lookbookId: Int
+        coordinateId: Int
     ) {
         self.navigationRouter = navigationRouter
         self.beforeCodiUseCase = beforeCodiUseCase
-        self.lookbookId = lookbookId
+        self.coordinateId = coordinateId
     }
     
     // MARK: - Data Fetching
     
-    func fetchLookBooks() {
+    func fetchBeforeCoordinateDailyList() {
         isLoading = true
         errorMessage = nil
         
         Task {
             do {
-                let list = try await beforeCodiUseCase.fetchBeforeCodiList()
-                self.lookBookList = list
+                let list = try await beforeCodiUseCase.fetchBeforeCoordinateDailyList()
+                self.beforeCoordinateDailyList = list
             } catch {
                 self.errorMessage = "데이터 로드에 실패했습니다: \(error.localizedDescription)"
             }
@@ -55,7 +55,7 @@ final class AddBeforeCodiViewModel: ObservableObject {
     // MARK: - Selection Logic
     
     func toggleSelection(id: Int) {
-        if let selectedCodi = lookBookList.first(where: { $0.id == id }) {
+        if let selectedCodi = beforeCoordinateDailyList.first(where: { $0.id == id }) {
             navigateToAddCodiWithData(codi: selectedCodi)
         }
     }
@@ -66,18 +66,10 @@ final class AddBeforeCodiViewModel: ObservableObject {
         navigationRouter.navigateBack()
     }
     
-    func navigateToAddCodiWithData(codi: BeforeCodiEntity) {
-        let selectedData = SelectedCodi(
-            codiId: codi.id,
-            imageURL: codi.imageURL,
-            name: codi.name,
-            memo: codi.memo
-        )
-        
+    func navigateToAddCodiWithData(codi: BeforeCoordinateDailyEntity) {
         navigationRouter.navigate(
             to: .addCodi(
-                lookbookId: lookbookId,
-                selectedCodiData: selectedData
+                coordinateId: coordinateId
             )
         )
     }
