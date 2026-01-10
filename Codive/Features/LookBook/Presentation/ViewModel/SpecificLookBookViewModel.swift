@@ -73,6 +73,7 @@ final class SpecificLookBookViewModel: ObservableObject {
     // MARK: - Like Action
     func toggleLike(codyId: Int) {
         let isCurrentlyLiked = likedCodiIds.contains(codyId)
+
         if isCurrentlyLiked {
             likedCodiIds.remove(codyId)
         } else {
@@ -81,10 +82,16 @@ final class SpecificLookBookViewModel: ObservableObject {
 
         Task {
             do {
-                try await codiUseCase.toggleLike(codyId: codyId, isLiked: !isCurrentlyLiked)
+                try await codiUseCase.toggleLike(
+                    coordinateId: codyId,
+                    isLiked: !isCurrentlyLiked
+                )
             } catch {
-                if isCurrentlyLiked { likedCodiIds.insert(codyId) }
-                else { likedCodiIds.remove(codyId) }
+                if isCurrentlyLiked {
+                    likedCodiIds.insert(codyId)
+                } else {
+                    likedCodiIds.remove(codyId)
+                }
                 self.errorMessage = "좋아요 상태 변경에 실패했습니다."
             }
         }
@@ -141,19 +148,6 @@ final class SpecificLookBookViewModel: ObservableObject {
             toggleEditingMode()
         }
     }
-    
-    // MARK: - Like Action
-    
-    // 하트 동작
-//    func toggleLike(codyId: Int, isLiked: Bool) {
-//        Task {
-//            do {
-//                try await codiUseCase.toggleLike(codyId: codyId, isLiked: isLiked)
-//            } catch {
-//                self.errorMessage = "좋아요 상태 변경에 실패했습니다: \(error.localizedDescription)"
-//            }
-//        }
-//    }
     
     // MARK: - Navigation
     

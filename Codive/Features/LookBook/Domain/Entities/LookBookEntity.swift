@@ -45,6 +45,10 @@ struct BeforeCoordinateDailyEntity: Identifiable {
     var id: Int { coordinateId }
 }
 
+struct CodiLikeEntity {
+    let coordinateId: Int
+}
+
 //---------------------------------------------------------
 
 struct CodiDetailEntity: Identifiable {

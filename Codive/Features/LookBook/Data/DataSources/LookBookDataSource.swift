@@ -191,6 +191,17 @@ final class LookBookDataSource {
         print("삭제 후 남은 LookBook: \(dummyLookBooks.map { $0.lookBookId })")
     }
     
+    /// 코디 좋아요 (PATCH, 완)
+    func toggleCodiLike(_ request: CodiLikeEntity, isLiked: Bool) async throws {
+        try await Task.sleep(nanoseconds: 300_000_000)
+
+        print("""
+        서버에 좋아요 PATCH 요청
+        - coordinateId: \(request.coordinateId)
+        - isLiked: \(isLiked)
+        """)
+    }
+    
     /// 코디 상세 정보 조회
     func fetchCodiDetail(codiId: Int) async throws -> CodiDetailEntity? {
         try await Task.sleep(nanoseconds: 300_000_000)
@@ -201,13 +212,5 @@ final class LookBookDataSource {
     func fetchProductList() async throws -> [ProductItem] {
         try await Task.sleep(nanoseconds: 300_000_000)
         return dummyProducts
-    }
-    
-    // MARK: - Mutating APIs
-    
-    /// 코디 좋아요 상태 변경
-    func toggleLike(codyId: Int, isLiked: Bool) async throws {
-        try await Task.sleep(nanoseconds: 300_000_000)
-        print("서버에 좋아요 상태 전송: Codi ID \(codyId), isLiked: \(isLiked)")
     }
 }

@@ -25,7 +25,8 @@ final class CodiUseCase {
     // MARK: - Like Action
 
     /// 코디 좋아요 상태 변경
-    func toggleLike(codyId: Int, isLiked: Bool) async throws {
-        try await repository.toggleLike(codyId: codyId, isLiked: isLiked)
+    func toggleLike(coordinateId: Int, isLiked: Bool) async throws {
+        let request = CodiLikeEntity(coordinateId: coordinateId)
+        try await repository.toggleCodiLike(request, isLiked: isLiked)
     }
 }

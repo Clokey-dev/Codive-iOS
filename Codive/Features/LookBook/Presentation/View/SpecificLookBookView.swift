@@ -12,7 +12,6 @@ struct SpecificLookBookView: View {
     // MARK: - State Object & Local State
     
     @StateObject private var viewModel: SpecificLookBookViewModel
-//    @State private var likedCodyIds: Set<Int> = []
     
     // MARK: - Initializer
     
