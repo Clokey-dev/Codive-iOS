@@ -36,14 +36,10 @@ final class LookBookRepositoryImpl: LookBookRepository {
         try await datasource.createLookBook(title: title)
     }
     
-    // ---------------
-    
-    /// LookBook 삭제
-    /// - Parameter ids: 삭제할 룩북 ID 배열
-    func deleteLookBooks(ids: [Int]) async throws {
-        try await datasource.deleteLookBooks(ids: ids)
+    func deleteLookBooks(_ lookBooks: [DeleteLookBookEntity]) async throws {
+        try await datasource.deleteLookBooks(lookBooks)
     }
-    
+
     // MARK: - Codi Detail
     
     /// 코디 상세 정보 조회

@@ -178,6 +178,19 @@ final class LookBookDataSource {
         return CreateLookBookEntity(lookBookId: newId)
     }
     
+    /// 룩북 삭제 (DELETE, 완)
+    func deleteLookBooks(_ requests: [DeleteLookBookEntity]) async throws {
+        try await Task.sleep(nanoseconds: 500_000_000)
+
+        let ids = requests.map { $0.lookBookId }
+
+        print("서버에 삭제 요청: lookBookIds \(ids)")
+
+        dummyLookBooks.removeAll { ids.contains($0.lookBookId) }
+
+        print("삭제 후 남은 LookBook: \(dummyLookBooks.map { $0.lookBookId })")
+    }
+    
     /// 코디 상세 정보 조회
     func fetchCodiDetail(codiId: Int) async throws -> CodiDetailEntity? {
         try await Task.sleep(nanoseconds: 300_000_000)
@@ -191,16 +204,6 @@ final class LookBookDataSource {
     }
     
     // MARK: - Mutating APIs
-    
-    /// LookBook 삭제
-    /// - Parameter ids: 삭제할 룩북 ID 배열
-    func deleteLookBooks(ids: [Int]) async throws {
-        try await Task.sleep(nanoseconds: 500_000_000)
-        print("서버에 삭제 요청: lookbookId \(ids)")
-        
-        dummyLookBooks.removeAll { ids.contains($0.id) }
-        print("삭제 후 남은 LookBook: \(dummyLookBooks.map { $0.id })")
-    }
     
     /// 코디 좋아요 상태 변경
     func toggleLike(codyId: Int, isLiked: Bool) async throws {

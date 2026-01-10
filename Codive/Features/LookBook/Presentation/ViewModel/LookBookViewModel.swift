@@ -105,16 +105,21 @@ final class LookBookViewModel: ObservableObject {
     func confirmDelete() {
         let idsToDelete = Array(selectedLookBookIds)
         
+        isLoading = true
+        
         Task {
             do {
                 try await listUseCase.deleteLookBooks(ids: idsToDelete)
-                self.isLoading = false
-                self.fetchLookBooks()
+
+                let updatedList = try await listUseCase.fetchLookBookList()
+                self.lookBookList = updatedList
+                
                 self.toggleEditingMode()
             } catch {
-                self.errorMessage = "룩북 삭제에 실패했습니다: \(error.localizedDescription)"
-                self.isLoading = false
+                self.errorMessage = "룩북 삭제에 실패했습니다."
             }
+            
+            isLoading = false
         }
     }
     

@@ -14,8 +14,9 @@ protocol LookBookRepository {
     func fetchBeforeCoordinateDaily() async throws -> [BeforeCoordinateDailyEntity]
     // 룩북 생성
     func createLookBook(title: String) async throws -> CreateLookBookEntity
+    // 룩북 삭제
+    func deleteLookBooks(_ lookBooks: [DeleteLookBookEntity]) async throws
     func fetchProductList() async throws -> [ProductItem]
-    func deleteLookBooks(ids: [Int]) async throws
     func fetchCodiDetail(codiId: Int) async throws -> CodiDetailEntity?
     func toggleLike(codyId: Int, isLiked: Bool) async throws
 }

@@ -16,8 +16,13 @@ struct LookBookEntity: Identifiable {
     var id: Int { lookBookId }
 }
 
-// 룩북 생성하기 api의 responseDTO
+// 룩북 생성하기 api의 request
 struct CreateLookBookEntity {
+    let lookBookId: Int
+}
+
+// 룩북 제거하기 api의 request
+struct DeleteLookBookEntity {
     let lookBookId: Int
 }
 

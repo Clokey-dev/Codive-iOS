@@ -29,6 +29,7 @@ final class LookBookListUseCase {
 
     /// 선택된 룩북 삭제
     func deleteLookBooks(ids: [Int]) async throws {
-        try await repository.deleteLookBooks(ids: ids)
+        let requests = ids.map { DeleteLookBookEntity(lookBookId: $0) }
+        try await repository.deleteLookBooks(requests)
     }
 }
