@@ -11,8 +11,7 @@ final class LookBookDataSource {
     
     // MARK: - Dummy LookBook List
     
-    /// LookBook 메인 화면에 노출되는 룩북 카드 더미 데이터
-    /// 각 LookBook은 id, 대표 이미지, 카드 제목을 가진다.
+    // 룩북 리스트 더미데이터(완)
     private var dummyLookBooks: [LookBookEntity] = [
         LookBookEntity(
             lookBookId: 1,
@@ -36,9 +35,8 @@ final class LookBookDataSource {
     ]
     
     // MARK: - Dummy Codis by LookBook
-    
-    /// 룩북 ID를 key로 하는 코디 목록 더미 데이터
-    /// 특정 LookBook 상세 화면에서 사용된다.
+
+    // 룩북의 코디 리스트 더미데이터 (완)
     private var lookbookDetailCodi: [Int: [SpecificLookBookCodiEntity]] = [
         1: [ // 데이트 룩 (ID: 1)
             SpecificLookBookCodiEntity(
@@ -71,7 +69,7 @@ final class LookBookDataSource {
     
     // MARK: - Dummy Before Codi List
     
-    /// 코디 추가 전 선택 화면에서 사용하는 이전 코디 목록 더미 데이터
+    /// 이전 등록 코디 더미데이터 (완)
     private var dummyBeforeCoordinateDaily: [BeforeCoordinateDailyEntity] = [
         BeforeCoordinateDailyEntity(
             coordinateId: 1,
@@ -144,22 +142,40 @@ final class LookBookDataSource {
     
     // MARK: - Fetch APIs
     
-    /// LookBook 목록 조회
+    /// LookBook 목록 조회(완)
     func fetchLookBookList() async throws -> [LookBookEntity] {
         try await Task.sleep(nanoseconds: 500_000_000)
         return dummyLookBooks
     }
     
-    /// 이전 코디 목록 조회
+    /// 이전 코디 목록 조회(완)
     func fetchBeforeCoordinateDaily() async throws -> [BeforeCoordinateDailyEntity] {
         try await Task.sleep(nanoseconds: 500_000_000)
         return dummyBeforeCoordinateDaily
     }
     
-    /// 특정 LookBook에 속한 코디 목록 조회
+    /// 특정 LookBook에 속한 코디 목록 조회(완)
     func fetchCodisForLookBook(id lookbookId: Int) async throws -> [SpecificLookBookCodiEntity] {
         try await Task.sleep(nanoseconds: 500_000_000)
         return lookbookDetailCodi[lookbookId] ?? []
+    }
+    
+    /// 룩북 생성 (POST, 완)
+    func createLookBook(title: String) async throws -> CreateLookBookEntity {
+        try await Task.sleep(nanoseconds: 500_000_000)
+
+        let newId = (dummyLookBooks.map { $0.lookBookId }.max() ?? 0) + 1
+
+        let newLookBook = LookBookEntity(
+            lookBookId: newId,
+            lookbookName: title,
+            imageUrl: "https://via.placeholder.com/160"
+        )
+
+        dummyLookBooks.append(newLookBook)
+
+        print("서버에 룩북 생성 요청: \(title)")
+        return CreateLookBookEntity(lookBookId: newId)
     }
     
     /// 코디 상세 정보 조회

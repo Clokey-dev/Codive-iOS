@@ -136,17 +136,23 @@ final class LookBookViewModel: ObservableObject {
     func handleAddLookBook(title: String) {
         let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedTitle.isEmpty else { return }
-        
-        let newLookBook = LookBookEntity(
-            lookBookId: Int.random(in: 1000...9999),
-            lookbookName: trimmedTitle,
-            imageUrl: "https://via.placeholder.com/160"
-        )
-        withAnimation {
-            self.lookBookList.append(newLookBook)
+
+        isLoading = true
+
+        Task {
+            do {
+                _ = try await listUseCase.createLookBook(title: trimmedTitle)
+
+                let updatedList = try await listUseCase.fetchLookBookList()
+                self.lookBookList = updatedList
+
+                self.isShowingAddDialog = false
+            } catch {
+                self.errorMessage = "룩북 생성에 실패했습니다."
+            }
+
+            isLoading = false
         }
-        
-        isShowingAddDialog = false
     }
     
     // MARK: - Navigation

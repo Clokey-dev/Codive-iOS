@@ -21,6 +21,11 @@ final class LookBookListUseCase {
     func fetchLookBookList() async throws -> [LookBookEntity] {
         try await repository.fetchLookBookList()
     }
+    
+    /// 룩북 생성
+    func createLookBook(title: String) async throws -> CreateLookBookEntity {
+        try await repository.createLookBook(title: title)
+    }
 
     /// 선택된 룩북 삭제
     func deleteLookBooks(ids: [Int]) async throws {

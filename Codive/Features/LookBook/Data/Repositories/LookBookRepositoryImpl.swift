@@ -32,6 +32,10 @@ final class LookBookRepositoryImpl: LookBookRepository {
         return try await datasource.fetchBeforeCoordinateDaily()
     }
     
+    func createLookBook(title: String) async throws -> CreateLookBookEntity {
+        try await datasource.createLookBook(title: title)
+    }
+    
     // ---------------
     
     /// LookBook 삭제
