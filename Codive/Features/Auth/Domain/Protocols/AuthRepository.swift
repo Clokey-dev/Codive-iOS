@@ -12,8 +12,5 @@ protocol AuthRepository {
     func socialLogin(provider: AuthProvider) async -> AuthResult
     func checkAuthStatus() async -> AuthStatusResult
     func logout() async
-
-    // 향후 서버 연결 시 추가될 메서드들
-    // func refreshToken() async -> AuthResult
-    // func deleteAccount() async -> Bool
+    func saveTokens(accessToken: String, refreshToken: String) async throws
 }

@@ -7,6 +7,12 @@
 
 import SwiftUI
 
+// MARK: - Identifiable URL Wrapper
+struct IdentifiableURL: Identifiable {
+    let id = UUID()
+    let url: URL
+}
+
 // MARK: - Onboarding Data Model
 struct OnboardingPage: Identifiable {
     let id = UUID()
@@ -183,6 +189,10 @@ struct OnboardingContainerView: View {
             errorMessage: viewModel.errorMessage,
             onErrorDismiss: viewModel.clearError
         )
+        .sheet(item: $viewModel.identifiableLoginURL) { item in
+            SafariView(url: item.url)
+                .ignoresSafeArea()
+        }
     }
 }
 

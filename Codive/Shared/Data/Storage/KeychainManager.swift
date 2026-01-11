@@ -32,25 +32,57 @@ final class KeychainManager {
     // MARK: - Access Token
 
     func saveAccessToken(_ token: String) throws {
-        try save(token, forKey: accessTokenKey)
+        do {
+            try save(token, forKey: accessTokenKey)
+            print("Keychain: Access token saved successfully.")
+        } catch {
+            print("Keychain: Failed to save access token: \(error.localizedDescription)")
+            throw error
+        }
     }
 
     func getAccessToken() throws -> String {
-        try get(forKey: accessTokenKey)
+        do {
+            let token = try get(forKey: accessTokenKey)
+            print("Keychain: Access token retrieved successfully.")
+            return token
+        } catch {
+            print("Keychain: Failed to retrieve access token: \(error.localizedDescription)")
+            throw error
+        }
     }
 
     func deleteAccessToken() throws {
-        try delete(forKey: accessTokenKey)
+        do {
+            try delete(forKey: accessTokenKey)
+            print("Keychain: Access token deleted successfully.")
+        } catch {
+            print("Keychain: Failed to delete access token: \(error.localizedDescription)")
+            throw error
+        }
     }
 
     // MARK: - Refresh Token
 
     func saveRefreshToken(_ token: String) throws {
-        try save(token, forKey: refreshTokenKey)
+        do {
+            try save(token, forKey: refreshTokenKey)
+            print("Keychain: Refresh token saved successfully.")
+        } catch {
+            print("Keychain: Failed to save refresh token: \(error.localizedDescription)")
+            throw error
+        }
     }
 
     func getRefreshToken() throws -> String {
-        try get(forKey: refreshTokenKey)
+        do {
+            let token = try get(forKey: refreshTokenKey)
+            print("Keychain: Refresh token retrieved successfully.")
+            return token
+        } catch {
+            print("Keychain: Failed to retrieve refresh token: \(error.localizedDescription)")
+            throw error
+        }
     }
 
     func deleteRefreshToken() throws {

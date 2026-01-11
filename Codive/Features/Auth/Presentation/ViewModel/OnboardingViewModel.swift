@@ -18,6 +18,7 @@ final class OnboardingViewModel: ObservableObject {
     // MARK: - Published Properties
     @Published var isLoading = false
     @Published var errorMessage: String?
+    @Published var identifiableLoginURL: IdentifiableURL?
     
     // MARK: - Initializer
     init(
@@ -32,59 +33,8 @@ final class OnboardingViewModel: ObservableObject {
     
     // MARK: - Actions
     func kakaoLoginButtonTapped() async {
-        isLoading = true
-        errorMessage = nil
-
-        let result = await authRepository.socialLogin(provider: .kakao)  // Repository 사용
-
-        switch result {
-        case .success(let user):
-            print("카카오 로그인 성공: \(user.id)")
-
-            // 로그인 성공 후 회원 상태 체크
-            let statusResult = await authRepository.checkAuthStatus()
-
-            isLoading = false
-
-            switch statusResult {
-            case .success(let registerStatus):
-                switch registerStatus {
-                case .notAgreed:
-                    // 약관 동의 필요 -> 약관 동의 화면으로 이동
-                    print("약관 동의 필요 -> 약관 동의 화면으로 이동")
-                    navigationRouter.navigate(to: .termsAgreement)
-
-                case .registered:
-                    // 약관 동의 완료 -> 메인 화면으로 이동
-                    print("약관 동의 완료 -> 메인 화면으로 이동")
-                    appRouter.navigateToMain()
-                }
-
-            case .failure(let error):
-                errorMessage = "회원 정보 확인 중 오류가 발생했습니다: \(error.localizedDescription)"
-            }
-
-        case .failure(let error):
-            isLoading = false
-
-            switch error {
-            case .cancelled:
-                print("카카오 로그인 취소됨")
-                return
-            case .tokenParsingError:
-                errorMessage = "로그인 처리 중 오류가 발생했습니다. 다시 시도해주세요."
-            case .keychainError:
-                errorMessage = "토큰 저장 중 오류가 발생했습니다. 다시 시도해주세요."
-            case .networkError(let message):
-                if message.contains("The operation couldn't be completed") ||
-                   message.contains("KakaoSDKCommon.SdkError error 0") {
-                    print("카카오 로그인 취소됨 (네트워크 에러로 분류된 취소)")
-                    return
-                }
-                errorMessage = error.localizedDescription
-            default:
-                errorMessage = error.localizedDescription
-            }
+        if let url = URL(string: "https://prod.clokey.store/oauth2/authorization/kakao") {
+            identifiableLoginURL = IdentifiableURL(url: url)
         }
     }
     
@@ -92,7 +42,7 @@ final class OnboardingViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
         
-        let result = await authRepository.socialLogin(provider: .apple)  // Repository 사용
+        let result = await authRepository.socialLogin(provider: .apple)
         
         isLoading = false
         
