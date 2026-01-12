@@ -22,6 +22,17 @@ protocol ClothDataSource {
         seasons: Set<Season>,
         searchText: String?
     ) async throws -> [Cloth]
+    
+    /// 옷 목록 조회 (API 연동)
+    func fetchClothList(
+        lastClothId: Int?,
+        size: Int,
+        categoryId: Int?,
+        seasons: Set<Season>
+    ) async throws -> (clothes: [Cloth], isLast: Bool)
+    
+    /// 옷 상세 조회 (API 연동)
+    func fetchClothDetail(clothId: Int) async throws -> ClothDetailResult
 
     func deleteClothItems(_ clothIds: [Int]) async throws
 }
@@ -192,6 +203,48 @@ final class DefaultClothDataSource: ClothDataSource {
         // TODO: 실제 API 호출로 대체
         // Mock 환경: 성공만 반환
         print("Mock: \(clothIds) 삭제 성공")
+    }
+    
+    // MARK: - API 연동 메서드
+    
+    /// 옷 목록 조회 (실제 API 호출)
+    func fetchClothList(
+        lastClothId: Int?,
+        size: Int,
+        categoryId: Int?,
+        seasons: Set<Season>
+    ) async throws -> (clothes: [Cloth], isLast: Bool) {
+        print("📤 [ClothDataSource] 옷 목록 조회 API 호출...")
+        
+        let result = try await apiService.fetchClothes(
+            lastClothId: lastClothId.map { Int64($0) },
+            size: Int32(size),
+            categoryId: categoryId.map { Int64($0) },
+            seasons: Array(seasons)
+        )
+        
+        // ClothListItem → Cloth 변환
+        let clothes = result.clothes.map { item in
+            Cloth(
+                id: Int(item.clothId),
+                imageUrl: item.imageUrl,
+                name: item.name,
+                brand: item.brand
+            )
+        }
+        
+        print("✅ [ClothDataSource] 옷 목록 조회 완료: \(clothes.count)개, isLast: \(result.isLast)")
+        return (clothes: clothes, isLast: result.isLast)
+    }
+    
+    /// 옷 상세 조회 (실제 API 호출)
+    func fetchClothDetail(clothId: Int) async throws -> ClothDetailResult {
+        print("📤 [ClothDataSource] 옷 상세 조회 API 호출... clothId: \(clothId)")
+        
+        let result = try await apiService.fetchClothDetails(clothId: Int64(clothId))
+        
+        print("✅ [ClothDataSource] 옷 상세 조회 완료: \(result.name ?? "이름없음")")
+        return result
     }
 }
 

@@ -78,6 +78,18 @@ struct AppRootView: View {
         Task {
             do {
                 try await authRepository.saveTokens(accessToken: unwrappedAccessToken, refreshToken: unwrappedRefreshToken)
+                
+                // 🔑 디버그용 토큰 출력
+                print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+                print("🔑 [로그인 성공] JWT 토큰 저장 완료")
+                print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+                print("📌 Access Token:")
+                print(unwrappedAccessToken)
+                print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+                print("📌 Refresh Token:")
+                print(unwrappedRefreshToken)
+                print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+                
                 print("Tokens saved successfully from deep link.")
                 appRouter.navigateToMain()
             } catch {

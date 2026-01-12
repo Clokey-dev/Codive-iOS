@@ -21,6 +21,17 @@ protocol ClothAPIServiceProtocol {
     
     /// 옷 생성 API 호출
     func createClothes(requests: [ClothCreateAPIRequest]) async throws -> [Int64]
+    
+    /// 옷 목록 조회
+    func fetchClothes(
+        lastClothId: Int64?,
+        size: Int32,
+        categoryId: Int64?,
+        seasons: [Season]
+    ) async throws -> ClothListResult
+    
+    /// 옷 상세 조회
+    func fetchClothDetails(clothId: Int64) async throws -> ClothDetailResult
 }
 
 // MARK: - Supporting Types
@@ -40,6 +51,30 @@ struct ClothCreateAPIRequest {
     let brand: String?            // 브랜드 (선택)
     let season: Season            // 계절 (필수)
     let categoryId: Int64         // 카테고리 ID (필수)
+}
+
+/// 옷 목록 조회 결과
+struct ClothListResult {
+    let clothes: [ClothListItem]
+    let isLast: Bool
+}
+
+/// 옷 목록 아이템 (목록 조회용)
+struct ClothListItem {
+    let clothId: Int64
+    let imageUrl: String
+    let brand: String?
+    let name: String?
+}
+
+/// 옷 상세 조회 결과
+struct ClothDetailResult {
+    let clothImageUrl: String
+    let parentCategory: String?
+    let category: String?
+    let name: String?
+    let brand: String?
+    let clothUrl: String?
 }
 
 // MARK: - ClothAPIService Implementation
@@ -379,6 +414,171 @@ final class ClothAPIService: ClothAPIServiceProtocol {
         case .summer: return .SUMMER
         case .fall: return .FALL
         case .winter: return .WINTER
+        }
+    }
+    
+    /// Season enum → Query param enum 변환
+    private func mapSeasonToQueryParam(_ season: Season) -> Operations.Cloth_getClothes.Input.Query.seasonsPayloadPayload {
+        switch season {
+        case .spring: return .SPRING
+        case .summer: return .SUMMER
+        case .fall: return .FALL
+        case .winter: return .WINTER
+        }
+    }
+    
+    // MARK: - 옷 목록 조회
+    
+    func fetchClothes(
+        lastClothId: Int64?,
+        size: Int32,
+        categoryId: Int64?,
+        seasons: [Season]
+    ) async throws -> ClothListResult {
+        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        print("📤 [API] 옷 목록 조회 요청")
+        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        print("   📋 요청 파라미터:")
+        print("      - lastClothId: \(lastClothId?.description ?? "nil")")
+        print("      - size: \(size)")
+        print("      - categoryId: \(categoryId?.description ?? "nil")")
+        print("      - seasons: \(seasons.map { $0.rawValue })")
+        
+        let seasonsParam: [Operations.Cloth_getClothes.Input.Query.seasonsPayloadPayload]? = seasons.isEmpty ? nil : seasons.map { mapSeasonToQueryParam($0) }
+        
+        let input = Operations.Cloth_getClothes.Input(
+            query: .init(
+                lastClothId: lastClothId,
+                size: size,
+                direction: .DESC,
+                categoryId: categoryId,
+                seasons: seasonsParam
+            )
+        )
+        
+        do {
+            let response = try await client.Cloth_getClothes(input)
+            
+            switch response {
+            case .ok(let okResponse):
+                let httpBody = try okResponse.body.any
+                let data = try await Data(collecting: httpBody, upTo: .max)
+                
+                print("   ✅ 응답 수신 (성공)")
+                if let jsonString = String(data: data, encoding: .utf8) {
+                    print("   📩 응답 Body: \(jsonString.prefix(500))...")
+                }
+                
+                let decoded = try jsonDecoder.decode(
+                    Components.Schemas.BaseResponseSliceResponseClothListResponse.self,
+                    from: data
+                )
+                
+                print("   📋 파싱 결과:")
+                print("      - isSuccess: \(decoded.isSuccess ?? false)")
+                print("      - code: \(decoded.code ?? "nil")")
+                print("      - 옷 개수: \(decoded.result?.content?.count ?? 0)")
+                print("      - isLast: \(decoded.result?.isLast ?? false)")
+                
+                let clothes = decoded.result?.content?.map { item in
+                    ClothListItem(
+                        clothId: item.clothId ?? 0,
+                        imageUrl: item.ImageUrl ?? "",  // API 응답의 대문자 I 주의
+                        brand: item.brand,
+                        name: item.name
+                    )
+                } ?? []
+                
+                print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+                return ClothListResult(
+                    clothes: clothes,
+                    isLast: decoded.result?.isLast ?? true
+                )
+                
+            case .undocumented(statusCode: let code, let payload):
+                print("   ❌ 응답 수신 (실패) - 상태코드: \(code)")
+                if let body = payload.body {
+                    let data = try await Data(collecting: body, upTo: .max)
+                    if let jsonString = String(data: data, encoding: .utf8) {
+                        print("   📩 에러 응답 Body: \(jsonString)")
+                    }
+                }
+                print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+                throw ClothAPIError.serverError(statusCode: code, message: "옷 목록 조회 실패")
+            }
+        } catch {
+            print("   ❌ 예외 발생: \(error)")
+            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+            throw error
+        }
+    }
+    
+    // MARK: - 옷 상세 조회
+    
+    func fetchClothDetails(clothId: Int64) async throws -> ClothDetailResult {
+        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        print("📤 [API] 옷 상세 조회 요청")
+        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        print("   📋 요청 파라미터: clothId = \(clothId)")
+        
+        let input = Operations.Cloth_getClothDetails.Input(
+            path: .init(clothId: clothId)
+        )
+        
+        do {
+            let response = try await client.Cloth_getClothDetails(input)
+            
+            switch response {
+            case .ok(let okResponse):
+                let httpBody = try okResponse.body.any
+                let data = try await Data(collecting: httpBody, upTo: .max)
+                
+                print("   ✅ 응답 수신 (성공)")
+                if let jsonString = String(data: data, encoding: .utf8) {
+                    print("   📩 응답 Body: \(jsonString)")
+                }
+                
+                let decoded = try jsonDecoder.decode(
+                    Components.Schemas.BaseResponseClothDetailsResponse.self,
+                    from: data
+                )
+                
+                print("   📋 파싱 결과:")
+                print("      - isSuccess: \(decoded.isSuccess ?? false)")
+                print("      - code: \(decoded.code ?? "nil")")
+                print("      - name: \(decoded.result?.name ?? "nil")")
+                print("      - brand: \(decoded.result?.brand ?? "nil")")
+                print("      - category: \(decoded.result?.category ?? "nil")")
+                
+                guard let result = decoded.result else {
+                    throw ClothAPIError.serverError(statusCode: 0, message: "result가 nil입니다")
+                }
+                
+                print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+                return ClothDetailResult(
+                    clothImageUrl: result.clothImageUrl ?? "",
+                    parentCategory: result.parentCategory,
+                    category: result.category,
+                    name: result.name,
+                    brand: result.brand,
+                    clothUrl: result.clothUrl
+                )
+                
+            case .undocumented(statusCode: let code, let payload):
+                print("   ❌ 응답 수신 (실패) - 상태코드: \(code)")
+                if let body = payload.body {
+                    let data = try await Data(collecting: body, upTo: .max)
+                    if let jsonString = String(data: data, encoding: .utf8) {
+                        print("   📩 에러 응답 Body: \(jsonString)")
+                    }
+                }
+                print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+                throw ClothAPIError.serverError(statusCode: code, message: "옷 상세 조회 실패")
+            }
+        } catch {
+            print("   ❌ 예외 발생: \(error)")
+            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+            throw error
         }
     }
 }

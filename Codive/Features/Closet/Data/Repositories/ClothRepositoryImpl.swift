@@ -52,4 +52,24 @@ final class ClothRepositoryImpl: ClothRepository {
     func deleteClothItems(_ clothIds: [Int]) async throws {
         try await dataSource.deleteClothItems(clothIds)
     }
+    
+    // MARK: - API 연동 메서드
+    
+    func fetchClothList(
+        lastClothId: Int?,
+        size: Int,
+        categoryId: Int?,
+        seasons: Set<Season>
+    ) async throws -> (clothes: [Cloth], isLast: Bool) {
+        return try await dataSource.fetchClothList(
+            lastClothId: lastClothId,
+            size: size,
+            categoryId: categoryId,
+            seasons: seasons
+        )
+    }
+    
+    func fetchClothDetail(clothId: Int) async throws -> ClothDetailResult {
+        return try await dataSource.fetchClothDetail(clothId: clothId)
+    }
 }
