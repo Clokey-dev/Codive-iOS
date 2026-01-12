@@ -33,6 +33,12 @@ protocol ClothDataSource {
     
     /// 옷 상세 조회 (API 연동)
     func fetchClothDetail(clothId: Int) async throws -> ClothDetailResult
+    
+    /// 옷 수정 (API 연동)
+    func updateCloth(clothId: Int, request: ClothUpdateAPIRequest) async throws
+    
+    /// 옷 삭제 (API 연동) - 단일
+    func deleteCloth(clothId: Int) async throws
 
     func deleteClothItems(_ clothIds: [Int]) async throws
 }
@@ -245,6 +251,24 @@ final class DefaultClothDataSource: ClothDataSource {
         
         print("✅ [ClothDataSource] 옷 상세 조회 완료: \(result.name ?? "이름없음")")
         return result
+    }
+    
+    /// 옷 수정 (실제 API 호출)
+    func updateCloth(clothId: Int, request: ClothUpdateAPIRequest) async throws {
+        print("📤 [ClothDataSource] 옷 수정 API 호출... clothId: \(clothId)")
+        
+        try await apiService.updateCloth(clothId: Int64(clothId), request: request)
+        
+        print("✅ [ClothDataSource] 옷 수정 완료")
+    }
+    
+    /// 옷 삭제 (실제 API 호출) - 단일
+    func deleteCloth(clothId: Int) async throws {
+        print("📤 [ClothDataSource] 옷 삭제 API 호출... clothId: \(clothId)")
+        
+        try await apiService.deleteCloth(clothId: Int64(clothId))
+        
+        print("✅ [ClothDataSource] 옷 삭제 완료")
     }
 }
 

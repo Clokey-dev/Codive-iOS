@@ -30,6 +30,12 @@ protocol ClothRepository {
     
     /// 옷 상세 조회 (API 연동)
     func fetchClothDetail(clothId: Int) async throws -> ClothDetailResult
+    
+    /// 옷 수정 (API 연동)
+    func updateCloth(clothId: Int, request: ClothUpdateAPIRequest) async throws
+    
+    /// 옷 삭제 (API 연동) - 단일
+    func deleteCloth(clothId: Int) async throws
 
     func deleteClothItems(_ clothIds: [Int]) async throws
 }

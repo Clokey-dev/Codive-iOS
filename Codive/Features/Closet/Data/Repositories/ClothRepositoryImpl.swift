@@ -72,4 +72,12 @@ final class ClothRepositoryImpl: ClothRepository {
     func fetchClothDetail(clothId: Int) async throws -> ClothDetailResult {
         return try await dataSource.fetchClothDetail(clothId: clothId)
     }
+    
+    func updateCloth(clothId: Int, request: ClothUpdateAPIRequest) async throws {
+        try await dataSource.updateCloth(clothId: clothId, request: request)
+    }
+    
+    func deleteCloth(clothId: Int) async throws {
+        try await dataSource.deleteCloth(clothId: clothId)
+    }
 }
