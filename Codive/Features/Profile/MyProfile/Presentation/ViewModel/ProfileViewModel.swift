@@ -38,11 +38,11 @@ class ProfileViewModel: ObservableObject {
     }
     
     func onFollowerTapped() {
-        print("Follower tapped")
+        navigationRouter.navigate(to: .followList(mode: .followers))
     }
     
     func onFollowingTapped() {
-        print("Following tapped")
+        navigationRouter.navigate(to: .followList(mode: .followings))
     }
     
     func onMoreFavoriteCodiTapped() {

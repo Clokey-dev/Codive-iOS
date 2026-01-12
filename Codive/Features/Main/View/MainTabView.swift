@@ -140,6 +140,8 @@ struct MainTabView: View {
             FavoriteCodiListView(showHeart: showHeart, navigationRouter: navigationRouter)
         case .settings:
             ProfileSettingView(navigationRouter: navigationRouter)
+        case .followList(let mode):
+            FollowListView(mode: mode, navigationRouter: navigationRouter)
 
         default:
             EmptyView()

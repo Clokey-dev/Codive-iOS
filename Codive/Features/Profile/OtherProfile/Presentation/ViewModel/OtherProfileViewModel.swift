@@ -10,7 +10,6 @@ import SwiftUI
 @MainActor
 class OtherProfileViewModel: ObservableObject {
     // MARK: - Mock Data
-    @Published var username: String = "ham_dog"
     @Published var displayName: String = "햄스터강아지"
     @Published var introText: String = "햄스터가 되고 싶은 강아지입니다"
     @Published var followerCount: Int = 22
@@ -32,7 +31,7 @@ class OtherProfileViewModel: ObservableObject {
     
     // MARK: - Actions
     func onBackTapped() {
-        print("Back tapped")
+        navigationRouter.navigateBack()
     }
     
     func showBlockMenu() {
@@ -49,11 +48,11 @@ class OtherProfileViewModel: ObservableObject {
     }
     
     func onFollowerTapped() {
-        print("Follower tapped")
+        navigationRouter.navigate(to: .followList(mode: .followers))
     }
     
     func onFollowingTapped() {
-        print("Following tapped")
+        navigationRouter.navigate(to: .followList(mode: .followings))
     }
     
     func onFollowButtonTapped() {

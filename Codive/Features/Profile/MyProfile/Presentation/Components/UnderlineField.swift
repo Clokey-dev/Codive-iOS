@@ -67,16 +67,30 @@ struct UnderlineField<Trailing: View>: View {
             titleRow
 
             HStack(spacing: 10) {
-                TextField("", text: $text)
-                    .font(.codive_body2_medium)
-                    .foregroundStyle(Color.Codive.grayscale1)
-                    .keyboardType(keyboardType)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled(true)
-                    .focused(focus, equals: focusEquals)
+                ZStack(alignment: .leading) {
+                    // Placeholder 표시: 텍스트가 비어있고 포커스가 없을 때만 표시
+                    if text.isEmpty,
+                       focus.wrappedValue != focusEquals,
+                       let helperEmptyText,
+                       !helperEmptyText.isEmpty,
+                       helperErrorText == nil {
+                        Text(helperEmptyText)
+                            .font(.codive_body3_medium)
+                            .foregroundStyle(Color.Codive.grayscale4)
+                    }
+
+                    TextField("", text: $text)
+                        .font(.codive_body2_medium)
+                        .foregroundStyle(Color.Codive.grayscale1)
+                        .keyboardType(keyboardType)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled(true)
+                        .focused(focus, equals: focusEquals)
+                }
 
                 trailing
             }
+            .padding(.bottom, helperErrorText != nil && !(helperErrorText ?? "").isEmpty ? 5 : 0)
 
             Rectangle()
                 .fill(Color.Codive.grayscale5)
@@ -104,19 +118,20 @@ struct UnderlineField<Trailing: View>: View {
 
     private var helperRow: some View {
         let isError = !(helperErrorText ?? "").isEmpty
-
+        
         let message: String? = {
+            // 에러가 있으면 에러 메시지 표시
             if isError { return helperErrorText }
-            if text.isEmpty { return helperEmptyText }
+            if text.isEmpty { return nil }   // emptyText는 placeholder로만 표시
             return helperFilledText
         }()
 
         return Group {
             if let message, !message.isEmpty {
                 Text(message)
-                    .font(.codive_body3_medium)
+                    .font(.codive_body2_medium)
                     .foregroundStyle(isError ? Color.Codive.point1 : Color.Codive.grayscale4)
-                    .padding(.top, 2)
+                    .padding(.top, isError ? 5 : 2)
             } else {
                 Color.clear.frame(height: 0)
             }

@@ -8,20 +8,17 @@
 import SwiftUI
 import Combine
 
-// MARK: - View
 struct ProfileSettingView: View {
     @ObservedObject private var navigationRouter: NavigationRouter
     @StateObject private var viewModel: ProfileSettingViewModel
 
     init(navigationRouter: NavigationRouter) {
         self.navigationRouter = navigationRouter
-        self._viewModel = StateObject(wrappedValue: ProfileSettingViewModel())
+        self._viewModel = StateObject(wrappedValue: ProfileSettingViewModel(navigationRouter: navigationRouter))
     }
 
-    // MARK: - Focus
     enum Field: Hashable {
         case nickname
-        case userId
         case intro
     }
 
@@ -38,22 +35,24 @@ struct ProfileSettingView: View {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 0) {
                     profileImageSection
-                        .padding(.top, 26)
+                        .padding(.top, 32)
 
                     formSection
-                        .padding(.top, 22)
+                        .padding(.top, 56)
 
                     completeButton
-                        .padding(.top, 36)
-                        .padding(.bottom, 24)
+                        .padding(.top, 120)
                 }
             }
         }
         .background(Color.white)
         .navigationBarHidden(true)
+        .onChange(of: focus) { _ in
+            // 포커스 변경 시 canComplete 업데이트
+            viewModel.updateCanCompleteOnFocusChange()
+        }
     }
 
-    // MARK: - Profile Image
     private var profileImageSection: some View {
         ZStack(alignment: .bottomTrailing) {
             Group {
@@ -68,7 +67,6 @@ struct ProfileSettingView: View {
                             Image("settingProfile")
                                 .resizable()
                                 .scaledToFit()
-                                .padding(18)
                         }
                 }
             }
@@ -82,7 +80,7 @@ struct ProfileSettingView: View {
                     .fill(Color.Codive.grayscale1)
                     .frame(width: 28, height: 28)
                     .overlay {
-                        Image(systemName: "plus")
+                        Image("plus")
                             .frame(width: 28, height: 28)
                     }
             }
@@ -92,7 +90,6 @@ struct ProfileSettingView: View {
         .frame(maxWidth: .infinity)
     }
 
-    // MARK: - Form
     private var formSection: some View {
         VStack(alignment: .leading, spacing: 0) {
 
@@ -103,24 +100,9 @@ struct ProfileSettingView: View {
                 focus: $focus,
                 focusEquals: .nickname,
                 keyboardType: .default
-            )
-            .setHelper(
-                emptyText: "\(viewModel.nicknameMaxCount)글자 내로 닉네임을 입력해주세요",
-                filledText: viewModel.nicknameFilledHelper,
-                errorText: viewModel.nicknameErrorText
-            )
-            .padding(.top, 18)
-
-            UnderlineField(
-                title: "아이디",
-                requiredTag: "*",
-                text: $viewModel.userId,
-                focus: $focus,
-                focusEquals: .userId,
-                keyboardType: .asciiCapable
             ) {
                 Button {
-                    viewModel.runIDDuplicateCheck()
+                    viewModel.runNicknameDuplicateCheck()
                 } label: {
                     Text("중복 확인")
                         .font(.codive_body3_medium)
@@ -133,15 +115,15 @@ struct ProfileSettingView: View {
                         }
                 }
                 .buttonStyle(.plain)
-                .disabled(!viewModel.canTryIDCheck)
-                .opacity(viewModel.canTryIDCheck ? 1 : 0.4)
+                .disabled(!viewModel.canTryNicknameCheck)
+                .opacity(viewModel.canTryNicknameCheck ? 1 : 0.4)
             }
             .setHelper(
-                emptyText: "대문자, 특수문자 입력 불가, \(viewModel.userIdMaxCount)자 이내",
-                filledText: viewModel.userIdFilledHelper,
-                errorText: viewModel.userIdErrorText
+                emptyText: "한글, 소문자, 숫자 조합, 20자 이내",
+                filledText: viewModel.nicknameFilledHelper,
+                errorText: viewModel.nicknameErrorText
             )
-            .padding(.top, 26)
+            .padding(.top, 18)
 
             UnderlineField(
                 title: "한줄소개",
@@ -152,7 +134,7 @@ struct ProfileSettingView: View {
                 keyboardType: .default
             )
             .setHelper(
-                emptyText: "\(viewModel.introMaxCount)자 이내로 나를 소개해보세요",
+                emptyText: "20자 이내로 나를 소개 해보세요.",
                 filledText: nil,
                 errorText: viewModel.introErrorText
             )
@@ -164,7 +146,6 @@ struct ProfileSettingView: View {
         .padding(.horizontal, 20)
     }
 
-    // MARK: - Privacy
     private var privacySection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 6) {
@@ -194,17 +175,16 @@ struct ProfileSettingView: View {
                 .padding(.vertical, 8)
                 .background {
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .fill(isOn ? Color.Codive.point1.opacity(0.12) : Color.Codive.grayscale7)
+                        .fill(isOn ? Color.Codive.point4 : Color.Codive.grayscale7)
                 }
                 .overlay {
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .stroke(isOn ? Color.Codive.point1 : Color.Codive.grayscale6, lineWidth: 1)
+                        .stroke(isOn ? Color.Codive.point2 : Color.Codive.grayscale6, lineWidth: 1)
                 }
         }
         .buttonStyle(.plain)
     }
 
-    // MARK: - Complete
     private var completeButton: some View {
         CustomButton(
             text: "설정 완료",
@@ -213,6 +193,7 @@ struct ProfileSettingView: View {
         ) {
             viewModel.onCompleteTapped()
         }
+        .padding(.horizontal, 20)
     }
 }
 

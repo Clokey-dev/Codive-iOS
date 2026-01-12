@@ -44,9 +44,6 @@ struct ProfileView: View {
     // MARK: - Top Bar
     private var topBar: some View {
         HStack(spacing: 12) {
-            Text(viewModel.username)
-                .font(.codive_title1)
-                .foregroundStyle(Color.Codive.grayscale1)
 
             Spacer(minLength: 0)
 

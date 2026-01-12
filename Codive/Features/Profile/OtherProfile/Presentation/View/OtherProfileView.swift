@@ -66,11 +66,7 @@ struct OtherProfileView: View {
                     .scaledToFit()
                     .frame(width: 24, height: 24)
             }
-
-            Text(viewModel.username)
-                .font(.codive_title1)
-                .foregroundStyle(Color.Codive.grayscale1)
-
+            
             Spacer(minLength: 0)
 
             Button {
