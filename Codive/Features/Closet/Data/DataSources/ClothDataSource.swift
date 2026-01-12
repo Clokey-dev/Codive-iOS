@@ -8,9 +8,12 @@
 import Foundation
 
 // MARK: - ClothDataSource Protocol
+
 protocol ClothDataSource {
     func fetchClothItems(category: String?) async throws -> [ProductItem]
-    func uploadClothes(_ dtos: [ClothRequestDTO]) async throws -> [ClothResponseDTO]
+    
+    /// 옷 저장 (Presigned URL 발급 → S3 업로드 → 옷 생성 API 호출)
+    func saveClothes(inputs: [ClothInput], images: [Data]) async throws -> [Cloth]
 
     // MyCloset 전용 메서드
     func fetchMyClosetClothItems(
@@ -24,9 +27,21 @@ protocol ClothDataSource {
 }
 
 // MARK: - DefaultClothDataSource
+
 final class DefaultClothDataSource: ClothDataSource {
 
+    // MARK: - Properties
+    
+    private let apiService: ClothAPIServiceProtocol
+    
+    // MARK: - Initializer
+    
+    init(apiService: ClothAPIServiceProtocol = ClothAPIService()) {
+        self.apiService = apiService
+    }
+
     // MARK: - Mock Data
+    
     private let mockClothItems: [ProductItem] = [
         ProductItem(id: 1, imageName: "sample1", isTodayCloth: true, brand: "Nike", name: "에어포스 1"),
         ProductItem(id: 2, imageName: "sample2", isTodayCloth: true, brand: "Adidas", name: "후디"),
@@ -65,6 +80,7 @@ final class DefaultClothDataSource: ClothDataSource {
     ]
 
     // MARK: - Methods
+    
     func fetchClothItems(category: String?) async throws -> [ProductItem] {
         // TODO: 실제 API 호출로 대체
 
@@ -79,9 +95,58 @@ final class DefaultClothDataSource: ClothDataSource {
         return mockClothItems
     }
 
-    func uploadClothes(_ dtos: [ClothRequestDTO]) async throws -> [ClothResponseDTO] {
-        // TODO: 서버 API 호출 구현
-        fatalError("Server API not implemented yet")
+    /// 옷 저장 (전체 흐름: Presigned URL → S3 업로드 → 옷 생성)
+    func saveClothes(inputs: [ClothInput], images: [Data]) async throws -> [Cloth] {
+        guard inputs.count == images.count else {
+            throw ClothDataSourceError.inputImageCountMismatch
+        }
+        
+        // Step 1: Presigned URL 발급
+        print("📤 [ClothDataSource] Step 1: Presigned URL 발급 요청...")
+        let presignedInfos = try await apiService.getPresignedUrls(for: images)
+        print("✅ [ClothDataSource] Presigned URL \(presignedInfos.count)개 발급 완료")
+        
+        // Step 2: S3에 이미지 업로드
+        print("📤 [ClothDataSource] Step 2: S3 업로드 시작...")
+        for (index, (imageData, presignedInfo)) in zip(images, presignedInfos).enumerated() {
+            print("   - 이미지 \(index + 1)/\(images.count) 업로드 중...")
+            try await apiService.uploadImageToS3(
+                presignedUrl: presignedInfo.presignedUrl,
+                imageData: imageData,
+                contentMD5: presignedInfo.md5Hash
+            )
+        }
+        print("✅ [ClothDataSource] S3 업로드 완료")
+        
+        // Step 3: 옷 생성 API 호출
+        print("📤 [ClothDataSource] Step 3: 옷 생성 API 호출...")
+        let createRequests = zip(inputs, presignedInfos).map { input, presignedInfo in
+            ClothCreateAPIRequest(
+                clothImageUrl: presignedInfo.finalUrl,
+                clothUrl: input.purchaseUrl.isEmpty ? nil : input.purchaseUrl,
+                name: input.name.isEmpty ? nil : input.name,
+                brand: input.brand.isEmpty ? nil : input.brand,
+                season: input.seasons.first ?? .spring,  // 첫 번째 계절 사용
+                categoryId: Int64(input.categoryId ?? 0)
+            )
+        }
+        
+        let clothIds = try await apiService.createClothes(requests: createRequests)
+        print("✅ [ClothDataSource] 옷 생성 완료: \(clothIds)")
+        
+        // 결과 변환: clothIds + inputs → Cloth 엔티티
+        return zip(clothIds, zip(inputs, presignedInfos)).map { clothId, pair in
+            let (input, presignedInfo) = pair
+            return Cloth(
+                id: Int(clothId),
+                imageUrl: presignedInfo.finalUrl,
+                name: input.name.isEmpty ? nil : input.name,
+                brand: input.brand.isEmpty ? nil : input.brand,
+                purchaseUrl: input.purchaseUrl.isEmpty ? nil : input.purchaseUrl,
+                categoryId: input.categoryId,
+                seasons: input.seasons
+            )
+        }
     }
 
     func fetchMyClosetClothItems(
@@ -127,5 +192,18 @@ final class DefaultClothDataSource: ClothDataSource {
         // TODO: 실제 API 호출로 대체
         // Mock 환경: 성공만 반환
         print("Mock: \(clothIds) 삭제 성공")
+    }
+}
+
+// MARK: - ClothDataSourceError
+
+enum ClothDataSourceError: LocalizedError {
+    case inputImageCountMismatch
+    
+    var errorDescription: String? {
+        switch self {
+        case .inputImageCountMismatch:
+            return "입력 데이터와 이미지 개수가 일치하지 않습니다."
+        }
     }
 }

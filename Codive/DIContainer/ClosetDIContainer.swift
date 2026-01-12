@@ -20,9 +20,14 @@ final class ClosetDIContainer {
         self.navigationRouter = navigationRouter
     }
 
+    // MARK: - Services
+    private lazy var clothAPIService: ClothAPIServiceProtocol = {
+        return ClothAPIService()
+    }()
+
     // MARK: - DataSources
     private lazy var clothDataSource: ClothDataSource = {
-        return DefaultClothDataSource()
+        return DefaultClothDataSource(apiService: clothAPIService)
     }()
 
     // MARK: - Repositories

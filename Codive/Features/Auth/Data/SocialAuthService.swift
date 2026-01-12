@@ -75,6 +75,17 @@ final class SocialAuthService: NSObject, SocialAuthServiceProtocol {
                 do {
                     try KeychainManager.shared.saveAccessToken(accessToken)
                     try KeychainManager.shared.saveRefreshToken(refreshToken)
+                    
+                    // 🔑 디버그용 토큰 출력
+                    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+                    print("🔑 [로그인 성공] JWT 토큰 저장 완료")
+                    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+                    print("📌 Access Token:")
+                    print(accessToken)
+                    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+                    print("📌 Refresh Token:")
+                    print(refreshToken)
+                    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
                     // 성공 시 임시 사용자 정보 반환 (나중에 서버에서 받아야 함)
                     let authUser = AuthUser(
