@@ -25,16 +25,34 @@ struct AppRootView: View {
     }
     
     var body: some View {
-        Group {
-            switch appRouter.currentAppState {
-            case .splash:
-                SplashContainerView(appRouter: appRouter)
+        ZStack {
+            Group {
+                switch appRouter.currentAppState {
+                case .splash:
+                    SplashContainerView(appRouter: appRouter)
 
-            case .auth:
-                authDIContainer.makeAuthFlowView()
+                case .auth:
+                    authDIContainer.makeAuthFlowView()
 
-            case .main:
-                MainTabView(appDIContainer: appDIContainer)
+                case .termsAgreement:
+                    TermsAgreementView(
+                        onComplete: {
+                            appRouter.navigateToMain()
+                        }
+                    )
+
+                case .main:
+                    MainTabView(appDIContainer: appDIContainer)
+                }
+            }
+
+            // 로딩 오버레이
+            if appRouter.isLoading {
+                Color.black.opacity(0.3)
+                    .ignoresSafeArea()
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    .scaleEffect(1.5)
             }
         }
         .onOpenURL { url in
@@ -78,23 +96,32 @@ struct AppRootView: View {
         Task {
             do {
                 try await authRepository.saveTokens(accessToken: unwrappedAccessToken, refreshToken: unwrappedRefreshToken)
-                
-                // 🔑 디버그용 토큰 출력
-                print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
                 print("🔑 [로그인 성공] JWT 토큰 저장 완료")
-                print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-                print("📌 Access Token:")
-                print(unwrappedAccessToken)
-                print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-                print("📌 Refresh Token:")
-                print(unwrappedRefreshToken)
-                print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-                
-                print("Tokens saved successfully from deep link.")
-                appRouter.navigateToMain()
+
+                // 로딩 표시
+                appRouter.showLoading()
+
+                // 회원 상태 확인
+                let statusResult = await authRepository.checkAuthStatus()
+
+                switch statusResult {
+                case .success(let status):
+                    switch status {
+                    case .notAgreed:
+                        print("📋 약관 동의 필요 → TermsAgreementView로 이동")
+                        appRouter.navigateToTerms()
+                    case .registered:
+                        print("✅ 가입 완료 → 메인으로 이동")
+                        appRouter.navigateToMain()
+                    }
+                case .failure(let error):
+                    print("❌ 상태 확인 실패: \(error.localizedDescription)")
+                    // 실패 시에도 일단 메인으로 (또는 에러 처리)
+                    appRouter.navigateToMain()
+                }
             } catch {
                 print("Failed to save tokens from deep link: \(error.localizedDescription)")
-                // Handle error, e.g., show an alert
+                appRouter.hideLoading()
             }
         }
     }

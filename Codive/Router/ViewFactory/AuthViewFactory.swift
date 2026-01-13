@@ -29,7 +29,8 @@ final class AuthViewFactory {
             // SignUpView(viewModel: authDIContainer.makeSignUpViewModel())
             Text("회원가입 화면") // 임시
         case .termsAgreement:
-            TermsAgreementView()
+            // AppRootView에서 직접 처리하므로 여기서는 사용되지 않음
+            TermsAgreementView(onComplete: {})
         default:
             EmptyView()
         }
