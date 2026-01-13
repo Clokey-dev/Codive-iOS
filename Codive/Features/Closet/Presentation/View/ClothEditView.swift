@@ -108,7 +108,7 @@ struct ClothEditView: View {
             imageName: viewModel.cloth.imageUrl,
             image: nil,
             category: form.category?.name ?? "",
-            subcategory: form.subcategory ?? "",
+            subcategory: form.subcategory?.name ?? "",
             season: seasonText,
             name: form.name,
             brand: form.brand,

@@ -107,7 +107,7 @@ struct ClothAddView: View {
             return ClothingItem(
                 image: photo.croppedImage,
                 category: form.category?.name ?? "",
-                subcategory: form.subcategory ?? "",
+                subcategory: form.subcategory?.name ?? "",
                 season: seasonText,
                 name: form.name,
                 brand: form.brand,

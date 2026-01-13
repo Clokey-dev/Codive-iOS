@@ -172,21 +172,21 @@ struct MyClosetView: View {
 
         return ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                ForEach(subcategories, id: \.self) { sub in
-                    Text(sub)
+                ForEach(subcategories) { sub in
+                    Text(sub.name)
                         .font(.codive_body2_medium)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 7)
                         .background(Color.white)
-                        .foregroundStyle(viewModel.selectedSubCategory == sub ? Color.Codive.point1 : Color.Codive.grayscale1)
+                        .foregroundStyle(viewModel.selectedSubCategory == sub.name ? Color.Codive.point1 : Color.Codive.grayscale1)
                         .overlay(
                             RoundedRectangle(cornerRadius: 20)
-                                .stroke(viewModel.selectedSubCategory == sub ? Color.Codive.point1 : Color.Codive.grayscale6, lineWidth: 1)
+                                .stroke(viewModel.selectedSubCategory == sub.name ? Color.Codive.point1 : Color.Codive.grayscale6, lineWidth: 1)
                         )
                         .contentShape(Rectangle())
                         .onTapGesture {
                             withAnimation(.easeInOut(duration: 0.2)) {
-                                viewModel.updateSubCategory(sub)
+                                viewModel.updateSubCategory(sub.name)
                             }
                         }
                 }

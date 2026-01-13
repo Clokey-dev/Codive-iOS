@@ -15,7 +15,7 @@ struct ClothFormData {
     var brand: String = ""
     var purchaseUrl: String = ""
     var category: CategoryItem?
-    var subcategory: String?
+    var subcategory: SubcategoryItem?
     var selectedSeasons: Set<Season> = []
 }
 
@@ -27,7 +27,7 @@ protocol ClothAddViewModelInput {
     func updatePurchaseUrl(_ url: String)
     func showCategorySheet()
     func showSeasonSheet()
-    func selectCategory(_ category: CategoryItem, subcategory: String)
+    func selectCategory(_ category: CategoryItem, subcategory: SubcategoryItem)
     func selectSeasons(_ seasons: Set<Season>)
     func moveToPrevious()
     func moveToNext()
@@ -91,7 +91,7 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
 
     var categoryDisplayText: String {
         if let category = currentForm.category, let subcategory = currentForm.subcategory {
-            return "\(category.name) > \(subcategory)"
+            return "\(category.name) > \(subcategory.name)"
         }
         return ""
     }
@@ -165,7 +165,7 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
         isSeasonSheetPresented = true
     }
 
-    func selectCategory(_ category: CategoryItem, subcategory: String) {
+    func selectCategory(_ category: CategoryItem, subcategory: SubcategoryItem) {
         clothForms[currentIndex].category = category
         clothForms[currentIndex].subcategory = subcategory
         isCategorySheetPresented = false
@@ -209,7 +209,7 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
                         name: form.name,
                         brand: form.brand,
                         purchaseUrl: form.purchaseUrl,
-                        categoryId: nil, // TODO: 서버 연결 시 category name → server ID 매핑 필요
+                        categoryId: form.subcategory?.id,  // 하위 카테고리 ID 사용!
                         seasons: form.selectedSeasons
                     )
                 }

@@ -17,7 +17,7 @@ protocol ClothEditViewModelInput {
     func updatePurchaseUrl(_ url: String)
     func showCategorySheet()
     func showSeasonSheet()
-    func selectCategory(_ category: CategoryItem, subcategory: String)
+    func selectCategory(_ category: CategoryItem, subcategory: SubcategoryItem)
     func selectSeasons(_ seasons: Set<Season>)
     func dismissView()
     func completeEditing()
@@ -57,7 +57,7 @@ final class ClothEditViewModel: ObservableObject, ClothEditViewModelInput, Cloth
     // MARK: - Computed Properties
     var categoryDisplayText: String {
         if let category = clothForm.category, let subcategory = clothForm.subcategory {
-            return "\(category.name) > \(subcategory)"
+            return "\(category.name) > \(subcategory.name)"
         }
         return ""
     }
@@ -85,9 +85,9 @@ final class ClothEditViewModel: ObservableObject, ClothEditViewModelInput, Cloth
         self.navigationRouter = navigationRouter
 
         // 기존 Cloth 데이터로 폼 초기화
-        let category = cloth.categoryId.flatMap { CategoryConstants.category(byId: $0) }
-        // TODO: 서버에서 subcategory 정보가 오면 설정
-        let subcategory = category?.subcategories.first
+        // categoryId는 하위 카테고리 ID이므로 그걸로 상위/하위 카테고리 모두 조회
+        let subcategory = cloth.categoryId.flatMap { CategoryConstants.subcategory(byId: $0) }
+        let category = cloth.categoryId.flatMap { CategoryConstants.category(bySubcategoryId: $0) }
 
         self.clothForm = ClothFormData(
             name: cloth.name ?? "",
@@ -122,7 +122,7 @@ final class ClothEditViewModel: ObservableObject, ClothEditViewModelInput, Cloth
         isSeasonSheetPresented = true
     }
 
-    func selectCategory(_ category: CategoryItem, subcategory: String) {
+    func selectCategory(_ category: CategoryItem, subcategory: SubcategoryItem) {
         clothForm.category = category
         clothForm.subcategory = subcategory
         isCategorySheetPresented = false

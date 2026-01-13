@@ -141,7 +141,7 @@ final class MyClosetViewModel: ObservableObject {
 
         // 메인 카테고리 변경 시 첫 번째 서브 카테고리 자동 선택
         if let firstSub = CategoryConstants.all.first(where: { $0.name == category })?.subcategories.first {
-            selectedSubCategory = firstSub
+            selectedSubCategory = firstSub.name
         } else {
             selectedSubCategory = ""
         }

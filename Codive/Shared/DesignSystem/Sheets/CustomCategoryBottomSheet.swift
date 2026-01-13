@@ -15,14 +15,14 @@ struct CustomCategoryBottomSheet: View {
     /// 현재 선택된 주 카테고리를 외부와 동기화
     @Binding var selectedCategory: CategoryItem?
 
-    /// 최종 선택 완료 시 호출될 클로저
-    let onApply: (CategoryItem, String) -> Void
+    /// 최종 선택 완료 시 호출될 클로저 (상위카테고리, 하위카테고리)
+    let onApply: (CategoryItem, SubcategoryItem) -> Void
 
     /// 뷰 내부에서만 사용할 선택된 서브 카테고리 상태
-    @State private var selectedSubcategory: String?
+    @State private var selectedSubcategory: SubcategoryItem?
 
     /// 초기 선택된 서브 카테고리 (뷰 초기화 시 전달)
-    let initialSubcategory: String?
+    let initialSubcategory: SubcategoryItem?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -71,14 +71,14 @@ struct CustomCategoryBottomSheet: View {
                 // 오른쪽 (하위 카테고리, 스크롤)
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 0) {
-                        ForEach(selectedCategory?.subcategories ?? [], id: \.self) { sub in
+                        ForEach(selectedCategory?.subcategories ?? []) { sub in
                             Button {
                                 selectedSubcategory = sub
                                 if let category = selectedCategory {
                                     onApply(category, sub)
                                 }
                             } label: {
-                                Text(sub)
+                                Text(sub.name)
                                     .font(.codive_title3)
                                     .foregroundStyle(Color("Grayscale1"))
                                     .frame(maxWidth: .infinity, alignment: .center)
@@ -138,7 +138,7 @@ struct CustomCategoryBottomSheet: View {
                     allCategories: CategoryConstants.all,
                     selectedCategory: $selectedCategory,
                     onApply: { mainCategory, subCategory in
-                        print("최종 선택 완료: \(mainCategory.name) -> \(subCategory)")
+                        print("최종 선택 완료: \(mainCategory.name) -> \(subCategory.name)")
                     },
                     initialSubcategory: nil
                 )
