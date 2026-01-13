@@ -8,17 +8,17 @@
 import Foundation
 
 protocol CreateRecordUseCase {
-    func create(record: Record) async -> Bool
+    func execute(request: RecordCreateRequest) async throws -> Int64
 }
 
 final class DefaultCreateRecordUseCase: CreateRecordUseCase {
     private let repository: RecordRepository
-    
-    init(repository: RecordRepository) {
+
+    init(repository: RecordRepository = DefaultRecordRepository()) {
         self.repository = repository
     }
-    
-    func create(record: Record) async -> Bool {
-        return await repository.create(record: record)
+
+    func execute(request: RecordCreateRequest) async throws -> Int64 {
+        return try await repository.createRecord(request: request)
     }
 }
