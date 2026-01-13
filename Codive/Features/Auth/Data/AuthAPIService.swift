@@ -12,6 +12,14 @@ import OpenAPIRuntime
 // MARK: - Auth API Service Protocol
 protocol AuthAPIServiceProtocol {
     func checkAuthStatus() async -> AuthStatusResult
+    func reissueTokens(refreshToken: String) async -> Result<TokenPair, AuthError>
+    func renewDeviceToken(deviceToken: String) async -> Result<Void, AuthError>
+}
+
+// MARK: - Token Pair
+struct TokenPair {
+    let accessToken: String
+    let refreshToken: String
 }
 
 // MARK: - Auth API Service Implementation
@@ -131,5 +139,83 @@ final class AuthAPIService: AuthAPIServiceProtocol {
             print("❌ [AuthAPI] 네트워크 에러: \(error)")
             return .failure(.networkError(error.localizedDescription))
         }
+    }
+
+    // MARK: - Token Reissue
+
+    func reissueTokens(refreshToken: String) async -> Result<TokenPair, AuthError> {
+        print("🔄 [AuthAPI] 토큰 재발급 요청")
+
+        do {
+            let requestBody = Components.Schemas.TokenReissueRequest(refreshToken: refreshToken)
+            let input = Operations.Auth_reissueTokens.Input(body: .json(requestBody))
+            let response = try await client.Auth_reissueTokens(input)
+
+            switch response {
+            case .ok(let okResponse):
+                let httpBody = try okResponse.body.any
+                let data = try await Data(collecting: httpBody, upTo: .max)
+
+                let apiResponse = try jsonDecoder.decode(TokenReissueResponse.self, from: data)
+
+                guard let result = apiResponse.result,
+                      let accessToken = result.accessToken,
+                      let newRefreshToken = result.refreshToken else {
+                    print("❌ [AuthAPI] 토큰 재발급 응답 파싱 실패")
+                    return .failure(.networkError("토큰 재발급 응답 파싱 실패"))
+                }
+
+                print("✅ [AuthAPI] 토큰 재발급 성공")
+                return .success(TokenPair(accessToken: accessToken, refreshToken: newRefreshToken))
+
+            case .undocumented(statusCode: let statusCode, _):
+                print("❌ [AuthAPI] 토큰 재발급 실패: \(statusCode)")
+                return .failure(.networkError("토큰 재발급 실패: \(statusCode)"))
+            }
+
+        } catch {
+            print("❌ [AuthAPI] 토큰 재발급 에러: \(error)")
+            return .failure(.networkError(error.localizedDescription))
+        }
+    }
+
+    // MARK: - Device Token
+
+    func renewDeviceToken(deviceToken: String) async -> Result<Void, AuthError> {
+        print("📱 [AuthAPI] 디바이스 토큰 갱신 요청")
+
+        do {
+            let requestBody = Components.Schemas.DeviceTokenRenewRequest(deviceToken: deviceToken)
+            let input = Operations.Auth_renewDeviceToken.Input(body: .json(requestBody))
+            let response = try await client.Auth_renewDeviceToken(input)
+
+            switch response {
+            case .ok:
+                print("✅ [AuthAPI] 디바이스 토큰 갱신 성공")
+                return .success(())
+
+            case .undocumented(statusCode: let statusCode, _):
+                print("❌ [AuthAPI] 디바이스 토큰 갱신 실패: \(statusCode)")
+                return .failure(.networkError("디바이스 토큰 갱신 실패: \(statusCode)"))
+            }
+
+        } catch {
+            print("❌ [AuthAPI] 디바이스 토큰 갱신 에러: \(error)")
+            return .failure(.networkError(error.localizedDescription))
+        }
+    }
+}
+
+// MARK: - Custom Response Types
+
+private struct TokenReissueResponse: Decodable {
+    let isSuccess: Bool?
+    let code: String?
+    let message: String?
+    let result: TokenResult?
+
+    struct TokenResult: Decodable {
+        let accessToken: String?
+        let refreshToken: String?
     }
 }

@@ -61,7 +61,7 @@ struct SplashContainerView: View {
     }
 }
 
-// MARK: - SplashViewModel (타이핑 애니메이션 로직)
+// MARK: - SplashViewModel (타이핑 애니메이션 + 자동 로그인)
 @MainActor
 final class SplashViewModel: ObservableObject {
 
@@ -71,8 +71,21 @@ final class SplashViewModel: ObservableObject {
     private let typingSpeed: Double = 0.4
     private let appRouter: AppRouter
 
-    init(appRouter: AppRouter) {
+    // 자동 로그인 관련 서비스
+    private let tokenService: TokenServiceProtocol
+    private let authAPIService: AuthAPIServiceProtocol
+    private let keychainManager: KeychainManager
+
+    init(
+        appRouter: AppRouter,
+        tokenService: TokenServiceProtocol = TokenService(),
+        authAPIService: AuthAPIServiceProtocol = AuthAPIService(),
+        keychainManager: KeychainManager = KeychainManager.shared
+    ) {
         self.appRouter = appRouter
+        self.tokenService = tokenService
+        self.authAPIService = authAPIService
+        self.keychainManager = keychainManager
     }
 
     func startAnimation() async {
@@ -91,11 +104,98 @@ final class SplashViewModel: ObservableObject {
         // 애니메이션 종료 후 0.5초 대기
         do {
             try await Task.sleep(for: .seconds(0.5))
-            appRouter.finishSplash()
         } catch {
-            // Task 취소됨
             return
         }
+
+        // 자동 로그인 체크
+        await checkAutoLogin()
+    }
+
+    // MARK: - Auto Login Logic
+
+    private func checkAutoLogin() async {
+        print("🔐 [Splash] 자동 로그인 체크 시작")
+
+        // 1. 키체인에 토큰이 있는지 확인
+        guard tokenService.hasValidTokens() else {
+            print("📭 [Splash] 저장된 토큰 없음 → 로그인 화면으로")
+            appRouter.finishSplash()
+            return
+        }
+
+        print("🔑 [Splash] 저장된 토큰 발견")
+
+        // 2. Access Token 유효성 검사
+        if !tokenService.isAccessTokenExpired() {
+            print("✅ [Splash] Access Token 유효 → 상태 확인")
+            await proceedWithValidToken()
+            return
+        }
+
+        print("⏰ [Splash] Access Token 만료됨 → 재발급 시도")
+
+        // 3. Refresh Token 유효성 검사
+        if tokenService.isRefreshTokenExpired() {
+            print("⏰ [Splash] Refresh Token도 만료됨 → 로그인 화면으로")
+            clearTokensAndGoToAuth()
+            return
+        }
+
+        // 4. 토큰 재발급
+        await reissueTokens()
+    }
+
+    private func reissueTokens() async {
+        guard let refreshToken = tokenService.getRefreshToken() else {
+            clearTokensAndGoToAuth()
+            return
+        }
+
+        let result = await authAPIService.reissueTokens(refreshToken: refreshToken)
+
+        switch result {
+        case .success(let tokenPair):
+            print("✅ [Splash] 토큰 재발급 성공")
+            // 새 토큰 저장
+            try? keychainManager.saveAccessToken(tokenPair.accessToken)
+            try? keychainManager.saveRefreshToken(tokenPair.refreshToken)
+            // 상태 확인 진행
+            await proceedWithValidToken()
+
+        case .failure(let error):
+            print("❌ [Splash] 토큰 재발급 실패: \(error)")
+            clearTokensAndGoToAuth()
+        }
+    }
+
+    private func proceedWithValidToken() async {
+        // 회원 상태 확인
+        let statusResult = await authAPIService.checkAuthStatus()
+
+        switch statusResult {
+        case .success(let status):
+            switch status {
+            case .notAgreed:
+                print("📋 [Splash] 약관 동의 필요 → TermsAgreementView로")
+                appRouter.navigateToTerms()
+            case .registered:
+                print("✅ [Splash] 가입 완료 → 메인으로")
+                appRouter.navigateToMain()
+            }
+
+        case .failure(let error):
+            print("❌ [Splash] 상태 확인 실패: \(error)")
+            // 실패 시 로그인 화면으로
+            appRouter.finishSplash()
+        }
+    }
+
+    private func clearTokensAndGoToAuth() {
+        print("🗑️ [Splash] 토큰 삭제 → 로그인 화면으로")
+        try? keychainManager.deleteAccessToken()
+        try? keychainManager.deleteRefreshToken()
+        appRouter.finishSplash()
     }
 }
 

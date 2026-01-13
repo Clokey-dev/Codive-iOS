@@ -2,7 +2,7 @@
 //  TermsAPIService.swift
 //  Codive
 //
-//  Created by Assistant on 1/13/26.
+//  Created by 황상환 on 1/13/26.
 //
 
 import Foundation
