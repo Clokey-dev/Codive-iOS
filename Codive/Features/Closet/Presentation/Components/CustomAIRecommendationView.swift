@@ -12,6 +12,7 @@ struct ClothingItem: Identifiable {
     let id = UUID()
     let imageName: String?
     let image: UIImage?
+    let imageUrl: String?
     let category: String
     let subcategory: String
     let season: String
@@ -22,6 +23,7 @@ struct ClothingItem: Identifiable {
     init(
         imageName: String? = nil,
         image: UIImage? = nil,
+        imageUrl: String? = nil,
         category: String,
         subcategory: String,
         season: String,
@@ -31,6 +33,7 @@ struct ClothingItem: Identifiable {
     ) {
         self.imageName = imageName
         self.image = image
+        self.imageUrl = imageUrl
         self.category = category
         self.subcategory = subcategory
         self.season = season
@@ -170,13 +173,45 @@ struct CustomAIRecommendationView: View {
                         .frame(height: geometry.size.width)
                         .background(Color.Codive.grayscale6)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
-                } else if let imageName = item.imageName {
+                } else if let imageUrl = item.imageUrl, !imageUrl.isEmpty, let url = URL(string: imageUrl) {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .empty:
+                            Rectangle()
+                                .fill(Color.Codive.grayscale6)
+                                .overlay(ProgressView())
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                        case .failure:
+                            Rectangle()
+                                .fill(Color.Codive.grayscale6)
+                                .overlay(
+                                    Image(systemName: "photo")
+                                        .foregroundStyle(Color.Codive.grayscale4)
+                                )
+                        @unknown default:
+                            EmptyView()
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: geometry.size.width)
+                    .background(Color.Codive.grayscale6)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                } else if let imageName = item.imageName, !imageName.isEmpty {
                     Image(imageName)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(maxWidth: .infinity)
                         .frame(height: geometry.size.width)
                         .background(Color.Codive.grayscale6)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                } else {
+                    Rectangle()
+                        .fill(Color.Codive.grayscale6)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: geometry.size.width)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
 

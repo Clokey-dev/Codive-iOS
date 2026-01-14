@@ -80,7 +80,8 @@ final class ClosetDIContainer {
     func makeClothEditViewModel(cloth: Cloth) -> ClothEditViewModel {
         return ClothEditViewModel(
             cloth: cloth,
-            navigationRouter: navigationRouter
+            navigationRouter: navigationRouter,
+            clothRepository: clothRepository
         )
     }
 

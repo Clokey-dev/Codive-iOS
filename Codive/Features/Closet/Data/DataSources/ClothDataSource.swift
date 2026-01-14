@@ -196,7 +196,6 @@ final class DefaultClothDataSource: ClothDataSource {
 
         // ClothListItem → Cloth 변환
         var clothes = result.clothes.map { item in
-            print("🖼️ [ClothDataSource] clothId: \(item.clothId), imageUrl: \(item.imageUrl ?? "nil")")
             return Cloth(
                 id: Int(item.clothId),
                 imageUrl: item.imageUrl,
@@ -219,9 +218,13 @@ final class DefaultClothDataSource: ClothDataSource {
     }
 
     func deleteClothItems(_ clothIds: [Int]) async throws {
-        // TODO: 실제 API 호출로 대체
-        // Mock 환경: 성공만 반환
-        print("Mock: \(clothIds) 삭제 성공")
+        print("📤 [ClothDataSource] 옷 삭제 API 호출... clothIds: \(clothIds)")
+
+        for clothId in clothIds {
+            try await apiService.deleteCloth(clothId: Int64(clothId))
+        }
+
+        print("✅ [ClothDataSource] 옷 \(clothIds.count)개 삭제 완료")
     }
     
     // MARK: - API 연동 메서드

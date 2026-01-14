@@ -44,6 +44,10 @@ final class ClothEditViewModel: ObservableObject, ClothEditViewModelInput, Cloth
     // MARK: - Output Properties
     let cloth: Cloth
     @Published var clothForm: ClothFormData
+    @Published var isLoading = false
+    @Published var isFetching = false
+    @Published var errorMessage: String?
+    @Published var imageUrl: String = ""
 
     // Sheet states
     @Published var isCategorySheetPresented = false
@@ -52,7 +56,7 @@ final class ClothEditViewModel: ObservableObject, ClothEditViewModelInput, Cloth
 
     // MARK: - Dependencies
     private let navigationRouter: NavigationRouter
-    // TODO: UpdateClothUseCase 추가 필요
+    private let clothRepository: ClothRepository
 
     // MARK: - Computed Properties
     var categoryDisplayText: String {
@@ -79,13 +83,15 @@ final class ClothEditViewModel: ObservableObject, ClothEditViewModelInput, Cloth
     // MARK: - Initializer
     init(
         cloth: Cloth,
-        navigationRouter: NavigationRouter
+        navigationRouter: NavigationRouter,
+        clothRepository: ClothRepository
     ) {
         self.cloth = cloth
         self.navigationRouter = navigationRouter
+        self.clothRepository = clothRepository
+        self.imageUrl = cloth.imageUrl
 
-        // 기존 Cloth 데이터로 폼 초기화
-        // categoryId는 하위 카테고리 ID이므로 그걸로 상위/하위 카테고리 모두 조회
+        // 기존 Cloth 데이터로 폼 초기화 (목록에서 전달받은 기본 정보)
         let subcategory = cloth.categoryId.flatMap { CategoryConstants.subcategory(byId: $0) }
         let category = cloth.categoryId.flatMap { CategoryConstants.category(bySubcategoryId: $0) }
 
@@ -97,6 +103,41 @@ final class ClothEditViewModel: ObservableObject, ClothEditViewModelInput, Cloth
             subcategory: subcategory,
             selectedSeasons: cloth.seasons
         )
+    }
+
+    // MARK: - Fetch Detail
+    func fetchDetail() async {
+        isFetching = true
+        do {
+            let detail = try await clothRepository.fetchClothDetail(clothId: cloth.id)
+
+            // 이미지 URL 업데이트
+            imageUrl = detail.clothImageUrl
+
+            // 카테고리 업데이트 (API 응답의 category 이름으로 찾기)
+            if let categoryName = detail.parentCategory,
+               let subcategoryName = detail.category {
+                if let parentCategory = CategoryConstants.all.first(where: { $0.name == categoryName }),
+                   let subcategory = parentCategory.subcategories.first(where: { $0.name == subcategoryName }) {
+                    clothForm.category = parentCategory
+                    clothForm.subcategory = subcategory
+                }
+            }
+
+            // 이름, 브랜드, URL 업데이트 (기존 값이 없으면)
+            if clothForm.name.isEmpty, let name = detail.name {
+                clothForm.name = name
+            }
+            if clothForm.brand.isEmpty, let brand = detail.brand {
+                clothForm.brand = brand
+            }
+            if clothForm.purchaseUrl.isEmpty, let url = detail.clothUrl {
+                clothForm.purchaseUrl = url
+            }
+        } catch {
+            print("❌ 옷 상세 조회 실패: \(error)")
+        }
+        isFetching = false
     }
 
     // MARK: - Input Methods
@@ -138,10 +179,46 @@ final class ClothEditViewModel: ObservableObject, ClothEditViewModelInput, Cloth
     }
 
     func completeEditing() {
+        guard !isLoading else { return }
+        guard let subcategory = clothForm.subcategory else {
+            errorMessage = "카테고리를 선택해주세요"
+            return
+        }
+        guard !clothForm.selectedSeasons.isEmpty else {
+            errorMessage = "계절을 선택해주세요"
+            return
+        }
+
+        isLoading = true
+        errorMessage = nil
+
         Task {
-            // TODO: UpdateClothUseCase 구현 후 연결
-            print("옷 수정 완료: \(cloth.id)")
-            navigationRouter.navigateBack()
+            do {
+                // Season Set → 단일 Season 변환 (API가 단일 season만 받는 경우)
+                let season = clothForm.selectedSeasons.first ?? .spring
+
+                let request = ClothUpdateAPIRequest(
+                    clothImageUrl: nil,  // 이미지 변경 없음
+                    clothUrl: clothForm.purchaseUrl.isEmpty ? nil : clothForm.purchaseUrl,
+                    name: clothForm.name.isEmpty ? nil : clothForm.name,
+                    brand: clothForm.brand.isEmpty ? nil : clothForm.brand,
+                    season: season,
+                    categoryId: Int64(subcategory.id)
+                )
+
+                try await clothRepository.updateCloth(clothId: cloth.id, request: request)
+
+                await MainActor.run {
+                    isLoading = false
+                    navigationRouter.navigateBack()
+                }
+            } catch {
+                await MainActor.run {
+                    isLoading = false
+                    errorMessage = "수정 실패: \(error.localizedDescription)"
+                    print("❌ 옷 수정 실패: \(error)")
+                }
+            }
         }
     }
 }

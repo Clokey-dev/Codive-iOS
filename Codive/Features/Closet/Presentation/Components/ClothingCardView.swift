@@ -20,7 +20,6 @@ struct ClothingCardView: View {
     }
 
     var body: some View {
-        let _ = print("🖼️ [ClothingCard] imageUrl: \(imageUrl ?? "nil")")
         VStack(alignment: .leading, spacing: 0) {
             // 이미지 영역
             if let imageUrl = imageUrl, !imageUrl.isEmpty, let url = URL(string: imageUrl) {

@@ -247,7 +247,6 @@ extension ClothAPIService {
             let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseClothListResponse.self, from: data)
 
             let clothes: [ClothListItem] = decoded.result?.content?.map { item -> ClothListItem in
-                print("🔍 [ClothAPI] item: clothId=\(item.clothId ?? 0), ImageUrl=\(item.ImageUrl ?? "nil")")
                 return ClothListItem(clothId: item.clothId ?? 0, imageUrl: item.ImageUrl ?? "", brand: item.brand, name: item.name)
             } ?? []
 

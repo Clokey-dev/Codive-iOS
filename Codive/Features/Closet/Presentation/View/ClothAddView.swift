@@ -105,7 +105,9 @@ struct ClothAddView: View {
             }
 
             return ClothingItem(
+                imageName: nil,
                 image: photo.croppedImage,
+                imageUrl: nil,
                 category: form.category?.name ?? "",
                 subcategory: form.subcategory?.name ?? "",
                 season: seasonText,
