@@ -41,48 +41,64 @@ struct MainTabView: View {
     
     // MARK: - Body
     var body: some View {
-        NavigationStack(path: $navigationRouter.path) {
-            VStack(spacing: 0) {
-                if shouldShowTopBar {
-                    TopNavigationBar(
-                        showSearchButton: showSearchButton,
-                        showNotificationButton: showNotificationButton,
-                        onSearchTap: viewModel.handleSearchTap,
-                        onNotificationTap: viewModel.handleNotificationTap
-                    )
-                }
-
-                ZStack(alignment: .bottom) {
-                    Group {
-                        switch viewModel.selectedTab {
-                        case .home:
-                            HomeView(homeDIContainer: homeDIContainer)
-                                .ignoresSafeArea(.all, edges: .bottom)
-                        case .closet:
-                            ClosetView(closetDIContainer: closetDIContainer)
-                        case .add:
-                            AddView(addDIContainer: addDIContainer)
-                                .ignoresSafeArea(.all, edges: .bottom)
-                        case .feed:
-                            FeedView(viewModel: feedDIContainer.makeFeedViewModel())
-                        case .profile:
-                            ProfileView()
-                        }
+        ZStack {
+            NavigationStack(path: $navigationRouter.path) {
+                VStack(spacing: 0) {
+                    if shouldShowTopBar {
+                        TopNavigationBar(
+                            showSearchButton: showSearchButton,
+                            showNotificationButton: showNotificationButton,
+                            onSearchTap: viewModel.handleSearchTap,
+                            onNotificationTap: viewModel.handleNotificationTap
+                        )
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                    // MARK: - Tab Bar
-                    TabBar(selectedTab: $viewModel.selectedTab)
-                        .zIndex(shouldShowTabBar ? 1 : 0)
-                        .allowsHitTesting(shouldShowTabBar)
+                    ZStack(alignment: .bottom) {
+                        Group {
+                            switch viewModel.selectedTab {
+                            case .home:
+                                HomeView(homeDIContainer: homeDIContainer)
+                                    .ignoresSafeArea(.all, edges: .bottom)
+                            case .closet:
+                                ClosetView(closetDIContainer: closetDIContainer)
+                            case .add:
+                                AddView(addDIContainer: addDIContainer)
+                                    .ignoresSafeArea(.all, edges: .bottom)
+                            case .feed:
+                                FeedView(viewModel: feedDIContainer.makeFeedViewModel())
+                            case .profile:
+                                ProfileView()
+                            }
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                        // MARK: - Tab Bar
+                        TabBar(selectedTab: $viewModel.selectedTab)
+                            .zIndex(shouldShowTabBar ? 1 : 0)
+                            .allowsHitTesting(shouldShowTabBar)
+                    }
+                }
+                .navigationDestination(for: AppDestination.self) { destination in
+                    destinationView(for: destination)
+                }
+                .ignoresSafeArea(.keyboard, edges: .bottom)
+            }
+            .environmentObject(navigationRouter)
+            .onReceive(navigationRouter.$pendingTabSwitch) { tab in
+                if let tab = tab {
+                    viewModel.selectedTab = tab
+                    navigationRouter.pendingTabSwitch = nil
                 }
             }
-            .navigationDestination(for: AppDestination.self) { destination in
-                destinationView(for: destination)
+
+            // MARK: - Success Overlay
+            if let message = navigationRouter.successMessage {
+                CustomSuccessView(message: message)
+                    .ignoresSafeArea()
+                    .zIndex(100)
+                    .transition(.opacity)
             }
-            .ignoresSafeArea(.keyboard, edges: .bottom)
         }
-        .environmentObject(navigationRouter)
     }
     
     // MARK: - Computed Properties

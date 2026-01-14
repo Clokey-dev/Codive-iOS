@@ -21,44 +21,56 @@ struct ClothAddView: View {
 
     // MARK: - Body
     var body: some View {
-        VStack(spacing: 0) {
-            // Navigation Bar
-            CustomNavigationBar(
-                title: TextLiteral.Closet.clothAddTitle,
-                onBack: {
-                    viewModel.dismissView()
-                },
-                rightButton: .text(
-                    title: TextLiteral.Common.complete,
-                    isEnabled: viewModel.isAllFormsValid
-                ) {
-                    viewModel.completeAdding()
-                }
-            )
-
-            ScrollView {
-                CustomAIRecommendationView(
-                    title: TextLiteral.Closet.clothLoadedTitle,
-                    items: convertToClothingItems(),
-                    selectedItemIndex: $viewModel.currentIndex,
-                    onCategoryTap: {
-                        viewModel.showCategorySheet()
+        ZStack {
+            // 메인 콘텐츠
+            VStack(spacing: 0) {
+                // Navigation Bar
+                CustomNavigationBar(
+                    title: TextLiteral.Closet.clothAddTitle,
+                    onBack: {
+                        viewModel.dismissView()
                     },
-                    onSeasonTap: {
-                        viewModel.showSeasonSheet()
-                    },
-                    onNameChanged: { name in
-                        viewModel.updateName(name)
-                    },
-                    onBrandChanged: { brand in
-                        viewModel.updateBrand(brand)
-                    },
-                    onPurchaseUrlChanged: { url in
-                        viewModel.updatePurchaseUrl(url)
+                    rightButton: .text(
+                        title: TextLiteral.Common.complete,
+                        isEnabled: viewModel.isAllFormsValid && !viewModel.isLoading
+                    ) {
+                        viewModel.completeAdding()
                     }
                 )
+
+                ScrollView {
+                    CustomAIRecommendationView(
+                        title: TextLiteral.Closet.clothLoadedTitle,
+                        items: convertToClothingItems(),
+                        selectedItemIndex: $viewModel.currentIndex,
+                        onCategoryTap: {
+                            viewModel.showCategorySheet()
+                        },
+                        onSeasonTap: {
+                            viewModel.showSeasonSheet()
+                        },
+                        onNameChanged: { name in
+                            viewModel.updateName(name)
+                        },
+                        onBrandChanged: { brand in
+                            viewModel.updateBrand(brand)
+                        },
+                        onPurchaseUrlChanged: { url in
+                            viewModel.updatePurchaseUrl(url)
+                        }
+                    )
+                }
+                .padding(.top, 10)
             }
-            .padding(.top, 10)
+
+            // 로딩 인디케이터
+            if viewModel.isLoading {
+                Color.black.opacity(0.3)
+                    .ignoresSafeArea()
+                ProgressView()
+                    .scaleEffect(1.5)
+                    .tint(.white)
+            }
         }
         .navigationBarHidden(true)
         .background(Color.white)

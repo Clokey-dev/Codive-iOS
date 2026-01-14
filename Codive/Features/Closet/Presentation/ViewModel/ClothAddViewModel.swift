@@ -70,6 +70,9 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
     @Published var isSeasonSheetPresented = false
     @Published var tempSelectedCategory: CategoryItem?
 
+    // 완료 상태
+    @Published var isLoading = false
+
     // MARK: - Dependencies
     private let navigationRouter: NavigationRouter
     private let addClothUseCase: AddClothUseCase
@@ -193,6 +196,9 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
     }
 
     func completeAdding() {
+        guard !isLoading else { return }
+        isLoading = true
+
         Task {
             do {
                 // UIImage → Data 변환
@@ -220,11 +226,21 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
                     images: imageDatas
                 )
 
-                // TODO: 성공 후 화면 전환
+                // 성공: 성공 오버레이 표시 + 뒤에서 탭 전환/네비게이션
+                await MainActor.run {
+                    isLoading = false
+                    navigationRouter.showSuccessAndNavigate(
+                        message: "옷장에 옷을 보관했어요!",
+                        to: .closet,
+                        destination: .myCloset,
+                        duration: 1.5
+                    )
+                }
             } catch {
-                // 에러 처리
+                await MainActor.run {
+                    isLoading = false
+                }
                 print("옷 저장 실패: \(error.localizedDescription)")
-                // TODO: 에러 알럿 표시
             }
         }
     }
