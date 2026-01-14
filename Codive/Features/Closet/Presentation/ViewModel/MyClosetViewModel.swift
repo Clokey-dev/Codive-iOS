@@ -138,13 +138,8 @@ final class MyClosetViewModel: ObservableObject {
 
     func updateMainCategory(_ category: String) {
         selectedMainCategory = category
-
-        // 메인 카테고리 변경 시 첫 번째 서브 카테고리 자동 선택
-        if let firstSub = CategoryConstants.all.first(where: { $0.name == category })?.subcategories.first {
-            selectedSubCategory = firstSub.name
-        } else {
-            selectedSubCategory = ""
-        }
+        // 메인 카테고리 변경 시 서브 카테고리 선택 초기화 (전체 보기)
+        selectedSubCategory = ""
     }
 
     func updateSubCategory(_ subCategory: String) {
