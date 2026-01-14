@@ -81,7 +81,7 @@ struct MyClosetView: View {
                     LazyVGrid(columns: columns, spacing: 0) {
                         ForEach(viewModel.clothItems) { cloth in
                             CustomClothCard(
-                                imageName: cloth.imageUrl,
+                                imageUrl: cloth.imageUrl,
                                 brand: cloth.brand ?? "",
                                 title: cloth.name ?? "",
                                 isEditMode: viewModel.isEditMode,
