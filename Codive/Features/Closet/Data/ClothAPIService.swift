@@ -290,6 +290,18 @@ extension ClothAPIService {
 extension ClothAPIService {
 
     func updateCloth(clothId: Int64, request: ClothUpdateAPIRequest) async throws {
+        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        print("📝 [ClothAPI] 옷 수정 요청")
+        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        print("📋 요청 데이터:")
+        print("   - clothId: \(clothId)")
+        print("   - clothImageUrl: \(request.clothImageUrl ?? "nil")")
+        print("   - clothUrl: \(request.clothUrl ?? "nil")")
+        print("   - name: \(request.name ?? "nil")")
+        print("   - brand: \(request.brand ?? "nil")")
+        print("   - season: \(request.season.rawValue)")
+        print("   - categoryId: \(request.categoryId)")
+
         let requestBody = Components.Schemas.ClothUpdateRequest(
             clothImageUrl: request.clothImageUrl,
             clothUrl: request.clothUrl,
@@ -304,8 +316,16 @@ extension ClothAPIService {
 
         switch response {
         case .ok:
+            print("✅ [ClothAPI] 옷 수정 성공")
             return
-        case .undocumented(statusCode: let code, _):
+        case .undocumented(statusCode: let code, let payload):
+            print("❌ [ClothAPI] 옷 수정 실패 - 상태코드: \(code)")
+            if let body = payload.body {
+                let errorData = try await Data(collecting: body, upTo: .max)
+                if let errorString = String(data: errorData, encoding: .utf8) {
+                    print("❌ [ClothAPI] 에러 응답: \(errorString)")
+                }
+            }
             throw ClothAPIError.serverError(statusCode: code, message: "옷 수정 실패")
         }
     }

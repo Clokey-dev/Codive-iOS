@@ -198,7 +198,7 @@ final class ClothEditViewModel: ObservableObject, ClothEditViewModelInput, Cloth
                 let season = clothForm.selectedSeasons.first ?? .spring
 
                 let request = ClothUpdateAPIRequest(
-                    clothImageUrl: nil,  // 이미지 변경 없음
+                    clothImageUrl: imageUrl,
                     clothUrl: clothForm.purchaseUrl.isEmpty ? nil : clothForm.purchaseUrl,
                     name: clothForm.name.isEmpty ? nil : clothForm.name,
                     brand: clothForm.brand.isEmpty ? nil : clothForm.brand,
