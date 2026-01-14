@@ -237,10 +237,18 @@ extension ClothAPIService {
         switch response {
         case .ok(let okResponse):
             let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+
+            // 디버그: 원본 JSON 출력
+            if let jsonString = String(data: data, encoding: .utf8) {
+                print("📩 [ClothAPI] 옷 목록 응답:")
+                print(jsonString.prefix(1000))
+            }
+
             let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseClothListResponse.self, from: data)
 
-            let clothes = decoded.result?.content?.map { item in
-                ClothListItem(clothId: item.clothId ?? 0, imageUrl: item.ImageUrl ?? "", brand: item.brand, name: item.name)
+            let clothes: [ClothListItem] = decoded.result?.content?.map { item -> ClothListItem in
+                print("🔍 [ClothAPI] item: clothId=\(item.clothId ?? 0), ImageUrl=\(item.ImageUrl ?? "nil")")
+                return ClothListItem(clothId: item.clothId ?? 0, imageUrl: item.ImageUrl ?? "", brand: item.brand, name: item.name)
             } ?? []
 
             return ClothListResult(clothes: clothes, isLast: decoded.result?.isLast ?? true)

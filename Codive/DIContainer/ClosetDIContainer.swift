@@ -72,7 +72,8 @@ final class ClosetDIContainer {
         return ClothDetailViewModel(
             cloth: cloth,
             navigationRouter: navigationRouter,
-            deleteClothItemsUseCase: makeDeleteClothItemsUseCase()
+            deleteClothItemsUseCase: makeDeleteClothItemsUseCase(),
+            clothRepository: clothRepository
         )
     }
 

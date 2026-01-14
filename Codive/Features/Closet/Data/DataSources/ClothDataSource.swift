@@ -172,37 +172,50 @@ final class DefaultClothDataSource: ClothDataSource {
         seasons: Set<Season>,
         searchText: String?
     ) async throws -> [Cloth] {
-        // TODO: 실제 API 호출로 대체
+        print("📤 [ClothDataSource] 내 옷장 조회 API 호출...")
 
-        var filteredItems = mockMyClosetClothItems
-
-        // 1. 메인 카테고리 필터링
-        if let mainCategory = mainCategory, mainCategory != "전체" {
-            if let category = CategoryConstants.category(byName: mainCategory) {
-                filteredItems = filteredItems.filter { $0.categoryId == category.id }
+        // 카테고리 ID 변환
+        var categoryId: Int64?
+        if let subCategory = subCategory {
+            // 서브카테고리 이름으로 ID 찾기 (전체 카테고리에서)
+            for category in CategoryConstants.all {
+                if let sub = category.subcategories.first(where: { $0.name == subCategory }) {
+                    categoryId = Int64(sub.id)
+                    break
+                }
             }
         }
 
-        // 2. 서브 카테고리 필터링
-        // TODO: Cloth에 subCategoryId 추가되면 구현
+        // API 호출 (전체 조회, 최대 100개)
+        let result = try await apiService.fetchClothes(
+            lastClothId: nil,
+            size: 100,
+            categoryId: categoryId,
+            seasons: Array(seasons)
+        )
 
-        // 3. 계절 필터링
-        if !seasons.isEmpty {
-            filteredItems = filteredItems.filter { cloth in
-                !cloth.seasons.isDisjoint(with: seasons)
-            }
+        // ClothListItem → Cloth 변환
+        var clothes = result.clothes.map { item in
+            print("🖼️ [ClothDataSource] clothId: \(item.clothId), imageUrl: \(item.imageUrl ?? "nil")")
+            return Cloth(
+                id: Int(item.clothId),
+                imageUrl: item.imageUrl,
+                name: item.name,
+                brand: item.brand
+            )
         }
 
-        // 4. 검색어 필터링
+        // 검색어 필터링 (클라이언트 사이드)
         if let searchText = searchText, !searchText.isEmpty {
-            filteredItems = filteredItems.filter { cloth in
+            clothes = clothes.filter { cloth in
                 let nameMatch = cloth.name?.localizedCaseInsensitiveContains(searchText) ?? false
                 let brandMatch = cloth.brand?.localizedCaseInsensitiveContains(searchText) ?? false
                 return nameMatch || brandMatch
             }
         }
 
-        return filteredItems
+        print("✅ [ClothDataSource] 내 옷장 조회 완료: \(clothes.count)개")
+        return clothes
     }
 
     func deleteClothItems(_ clothIds: [Int]) async throws {
