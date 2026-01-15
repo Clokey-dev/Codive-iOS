@@ -60,10 +60,8 @@ struct HomeView: View {
                     .padding(.bottom, 16)
                 }
                 .id(scrollViewID)
-                
-                // 팝업 오버레이
+
                 if viewModel.showCompletePopUp {
-                    // 수정된 부분: imageURL 대신 selectedClothes 리스트를 전달합니다.
                     CompletePopUp(
                         isPresented: $viewModel.showCompletePopUp,
                         onRecordTapped: viewModel.handlePopupRecord,

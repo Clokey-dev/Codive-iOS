@@ -84,7 +84,7 @@ final class HomeViewModel: ObservableObject {
 }
 
 // MARK: - Data Loading Methods
-private extension HomeViewModel {
+extension HomeViewModel {
     
     /// 앱 실행 시 필요한 초기 데이터를 로드
     func loadInitialData() {

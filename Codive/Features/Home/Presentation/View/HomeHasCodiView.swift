@@ -101,7 +101,7 @@ private extension HomeHasCodiView {
     /// 하단 배너
     var bottomBanner: some View {
         CustomBanner(text: TextLiteral.Home.bannerTitle) {
-            viewModel.rememberCodi()
+//            viewModel.rememberCodi()
         }
         .padding()
     }
@@ -113,7 +113,7 @@ private extension HomeHasCodiView {
             menuActions: [
                 { viewModel.selectEditCodi() },
                 { viewModel.addLookbook() },
-                { viewModel.sharedCodi() }
+                { /*viewModel.sharedCodi()*/ }
             ]
         )
         .zIndex(9999)

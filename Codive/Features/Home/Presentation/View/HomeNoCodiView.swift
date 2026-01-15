@@ -46,7 +46,7 @@ private extension HomeNoCodiView {
             .padding(.top, 24)
             .padding(.bottom, 16)
     }
-
+    
     /// 카테고리 편집 및 랜덤 설정 버튼 영역
     var categoryButtons: some View {
         HStack(spacing: 8) {
@@ -61,7 +61,7 @@ private extension HomeNoCodiView {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.bottom, 16)
     }
-
+    
     /// 카테고리별 의류 리스트 (가로 스크롤 영역들)
     var codiClothList: some View {
         VStack(spacing: 16) {
@@ -83,7 +83,7 @@ private extension HomeNoCodiView {
         }
         .padding(.horizontal, 20)
     }
-
+    
     /// 하단 액션 버튼 (코디판 이동 및 코디 확정)
     var bottomButtons: some View {
         GeometryReader { geometry in
@@ -130,4 +130,5 @@ private extension HomeNoCodiView {
                 .background(Color.Codive.main0)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
         }
+    }
 }
