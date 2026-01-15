@@ -21,35 +21,63 @@ final class ProfileSettingViewModel: ObservableObject {
     @Published var nickname: String = "" {
         didSet {
             if nickname.count > nicknameMaxCount {
-                nickname = String(nickname.prefix(nicknameMaxCount))
+                let trimmed = String(nickname.prefix(nicknameMaxCount))
+                if trimmed != nickname {
+                    nickname = trimmed
+                    return
+                }
             }
-            if nicknameCheckStatus == .available || nicknameCheckStatus == .duplicated {
-                nicknameCheckStatus = .none
+
+            if nickname != oldValue {
+                if nicknameCheckStatus == .available || nicknameCheckStatus == .duplicated {
+                    nicknameCheckStatus = .none
+                }
             }
-            updateCanComplete()
         }
     }
 
     @Published var intro: String = "" {
         didSet {
-            updateCanComplete()
+            // 20자 제한 처리
+            if intro.count > introMaxCount {
+                let trimmed = String(intro.prefix(introMaxCount))
+                // 무한 루프 방지: 값이 실제로 변경된 경우에만 업데이트
+                if trimmed != intro {
+                    intro = trimmed
+                    return // didSet이 다시 호출되므로 여기서 종료
+                }
+            }
+            // 닉네임 중복확인이 완료된 경우에는 canComplete를 절대 변경하지 않음
+            // 한줄소개는 선택사항이므로 닉네임 중복확인 완료 후에는 영향 없음
         }
     }
 
     @Published var isPublic: Bool = true
-    @Published var nicknameCheckStatus: NicknameCheckStatus = .none {
-        didSet {
-            updateCanComplete()
-        }
-    }
+    @Published var nicknameCheckStatus: NicknameCheckStatus = .none
     @Published var pickedProfileImage: Image? = nil
-    @Published var canComplete: Bool = false
+    
+    // 닉네임 중복확인이 완료된 경우에는 항상 true를 반환
+    var canComplete: Bool {
+        // 닉네임은 필수이므로 비어있으면 비활성화
+        if nickname.isEmpty {
+            return false
+        }
+        // 닉네임 길이 에러가 있으면 비활성화
+        if nickname.count > nicknameMaxCount {
+            return false
+        }
+        // 닉네임 중복확인이 완료되지 않았으면 비활성화
+        if nicknameCheckStatus != .available {
+            return false
+        }
+        // 닉네임 중복확인이 완료된 경우에는 항상 활성화
+        // (한줄소개는 선택사항이고, 20자 제한은 입력 단계에서 처리됨)
+        return true
+    }
 
     // MARK: - Initializer
     init(navigationRouter: NavigationRouter) {
         self.navigationRouter = navigationRouter
-        // 초기 상태 업데이트
-        updateCanComplete()
     }
 
     enum NicknameCheckStatus: Equatable {
@@ -90,41 +118,12 @@ final class ProfileSettingViewModel: ObservableObject {
     }
 
     var introErrorText: String? {
-        if intro.isEmpty { return nil }
-        if intro.count > introMaxCount { return "20자 이내로 입력해주세요." }
+        // 20자 제한은 입력 단계에서 처리되므로 에러 메시지 불필요
         return nil
     }
 
-    // MARK: - Public Methods
-    func updateCanCompleteOnFocusChange() {
-        // 포커스 변경 시에도 업데이트 (View에서 호출)
-        updateCanComplete()
-    }
-    
     // MARK: - Private Methods
-    private func updateCanComplete() {
-        // 닉네임은 필수이므로 비어있으면 비활성화
-        if nickname.isEmpty {
-            canComplete = false
-            return
-        }
-        // 닉네임 길이 에러가 있으면 비활성화 (중복 에러는 제외)
-        if nickname.count > nicknameMaxCount {
-            canComplete = false
-            return
-        }
-        // 닉네임 중복확인이 완료되지 않았으면 비활성화
-        if nicknameCheckStatus != .available {
-            canComplete = false
-            return
-        }
-        // 닉네임 중복확인이 완료된 상태에서, 한줄소개가 20자 초과면 비활성화
-        if intro.count > introMaxCount {
-            canComplete = false
-            return
-        }
-        canComplete = true
-    }
+    // canComplete는 computed property로 변경되어 더 이상 필요 없음
 
     func runNicknameDuplicateCheck() {
         nicknameCheckStatus = .checking
@@ -136,8 +135,6 @@ final class ProfileSettingViewModel: ObservableObject {
             } else {
                 self.nicknameCheckStatus = .available
             }
-            // 명시적으로 업데이트 호출 (didSet이 호출되지만 확실하게)
-            self.updateCanComplete()
         }
     }
 

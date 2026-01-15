@@ -35,7 +35,7 @@ struct ProfileView: View {
                 calendarSection
                     .padding(.top, 40)
 
-                Spacer(minLength: 77)
+                Spacer(minLength: 40)
             }
         }
         .background(Color.white)
@@ -147,16 +147,17 @@ struct ProfileView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 10) {
                     ForEach(0..<8, id: \.self) { _ in
-                        RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .fill(Color.white)
-                            .frame(width: 160, height: 160)
-                            .overlay(alignment: .topTrailing) {
-                                    Image("heart_on")
-                                        .frame(width: 15, height: 18)
-                                        .foregroundStyle(Color.Codive.point1)
-                                        .padding(14)
-                            }
-                            .codiveCardShadow()
+                        CodiCard(
+                            imageURL: URL(string: "https://via.placeholder.com/160/F08080/FFFFFF?text=Date+Look"),
+                            title: nil,
+                            icon: .heart(isSelected: true, onTap: nil),   // 항상 하트 on, 타이틀 없음
+                            cardWidth: 160,
+                            imageSize: 160,
+                            cornerRadius: 16,
+                            iconPadding: 14,
+                            iconSize: 20,
+                            onCardTap: nil
+                        )
                     }
                 }
                 .padding(.top, 12)

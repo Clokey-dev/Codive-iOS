@@ -34,6 +34,9 @@ struct OtherProfileView: View {
                         .padding(.top, 24)
 
                     calendarSection
+                        .padding(.top, 40)
+
+                    Spacer(minLength: 40)
                 }
             }
 
@@ -177,10 +180,15 @@ struct OtherProfileView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 10) {
                     ForEach(0..<8, id: \.self) { _ in
-                        RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .fill(Color.white)
-                            .frame(width: 155, height: 155)
-                            .codiveCardShadow()
+                        CodiCard(
+                            imageURL: URL(string: "https://via.placeholder.com/155"),
+                            title: nil,
+                            icon: .none,
+                            cardWidth: 155,
+                            imageSize: 155,
+                            cornerRadius: 16,
+                            onCardTap: nil
+                        )
                     }
                 }
                 .padding(.top, 12)

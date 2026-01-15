@@ -47,10 +47,6 @@ struct ProfileSettingView: View {
         }
         .background(Color.white)
         .navigationBarHidden(true)
-        .onChange(of: focus) { _ in
-            // 포커스 변경 시 canComplete 업데이트
-            viewModel.updateCanCompleteOnFocusChange()
-        }
     }
 
     private var profileImageSection: some View {
