@@ -22,8 +22,12 @@ struct AppRootView: View {
     
     var body: some View {
         switch appRouter.currentAppState {
+        case .splash:
+            SplashContainerView(appRouter: appRouter)
+
         case .auth:
             authDIContainer.makeAuthFlowView()
+
         case .main:
             MainTabView(appDIContainer: appDIContainer)
         }
