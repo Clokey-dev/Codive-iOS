@@ -53,9 +53,9 @@ struct DraggableImageEntity: Identifiable, Hashable {
 struct CodiItemEntity: Identifiable {
     let id: Int
     let imageName: String
-    let clothName: String  // 추가: 옷 이름
-    let brandName: String  // 추가: 브랜드 이름
-    let description: String // 추가: 옷 설명
+    let clothName: String
+    let brandName: String
+    let description: String 
     let x: CGFloat
     let y: CGFloat
     let width: CGFloat
@@ -144,11 +144,10 @@ struct LookBookBottomSheetEntity: Identifiable, Codable {
 // MARK: - Cloth Tag Entity
 struct ClothTagEntity: Identifiable, Hashable {
     let id = UUID()
-    let title: String    // 기존 brand에서 변경 (더 범용적)
-    let content: String  // 기존 content 유지
+    let title: String
+    let content: String
     var locationX: CGFloat
     var locationY: CGFloat
-    // 추가: 이미지 위치에 따른 방향 계산을 위한 프로퍼티
     var isRightSide: Bool = true
 }
 

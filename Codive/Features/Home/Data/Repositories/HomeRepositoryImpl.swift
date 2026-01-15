@@ -16,48 +16,41 @@ final class HomeRepositoryImpl: HomeRepository {
         self.dataSource = dataSource
     }
     
-    // MARK: - Weather
+    // MARK: - 날씨
+    
     func fetchWeatherData(for location: CLLocation?) async throws -> WeatherData {
         return try await dataSource.fetchWeatherData(for: location)
     }
     
-    // MARK: - Categories
-    func fetchCategories() -> [CategoryEntity] {
-        return dataSource.loadCategories()
-    }
+    // MARK: - 코디가 없는 경우의 Home 관련
     
-    func saveCategories(_ categories: [CategoryEntity]) {
-        dataSource.saveCategories(categories)
-    }
-
-    // MARK: - Cloth Items
-    func fetchClothItems() -> [HomeClothEntity] {
-        dataSource.loadClothItems()
-    }
-    
-    // 새로운 API 기반 메서드
     func fetchClothItems(request: ClothListRequestDTO) async throws -> [HomeClothEntity] {
         let dtoList = try await dataSource.fetchClothItems(request: request)
-        
-        // categoryId를 request에서 가져오거나 기본값 사용
+
         let categoryId = Int(request.categoryId ?? 1)
         return dtoList.toEntities(categoryId: categoryId)
     }
     
-    // MARK: - Codi Items
+    func createTodayDailyCodi(_ codi: TodayDailyCodi) async throws {
+        try await dataSource.createTodayDailyCodi(codi)
+    }
+    
+    // MARK: - 코디보드
+    
     func fetchInitialImages() -> [DraggableImageEntity] {
         dataSource.loadInitialImages()
     }
     
     func saveCodiCoordinate(_ request: CodiCoordinateRequestDTO) async throws {
-            try await dataSource.saveCodiCoordinate(request)
-        }
+        try await dataSource.saveCodiCoordinate(request)
+    }
+    
+    // MARK: - 코디가 있는 경우의 Home 관련
     
     func fetchCodiItems() -> [CodiItemEntity] {
         dataSource.loadDummyCodiItems()
     }
     
-    // MARK: - Date
     func getToday() -> DateEntity {
         dataSource.fetchToday()
     }
@@ -66,7 +59,12 @@ final class HomeRepositoryImpl: HomeRepository {
         return try await dataSource.fetchLookBookList()
     }
     
-    func createTodayDailyCodi(_ codi: TodayDailyCodi) async throws {
-        try await dataSource.createTodayDailyCodi(codi)
+    // MARK: - 카테고리 수정 관련
+    func fetchCategories() -> [CategoryEntity] {
+        return dataSource.loadCategories()
+    }
+    
+    func saveCategories(_ categories: [CategoryEntity]) {
+        dataSource.saveCategories(categories)
     }
 }

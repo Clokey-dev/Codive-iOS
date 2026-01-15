@@ -8,84 +8,116 @@
 import SwiftUI
 
 struct CodiBoardView: View {
+    
+    // MARK: - Properties
     @StateObject private var viewModel: CodiBoardViewModel
-
+    
+    // MARK: - Initialization
     init(viewModel: CodiBoardViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
-
+    
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
-            CustomNavigationBar(title: TextLiteral.Home.codiBoardTitle) {
-                viewModel.handleBackTap()
-            }
-
+            navigationBar
+            
             GeometryReader { geometry in
                 let boardSize = geometry.size.width - 40
                 let imageHalfSize: CGFloat = 40
-                let minBound = imageHalfSize
-                let maxBound = boardSize - imageHalfSize
-
-                ScrollView {
-                    VStack {
-                        Text(TextLiteral.Home.codiBoardDescription)
-                            .font(Font.codive_title2)
-                            .foregroundStyle(Color.Codive.grayscale1)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 24)
-
-                        ZStack {
-                            boardBackground(size: boardSize)
-                            
-                            ForEach($viewModel.images) { $image in
-                                DraggableImageView(
-                                    image: $image,
-                                    imageHalfSize: imageHalfSize,
-                                    minBound: minBound,
-                                    maxBound: maxBound,
-                                    viewModel: viewModel
-                                )
-                            }
-                        }
-                        .frame(width: boardSize, height: boardSize)
-                        .padding(.horizontal, 20)
-                        .padding(.bottom, 20)
-                    }
-                    .frame(width: geometry.size.width)
-                }
-                .safeAreaInset(edge: .bottom) {
-                    CustomButton(
-                        text: TextLiteral.Home.complete,
-                        widthType: .fixed,
-                        action: viewModel.handleConfirmCodi
-                    )
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 16)
-                    .background(alignment: .center) {
-                        Color.white
-                    }
-                }
+                
+                contentView(boardSize: boardSize, imageHalfSize: imageHalfSize, totalWidth: geometry.size.width)
             }
         }
         .navigationBarHidden(true)
-        .background(alignment: .center) {
-            Color.white
-        }
+        .background(Color.white)
         .onChange(of: viewModel.isConfirmed) { confirmed in
-            if confirmed { }
+            if confirmed {
+                // 확인 로직 처리
+            }
+        }
+    }
+}
+
+// MARK: - View Components
+private extension CodiBoardView {
+    
+    /// 상단 커스텀 네비게이션 바
+    var navigationBar: some View {
+        CustomNavigationBar(title: TextLiteral.Home.codiBoardTitle) {
+            viewModel.handleBackTap()
         }
     }
     
-    @ViewBuilder
-    private func boardBackground(size: CGFloat) -> some View {
+    /// 메인 컨텐츠 영역 (설명 + 보드)
+    func contentView(boardSize: CGFloat, imageHalfSize: CGFloat, totalWidth: CGFloat) -> some View {
+        ScrollView {
+            VStack(spacing: 0) {
+                descriptionText
+                
+                drawingBoard(size: boardSize, imageHalfSize: imageHalfSize)
+            }
+            .frame(width: totalWidth)
+        }
+        .safeAreaInset(edge: .bottom) {
+            confirmationButton
+        }
+    }
+    
+    /// 상단 설명 텍스트
+    var descriptionText: some View {
+        Text(TextLiteral.Home.codiBoardDescription)
+            .font(.codive_title2)
+            .foregroundStyle(Color.Codive.grayscale1)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 24)
+    }
+    
+    /// 이미지들을 배치하고 드래그할 수 있는 보드 영역
+    func drawingBoard(size: CGFloat, imageHalfSize: CGFloat) -> some View {
+        let minBound = imageHalfSize
+        let maxBound = size - imageHalfSize
+        
+        return ZStack {
+            boardBackground(size: size)
+            
+            ForEach($viewModel.images) { $image in
+                DraggableImageView(
+                    image: $image,
+                    imageHalfSize: imageHalfSize,
+                    minBound: minBound,
+                    maxBound: maxBound,
+                    viewModel: viewModel
+                )
+            }
+        }
+        .frame(width: size, height: size)
+        .padding(.horizontal, 20)
+        .padding(.bottom, 20)
+    }
+    
+    /// 보드의 배경 디자인
+    func boardBackground(size: CGFloat) -> some View {
         RoundedRectangle(cornerRadius: 15)
             .fill(Color.Codive.grayscale7)
             .frame(width: size, height: size)
-            .overlay(alignment: .center) {
+            .overlay(
                 RoundedRectangle(cornerRadius: 15)
                     .stroke(Color.Codive.grayscale5, lineWidth: 1)
-            }
+            )
             .shadow(color: .black.opacity(0.1), radius: 5, y: 2)
+    }
+    
+    /// 하단 확정 버튼
+    var confirmationButton: some View {
+        CustomButton(
+            text: TextLiteral.Home.complete,
+            widthType: .fixed,
+            action: viewModel.handleConfirmCodi
+        )
+        .padding(.horizontal, 20)
+        .padding(.vertical, 16)
+        .background(Color.white)
     }
 }

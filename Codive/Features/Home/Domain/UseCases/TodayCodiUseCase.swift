@@ -18,6 +18,6 @@ final class TodayCodiUseCase {
     }
     
     func recordTodayCodi(_ codi: TodayDailyCodi) async throws {
-            try await repository.createTodayDailyCodi(codi)
-        }
+        try await repository.createTodayDailyCodi(codi)
+    }
 }

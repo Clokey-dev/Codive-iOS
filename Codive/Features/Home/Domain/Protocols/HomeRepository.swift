@@ -8,28 +8,28 @@
 import CoreLocation
 
 protocol HomeRepository {
-    // MARK: - Weather
+    // MARK: - 날씨
+    
     func fetchWeatherData(for location: CLLocation?) async throws -> WeatherData
     
-    // MARK: - Categories
-    func fetchCategories() -> [CategoryEntity]
-    func saveCategories(_ categories: [CategoryEntity])
+    // MARK: - 코디가 없는 경우의 Home 관련
     
-    // MARK: - Cloth Items
-    func fetchClothItems() -> [HomeClothEntity]
     func fetchClothItems(request: ClothListRequestDTO) async throws -> [HomeClothEntity]
+    func createTodayDailyCodi(_ codi: TodayDailyCodi) async throws
     
-    // MARK: - Initial Images
+    // MARK: - 코디보드
+    
     func fetchInitialImages() -> [DraggableImageEntity]
-    
-    // MARK: - Codi Items
     func saveCodiCoordinate(_ request: CodiCoordinateRequestDTO) async throws
+    
+    // MARK: - 코디가 있는 경우의 Home 관련
+    
     func fetchCodiItems() -> [CodiItemEntity]
-    
-    // MARK: - Date
     func getToday() -> DateEntity
-    
     func fetchLookBookList() async throws -> [LookBookBottomSheetEntity]
     
-    func createTodayDailyCodi(_ codi: TodayDailyCodi) async throws
+    // MARK: - 카테고리 수정 관련
+    
+    func fetchCategories() -> [CategoryEntity]
+    func saveCategories(_ categories: [CategoryEntity])
 }

@@ -16,12 +16,7 @@ final class CategoryUseCase {
     func loadCategories() -> [CategoryEntity] {
         return repository.fetchCategories()
     }
-
-    func loadClothItems() -> [HomeClothEntity] {
-        return repository.fetchClothItems()
-    }
     
-    // 새로운 API 기반 메서드
     func loadClothItems(
         lastClothId: Int64? = nil,
         size: Int = 20,

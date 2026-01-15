@@ -262,15 +262,3 @@ struct CodiClothView: View {
         }
     }
 }
-
-// MARK: - Preview
-
-#Preview {
-    // 빈 상태 미리보기 (3칸 + 안내 카드)
-    CodiClothView(title: "바지", items: [], isEmptyState: true)
-        .padding(.horizontal, 20)
-    CodiClothView(title: "바지", items: [], isEmptyState: true)
-        .padding(.horizontal, 20)
-    CodiClothView(title: "바지", items: [], isEmptyState: true)
-        .padding(.horizontal, 20)
-}

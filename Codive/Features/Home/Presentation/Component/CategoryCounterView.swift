@@ -77,21 +77,3 @@ struct CategoryCounterView: View {
         }
     }
 }
-
-#Preview {
-    PreviewWrapper()
-}
-
-private struct PreviewWrapper: View {
-    @State var topCount = 1
-
-    var body: some View {
-        CategoryCounterView(
-            title: "상의",
-            count: $topCount,
-            totalCount: 1,
-            isFixed: true
-        )
-        .padding()
-    }
-}
