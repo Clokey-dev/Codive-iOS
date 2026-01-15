@@ -137,7 +137,7 @@ struct MainTabView: View {
         case .codiBoard:
             homeDIContainer.makeCodiBoardView()
         case .favoriteCodiList(let showHeart):
-            FavoriteCodiListView(showHeart: showHeart, navigationRouter: navigationRouter)
+            FavoriteCodiView(showHeart: showHeart, navigationRouter: navigationRouter)
         case .settings:
             ProfileSettingView(navigationRouter: navigationRouter)
         case .followList(let mode):

@@ -12,12 +12,12 @@ struct CalendarMonthView: View {
         self._selectedDate = selectedDate
     }
     
-    private let cellSpacing: CGFloat = 6
+    private let cellSpacing: CGFloat = 6  // 요일 간 가로, 세로 간격
 
     private let weekdayCellSize: CGFloat = 40
-    private let dayCellWidth: CGFloat = 40
-    private let dayCellHeight: CGFloat = 76
-    private var gridWidth: CGFloat { (weekdayCellSize * 7) + (cellSpacing * 6) }
+    private let dayCellWidth: CGFloat = 40  // 사진 크기: 40 * 57
+    private let dayCellHeight: CGFloat = 57 // 사진 크기: 40 * 57
+    private var gridWidth: CGFloat { (dayCellWidth * 7) + (cellSpacing * 6) }
 
     var body: some View {
         VStack(spacing: 10) {
