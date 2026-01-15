@@ -151,3 +151,17 @@ struct ClothTagEntity: Identifiable, Hashable {
     // 추가: 이미지 위치에 따른 방향 계산을 위한 프로퍼티
     var isRightSide: Bool = true
 }
+
+struct TodayDailyCodi {
+    let coordinateImageUrl: String
+    let payloads: [CodiPayload]
+}
+
+struct CodiPayload {
+    let clothId: Int
+    let locationX: Double
+    let locationY: Double
+    let ratio: Double
+    let degree: Int
+    let order: Int
+}

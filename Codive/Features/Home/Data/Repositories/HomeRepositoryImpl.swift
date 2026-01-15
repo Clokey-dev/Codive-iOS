@@ -65,4 +65,8 @@ final class HomeRepositoryImpl: HomeRepository {
     func fetchLookBookList() async throws -> [LookBookBottomSheetEntity] {
         return try await dataSource.fetchLookBookList()
     }
+    
+    func createTodayDailyCodi(_ codi: TodayDailyCodi) async throws {
+        try await dataSource.createTodayDailyCodi(codi)
+    }
 }

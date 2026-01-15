@@ -331,4 +331,23 @@ final class HomeDatasource {
             LookBookBottomSheetEntity(lookbookId: 3, codiId: 103, imageUrl: "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=800", title: "데이트룩", count: 16)
         ]
     }
+    
+    func createTodayDailyCodi(_ entity: TodayDailyCodi) async throws {
+
+        let requestDTO = CodiCoordinateRequestDTO(
+            coordinateImageUrl: entity.coordinateImageUrl,
+            Payload: entity.payloads.map {
+                CodiCoordinatePayloadDTO(
+                    clothId: Int64($0.clothId),
+                    locationX: $0.locationX,
+                    locationY: $0.locationY,
+                    ratio: $0.ratio,
+                    degree: Double($0.degree),
+                    order: $0.order
+                )
+            }
+        )
+
+        try await saveCodiCoordinate(requestDTO)
+    }
 }

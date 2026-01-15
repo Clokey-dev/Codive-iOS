@@ -30,4 +30,6 @@ protocol HomeRepository {
     func getToday() -> DateEntity
     
     func fetchLookBookList() async throws -> [LookBookBottomSheetEntity]
+    
+    func createTodayDailyCodi(_ codi: TodayDailyCodi) async throws
 }

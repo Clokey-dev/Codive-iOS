@@ -269,10 +269,36 @@ final class HomeViewModel: ObservableObject {
     }
     
     func handlePopupRecord() {
-        showCompletePopUp = false
-        // 기록하기 로직 구현
-        // 예: navigationRouter.navigate(to: .recordCodi)
-        self.hasCodi = true
+        let containerSize: CGFloat = 260
+
+        let payloads = selectedCodiClothes.enumerated().map { index, cloth in
+
+            let position = CodiLayoutCalculator.position(
+                index: index,
+                totalCount: selectedCodiClothes.count,
+                containerSize: containerSize
+            )
+
+            return CodiPayload(
+                clothId: cloth.id,
+                locationX: position.x,
+                locationY: position.y,
+                ratio: 1.0,
+                degree: 0,
+                order: index
+            )
+        }
+
+        let todayCodi = TodayDailyCodi(
+            coordinateImageUrl: completedCodiImageURL ?? "",
+            payloads: payloads
+        )
+
+        Task {
+            try await todayCodiUseCase.recordTodayCodi(todayCodi)
+            showCompletePopUp = false
+            hasCodi = true
+        }
     }
     
     func handlePopupClose() {
