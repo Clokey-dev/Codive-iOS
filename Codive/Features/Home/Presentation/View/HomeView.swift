@@ -60,16 +60,6 @@ struct HomeView: View {
                     .padding(.bottom, 16)
                 }
                 .id(scrollViewID)
-
-                if viewModel.showCompletePopUp {
-                    CompletePopUp(
-                        isPresented: $viewModel.showCompletePopUp,
-                        onRecordTapped: viewModel.handlePopupRecord,
-                        onCloseTapped: viewModel.handlePopupClose,
-                        selectedClothes: viewModel.selectedCodiClothes
-                    )
-                    .zIndex(1)
-                }
             }
             .task {
                 await viewModel.loadWeather(for: nil)

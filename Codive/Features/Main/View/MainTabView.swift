@@ -100,6 +100,16 @@ struct MainTabView: View {
                     .zIndex(100) // 가장 높은 숫자로 설정
                     .transition(.move(edge: .bottom))
                 }
+                
+                if homeViewModel.showCompletePopUp {
+                    CompletePopUp(
+                        isPresented: $homeViewModel.showCompletePopUp,
+                        onRecordTapped: homeViewModel.handlePopupRecord,
+                        onCloseTapped: homeViewModel.handlePopupClose,
+                        selectedClothes: homeViewModel.selectedCodiClothes
+                    )
+                    .zIndex(200)
+                }
             }
             .navigationDestination(for: AppDestination.self) { destination in
                 destinationView(for: destination)
