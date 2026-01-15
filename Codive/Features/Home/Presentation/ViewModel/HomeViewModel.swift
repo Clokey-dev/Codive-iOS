@@ -225,7 +225,7 @@ extension HomeViewModel {
     /// 현재 스크롤된 의류 조합을 수집하고 완료 팝업을 띄움
     func handleConfirmCodiTap() {
         let items = activeCategories
-            .sorted(by: { $0.id < $1.id })
+            .sorted { $0.id < $1.id }
             .compactMap { category -> HomeClothEntity? in
                 guard let clothList = clothItemsByCategory[category.id] else { return nil }
                 let index = selectedIndicesByCategory[category.id] ?? 0

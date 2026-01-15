@@ -71,12 +71,11 @@ private extension HomeNoCodiView {
                 CodiClothView(
                     title: category.title,
                     items: clothItems,
-                    isEmptyState: clothItems.isEmpty,
-                    onIndexChanged: { newIndex in
-                        // 사용자가 스크롤 할 때마다 ViewModel의 선택 인덱스 업데이트
-                        viewModel.updateSelectedIndex(for: category.id, index: newIndex)
-                    }
-                )
+                    isEmptyState: clothItems.isEmpty
+                ) { newIndex in
+                    // 사용자가 스크롤 할 때마다 ViewModel의 선택 인덱스 업데이트
+                    viewModel.updateSelectedIndex(for: category.id, index: newIndex)
+                }
                 // 데이터 변경 시 뷰 갱신을 위한 식별자 지정
                 .id("\(category.id)-\(clothItems.count)")
             }
