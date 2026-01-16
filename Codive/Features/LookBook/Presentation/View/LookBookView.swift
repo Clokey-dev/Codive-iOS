@@ -170,11 +170,7 @@ private struct LookBookContent: View {
                     LookBookFolder(
                         title: lookbook.lookbookName,
                         count: lookbook.count,
-                        thumbnail: AsyncImage(url: URL(string: lookbook.imageUrl)) { image in
-                            image.resizable().aspectRatio(contentMode: .fill)
-                        } placeholder: {
-                            Color.Codive.grayscale6
-                        },
+                        imageUrl: lookbook.imageUrl,
                         mode: viewModel.isEditing
                             ? .check(isSelected: viewModel.selectedLookBookIds.contains(lookbook.id))
                             : .none
