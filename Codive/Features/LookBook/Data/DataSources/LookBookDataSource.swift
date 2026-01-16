@@ -208,6 +208,22 @@ final class LookBookDataSource {
         """)
     }
     
+    /// 코디 삭제(DELETE, 완)
+    func deleteCodis(_ requests: [DeleteCodiEntity], lookbookId: Int) async throws {
+        try await Task.sleep(nanoseconds: 500_000_000)
+
+        let ids = requests.map { $0.coordinateId }
+
+        print("서버에 코디 삭제 요청: \(ids)")
+
+        guard var codis = lookbookDetailCodi[lookbookId] else { return }
+
+        codis.removeAll { ids.contains($0.coordinateId) }
+        lookbookDetailCodi[lookbookId] = codis
+
+        print("삭제 후 남은 코디:", codis.map { $0.coordinateId })
+    }
+    
     /// 코디 상세 정보 조회
     func fetchCodiDetail(codiId: Int) async throws -> CodiDetailEntity? {
         try await Task.sleep(nanoseconds: 300_000_000)

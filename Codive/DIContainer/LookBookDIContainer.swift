@@ -33,12 +33,12 @@ final class LookBookDIContainer {
     
     // MARK: - UseCases
     
-    func makeLookBookListUseCase() -> LookBookListUseCase {
-        return LookBookListUseCase(repository: lookBookRepository)
+    func makeLookBookListUseCase() -> LookBookMainUseCase {
+        return LookBookMainUseCase(repository: lookBookRepository)
     }
     
-    func makeLookBookDetailUseCase() -> LookBookDetailUseCase {
-        return LookBookDetailUseCase(repository: lookBookRepository)
+    func makeSpecificLookBookUseCase() -> SpecificLookBookUseCase {
+        return SpecificLookBookUseCase(repository: lookBookRepository)
     }
     
     func makeCodiUseCase() -> CodiUseCase {
@@ -74,8 +74,7 @@ final class LookBookDIContainer {
     ) -> SpecificLookBookViewModel {
         return SpecificLookBookViewModel(
             navigationRouter: navigationRouter,
-            detailUseCase: makeLookBookDetailUseCase(),
-            codiUseCase: makeCodiUseCase(),
+            specificLookBookUseCase: makeSpecificLookBookUseCase(),
             lookbookId: lookbookId,
             lookbookTitle: lookbookTitle
         )

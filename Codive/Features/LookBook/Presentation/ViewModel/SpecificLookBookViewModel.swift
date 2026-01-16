@@ -13,8 +13,7 @@ final class SpecificLookBookViewModel: ObservableObject {
     // MARK: - Dependencies
     
     private let navigationRouter: NavigationRouter
-    private let detailUseCase: LookBookDetailUseCase
-    private let codiUseCase: CodiUseCase
+    private let specificLookBookUseCase: SpecificLookBookUseCase
 
     let lookbookId: Int
     let lookbookTitle: String
@@ -36,14 +35,12 @@ final class SpecificLookBookViewModel: ObservableObject {
     
     init(
         navigationRouter: NavigationRouter,
-        detailUseCase: LookBookDetailUseCase,
-        codiUseCase: CodiUseCase,
+        specificLookBookUseCase: SpecificLookBookUseCase,
         lookbookId: Int,
         lookbookTitle: String = ""
     ) {
         self.navigationRouter = navigationRouter
-        self.detailUseCase = detailUseCase
-        self.codiUseCase = codiUseCase
+        self.specificLookBookUseCase = specificLookBookUseCase
         self.lookbookId = lookbookId
         self.lookbookTitle = lookbookTitle
     }
@@ -57,7 +54,7 @@ final class SpecificLookBookViewModel: ObservableObject {
         
         Task {
             do {
-                let list = try await detailUseCase.fetchCodisForLookBook(forLookbookId: lookbookId)
+                let list = try await specificLookBookUseCase.fetchCodisForLookBook(forLookbookId: lookbookId)
                 self.specificLookBookCodiList = list
                 
                 // 추가: 서버에서 받아온 좋아요 상태를 즉시 반영
@@ -82,7 +79,7 @@ final class SpecificLookBookViewModel: ObservableObject {
 
         Task {
             do {
-                try await codiUseCase.toggleLike(
+                try await specificLookBookUseCase.toggleLike(
                     coordinateId: codyId,
                     isLiked: !isCurrentlyLiked
                 )
@@ -141,11 +138,25 @@ final class SpecificLookBookViewModel: ObservableObject {
         }
     }
     
-    // 완전 삭제 후 동기화
     func confirmDelete() {
+        let idsToDelete = Array(selectedCodiIds)
+
+        isLoading = true
+
         Task {
-            fetchCodis()
-            toggleEditingMode()
+            do {
+                try await specificLookBookUseCase.deleteCodis(
+                    ids: idsToDelete,
+                    lookbookId: lookbookId
+                )
+
+                fetchCodis()
+                toggleEditingMode()
+            } catch {
+                self.errorMessage = "코디 삭제에 실패했습니다."
+            }
+
+            isLoading = false
         }
     }
     

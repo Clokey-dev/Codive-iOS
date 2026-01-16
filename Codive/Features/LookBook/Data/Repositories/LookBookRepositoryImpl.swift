@@ -37,6 +37,10 @@ final class LookBookRepositoryImpl: LookBookRepository {
     func toggleCodiLike(_ request: CodiLikeEntity, isLiked: Bool) async throws {
         try await datasource.toggleCodiLike(request, isLiked: isLiked)
     }
+    
+    func deleteCodis(_ codis: [DeleteCodiEntity], lookbookId: Int) async throws {
+        try await datasource.deleteCodis(codis, lookbookId: lookbookId)
+    }
 
     // MARK: - Codi Detail
     

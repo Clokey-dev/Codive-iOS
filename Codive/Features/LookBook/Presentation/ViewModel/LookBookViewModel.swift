@@ -13,7 +13,7 @@ final class LookBookViewModel: ObservableObject {
     // MARK: - Dependencies
     
     let navigationRouter: NavigationRouter
-    private let listUseCase: LookBookListUseCase
+    private let listUseCase: LookBookMainUseCase
     
     // MARK: - Published State (Data)
     
@@ -36,7 +36,7 @@ final class LookBookViewModel: ObservableObject {
     
     init(
         navigationRouter: NavigationRouter,
-        listUseCase: LookBookListUseCase
+        listUseCase: LookBookMainUseCase
     ) {
         self.navigationRouter = navigationRouter
         self.listUseCase = listUseCase

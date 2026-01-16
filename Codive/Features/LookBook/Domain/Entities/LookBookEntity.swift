@@ -50,6 +50,10 @@ struct CodiLikeEntity {
     let coordinateId: Int
 }
 
+struct DeleteCodiEntity {
+    let coordinateId: Int
+}
+
 //---------------------------------------------------------
 
 struct CodiDetailEntity: Identifiable {

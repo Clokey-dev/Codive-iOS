@@ -1,11 +1,11 @@
 //
-//  LookBookListUseCase.swift
+//  LookBookMainUseCase.swift
 //  Codive
 //
 //  Created by 한금준 on 12/23/25.
 //
 
-final class LookBookListUseCase {
+final class LookBookMainUseCase {
 
     // MARK: - Dependency
     private let repository: LookBookRepository
