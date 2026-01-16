@@ -172,17 +172,6 @@ extension AddCodiDetailViewModel {
     
     /// 구성을 완료하고 코디 추가 화면으로 이동합니다.
     func handleComplete() {
-        // 현재 구성된 이미지 정보를 캡슐화 (추후 저장 로직 연동 가능)
-        _ = SelectedCodi(
-            codiId: nil,
-            imageURL: nil,
-            name: "",
-            memo: "",
-            combinedItems: images
-        )
-        
-        navigationRouter.navigate(
-            to: .addCodi(coordinateId: lookbookId)
-        )
+        navigationRouter.navigateBack()
     }
 }
