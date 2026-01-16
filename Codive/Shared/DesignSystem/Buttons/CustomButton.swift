@@ -32,7 +32,6 @@ struct CustomButton: View {
                 .font(Font.codive_title2)
                 .padding()
                 .modifier(TextStyleModifier(type: styleType, isEnabled: isEnabled, customTextColor: textColor))
-                .frame(maxWidth: .infinity)
         }
         .modifier(WidthModifier(type: widthType))
         .frame(height: 48)
