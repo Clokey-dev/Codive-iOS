@@ -133,12 +133,17 @@ struct CodiCoordinatePayloadDTO: Codable {
 
 // MARK: - LookBook BottomSheet Entity
 struct LookBookBottomSheetEntity: Identifiable, Codable {
-    var id = UUID()
     let lookbookId: Int
     let codiId: Int
     let imageUrl: String
     let title: String
     let count: Int
+
+    var id: Int { lookbookId }
+
+    private enum CodingKeys: String, CodingKey {
+        case lookbookId, codiId, imageUrl, title, count
+    }
 }
 
 // MARK: - Cloth Tag Entity
@@ -148,7 +153,7 @@ struct ClothTagEntity: Identifiable, Hashable {
     let content: String
     var locationX: CGFloat
     var locationY: CGFloat
-    var isRightSide: Bool = true
+//    var isRightSide: Bool = true
 }
 
 struct TodayDailyCodi {
