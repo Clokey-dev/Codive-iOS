@@ -159,31 +159,36 @@ private struct LookBookContent: View {
     // MARK: - Grid Content
     
     private var gridContent: some View {
-        LazyVGrid(
-            columns: Array(
-                repeating: GridItem(.flexible(), spacing: 16),
-                count: 2
-            ),
-            spacing: 16
-        ) {
-            ForEach(viewModel.lookBookList) { lookbook in
-                LookBookCard(
-                    imageURL: lookbook.imageUrl,
-                    cardTitle: lookbook.lookbookName,
-                    iconType: viewModel.isEditing ? .checkmark : .none,
-                    isSelected: viewModel.selectedLookBookIds.contains(lookbook.id)
-                )
-                .onTapGesture {
-                    if viewModel.isEditing {
-                        viewModel.toggleSelection(id: lookbook.id)
-                    } else {
-                        viewModel.navigateToSpecificLookBook(id: lookbook.id)
+            LazyVGrid(
+                columns: Array(
+                    repeating: GridItem(.flexible(), spacing: 16),
+                    count: 2
+                ),
+                spacing: 16
+            ) {
+                ForEach(viewModel.lookBookList) { lookbook in
+                    LookBookFolder(
+                        title: lookbook.lookbookName,
+                        count: lookbook.count,
+                        thumbnail: AsyncImage(url: URL(string: lookbook.imageUrl)) { image in
+                            image.resizable().aspectRatio(contentMode: .fill)
+                        } placeholder: {
+                            Color.Codive.grayscale6
+                        },
+                        mode: viewModel.isEditing
+                            ? .check(isSelected: viewModel.selectedLookBookIds.contains(lookbook.id))
+                            : .none
+                    ) {
+                        if viewModel.isEditing {
+                            viewModel.toggleSelection(id: lookbook.id)
+                        } else {
+                            viewModel.navigateToSpecificLookBook(id: lookbook.id)
+                        }
                     }
                 }
             }
+            .padding([.horizontal, .top], 16)
         }
-        .padding([.horizontal, .top], 16)
-    }
 }
 
 /// 룩북이 하나도 없을 때 표시되는 빈 상태 View

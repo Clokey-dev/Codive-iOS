@@ -12,6 +12,7 @@ struct LookBookEntity: Identifiable {
     let lookBookId: Int
     let lookbookName: String
     let imageUrl: String
+    let count: Int
 
     var id: Int { lookBookId }
 }
