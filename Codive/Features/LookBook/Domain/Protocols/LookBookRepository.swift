@@ -20,6 +20,8 @@ protocol LookBookRepository {
     func toggleCodiLike(_ request: CodiLikeEntity, isLiked: Bool) async throws
     // 코디 삭제
     func deleteCodis(_ codis: [DeleteCodiEntity], lookbookId: Int) async throws
+    // 룩북 이름 수정
+    func editLookBook(_ entity: EditLookBookEntity) async throws
     func fetchProductList() async throws -> [ProductItem]
     func fetchCodiDetail(codiId: Int) async throws -> CodiDetailEntity?
 }

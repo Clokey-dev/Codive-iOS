@@ -20,12 +20,26 @@ struct CustomNavigationBar: View {
     @Binding var title: String  
     var isEditingMode: Bool = false
     var onBack: () -> Void
+    var onBeginEditTitle: (() -> Void)?
+    var onConfirmEditTitle: (() -> Void)?
+    var onCancelEditTitle: (() -> Void)?
     var rightButton: NavigationBarRightButton = .none
     
-    init(title: Binding<String>, isEditingMode: Bool = false, onBack: @escaping () -> Void, rightButton: NavigationBarRightButton = .none) {
+    init(
+        title: Binding<String>,
+        isEditingMode: Bool = false,
+        onBack: @escaping () -> Void,
+        onBeginEditTitle: (() -> Void)? = nil,
+        onConfirmEditTitle: (() -> Void)? = nil,
+        onCancelEditTitle: (() -> Void)? = nil,
+        rightButton: NavigationBarRightButton = .none
+    ) {
         self._title = title
         self.isEditingMode = isEditingMode
         self.onBack = onBack
+        self.onBeginEditTitle = onBeginEditTitle
+        self.onConfirmEditTitle = onConfirmEditTitle
+        self.onCancelEditTitle = onCancelEditTitle
         self.rightButton = rightButton
     }
 
@@ -50,7 +64,9 @@ struct CustomNavigationBar: View {
             
             if isEditingMode {
                 VStack(spacing: 4) {
-                    TextField("", text: $title)
+                    TextField("", text: $title, onCommit: {
+                        onConfirmEditTitle?()
+                    })
                         .font(Font.codive_title1)
                         .foregroundStyle(Color.Codive.grayscale1)
                         .multilineTextAlignment(.center)
@@ -66,6 +82,9 @@ struct CustomNavigationBar: View {
                 Text(title)
                     .font(Font.codive_title1)
                     .foregroundStyle(Color.Codive.grayscale1)
+                    .onTapGesture {
+                        onBeginEditTitle?()
+                    }
             }
             
             Spacer()

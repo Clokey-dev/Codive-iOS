@@ -38,4 +38,14 @@ final class SpecificLookBookUseCase {
             lookbookId: lookbookId
         )
     }
+    
+    /// 룩북 이름 수정
+    func editLookBookName(lookBookId: Int, newName: String) async throws {
+        let entity = EditLookBookEntity(
+            lookBookId: lookBookId,
+            name: newName
+        )
+        
+        try await repository.editLookBook(entity)
+    }
 }

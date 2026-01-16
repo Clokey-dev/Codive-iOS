@@ -224,6 +224,23 @@ final class LookBookDataSource {
         print("삭제 후 남은 코디:", codis.map { $0.coordinateId })
     }
     
+    /// 룩북 이름 수정(PATCH, 완)
+    func editLookBook(_ entity: EditLookBookEntity) async throws {
+        try await Task.sleep(nanoseconds: 300_000_000)
+
+        print("""
+        서버에 룩북 수정 PATCH 요청
+        - lookBookId: \(entity.lookBookId)
+        - name: \(entity.name)
+        """)
+
+        guard var lookBook = dummyLookBooks.first(where: { $0.id == entity.lookBookId }) else {
+            throw NSError(domain: "LookBookNotFound", code: 404)
+        }
+
+        lookBook.lookbookName = entity.name
+    }
+    
     /// 코디 상세 정보 조회
     func fetchCodiDetail(codiId: Int) async throws -> CodiDetailEntity? {
         try await Task.sleep(nanoseconds: 300_000_000)

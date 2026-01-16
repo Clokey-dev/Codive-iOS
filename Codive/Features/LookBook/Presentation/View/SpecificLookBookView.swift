@@ -31,6 +31,9 @@ struct SpecificLookBookView: View {
                     title: $viewModel.lookbookTitle,
                     isEditingMode: viewModel.isEditing,
                     onBack: viewModel.handleBackTap,
+                    onBeginEditTitle: viewModel.beginEditTitle,
+                    onConfirmEditTitle: viewModel.confirmEditTitle,
+                    onCancelEditTitle: viewModel.cancelEditTitle,
                     rightButton: viewModel.isEditing
                     ? .text(
                         title: TextLiteral.Common.delete,
@@ -41,7 +44,7 @@ struct SpecificLookBookView: View {
                         menuType: .feed,
                         menuActions: [
                             { viewModel.navigateToAddCodi() },
-                            { viewModel.handleDeleteAction() }
+                            { viewModel.handleEditAction() }
                         ]
                     )
                 )

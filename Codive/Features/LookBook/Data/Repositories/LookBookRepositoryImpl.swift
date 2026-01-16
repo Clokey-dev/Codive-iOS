@@ -42,6 +42,10 @@ final class LookBookRepositoryImpl: LookBookRepository {
         try await datasource.deleteCodis(codis, lookbookId: lookbookId)
     }
 
+    func editLookBook(_ entity: EditLookBookEntity) async throws {
+        try await datasource.editLookBook(entity)
+    }
+    
     // MARK: - Codi Detail
     
     /// 코디 상세 정보 조회

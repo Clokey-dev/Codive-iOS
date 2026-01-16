@@ -10,7 +10,7 @@ import Foundation
 // 룩북 전체 조회 api의 responseDTO의 content
 struct LookBookEntity: Identifiable {
     let lookBookId: Int
-    let lookbookName: String
+    var lookbookName: String
     let imageUrl: String
     let count: Int
 
@@ -52,6 +52,11 @@ struct CodiLikeEntity {
 
 struct DeleteCodiEntity {
     let coordinateId: Int
+}
+
+struct EditLookBookEntity {
+    let lookBookId: Int
+    let name: String
 }
 
 //---------------------------------------------------------

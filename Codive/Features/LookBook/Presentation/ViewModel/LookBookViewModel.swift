@@ -42,8 +42,7 @@ final class LookBookViewModel: ObservableObject {
         self.listUseCase = listUseCase
     }
     
-    // MARK: - Data Fetching
-    
+    // MARK: - 룩북 전체 조회
     func fetchLookBooks() {
         isLoading = true
         errorMessage = nil
@@ -63,15 +62,15 @@ final class LookBookViewModel: ObservableObject {
         }
     }
     
-    // MARK: - Editing Actions
-    
-    func toggleEditingMode() {
+    // MARK: - 룩북 삭제 토글
+    func toggleDeleteMode() {
         isEditing.toggle()
         if !isEditing {
             selectedLookBookIds = []
         }
     }
     
+    // MARK: - 삭제할 룩북 선택
     func toggleSelection(id: Int) {
         if selectedLookBookIds.contains(id) {
             selectedLookBookIds.remove(id)
@@ -80,18 +79,21 @@ final class LookBookViewModel: ObservableObject {
         }
     }
     
+    // MARK: - 룩북 삭제 동작
     func handleDeleteAction() {
-        toggleEditingMode()
+        toggleDeleteMode()
     }
     
+    // MARK: - alert 삭제 동작
     func handleCompleteAction() {
         guard !selectedLookBookIds.isEmpty else {
-            toggleEditingMode()
+            toggleDeleteMode()
             return
         }
         isShowingDeleteAlert = true
     }
     
+    // MARK: - alert 삭제 동작 후 복귀
     func beginDelete() {
         isShowingDeleteAlert = false
         isLoading = true
@@ -102,6 +104,7 @@ final class LookBookViewModel: ObservableObject {
         }
     }
     
+    // MARK: - 룩북 삭제 확정
     func confirmDelete() {
         let idsToDelete = Array(selectedLookBookIds)
         
@@ -114,7 +117,7 @@ final class LookBookViewModel: ObservableObject {
                 let updatedList = try await listUseCase.fetchLookBookList()
                 self.lookBookList = updatedList
                 
-                self.toggleEditingMode()
+                self.handleDeleteAction()
             } catch {
                 self.errorMessage = "룩북 삭제에 실패했습니다."
             }
@@ -164,7 +167,7 @@ final class LookBookViewModel: ObservableObject {
     
     func handleBackTap() {
         if isEditing {
-            toggleEditingMode()
+            handleDeleteAction()
         } else {
             navigationRouter.navigateBack()
         }

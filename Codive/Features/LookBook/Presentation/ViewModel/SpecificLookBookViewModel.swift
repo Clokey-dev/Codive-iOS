@@ -15,8 +15,10 @@ final class SpecificLookBookViewModel: ObservableObject {
     private let navigationRouter: NavigationRouter
     private let specificLookBookUseCase: SpecificLookBookUseCase
 
-    let lookbookId: Int
+    private let lookbookId: Int
     @Published var lookbookTitle: String
+    @Published var isEditingTitle = false
+    private var previousTitle: String = ""
     
     // MARK: - Published State (Data)
     
@@ -45,9 +47,7 @@ final class SpecificLookBookViewModel: ObservableObject {
         self.lookbookTitle = lookbookTitle
     }
     
-    // MARK: - Data Fetching
-    // 특정 룩북의 코디 조회하기
-    // MARK: - Data Fetching
+    // MARK: - 특정 룩북의 코디 조회하기
     func fetchCodis() {
         isLoading = true
         errorMessage = nil
@@ -67,7 +67,7 @@ final class SpecificLookBookViewModel: ObservableObject {
         }
     }
 
-    // MARK: - Like Action
+    // MARK: - 코디 좋아요 토글
     func toggleLike(codyId: Int) {
         let isCurrentlyLiked = likedCodiIds.contains(codyId)
 
@@ -105,7 +105,7 @@ final class SpecificLookBookViewModel: ObservableObject {
         }
     }
     
-    // 토글 - 편집하기
+    // MARK: - 토글(편집하기)
     func toggleEditingMode() {
         isEditing.toggle()
         if !isEditing {
@@ -113,12 +113,12 @@ final class SpecificLookBookViewModel: ObservableObject {
         }
     }
     
-    // 코디 삭제 중
-    func handleDeleteAction() {
+    // MARK: - 코디 편집 모드 전환
+    func handleEditAction() {
         isEditing = true
     }
     
-    // topBar 삭제 버튼 동작
+    // MARK: - topBar 삭제 버튼 동작
     func handleCompleteAction() {
         guard !selectedCodiIds.isEmpty else {
             toggleEditingMode()
@@ -127,7 +127,7 @@ final class SpecificLookBookViewModel: ObservableObject {
         isShowingDeleteAlert = true
     }
     
-    // alert 삭제 버튼 동작
+    // MARK: - alert 삭제 버튼
     func beginDelete() {
         isShowingDeleteAlert = false
         isLoading = true
@@ -138,6 +138,7 @@ final class SpecificLookBookViewModel: ObservableObject {
         }
     }
     
+    // MARK: - 코디 삭제 확정
     func confirmDelete() {
         let idsToDelete = Array(selectedCodiIds)
 
@@ -158,6 +159,42 @@ final class SpecificLookBookViewModel: ObservableObject {
 
             isLoading = false
         }
+    }
+    
+    // MARK: - 룩북 이름 수정 시작
+    func beginEditTitle() {
+        previousTitle = lookbookTitle
+        isEditingTitle = true
+    }
+    
+    // MARK: - 룩북 이름 수정 확정
+    func confirmEditTitle() {
+        let newTitle = lookbookTitle.trimmingCharacters(in: .whitespaces)
+        
+        guard !newTitle.isEmpty, newTitle != previousTitle else {
+            cancelEditTitle()
+            return
+        }
+        
+        Task {
+            do {
+                try await specificLookBookUseCase.editLookBookName(
+                    lookBookId: lookbookId,
+                    newName: newTitle
+                )
+            } catch {
+                lookbookTitle = previousTitle
+                errorMessage = "룩북 이름 수정에 실패했습니다."
+            }
+        }
+        
+        isEditingTitle = false
+    }
+    
+    // MARK: - 룩북 이름 수정 취소
+    func cancelEditTitle() {
+        lookbookTitle = previousTitle
+        isEditingTitle = false
     }
     
     // MARK: - Navigation
