@@ -17,7 +17,7 @@ enum NavigationBarRightButton {
 }
 
 struct CustomNavigationBar: View {
-    @Binding var title: String  
+    @Binding var title: String
     var isEditingMode: Bool = false
     var onBack: () -> Void
     var onBeginEditTitle: (() -> Void)?
@@ -64,14 +64,14 @@ struct CustomNavigationBar: View {
             
             if isEditingMode {
                 VStack(spacing: 4) {
-                    TextField("", text: $title, onCommit: {
+                    TextField("", text: $title) {
                         onConfirmEditTitle?()
-                    })
-                        .font(Font.codive_title1)
-                        .foregroundStyle(Color.Codive.grayscale1)
-                        .multilineTextAlignment(.center)
-                        .fixedSize(horizontal: false, vertical: true)
-
+                    }
+                    .font(Font.codive_title1)
+                    .foregroundStyle(Color.Codive.grayscale1)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                    
                     Rectangle()
                         .frame(height: 1)
                         .foregroundStyle(Color.Codive.grayscale4)
