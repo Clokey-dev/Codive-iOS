@@ -12,102 +12,107 @@ enum LookBookSelectionMode {
     case check(isSelected: Bool)
 }
 
-struct LookBookFolder: View {
-    let imageUrl: String
+struct LookBookFolder<Thumbnail: View>: View {
     let title: String
     let count: Int
+    let thumbnail: Thumbnail?
     let mode: LookBookSelectionMode
-    
-    // 카드 전체 클릭 시 실행될 동작
-    let action: () -> Void
-    
+    let onTap: () -> Void
+
     var body: some View {
-        Button(action: action) {
-            HStack(spacing: 16) {
+            Button {
+                onTap()
+            } label: {
                 ZStack(alignment: .bottomTrailing) {
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color(white: 0.96))
-                        .frame(width: 90, height: 110)
-                        .overlay(
-                            Image(systemName: "tshirt")
-                                .font(.system(size: 30))
-                                .foregroundColor(.gray.opacity(0.5))
-                        )
+                    HStack(spacing: 9) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 11.18, style: .continuous)
+                                .fill(Color.Codive.grayscale6)
+                                .frame(width: 76, height: 76)
 
-                    checkButtonOverlay
-                }
+                            if let thumbnail {
+                                thumbnail
+                                    .frame(width: 76, height: 76)
+                                    .clipShape(RoundedRectangle(cornerRadius: 11.18))
+                            } else {
+                                defaultImage
+                            }
+                        }
 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(title)
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.black)
-                    
-                    Text("\(count)")
-                        .font(.system(size: 16))
-                        .foregroundColor(.gray)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(title)
+                                .font(.codive_body2_medium)
+                                .foregroundStyle(Color.Codive.grayscale1)
+
+                            Text("\(count)")
+                                .font(.codive_body3_medium)
+                                .foregroundStyle(Color.Codive.grayscale4)
+                        }
+
+                        Spacer()
+                    }
+                    .padding(.leading, 8)
+                    .padding(.vertical, 8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 15, style: .continuous)
+                            .fill(Color(.systemBackground))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 15, style: .continuous)
+                                    .stroke(Color.Codive.grayscale5, lineWidth: 1)
+                            )
+                    )
+
+                    if case .check(let isSelected) = mode {
+                        checkButtonOverlay(isSelected: isSelected)
+                            .padding(.trailing, 13)
+                            .padding(.bottom, 8)
+                    }
                 }
-                
-                Spacer()
             }
-            .padding(12)
-            .background(Color.white)
-            .cornerRadius(16)
-            .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color(white: 0.9), lineWidth: 1)
-            )
+            .buttonStyle(.plain)
         }
-        .buttonStyle(PlainButtonStyle())
+
+    private var defaultImage: some View {
+        Image("")
+            .resizable()
+            .scaledToFit()
+            .padding(22)
+            .foregroundStyle(Color.Codive.grayscale4)
     }
 
     @ViewBuilder
-    private var checkButtonOverlay: some View {
-        if case .check(let isSelected) = mode {
-            ZStack {
-                Circle()
-                    .fill(isSelected ? Color.blue : Color.white)
-                
-                Circle()
-                    .strokeBorder(isSelected ? Color.blue : Color.gray.opacity(0.3), lineWidth: 1)
-                
-                if isSelected {
-                    Image(systemName: "checkmark")
-                        .font(.system(size: 10, weight: .bold))
-                        .foregroundColor(.white)
-                }
-            }
-            .frame(width: 22, height: 22)
-            .padding(8)
-        }
+    private func checkButtonOverlay(isSelected: Bool) -> some View {
+        Image(isSelected ? "check_on" : "check_off")
+            .resizable()
+            .scaledToFit()
+            .frame(width: 16, height: 16)
     }
 }
 
 struct LookBookExampleView: View {
-    @State private var isSelected: Bool = false
+    @State private var isSelected = false
     
     var body: some View {
-        HStack(spacing: 20) {
+        HStack(spacing: 13) {
             LookBookFolder(
-                imageUrl: "",
-                title: "스페인여행 (이동)",
+                title: "스페인여행",
                 count: 20,
+                thumbnail: Image("spain_image").resizable(),
                 mode: .none
             ) {
-                print("상세 페이지로 이동 로직 실행")
+                print("상세 페이지로 이동")
             }
-            
+
             LookBookFolder(
-                imageUrl: "",
-                title: "스페인여행 (선택)",
-                count: 20,
+                title: "선택용 룩북",
+                count: 15,
+                thumbnail: Color.blue.opacity(0.3),
                 mode: .check(isSelected: isSelected)
             ) {
                 isSelected.toggle()
-                print("현재 선택 상태: \(isSelected)")
             }
         }
-        .padding()
+        .padding(20)
     }
 }
 
