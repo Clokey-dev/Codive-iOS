@@ -16,7 +16,7 @@ final class SpecificLookBookViewModel: ObservableObject {
     private let specificLookBookUseCase: SpecificLookBookUseCase
 
     let lookbookId: Int
-    let lookbookTitle: String
+    @Published var lookbookTitle: String
     
     // MARK: - Published State (Data)
     

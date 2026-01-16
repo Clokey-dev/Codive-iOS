@@ -28,7 +28,8 @@ struct SpecificLookBookView: View {
                 // MARK: Top Navigation Bar
                 
                 CustomNavigationBar(
-                    title: "데이트 룩",
+                    title: $viewModel.lookbookTitle,
+                    isEditingMode: viewModel.isEditing,
                     onBack: viewModel.handleBackTap,
                     rightButton: viewModel.isEditing
                     ? .text(
