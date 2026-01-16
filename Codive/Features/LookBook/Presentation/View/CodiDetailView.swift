@@ -39,7 +39,7 @@ struct CodiDetailView: View {
         .navigationBarHidden(true)
         .background(Color.white)
         .onAppear {
-            viewModel.fetchCodiDetail()
+            viewModel.fetchCoordinatePreview()
         }
         .alert(TextLiteral.LookBook.codiDelete, isPresented: $viewModel.showDeleteAlert) {
             deleteAlertButtons
@@ -55,7 +55,7 @@ private extension CodiDetailView {
     /// 상단 네비게이션 및 메뉴 바
     var topBar: some View {
         CustomNavigationBar(
-            title: viewModel.codiDetail?.name ?? TextLiteral.LookBook.codiDetail,
+            title: viewModel.coordinatePreview?.coordinateName ?? TextLiteral.LookBook.codiDetail,
             onBack: viewModel.handleBackTap,
             rightButton: .overflow(
                 menuType: .closet,
@@ -66,7 +66,7 @@ private extension CodiDetailView {
             )
         )
         .zIndex(10)
-        .padding(.leading, 15)
+        .padding(.leading, 10)
     }
     
     /// 코디 이미지 및 배경 캔버스 영역
@@ -85,8 +85,8 @@ private extension CodiDetailView {
                 .padding(.horizontal, 20)
             
             // 코디 메인 이미지
-            if let detail = viewModel.codiDetail {
-                RemoteFillImage(urlString: detail.imageURL)
+            if let detail = viewModel.coordinatePreview {
+                RemoteFillImage(urlString: detail.imageUrl)
                     .frame(width: width - 80, height: width - 80)
                     .position(x: width / 2, y: boardSize / 2)
             }
@@ -116,8 +116,8 @@ private extension CodiDetailView {
     /// 코디 이름 및 메모 정보 섹션
     @ViewBuilder
     var infoSection: some View {
-        if let detail = viewModel.codiDetail {
-            CodiInfoSection(name: detail.name, memo: detail.memo)
+        if let detail = viewModel.coordinatePreview {
+            CodiInfoSection(name: detail.coordinateName, memo: detail.coordinateMemo)
         }
     }
 }

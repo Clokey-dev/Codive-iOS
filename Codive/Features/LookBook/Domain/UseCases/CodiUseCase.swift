@@ -14,11 +14,9 @@ final class CodiUseCase {
     init(repository: LookBookRepository) {
         self.repository = repository
     }
-
-    // MARK: - Codi Detail
-
-    /// 코디 상세 정보 조회
-    func fetchCodiDetail(codiId: Int) async throws -> CodiDetailEntity? {
-        try await repository.fetchCodiDetail(codiId: codiId)
+    
+    /// 코디 프리뷰 조회
+    func fetchCoordinatePreview(coordinateId: Int) async throws -> CoordinatePreviewEntity {
+        try await repository.fetchCoordinatePreview(coordinateId: coordinateId)
     }
 }

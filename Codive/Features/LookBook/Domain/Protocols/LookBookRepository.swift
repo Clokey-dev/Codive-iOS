@@ -22,6 +22,7 @@ protocol LookBookRepository {
     func deleteCodis(_ codis: [DeleteCodiEntity], lookbookId: Int) async throws
     // 룩북 이름 수정
     func editLookBook(_ entity: EditLookBookEntity) async throws
+    // 코디 프리뷰 조회
+    func fetchCoordinatePreview(coordinateId: Int) async throws -> CoordinatePreviewEntity
     func fetchProductList() async throws -> [ProductItem]
-    func fetchCodiDetail(codiId: Int) async throws -> CodiDetailEntity?
 }

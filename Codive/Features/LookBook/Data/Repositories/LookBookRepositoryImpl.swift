@@ -46,13 +46,8 @@ final class LookBookRepositoryImpl: LookBookRepository {
         try await datasource.editLookBook(entity)
     }
     
-    // MARK: - Codi Detail
-    
-    /// 코디 상세 정보 조회
-    /// - Parameter codiId: 코디 ID
-    /// - Returns: 코디 상세 엔티티 (없을 경우 nil)
-    func fetchCodiDetail(codiId: Int) async throws -> CodiDetailEntity? {
-        return try await datasource.fetchCodiDetail(codiId: codiId)
+    func fetchCoordinatePreview(coordinateId: Int) async throws -> CoordinatePreviewEntity {
+        try await datasource.fetchCoordinatePreview(coordinateId: coordinateId)
     }
     
     // MARK: - Product

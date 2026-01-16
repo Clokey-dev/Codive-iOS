@@ -59,18 +59,14 @@ struct EditLookBookEntity {
     let name: String
 }
 
-//---------------------------------------------------------
-
-struct CodiDetailEntity: Identifiable {
-    let id: Int
-    let imageURL: String
-    let topImageURL: String
-    let bottomImageURL: String
-    let shoeImageURL: String
-    let name: String
-    let memo: String
-    let date: String
+struct CoordinatePreviewEntity {
+    let coordinateId: Int
+    let imageUrl: String
+    let coordinateName: String
+    let coordinateMemo: String
 }
+
+//---------------------------------------------------------
 
 // MARK: - Supporting Types
 struct SelectedCodiData: Hashable {

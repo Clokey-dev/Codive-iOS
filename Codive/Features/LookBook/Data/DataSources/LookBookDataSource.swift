@@ -90,46 +90,24 @@ final class LookBookDataSource {
     
     /// 코디 상세 화면에서 사용하는 더미 데이터
     /// 코디 ID를 key로 하여 상세 정보(상의/하의/신발/메모/날짜)를 제공한다.
-    private var codiDetails: [Int: CodiDetailEntity] = [
-        11: CodiDetailEntity(
-            id: 11,
-            imageURL: "https://image.msscdn.net/images/style/detail/37395/detail_37395_1_500.jpg",
-            topImageURL: "https://image.msscdn.net/images/goods_img/20230823/3505663/3505663_16927703370903_500.jpg",
-            bottomImageURL: "https://image.msscdn.net/images/goods_img/20230209/3067644/3067644_16759086395254_500.jpg",
-            shoeImageURL: "https://image.msscdn.net/images/goods_img/20221031/2902341/2902341_1_500.jpg",
-            name: "로맨틱 시사회 룩",
-            memo: "1주년이니까 오빠가 사준 신발 신고가야됨",
-            date: "2025.08.09"
+    private var codiDetails: [Int: CoordinatePreviewEntity] = [
+        11: CoordinatePreviewEntity(
+            coordinateId: 11,
+            imageUrl: "https://image.msscdn.net/images/style/detail/37395/detail_37395_1_500.jpg",
+//            topImageURL: "https://image.msscdn.net/images/goods_img/20230823/3505663/3505663_16927703370903_500.jpg",
+//            bottomImageURL: "https://image.msscdn.net/images/goods_img/20230209/3067644/3067644_16759086395254_500.jpg",
+//            shoeImageURL: "https://image.msscdn.net/images/goods_img/20221031/2902341/2902341_1_500.jpg",
+            coordinateName: "로맨틱 시사회 룩",
+            coordinateMemo: "1주년이니까 오빠가 사준 신발 신고가야됨"
         ),
-        12: CodiDetailEntity(
-            id: 12,
-            imageURL: "https://image.msscdn.net/images/style/detail/37390/detail_37390_1_500.jpg",
-            topImageURL: "https://image.msscdn.net/images/goods_img/20240115/3792446/3792446_17053040307044_500.jpg",
-            bottomImageURL: "https://image.msscdn.net/images/goods_img/20230209/3067644/3067644_16759086395254_500.jpg",
-            shoeImageURL: "https://image.msscdn.net/images/goods_img/20221031/2902341/2902341_1_500.jpg",
-            name: "따뜻한 카페 데이트",
-            memo: "겨울 카페 데이트 코디",
-            date: "2025.08.01"
-        ),
-        13: CodiDetailEntity(
-            id: 13,
-            imageURL: "https://image.msscdn.net/images/style/detail/37385/detail_37385_1_500.jpg",
-            topImageURL: "https://image.msscdn.net/images/goods_img/20230823/3505663/3505663_16927703370903_500.jpg",
-            bottomImageURL: "https://image.msscdn.net/images/goods_img/20230912/3553250/3553250_16945037307524_500.jpg",
-            shoeImageURL: "https://image.msscdn.net/images/goods_img/20221031/2902341/2902341_1_500.jpg",
-            name: "활동적인 피크닉 룩",
-            memo: "야외 활동하기 좋은 스타일",
-            date: "2025.08.11"
-        ),
-        14: CodiDetailEntity(
-            id: 14,
-            imageURL: "https://image.msscdn.net/images/style/detail/37380/detail_37380_1_500.jpg",
-            topImageURL: "https://image.msscdn.net/images/goods_img/20240115/3792446/3792446_17053040307044_500.jpg",
-            bottomImageURL: "https://image.msscdn.net/images/goods_img/20230912/3553250/3553250_16945037307524_500.jpg",
-            shoeImageURL: "https://image.msscdn.net/images/goods_img/20221031/2902341/2902341_1_500.jpg",
-            name: "뮤지컬 관람 코디",
-            memo: "공연장에 입고 가기 좋은 코디",
-            date: "2025.08.14"
+        12: CoordinatePreviewEntity(
+            coordinateId: 12,
+            imageUrl: "https://image.msscdn.net/images/style/detail/37390/detail_37390_1_500.jpg",
+//            topImageURL: "https://image.msscdn.net/images/goods_img/20240115/3792446/3792446_17053040307044_500.jpg",
+//            bottomImageURL: "https://image.msscdn.net/images/goods_img/20230209/3067644/3067644_16759086395254_500.jpg",
+//            shoeImageURL: "https://image.msscdn.net/images/goods_img/20221031/2902341/2902341_1_500.jpg",
+            coordinateName: "따뜻한 카페 데이트",
+            coordinateMemo: "겨울 카페 데이트 코디"
         )
     ]
     
@@ -241,10 +219,19 @@ final class LookBookDataSource {
         lookBook.lookbookName = entity.name
     }
     
-    /// 코디 상세 정보 조회
-    func fetchCodiDetail(codiId: Int) async throws -> CodiDetailEntity? {
+    /// 코디 preview 조회(GET, 완)
+    func fetchCoordinatePreview(coordinateId: Int) async throws -> CoordinatePreviewEntity {
         try await Task.sleep(nanoseconds: 300_000_000)
-        return codiDetails[codiId]
+
+        // 👉 실제 서버에서는 OpenAPI generated API 호출
+        // let response = try await api.getCoordinatePreview(id: coordinateId)
+
+        return CoordinatePreviewEntity(
+            coordinateId: coordinateId,
+            imageUrl: "https://image.msscdn.net/images/style/detail/37395/detail_37395_1_500.jpg",
+            coordinateName: "로맨틱 시사회 룩",
+            coordinateMemo: "1주년 기념 코디"
+        )
     }
     
     /// 상품 목록 조회

@@ -12,7 +12,8 @@ final class CodiDetailViewModel: ObservableObject {
     
     // MARK: - Properties (State: Data)
     
-    @Published var codiDetail: CodiDetailEntity?
+//    @Published var codiDetail: CodiDetailEntity?
+    @Published var coordinatePreview: CoordinatePreviewEntity?
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     
@@ -37,12 +38,12 @@ final class CodiDetailViewModel: ObservableObject {
     
     /// 상세 데이터로부터 화면에 표시할 개별 의류 아이템 리스트를 생성합니다.
     var clothItems: [CodiItem] {
-        guard let detail = codiDetail else { return [] }
+        guard let detail = coordinatePreview else { return [] }
         // TODO: 실제 API 응답 구조에 맞게 브랜드 및 이름 매핑 로직 확인 필요
         return [
-            CodiItem(id: 1, imageName: detail.topImageURL, brand: "Brand", name: "Top"),
-            CodiItem(id: 2, imageName: detail.bottomImageURL, brand: "Brand", name: "Bottom"),
-            CodiItem(id: 3, imageName: detail.shoeImageURL, brand: "Brand", name: "Shoes")
+            CodiItem(id: 1, imageName: detail.imageUrl, brand: "Brand", name: "Top"),
+            CodiItem(id: 2, imageName: detail.imageUrl, brand: "Brand", name: "Bottom"),
+            CodiItem(id: 3, imageName: detail.imageUrl, brand: "Brand", name: "Shoes")
         ]
     }
     
@@ -64,15 +65,17 @@ final class CodiDetailViewModel: ObservableObject {
 // MARK: - API / Data Fetching
 
 extension CodiDetailViewModel {
-    
-    /// 서버로부터 코디 상세 정보를 가져옵니다.
-    func fetchCodiDetail() {
+    /// 코디 프리뷰 조회
+    func fetchCoordinatePreview() {
         isLoading = true
         errorMessage = nil
-        
+
         Task {
             do {
-                self.codiDetail = try await codiUseCase.fetchCodiDetail(codiId: codiId)
+                self.coordinatePreview =
+                    try await codiUseCase.fetchCoordinatePreview(
+                        coordinateId: codiId
+                    )
             } catch {
                 handleError(error)
             }
@@ -112,13 +115,13 @@ extension CodiDetailViewModel {
     
     /// 코디 편집 화면으로 이동합니다. (현재 데이터 전달)
     func navigateToEditCodi() {
-        guard let detail = codiDetail else { return }
+        guard let detail = coordinatePreview else { return }
         
         let data = SelectedCodi(
             codiId: codiId,
-            imageURL: detail.imageURL,
-            name: detail.name,
-            memo: detail.memo
+            imageURL: detail.imageUrl,
+            name: detail.coordinateName,
+            memo: detail.coordinateMemo
         )
         
         navigationRouter.navigate(
