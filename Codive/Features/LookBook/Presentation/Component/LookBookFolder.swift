@@ -101,34 +101,3 @@ struct LookBookFolder: View {
             .frame(width: 16, height: 16)
     }
 }
-
-struct LookBookExampleView: View {
-    @State private var isSelected = false
-    
-    var body: some View {
-        VStack(spacing: 13) {
-            LookBookFolder(
-                title: "스페인여행",
-                count: 20,
-                imageUrl: "https://example.com/spain.jpg",
-                mode: .none
-            ) {
-                print("상세 페이지로 이동")
-            }
-
-            LookBookFolder(
-                title: "선택용 룩북",
-                count: 15,
-                imageUrl: nil,
-                mode: .check(isSelected: isSelected)
-            ) {
-                isSelected.toggle()
-            }
-        }
-        .padding(20)
-    }
-}
-
-#Preview {
-    LookBookExampleView()
-}
