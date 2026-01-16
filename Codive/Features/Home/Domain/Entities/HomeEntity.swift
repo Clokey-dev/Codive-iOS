@@ -161,6 +161,6 @@ struct CodiPayload {
     let locationX: Double
     let locationY: Double
     let ratio: Double
-    let degree: Int
+    let degree: Double
     let order: Int
 }
