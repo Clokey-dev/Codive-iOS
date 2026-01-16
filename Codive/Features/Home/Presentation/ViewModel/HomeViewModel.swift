@@ -172,15 +172,12 @@ extension HomeViewModel {
                 return
             }
             
-            // 이미지 위치에 따른 태그 방향 결정 (임계값 200)
-            let isImageOnRight = item.x > 200
             self.selectedItemTags = [
                 ClothTagEntity(
                     title: item.brandName,
                     content: item.clothName,
                     locationX: 0.5,
-                    locationY: 0.5,
-                    isRightSide: !isImageOnRight
+                    locationY: 0.5
                 )
             ]
         }
