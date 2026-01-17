@@ -17,8 +17,7 @@ protocol ClothDataSource {
 
     // MyCloset 전용 메서드
     func fetchMyClosetClothItems(
-        mainCategory: String?,
-        subCategory: String?,
+        categoryId: Int?,
         seasons: Set<Season>,
         searchText: String?
     ) async throws -> [Cloth]
@@ -57,8 +56,8 @@ final class DefaultClothDataSource: ClothDataSource {
         self.apiService = apiService
     }
 
-    // MARK: - Mock Data
-    
+    // MARK: - Mock Data (TODO: API 연결 후 제거)
+
     private let mockClothItems: [ProductItem] = [
         ProductItem(id: 1, imageName: "sample1", isTodayCloth: true, brand: "Nike", name: "에어포스 1"),
         ProductItem(id: 2, imageName: "sample2", isTodayCloth: true, brand: "Adidas", name: "후디"),
@@ -66,34 +65,6 @@ final class DefaultClothDataSource: ClothDataSource {
         ProductItem(id: 4, imageName: "sample4", isTodayCloth: false, brand: "Uniqlo", name: "오버핏 티셔츠"),
         ProductItem(id: 5, imageName: "sample5", isTodayCloth: false, brand: "Zara", name: "슬랙스"),
         ProductItem(id: 6, imageName: "sample6", isTodayCloth: false, brand: nil, name: nil)
-    ]
-
-    // MyCloset용 Mock Cloth 데이터
-    private let mockMyClosetClothItems: [Cloth] = [
-        // 상의
-        Cloth(id: 1, imageUrl: "sample_tshirt1", name: "오버핏 반팔티", brand: "Uniqlo", categoryId: 1, seasons: [.spring, .summer]),
-        Cloth(id: 2, imageUrl: "sample_knit1", name: "케이블 니트", brand: "Zara", categoryId: 1, seasons: [.fall, .winter]),
-        Cloth(id: 3, imageUrl: "sample_hoodie1", name: "후드티", brand: "Nike", categoryId: 1, seasons: [.spring, .fall]),
-        // 바지
-        Cloth(id: 4, imageUrl: "sample_jeans1", name: "블루 청바지", brand: "Levi's", categoryId: 2, seasons: [.spring, .summer, .fall]),
-        Cloth(id: 5, imageUrl: "sample_slacks1", name: "슬랙스", brand: "Zara", categoryId: 2, seasons: [.spring, .summer, .fall, .winter]),
-        Cloth(id: 6, imageUrl: "sample_shorts1", name: "반바지", brand: nil, categoryId: 2, seasons: [.summer]),
-        // 치마
-        Cloth(id: 7, imageUrl: "sample_skirt1", name: "미니스커트", brand: "H&M", categoryId: 3, seasons: [.spring, .summer]),
-        Cloth(id: 8, imageUrl: "sample_dress1", name: "원피스", brand: "Mango", categoryId: 3, seasons: [.summer]),
-        // 아우터
-        Cloth(id: 9, imageUrl: "sample_padding1", name: "숏패딩", brand: "The North Face", categoryId: 4, seasons: [.winter]),
-        Cloth(id: 10, imageUrl: "sample_coat1", name: "울 코트", brand: "Zara", categoryId: 4, seasons: [.fall, .winter]),
-        Cloth(id: 11, imageUrl: "sample_cardigan1", name: "가디건", brand: "Uniqlo", categoryId: 4, seasons: [.spring, .fall]),
-        // 신발
-        Cloth(id: 12, imageUrl: "sample_sneakers1", name: "에어포스 1", brand: "Nike", categoryId: 5, seasons: [.spring, .summer, .fall]),
-        Cloth(id: 13, imageUrl: "sample_boots1", name: "첼시부츠", brand: "Dr.Martens", categoryId: 5, seasons: [.fall, .winter]),
-        // 가방
-        Cloth(id: 14, imageUrl: "sample_backpack1", name: "백팩", brand: "Eastpak", categoryId: 6, seasons: [.spring, .summer, .fall, .winter]),
-        Cloth(id: 15, imageUrl: "sample_totebag1", name: "토트백", brand: nil, categoryId: 6, seasons: [.spring, .summer]),
-        // 패션소품
-        Cloth(id: 16, imageUrl: "sample_cap1", name: "볼캡", brand: "New Era", categoryId: 7, seasons: [.spring, .summer]),
-        Cloth(id: 17, imageUrl: "sample_muffler1", name: "머플러", brand: nil, categoryId: 7, seasons: [.fall, .winter])
     ]
 
     // MARK: - Methods
@@ -117,39 +88,32 @@ final class DefaultClothDataSource: ClothDataSource {
         guard inputs.count == images.count else {
             throw ClothDataSourceError.inputImageCountMismatch
         }
-        
+
         // Step 1: Presigned URL 발급
-        print("📤 [ClothDataSource] Step 1: Presigned URL 발급 요청...")
         let presignedInfos = try await apiService.getPresignedUrls(for: images)
-        print("✅ [ClothDataSource] Presigned URL \(presignedInfos.count)개 발급 완료")
-        
+
         // Step 2: S3에 이미지 업로드
-        print("📤 [ClothDataSource] Step 2: S3 업로드 시작...")
-        for (index, (imageData, presignedInfo)) in zip(images, presignedInfos).enumerated() {
-            print("   - 이미지 \(index + 1)/\(images.count) 업로드 중...")
+        for (imageData, presignedInfo) in zip(images, presignedInfos) {
             try await apiService.uploadImageToS3(
                 presignedUrl: presignedInfo.presignedUrl,
                 imageData: imageData,
                 contentMD5: presignedInfo.md5Hash
             )
         }
-        print("✅ [ClothDataSource] S3 업로드 완료")
-        
+
         // Step 3: 옷 생성 API 호출
-        print("📤 [ClothDataSource] Step 3: 옷 생성 API 호출...")
         let createRequests = zip(inputs, presignedInfos).map { input, presignedInfo in
             ClothCreateAPIRequest(
                 clothImageUrl: presignedInfo.finalUrl,
                 clothUrl: input.purchaseUrl.isEmpty ? nil : input.purchaseUrl,
                 name: input.name.isEmpty ? nil : input.name,
                 brand: input.brand.isEmpty ? nil : input.brand,
-                season: input.seasons.first ?? .spring,  // 첫 번째 계절 사용
+                season: input.seasons.first ?? .spring,
                 categoryId: Int64(input.categoryId ?? 0)
             )
         }
-        
+
         let clothIds = try await apiService.createClothes(requests: createRequests)
-        print("✅ [ClothDataSource] 옷 생성 완료: \(clothIds)")
         
         // 결과 변환: clothIds + inputs → Cloth 엔티티
         return zip(clothIds, zip(inputs, presignedInfos)).map { clothId, pair in
@@ -167,44 +131,19 @@ final class DefaultClothDataSource: ClothDataSource {
     }
 
     func fetchMyClosetClothItems(
-        mainCategory: String?,
-        subCategory: String?,
+        categoryId: Int?,
         seasons: Set<Season>,
         searchText: String?
     ) async throws -> [Cloth] {
-        print("📤 [ClothDataSource] 내 옷장 조회 API 호출...")
-
-        // 카테고리 ID 변환
-        var categoryId: Int64?
-        if let subCategory = subCategory {
-            // 서브카테고리 이름으로 ID 찾기 (전체 카테고리에서)
-            for category in CategoryConstants.all {
-                if let sub = category.subcategories.first(where: { $0.name == subCategory }) {
-                    categoryId = Int64(sub.id)
-                    break
-                }
-            }
-        }
-
-        // API 호출 (전체 조회, 최대 100개)
         let result = try await apiService.fetchClothes(
             lastClothId: nil,
             size: 100,
-            categoryId: categoryId,
+            categoryId: categoryId.map { Int64($0) },
             seasons: Array(seasons)
         )
 
-        // ClothListItem → Cloth 변환
-        var clothes = result.clothes.map { item in
-            return Cloth(
-                id: Int(item.clothId),
-                imageUrl: item.imageUrl,
-                name: item.name,
-                brand: item.brand
-            )
-        }
+        var clothes = result.clothes.map(mapToCloth)
 
-        // 검색어 필터링 (클라이언트 사이드)
         if let searchText = searchText, !searchText.isEmpty {
             clothes = clothes.filter { cloth in
                 let nameMatch = cloth.name?.localizedCaseInsensitiveContains(searchText) ?? false
@@ -213,78 +152,54 @@ final class DefaultClothDataSource: ClothDataSource {
             }
         }
 
-        print("✅ [ClothDataSource] 내 옷장 조회 완료: \(clothes.count)개")
         return clothes
     }
 
     func deleteClothItems(_ clothIds: [Int]) async throws {
-        print("📤 [ClothDataSource] 옷 삭제 API 호출... clothIds: \(clothIds)")
-
         for clothId in clothIds {
             try await apiService.deleteCloth(clothId: Int64(clothId))
         }
-
-        print("✅ [ClothDataSource] 옷 \(clothIds.count)개 삭제 완료")
     }
-    
+
     // MARK: - API 연동 메서드
-    
-    /// 옷 목록 조회 (실제 API 호출)
+
     func fetchClothList(
         lastClothId: Int?,
         size: Int,
         categoryId: Int?,
         seasons: Set<Season>
     ) async throws -> (clothes: [Cloth], isLast: Bool) {
-        print("📤 [ClothDataSource] 옷 목록 조회 API 호출...")
-        
         let result = try await apiService.fetchClothes(
             lastClothId: lastClothId.map { Int64($0) },
             size: Int32(size),
             categoryId: categoryId.map { Int64($0) },
             seasons: Array(seasons)
         )
-        
-        // ClothListItem → Cloth 변환
-        let clothes = result.clothes.map { item in
-            Cloth(
-                id: Int(item.clothId),
-                imageUrl: item.imageUrl,
-                name: item.name,
-                brand: item.brand
-            )
-        }
-        
-        print("✅ [ClothDataSource] 옷 목록 조회 완료: \(clothes.count)개, isLast: \(result.isLast)")
-        return (clothes: clothes, isLast: result.isLast)
+
+        return (clothes: result.clothes.map(mapToCloth), isLast: result.isLast)
     }
-    
-    /// 옷 상세 조회 (실제 API 호출)
+
+    // MARK: - Private Helpers
+
+    private func mapToCloth(_ item: ClothListItem) -> Cloth {
+        Cloth(
+            id: Int(item.clothId),
+            imageUrl: item.imageUrl,
+            name: item.name,
+            brand: item.brand
+        )
+    }
+
     func fetchClothDetail(clothId: Int) async throws -> ClothDetailResult {
-        print("📤 [ClothDataSource] 옷 상세 조회 API 호출... clothId: \(clothId)")
-        
-        let result = try await apiService.fetchClothDetails(clothId: Int64(clothId))
-        
-        print("✅ [ClothDataSource] 옷 상세 조회 완료: \(result.name ?? "이름없음")")
-        return result
+        return try await apiService.fetchClothDetails(clothId: Int64(clothId))
     }
-    
-    /// 옷 수정 (실제 API 호출)
+
     func updateCloth(clothId: Int, request: ClothUpdateAPIRequest) async throws {
-        print("📤 [ClothDataSource] 옷 수정 API 호출... clothId: \(clothId)")
-        
         try await apiService.updateCloth(clothId: Int64(clothId), request: request)
-        
-        print("✅ [ClothDataSource] 옷 수정 완료")
     }
-    
-    /// 옷 삭제 (실제 API 호출) - 단일
+
     func deleteCloth(clothId: Int) async throws {
-        print("📤 [ClothDataSource] 옷 삭제 API 호출... clothId: \(clothId)")
-        
         try await apiService.deleteCloth(clothId: Int64(clothId))
-        
-        print("✅ [ClothDataSource] 옷 삭제 완료")
     }
 }
 

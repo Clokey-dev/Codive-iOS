@@ -41,9 +41,19 @@ final class ClothRepositoryImpl: ClothRepository {
         seasons: Set<Season>,
         searchText: String?
     ) async throws -> [Cloth] {
+        // 카테고리 ID 변환 (Repository 레이어에서 처리)
+        var categoryId: Int?
+        if let subCategory = subCategory {
+            for category in CategoryConstants.all {
+                if let sub = category.subcategories.first(where: { $0.name == subCategory }) {
+                    categoryId = sub.id
+                    break
+                }
+            }
+        }
+
         return try await dataSource.fetchMyClosetClothItems(
-            mainCategory: mainCategory,
-            subCategory: subCategory,
+            categoryId: categoryId,
             seasons: seasons,
             searchText: searchText
         )
