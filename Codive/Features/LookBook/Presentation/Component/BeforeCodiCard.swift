@@ -14,34 +14,30 @@ struct BeforeCodiCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            ZStack(alignment: .topTrailing) {
-                AsyncImage(url: URL(string: imageURL)) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    case .failure:
-                        Rectangle()
-                            .fill(Color(.systemGray3))
-                    default:
-                        Rectangle()
-                            .fill(Color(.systemGray5))
-                    }
+            AsyncImage(url: URL(string: imageURL)) { phase in
+                switch phase {
+                case .success(let image):
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                case .failure:
+                    Rectangle()
+                        .fill(Color(.systemGray3))
+                default:
+                    Rectangle()
+                        .fill(Color(.systemGray5))
                 }
-                .frame(width: 160, height: 160)
-                .cornerRadius(16)
-                .clipped()
-                
+            }
+            .frame(width: 160, height: 160)
+            .cornerRadius(16)
+            .clipped()
+            .overlay(alignment: .bottomTrailing) {
                 Image(isSelected ? "check_on" : "check_off")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 20, height: 20)
-                    .foregroundStyle(.white)
-                    .padding(4)
                     .padding(12)
             }
-            .frame(width: 160)
             
             HStack {
                 Image("calendar")

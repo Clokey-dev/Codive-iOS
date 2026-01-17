@@ -72,9 +72,7 @@ final class AddBeforeCodiViewModel: ObservableObject {
     
     /// 선택된 데이터를 기반으로 코디 추가 화면으로 이동합니다.
     private func navigateToAddCodiWithData(codi: BeforeCoordinateDailyEntity) {
-        navigationRouter.navigate(
-            to: .addCodi(coordinateId: coordinateId)
-        )
+        navigationRouter.navigateBack()
     }
     
     /// 특정 룩북 상세 화면으로 이동합니다.
