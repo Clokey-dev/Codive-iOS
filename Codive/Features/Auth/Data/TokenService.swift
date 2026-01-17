@@ -7,6 +7,13 @@
 
 import Foundation
 
+// MARK: - Token Config
+
+enum TokenConfig {
+    /// 토큰 만료 여유 시간 (만료 전 이 시간부터 만료로 간주)
+    static let expirationBuffer: TimeInterval = 300 // 5분
+}
+
 // MARK: - Token Service Protocol
 
 protocol TokenServiceProtocol {
@@ -22,9 +29,6 @@ protocol TokenServiceProtocol {
 final class TokenService: TokenServiceProtocol {
 
     private let keychainManager: KeychainManager
-
-    // 토큰 만료 여유 시간 (5분 전에 만료로 간주)
-    private let expirationBuffer: TimeInterval = 300
 
     init(keychainManager: KeychainManager = KeychainManager.shared) {
         self.keychainManager = keychainManager
@@ -72,9 +76,7 @@ final class TokenService: TokenServiceProtocol {
         }
 
         let currentTime = Date().timeIntervalSince1970
-        let isExpired = currentTime > (exp - expirationBuffer)
-
-        return isExpired
+        return currentTime > (exp - TokenConfig.expirationBuffer)
     }
 
     /// JWT에서 만료 시간(exp) 추출
