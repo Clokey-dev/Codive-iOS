@@ -60,26 +60,7 @@ final class TermsAPIService: TermsAPIServiceProtocol {
         self.client = CodiveAPIProvider.createClient(
             middlewares: [CodiveAuthMiddleware(provider: tokenProvider)]
         )
-        self.jsonDecoder = Self.createJSONDecoder()
-    }
-
-    private static func createJSONDecoder() -> JSONDecoder {
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .custom { decoder in
-            let container = try decoder.singleValueContainer()
-            let dateString = try container.decode(String.self)
-
-            let formatter1 = ISO8601DateFormatter()
-            formatter1.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-            if let date = formatter1.date(from: dateString) { return date }
-
-            let formatter2 = ISO8601DateFormatter()
-            formatter2.formatOptions = [.withInternetDateTime]
-            if let date = formatter2.date(from: dateString) { return date }
-
-            throw DecodingError.dataCorruptedError(in: container, debugDescription: "날짜 파싱 실패")
-        }
-        return decoder
+        self.jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
     }
 
     // MARK: - GET /terms
@@ -129,7 +110,6 @@ final class TermsAPIService: TermsAPIServiceProtocol {
 
         switch response {
         case .ok:
-            print("✅ 약관 동의 완료")
             return
         case .undocumented(statusCode: let code, _):
             throw TermsAPIError.serverError(statusCode: code)

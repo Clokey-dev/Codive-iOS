@@ -80,32 +80,7 @@ final class ClothAPIService: ClothAPIServiceProtocol {
         self.client = CodiveAPIProvider.createClient(
             middlewares: [CodiveAuthMiddleware(provider: tokenProvider)]
         )
-        self.jsonDecoder = Self.createJSONDecoder()
-    }
-
-    private static func createJSONDecoder() -> JSONDecoder {
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .custom { decoder in
-            let container = try decoder.singleValueContainer()
-            let dateString = try container.decode(String.self)
-
-            let formatter1 = ISO8601DateFormatter()
-            formatter1.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-            if let date = formatter1.date(from: dateString) { return date }
-
-            let formatter2 = ISO8601DateFormatter()
-            formatter2.formatOptions = [.withInternetDateTime]
-            if let date = formatter2.date(from: dateString) { return date }
-
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS"
-            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-            dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
-            if let date = dateFormatter.date(from: dateString) { return date }
-
-            throw DecodingError.dataCorruptedError(in: container, debugDescription: "날짜 파싱 실패: \(dateString)")
-        }
-        return decoder
+        self.jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
     }
 }
 
@@ -172,16 +147,6 @@ extension ClothAPIService {
 extension ClothAPIService {
 
     func createClothes(requests: [ClothCreateAPIRequest]) async throws -> [Int64] {
-        // 디버그: 요청 데이터 출력
-        for (index, req) in requests.enumerated() {
-            print("📦 [createClothes] 옷 \(index + 1):")
-            print("   - clothImageUrl: \(req.clothImageUrl)")
-            print("   - name: \(req.name ?? "nil")")
-            print("   - brand: \(req.brand ?? "nil")")
-            print("   - season: \(req.season.rawValue)")
-            print("   - categoryId: \(req.categoryId)")
-        }
-
         let apiRequests = requests.map { request in
             Components.Schemas.ClothCreateRequest(
                 clothImageUrl: request.clothImageUrl,
@@ -207,15 +172,7 @@ extension ClothAPIService {
             }
             return clothIds
 
-        case .undocumented(statusCode: let code, let payload):
-            // 디버그: 에러 응답 출력
-            print("❌ [createClothes] 서버 에러 - 상태코드: \(code)")
-            if let body = payload.body {
-                let errorData = try await Data(collecting: body, upTo: .max)
-                if let errorString = String(data: errorData, encoding: .utf8) {
-                    print("❌ [createClothes] 에러 응답: \(errorString)")
-                }
-            }
+        case .undocumented(statusCode: let code, _):
             throw ClothAPIError.serverError(statusCode: code, message: "옷 생성 실패")
         }
     }
@@ -237,13 +194,6 @@ extension ClothAPIService {
         switch response {
         case .ok(let okResponse):
             let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-
-            // 디버그: 원본 JSON 출력
-            if let jsonString = String(data: data, encoding: .utf8) {
-                print("📩 [ClothAPI] 옷 목록 응답:")
-                print(jsonString.prefix(1000))
-            }
-
             let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseClothListResponse.self, from: data)
 
             let clothes: [ClothListItem] = decoded.result?.content?.map { item -> ClothListItem in
@@ -290,18 +240,6 @@ extension ClothAPIService {
 extension ClothAPIService {
 
     func updateCloth(clothId: Int64, request: ClothUpdateAPIRequest) async throws {
-        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-        print("📝 [ClothAPI] 옷 수정 요청")
-        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-        print("📋 요청 데이터:")
-        print("   - clothId: \(clothId)")
-        print("   - clothImageUrl: \(request.clothImageUrl ?? "nil")")
-        print("   - clothUrl: \(request.clothUrl ?? "nil")")
-        print("   - name: \(request.name ?? "nil")")
-        print("   - brand: \(request.brand ?? "nil")")
-        print("   - season: \(request.season.rawValue)")
-        print("   - categoryId: \(request.categoryId)")
-
         let requestBody = Components.Schemas.ClothUpdateRequest(
             clothImageUrl: request.clothImageUrl,
             clothUrl: request.clothUrl,
@@ -316,16 +254,8 @@ extension ClothAPIService {
 
         switch response {
         case .ok:
-            print("✅ [ClothAPI] 옷 수정 성공")
             return
-        case .undocumented(statusCode: let code, let payload):
-            print("❌ [ClothAPI] 옷 수정 실패 - 상태코드: \(code)")
-            if let body = payload.body {
-                let errorData = try await Data(collecting: body, upTo: .max)
-                if let errorString = String(data: errorData, encoding: .utf8) {
-                    print("❌ [ClothAPI] 에러 응답: \(errorString)")
-                }
-            }
+        case .undocumented(statusCode: let code, _):
             throw ClothAPIError.serverError(statusCode: code, message: "옷 수정 실패")
         }
     }
