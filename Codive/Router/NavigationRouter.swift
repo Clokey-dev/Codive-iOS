@@ -66,9 +66,9 @@ final class NavigationRouter: ObservableObject {
         pendingTabSwitch = tab
 
         if let destination = destination {
-            // 약간의 딜레이 후 네비게이션 (탭 전환이 완료된 후)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
-                self?.navigate(to: destination)
+            Task {
+                try? await Task.sleep(nanoseconds: 100_000_000) // 0.1초
+                navigate(to: destination)
             }
         }
     }
@@ -78,15 +78,15 @@ final class NavigationRouter: ObservableObject {
         // 1. 성공 오버레이 표시
         successMessage = message
 
-        // 2. 뒤에서 탭 전환 + 네비게이션
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
-            self?.switchTabAndNavigate(to: tab, destination: destination)
-        }
+        Task {
+            // 2. 뒤에서 탭 전환 + 네비게이션
+            try? await Task.sleep(nanoseconds: 100_000_000) // 0.1초
+            switchTabAndNavigate(to: tab, destination: destination)
 
-        // 3. duration 후 성공 오버레이 닫기
-        DispatchQueue.main.asyncAfter(deadline: .now() + duration) { [weak self] in
+            // 3. duration 후 성공 오버레이 닫기
+            try? await Task.sleep(nanoseconds: UInt64(duration * 1_000_000_000))
             withAnimation(.easeOut(duration: 0.3)) {
-                self?.successMessage = nil
+                successMessage = nil
             }
         }
     }
