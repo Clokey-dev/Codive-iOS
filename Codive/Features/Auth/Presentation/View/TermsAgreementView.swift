@@ -156,8 +156,6 @@ struct TermsAgreementView: View {
                 // POST /terms 호출
                 try await termsAPIService.agreeTerms(agreements: termAgreements)
 
-                print("✅ 약관 동의 완료!")
-
                 // 메인으로 이동
                 await MainActor.run {
                     isLoading = false
