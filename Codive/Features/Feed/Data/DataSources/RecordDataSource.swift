@@ -51,23 +51,14 @@ final class DefaultRecordDataSource: RecordDataSource {
     }
 
     func createRecord(request: RecordCreateRequest) async throws -> Int64 {
-        print("📝 [RecordDataSource] 기록 생성 시작")
-
         // Step 1: 이미지 업로드 (Presigned URL → S3)
         let imageUrls = try await uploadImages(photos: request.photos)
-        print("✅ [RecordDataSource] 이미지 \(imageUrls.count)개 업로드 완료")
 
         // Step 2: API 요청 생성
         let payloads = zip(imageUrls, request.photos).map { url, photo in
             HistoryImagePayload(
                 imageUrl: url,
-                clothTags: photo.clothTags.map { tag in
-                    HistoryClothTag(
-                        clothId: tag.clothId,
-                        locationX: tag.locationX,
-                        locationY: tag.locationY
-                    )
-                }
+                clothTags: photo.clothTags
             )
         }
 
@@ -80,10 +71,7 @@ final class DefaultRecordDataSource: RecordDataSource {
         )
 
         // Step 3: 기록 생성 API 호출
-        let historyId = try await historyAPIService.createHistory(request: apiRequest)
-        print("✅ [RecordDataSource] 기록 생성 완료 - historyId: \(historyId)")
-
-        return historyId
+        return try await historyAPIService.createHistory(request: apiRequest)
     }
 
     // MARK: - Private Methods
@@ -102,8 +90,7 @@ final class DefaultRecordDataSource: RecordDataSource {
         let presignedInfos = try await clothAPIService.getPresignedUrls(for: imageDatas)
 
         // S3 업로드
-        for (index, (imageData, presignedInfo)) in zip(imageDatas, presignedInfos).enumerated() {
-            print("📤 [RecordDataSource] 이미지 \(index + 1)/\(imageDatas.count) 업로드 중...")
+        for (imageData, presignedInfo) in zip(imageDatas, presignedInfos) {
             try await clothAPIService.uploadImageToS3(
                 presignedUrl: presignedInfo.presignedUrl,
                 imageData: imageData,
