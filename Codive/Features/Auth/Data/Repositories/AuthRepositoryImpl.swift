@@ -38,8 +38,8 @@ final class AuthRepositoryImpl: AuthRepository {
         }
     }
     
-    func checkAuthStatus() async -> AuthStatusResult {
-        return await authAPIService.checkAuthStatus()
+    func checkAuthStatus() async throws -> RegisterStatus {
+        return try await authAPIService.checkAuthStatus()
     }
 
     func logout() async {

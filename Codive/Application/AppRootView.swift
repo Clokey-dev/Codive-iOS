@@ -96,32 +96,22 @@ struct AppRootView: View {
         Task {
             do {
                 try await authRepository.saveTokens(accessToken: unwrappedAccessToken, refreshToken: unwrappedRefreshToken)
-                print("🔑 [로그인 성공] JWT 토큰 저장 완료")
 
                 // 로딩 표시
                 appRouter.showLoading()
 
                 // 회원 상태 확인
-                let statusResult = await authRepository.checkAuthStatus()
+                let status = try await authRepository.checkAuthStatus()
 
-                switch statusResult {
-                case .success(let status):
-                    switch status {
-                    case .notAgreed:
-                        print("📋 약관 동의 필요 → TermsAgreementView로 이동")
-                        appRouter.navigateToTerms()
-                    case .registered:
-                        print("✅ 가입 완료 → 메인으로 이동")
-                        appRouter.navigateToMain()
-                    }
-                case .failure(let error):
-                    print("❌ 상태 확인 실패: \(error.localizedDescription)")
-                    // 실패 시에도 일단 메인으로 (또는 에러 처리)
+                switch status {
+                case .notAgreed:
+                    appRouter.navigateToTerms()
+                case .registered:
                     appRouter.navigateToMain()
                 }
             } catch {
-                print("Failed to save tokens from deep link: \(error.localizedDescription)")
-                appRouter.hideLoading()
+                // 실패 시에도 일단 메인으로
+                appRouter.navigateToMain()
             }
         }
     }
