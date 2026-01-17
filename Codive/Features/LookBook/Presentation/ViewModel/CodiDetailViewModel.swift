@@ -11,8 +11,7 @@ import SwiftUI
 final class CodiDetailViewModel: ObservableObject {
     
     // MARK: - Properties (State: Data)
-    
-//    @Published var codiDetail: CodiDetailEntity?
+
     @Published var coordinatePreview: CoordinatePreviewEntity?
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
@@ -27,6 +26,7 @@ final class CodiDetailViewModel: ObservableObject {
     
     private let navigationRouter: NavigationRouter
     private let codiUseCase: CodiUseCase
+    private let specificLookBookUseCase: SpecificLookBookUseCase
 
     /// 현재 조회 중인 코디 ID
     private let codiId: Int
@@ -52,11 +52,13 @@ final class CodiDetailViewModel: ObservableObject {
     init(
         navigationRouter: NavigationRouter,
         codiUseCase: CodiUseCase,
+        specificLookBookUseCase: SpecificLookBookUseCase,
         codiId: Int,
         lookbookId: Int
     ) {
         self.navigationRouter = navigationRouter
         self.codiUseCase = codiUseCase
+        self.specificLookBookUseCase = specificLookBookUseCase
         self.codiId = codiId
         self.lookbookId = lookbookId
     }
@@ -142,7 +144,15 @@ extension CodiDetailViewModel {
         Task {
             // TODO: 실제 서버 삭제 API 호출 로직 추가 (try await codiUseCase.deleteCodi(id: codiId))
             print("DEBUG: 코디 \(codiId) 삭제 요청")
-            navigationRouter.navigateBack()
+            do {
+                try await specificLookBookUseCase.deleteCodis(
+                    ids: [codiId],
+                    lookbookId: lookbookId
+                )
+                navigationRouter.navigateBack()
+            } catch {
+                self.errorMessage = "코디 삭제에 실패했습니다."
+            }
         }
     }
 }

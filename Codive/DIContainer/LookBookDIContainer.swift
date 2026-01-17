@@ -150,6 +150,7 @@ final class LookBookDIContainer {
         return CodiDetailViewModel(
             navigationRouter: navigationRouter,
             codiUseCase: makeCodiUseCase(),
+            specificLookBookUseCase: makeSpecificLookBookUseCase(),
             codiId: codiId,
             lookbookId: lookbookId
         )
