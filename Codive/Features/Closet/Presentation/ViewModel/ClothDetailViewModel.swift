@@ -96,7 +96,7 @@ final class ClothDetailViewModel: ObservableObject {
             let result = try await clothRepository.fetchClothDetail(clothId: cloth.id)
             detailData = result
         } catch {
-            print("❌ 옷 상세 조회 실패: \(error)")
+            // 에러는 무시 (UI에서 기존 데이터 사용)
         }
         isLoading = false
     }
@@ -123,11 +123,9 @@ final class ClothDetailViewModel: ObservableObject {
     func confirmDelete() async {
         do {
             try await deleteClothItemsUseCase.execute(clothIds: [cloth.id])
-            // 삭제 성공 시 뒤로가기
             navigationRouter.navigateBack()
         } catch {
-            // TODO: 에러 처리
-            print("삭제 실패: \(error)")
+            // TODO: 에러 메시지를 UI에 표시 (errorMessage 프로퍼티 추가 필요)
         }
     }
 }

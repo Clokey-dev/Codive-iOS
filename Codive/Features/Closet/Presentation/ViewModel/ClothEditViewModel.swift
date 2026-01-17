@@ -135,7 +135,7 @@ final class ClothEditViewModel: ObservableObject, ClothEditViewModelInput, Cloth
                 clothForm.purchaseUrl = url
             }
         } catch {
-            print("❌ 옷 상세 조회 실패: \(error)")
+            // 에러는 무시 (기존 데이터 사용)
         }
         isFetching = false
     }
@@ -194,7 +194,6 @@ final class ClothEditViewModel: ObservableObject, ClothEditViewModelInput, Cloth
 
         Task {
             do {
-                // Season Set → 단일 Season 변환 (API가 단일 season만 받는 경우)
                 let season = clothForm.selectedSeasons.first ?? .spring
 
                 let request = ClothUpdateAPIRequest(
@@ -207,17 +206,11 @@ final class ClothEditViewModel: ObservableObject, ClothEditViewModelInput, Cloth
                 )
 
                 try await clothRepository.updateCloth(clothId: cloth.id, request: request)
-
-                await MainActor.run {
-                    isLoading = false
-                    navigationRouter.navigateBack()
-                }
+                isLoading = false
+                navigationRouter.navigateBack()
             } catch {
-                await MainActor.run {
-                    isLoading = false
-                    errorMessage = "수정 실패: \(error.localizedDescription)"
-                    print("❌ 옷 수정 실패: \(error)")
-                }
+                isLoading = false
+                errorMessage = "수정 실패: \(error.localizedDescription)"
             }
         }
     }

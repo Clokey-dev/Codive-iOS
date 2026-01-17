@@ -227,20 +227,16 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
                 )
 
                 // 성공: 성공 오버레이 표시 + 뒤에서 탭 전환/네비게이션
-                await MainActor.run {
-                    isLoading = false
-                    navigationRouter.showSuccessAndNavigate(
-                        message: "옷장에 옷을 보관했어요!",
-                        to: .closet,
-                        destination: .myCloset,
-                        duration: 1.5
-                    )
-                }
+                isLoading = false
+                navigationRouter.showSuccessAndNavigate(
+                    message: "옷장에 옷을 보관했어요!",
+                    to: .closet,
+                    destination: .myCloset,
+                    duration: 1.5
+                )
             } catch {
-                await MainActor.run {
-                    isLoading = false
-                }
-                print("옷 저장 실패: \(error.localizedDescription)")
+                isLoading = false
+                // TODO: 에러 메시지를 UI에 표시 (errorMessage 프로퍼티 추가 필요)
             }
         }
     }

@@ -98,30 +98,16 @@ final class RecordDetailViewModel: ObservableObject {
 
         Task {
             do {
-                // 디버그 로그
-                print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-                print("📝 [RecordDetail] 기록 생성 시작")
-                print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-                print("📋 선택된 스타일 (원본): \(selectedStyles)")
-                print("📋 선택된 상황 (원본): \(selectedSituations)")
-                print("📋 캡션: \(captionText)")
-                print("📋 사진 수: \(selectedPhotos.count)")
-
                 // 1. 스타일 ID 변환
                 let styleIds = StyleConstants.getIds(from: selectedStyles)
-                print("🔄 스타일 ID 변환 결과: \(styleIds)")
                 guard !styleIds.isEmpty else {
                     throw RecordError.noStyleSelected
                 }
 
                 // 2. 상황 ID 변환 (첫 번째 선택)
-                print("🔄 상황 ID 변환 시도...")
-                print("   - SituationConstants.all: \(SituationConstants.all.map { "\($0.name)(\($0.id))" })")
                 guard let situationId = SituationConstants.getFirstId(from: selectedSituations) else {
-                    print("❌ 상황 ID 변환 실패! selectedSituations: \(selectedSituations)")
                     throw RecordError.noSituationSelected
                 }
-                print("✅ 상황 ID: \(situationId)")
 
                 // 3. 해시태그 추출
                 let hashtags = extractHashtags(from: captionText)
@@ -150,8 +136,7 @@ final class RecordDetailViewModel: ObservableObject {
                 )
 
                 // 6. API 호출
-                let historyId = try await recordDataSource.createRecord(request: request)
-                print("✅ 기록 생성 완료 - historyId: \(historyId)")
+                _ = try await recordDataSource.createRecord(request: request)
 
                 // 7. 성공 시 메인으로
                 isLoading = false
@@ -160,7 +145,6 @@ final class RecordDetailViewModel: ObservableObject {
             } catch {
                 isLoading = false
                 errorMessage = error.localizedDescription
-                print("❌ 기록 생성 실패: \(error)")
             }
         }
     }
