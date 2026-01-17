@@ -15,6 +15,7 @@ final class CodiBoardViewModel: ObservableObject, DraggableImageViewModelProtoco
     @Published var isConfirmed: Bool = false
     @Published var images: [DraggableImageEntity] = []
     @Published var currentlyDraggedID: Int?
+    @Published var selectedImageID: Int? // 추가된 속성
     
     private let codiBoardUseCase: CodiBoardUseCase
     private let navigationRouter: NavigationRouter
@@ -107,5 +108,10 @@ final class CodiBoardViewModel: ObservableObject, DraggableImageViewModelProtoco
         if let index = images.firstIndex(where: { $0.id == id }) {
             images[index].rotationAngle = newRotation
         }
+    }
+    
+    /// 이미지 선택/해제 (추가된 메서드)
+    func selectImage(id: Int?) {
+        selectedImageID = id
     }
 }

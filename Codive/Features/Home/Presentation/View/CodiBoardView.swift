@@ -51,15 +51,17 @@ private extension CodiBoardView {
     
     /// 메인 컨텐츠 영역 (설명 + 보드)
     func contentView(boardSize: CGFloat, imageHalfSize: CGFloat, totalWidth: CGFloat) -> some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                descriptionText
-                
-                drawingBoard(size: boardSize, imageHalfSize: imageHalfSize)
-            }
-            .frame(width: totalWidth)
+        VStack(spacing: 0) {
+            descriptionText
+
+            drawingBoard(size: boardSize, imageHalfSize: imageHalfSize)
+
+            Spacer()
         }
-        .safeAreaInset(edge: .bottom) {
+        .frame(
+            maxWidth: totalWidth,
+            maxHeight: .infinity
+        )        .safeAreaInset(edge: .bottom) {
             confirmationButton
         }
     }
@@ -82,15 +84,13 @@ private extension CodiBoardView {
         return ZStack {
             boardBackground(size: size)
             
-            ForEach($viewModel.images) { $image in
-                DraggableImageView(
-                    image: $image,
-                    imageHalfSize: imageHalfSize,
-                    minBound: minBound,
-                    maxBound: maxBound,
-                    viewModel: viewModel
-                )
-            }
+            // DraggableImageContainerView 사용
+            DraggableImageContainerView(
+                viewModel: viewModel,
+                imageHalfSize: imageHalfSize,
+                minBound: minBound,
+                maxBound: maxBound
+            )
         }
         .frame(width: size, height: size)
         .padding(.horizontal, 20)
