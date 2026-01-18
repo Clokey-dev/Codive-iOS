@@ -87,8 +87,8 @@ struct CalendarMonthView: View {
         let columns = Array(repeating: GridItem(.fixed(dayCellWidth), spacing: cellSpacing), count: 7)
 
         return LazyVGrid(columns: columns, spacing: cellSpacing) {
-            ForEach(days.indices, id: \.self) { idx in
-                dayCell(days[idx])
+            ForEach(days) { day in
+                dayCell(day)
             }
         }
         .frame(width: gridWidth)
@@ -145,7 +145,10 @@ struct CalendarMonthView: View {
         let leadingBlanks = max(0, firstWeekday - 1)
 
         var result: [CalendarDayItem] = []
-        result.append(contentsOf: Array(repeating: CalendarDayItem.placeholder, count: leadingBlanks))
+        // 각 placeholder에 고유한 ID를 부여하기 위해 인덱스를 사용
+        for i in 0..<leadingBlanks {
+            result.append(CalendarDayItem.placeholderWithIndex(i))
+        }
 
         for day in range {
             if let d = calendar.date(byAdding: .day, value: day - 1, to: firstOfMonth) {
@@ -155,20 +158,34 @@ struct CalendarMonthView: View {
 
         let remainder = result.count % 7
         if remainder != 0 {
-            result.append(contentsOf: Array(repeating: CalendarDayItem.placeholder, count: 7 - remainder))
+            let startIndex = result.count
+            for i in 0..<(7 - remainder) {
+                result.append(CalendarDayItem.placeholderWithIndex(startIndex + i))
+            }
         }
 
         return result
     }
 }
 
-struct CalendarDayItem: Hashable {
+struct CalendarDayItem: Hashable, Identifiable {
     let date: Date
     let dayNumber: Int
     let isPlaceholder: Bool
+    
+    var id: String {
+        // date와 dayNumber를 조합하여 고유한 ID 생성
+        // placeholder의 경우에도 각각 고유한 ID를 가지도록 함
+        "\(date.timeIntervalSince1970)-\(dayNumber)-\(isPlaceholder)"
+    }
 
     static var placeholder: CalendarDayItem {
         CalendarDayItem(date: Date(), dayNumber: 0, isPlaceholder: true)
+    }
+    
+    static func placeholderWithIndex(_ index: Int) -> CalendarDayItem {
+        // 각 placeholder에 고유한 ID를 부여하기 위해 인덱스를 dayNumber에 반영
+        CalendarDayItem(date: Date(), dayNumber: -index - 1, isPlaceholder: true)
     }
 
     init(date: Date, dayNumber: Int, isPlaceholder: Bool) {
