@@ -47,7 +47,7 @@ final class MyClosetSectionViewModel: ObservableObject {
 
             // 최대 8개만 표시
             clothItems = Array(allItems.prefix(8))
-            print("✅ [MyClosetSection] 옷 \(clothItems.count)개 로드 완료")
+            print("[MyClosetSection] 옷 \(clothItems.count)개 로드 완료")
         } catch {
             print("[MyClosetSection] 옷 로딩 실패: \(error)")
         }
