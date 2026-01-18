@@ -27,6 +27,7 @@ final class AddCodiDetailViewModel: ObservableObject, DraggableImageViewModelPro
     
     @Published var images: [DraggableImageEntity] = []
     @Published var currentlyDraggedID: Int?
+    @Published var selectedImageID: Int? // 추가된 속성
     var boardSize: CGFloat = 300
     
     // MARK: - Computed Properties
@@ -104,6 +105,10 @@ final class AddCodiDetailViewModel: ObservableObject, DraggableImageViewModelPro
     
     private func removeImage(productId: Int) {
         images.removeAll { $0.id == productId }
+        // 삭제된 이미지가 선택되어 있었다면 선택 해제
+        if selectedImageID == productId {
+            selectedImageID = nil
+        }
     }
     
     // MARK: - Image Manipulation (DraggableImageViewModelProtocol)
@@ -131,6 +136,11 @@ final class AddCodiDetailViewModel: ObservableObject, DraggableImageViewModelPro
         if let index = images.firstIndex(where: { $0.id == id }) {
             images[index].rotationAngle = newRotation
         }
+    }
+    
+    /// 이미지 선택/해제 (추가된 메서드)
+    func selectImage(id: Int?) {
+        selectedImageID = id
     }
     
     // MARK: - Navigation & Actions
