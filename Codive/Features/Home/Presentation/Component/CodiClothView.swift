@@ -199,24 +199,22 @@ struct CodiClothCarouselView: View {
 
 // MARK: - Entry View
 
+import SwiftUI
+
 struct CodiClothView: View {
     let title: String
     let items: [HomeClothEntity]
     let isEmptyState: Bool
-    // 추가: 인덱스가 변경되었을 때 실행될 클로저
     var onIndexChanged: ((Int) -> Void)?
     
-    private let spacing: CGFloat = 10
-    private let activeScale: CGFloat = 1.0
-    private let inactiveScale: CGFloat = 0.9
+    // Carousel 설정
+    let spacing: CGFloat = 12
+    let activeScale: CGFloat = 1.0
+    let inactiveScale: CGFloat = 0.85
     
     @State private var currentIndex: Int
     
-    init(title: String,
-         items: [HomeClothEntity] = [],
-         isEmptyState: Bool,
-         onIndexChanged: ((Int) -> Void)? = nil) { // 초기화 수정
-        
+    init(title: String, items: [HomeClothEntity], isEmptyState: Bool, onIndexChanged: ((Int) -> Void)? = nil) {
         self.title = title
         self.items = items
         self.isEmptyState = isEmptyState
@@ -237,11 +235,11 @@ struct CodiClothView: View {
                     inactiveScale: inactiveScale,
                     isEmptyState: isEmptyState
                 )
-                // 인덱스가 바뀔 때마다 외부로 알려줌
                 .onChange(of: currentIndex) { newValue in
                     onIndexChanged?(newValue)
                 }
                 
+                // 카테고리 태그
                 Text(title)
                     .font(.caption.bold())
                     .foregroundStyle(.white)
@@ -255,10 +253,14 @@ struct CodiClothView: View {
                     .padding(.vertical, 10)
             }
             
+            // 이동 핸들 아이콘
             Image("move")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 11)
+                .padding(.trailing, 12)
+                .contentShape(Rectangle()) // 터치 영역 확장
         }
+        .background(Color.white)
     }
 }

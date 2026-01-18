@@ -302,3 +302,14 @@ extension HomeViewModel {
         showLookBookSheet = false
     }
 }
+
+extension HomeViewModel {
+    
+    /// 카테고리 순서 변경
+    func moveCategory(from source: IndexSet, to destination: Int) {
+        activeCategories.move(fromOffsets: source, toOffset: destination)
+        
+        // 순서 변경을 로컬에 저장하려면 categoryUseCase를 통해 저장
+        // categoryUseCase.saveCategoryOrder(activeCategories)
+    }
+}
