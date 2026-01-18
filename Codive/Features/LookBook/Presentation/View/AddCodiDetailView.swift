@@ -72,17 +72,14 @@ struct AddCodiDetailView: View {
                                         .opacity(viewModel.images.isEmpty ? 1 : 0)
                                 )
                             
-                            // MARK: Draggable Images
+                            // MARK: DraggableImageContainerView 사용
                             
-                            ForEach($viewModel.images) { $image in
-                                DraggableImageView(
-                                    image: $image,
-                                    imageHalfSize: imageHalfSize,
-                                    minBound: minBound,
-                                    maxBound: maxBound,
-                                    viewModel: viewModel
-                                )
-                            }
+                            DraggableImageContainerView(
+                                viewModel: viewModel,
+                                imageHalfSize: imageHalfSize,
+                                minBound: minBound,
+                                maxBound: maxBound
+                            )
                         }
                         .frame(width: boardSize, height: boardSize)
                         .padding(.horizontal, 20)

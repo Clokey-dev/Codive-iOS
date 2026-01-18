@@ -159,6 +159,9 @@ struct CodiDetailView: View {
                             entity: CodiItemEntity(
                                 id: item.id,
                                 imageName: item.imageName,
+                                clothName: "",
+                                brandName: "",
+                                description: "",
                                 x: 0,
                                 y: 0,
                                 width: 68,

@@ -6,126 +6,299 @@
 //
 
 import SwiftUI
-import UIKit
 import Combine
 import CoreLocation
 
 @MainActor
 final class HomeViewModel: ObservableObject {
     
-    // MARK: - Properties
-    @Published var hasCodi: Bool = true
-    @Published var selectedIndex: Int? = 0
+    // MARK: - Properties (UI State)
+    
+    @Published var hasCodi: Bool = false
     @Published var showClothSelector: Bool = false
+    @Published var selectedItemID: Int?
+    @Published var selectedIndex: Int? = 0
     @Published var titleFrame: CGRect = .zero
+    @Published var showCompletePopUp: Bool = false
+    @Published var showLookBookSheet: Bool = false
+    @Published var completedCodiImageURL: String?
+    
+    // MARK: - Properties (Data)
+    
     @Published var weatherData: WeatherData?
     @Published var weatherErrorMessage: String?
     @Published var todayString: String = ""
-    @Published var selectedItemID: Int?
-    @Published var codiItems: [CodiItemEntity] = []
-    @Published var activeCategories: [CategoryEntity] = []
     
-    @AppStorage("SavedCategories") private var savedCategoriesData: Data?
+    @Published var codiItems: [CodiItemEntity] = []
+    @Published var selectedItemTags: [ClothTagEntity] = []
+    @Published var activeCategories: [CategoryEntity] = []
+    @Published var lookBookList: [LookBookBottomSheetEntity] = []
+    @Published var clothItemsByCategory: [Int: [HomeClothEntity]] = [:]
+    @Published var selectedIndicesByCategory: [Int: Int] = [:]
+    @Published var selectedCodiClothes: [HomeClothEntity] = []
+    
+    // MARK: - Dependencies
     
     let navigationRouter: NavigationRouter
-    private let useCase: HomeUseCase
+    private let fetchWeatherUseCase: FetchWeatherUseCase
+    private let todayCodiUseCase: TodayCodiUseCase
+    private let dateUseCase: DateUseCase
+    private let categoryUseCase: CategoryUseCase
+    private let addToLookBookUseCase: AddToLookBookUseCase
+    
+    // MARK: - Computed Properties
+    
+    /// 현재 활성화된 모든 카테고리에 아이템이 하나도 없는지 확인
+    var isAllCategoriesEmpty: Bool {
+        let totalItemCount = activeCategories.reduce(0) { sum, category in
+            sum + (clothItemsByCategory[category.id]?.count ?? 0)
+        }
+        return totalItemCount == 0
+    }
     
     // MARK: - Initializer
-    init(navigationRouter: NavigationRouter, useCase: HomeUseCase) {
+    
+    init(
+        navigationRouter: NavigationRouter,
+        fetchWeatherUseCase: FetchWeatherUseCase,
+        todayCodiUseCase: TodayCodiUseCase,
+        dateUseCase: DateUseCase,
+        categoryUseCase: CategoryUseCase,
+        addToLookBookUseCase: AddToLookBookUseCase
+    ) {
         self.navigationRouter = navigationRouter
-        self.useCase = useCase
+        self.fetchWeatherUseCase = fetchWeatherUseCase
+        self.todayCodiUseCase = todayCodiUseCase
+        self.dateUseCase = dateUseCase
+        self.categoryUseCase = categoryUseCase
+        self.addToLookBookUseCase = addToLookBookUseCase
         
+        loadInitialData()
+    }
+    
+    // MARK: - Life Cycle
+    
+    func onAppear() {
+        loadActiveCategories()
+    }
+}
+
+// MARK: - Data Loading Methods
+extension HomeViewModel {
+    
+    /// 앱 실행 시 필요한 초기 데이터를 로드
+    func loadInitialData() {
         loadDummyCodi()
         loadToday()
         loadActiveCategories()
     }
     
-    // MARK: - Data Loading
+    /// 현재 날짜 정보를 가져옴
+    func loadToday() {
+        let entity = dateUseCase.getToday()
+        self.todayString = entity.formattedDate
+    }
+    
+    /// 로컬에 저장된 활성화 카테고리 설정을 동기적으로 불러옴
+    func loadActiveCategories() {
+        let allCategories = categoryUseCase.loadCategories()
+        self.activeCategories = allCategories.filter { $0.itemCount > 0 }
+    }
+    
+    /// 오늘 이미 생성된 코디(더미) 데이터를 불러옴
+    func loadDummyCodi() {
+        codiItems = todayCodiUseCase.loadTodaysCodi()
+    }
+}
+
+// MARK: - API & Async Methods
+extension HomeViewModel {
+    
+    /// 날씨 정보를 서버에서 가져옴
     func loadWeather(for location: CLLocation?) async {
         do {
-            let data = try await useCase.execute(for: location)
-            weatherData = data
+            weatherData = try await fetchWeatherUseCase.execute(for: location)
         } catch {
-            print("Failed to fetch weather:", error)
             weatherErrorMessage = TextLiteral.Home.failWeather
         }
     }
 
-    func loadActiveCategories() {
-        let allCategories: [CategoryEntity]
-        if let data = savedCategoriesData,
-           let decoded = try? JSONDecoder().decode([CategoryEntity].self, from: data) {
-            allCategories = decoded
-        } else {
-            allCategories = [
-                CategoryEntity(id: 1, title: "상의", itemCount: 1),
-                CategoryEntity(id: 2, title: "바지", itemCount: 1),
-                CategoryEntity(id: 3, title: "스커트", itemCount: 0),
-                CategoryEntity(id: 4, title: "아우터", itemCount: 0),
-                CategoryEntity(id: 5, title: "신발", itemCount: 1),
-                CategoryEntity(id: 6, title: "가방", itemCount: 0),
-                CategoryEntity(id: 7, title: "패션 소품", itemCount: 0)
-            ]
+    /// API를 통해 활성 카테고리의 의류 아이템 리스트를 비동기로 가져옴
+    func loadActiveCategoriesWithAPI() async {
+        let allCategories = categoryUseCase.loadCategories()
+        let filteredCategories = allCategories.filter { $0.itemCount > 0 }
+        self.activeCategories = filteredCategories
+        
+        var allClothItems: [HomeClothEntity] = []
+        
+        for category in filteredCategories {
+            do {
+                let items = try await categoryUseCase.loadClothItems(
+                    lastClothId: nil,
+                    size: 20,
+                    categoryId: Int64(category.id),
+                    season: nil
+                )
+                allClothItems.append(contentsOf: items)
+            } catch {
+                print("Failed to load items for category \(category.id): \(error)")
+            }
         }
         
-        activeCategories = allCategories.flatMap { category in
-            Array(repeating: category, count: category.itemCount)
-        }
+        clothItemsByCategory = Dictionary(grouping: allClothItems) { $0.categoryId }
     }
-    
-    func loadDummyCodi() {
-        codiItems = useCase.loadTodaysCodi()
-    }
+}
 
-    func loadToday() {
-        let entity = useCase.getToday()
-        self.todayString = entity.formattedDate
-    }
+// MARK: - UI Logic & Actions
+extension HomeViewModel {
     
-    // MARK: - UI Actions
+    /// 코디 이미지 내의 태그 표시 셀렉터를 토글
     func toggleClothSelector() {
         withAnimation(.spring()) {
             showClothSelector.toggle()
+            if !showClothSelector {
+                selectedItemID = nil
+                selectedItemTags = []
+            }
         }
     }
     
-    func selectCloth(at index: Int) {
-        selectedIndex = index
-    }
-    
+    /// 코디판 이미지 중 특정 아이템을 선택하여 태그를 표시
     func selectItem(_ id: Int?) {
-        selectedItemID = id
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+            selectedItemID = id
+            guard let id = id, let item = codiItems.first(where: { $0.id == id }) else {
+                self.selectedItemTags = []
+                return
+            }
+            
+            self.selectedItemTags = [
+                ClothTagEntity(
+                    title: item.brandName,
+                    content: item.clothName,
+                    locationX: 0.5,
+                    locationY: 0.5
+                )
+            ]
+        }
+    }
+
+    /// 드래그를 통해 태그의 상대 위치를 업데이트
+    func updateTagPosition(tagId: UUID, x: CGFloat, y: CGFloat, imageSize: CGSize) {
+        if let index = selectedItemTags.firstIndex(where: { $0.id == tagId }) {
+            selectedItemTags[index].locationX = x / imageSize.width
+            selectedItemTags[index].locationY = y / imageSize.height
+        }
     }
     
-    func handleSearchTap() {}
+    /// 카테고리별로 선택된 의류의 인덱스를 업데이트
+    func updateSelectedIndex(for categoryId: Int, index: Int) {
+        selectedIndicesByCategory[categoryId] = index
+    }
+}
+
+// MARK: - Navigation
+extension HomeViewModel {
     
-    func handleNotificationTap() {}
-    
-    // MARK: - Navigation
+    /// 코디보드 화면으로 이동
     func handleCodiBoardTap() {
         navigationRouter.navigate(to: .codiBoard)
     }
     
-    func handleConfirmCodiTap() {
-    }
-    
+    /// 카테고리 편집 화면으로 이동
     func handleEditCategory() {
         navigationRouter.navigate(to: .editCategory)
     }
     
-    // MARK: - Lifecycle
-    func onAppear() {
-        loadActiveCategories()
-    }
-    
-    // MARK: - Feature Placeholders
-    func rememberCodi() {}
-    
-    func selectEditCodi() {}
-    
-    func addLookbook() {
+    /// 룩북으로 이동
+    func selectEditCodi() {
         navigationRouter.navigate(to: .lookbook)
     }
+}
+
+// MARK: - Popup & Decision Actions
+extension HomeViewModel {
     
-    func sharedCodi() {}
+    /// 현재 스크롤된 의류 조합을 수집하고 완료 팝업을 띄움
+    func handleConfirmCodiTap() {
+        let items = activeCategories
+            .sorted { $0.id < $1.id }
+            .compactMap { category -> HomeClothEntity? in
+                guard let clothList = clothItemsByCategory[category.id] else { return nil }
+                let index = selectedIndicesByCategory[category.id] ?? 0
+                return clothList.indices.contains(index) ? clothList[index] : clothList.first
+            }
+        
+        self.selectedCodiClothes = items
+        self.showCompletePopUp = true
+    }
+    
+    /// 코디 확정 후 완료 팝업을 표시
+    func showCompletionPopup(imageURL: String?) {
+        completedCodiImageURL = imageURL
+        showCompletePopUp = true
+    }
+    
+    /// 팝업에서 '기록하기' 버튼을 눌러 오늘 완성한 코디를 서버에 전송
+    func handlePopupRecord() {
+        let containerSize: CGFloat = 260
+        let payloads = selectedCodiClothes.enumerated().map { index, cloth in
+            let position = CodiLayoutCalculator.position(
+                index: index,
+                totalCount: selectedCodiClothes.count,
+                containerSize: containerSize
+            )
+            return CodiPayload(
+                clothId: cloth.id,
+                locationX: position.x,
+                locationY: position.y,
+                ratio: 1.0,
+                degree: 0,
+                order: index
+            )
+        }
+
+        let todayCodi = TodayDailyCodi(
+            coordinateImageUrl: completedCodiImageURL ?? "",
+            payloads: payloads
+        )
+
+        Task {
+            do {
+                try await todayCodiUseCase.recordTodayCodi(todayCodi)
+                showCompletePopUp = false
+                hasCodi = true
+            } catch {
+                print("Failed to record today's codi: \(error)")
+            }
+        }
+    }
+    
+    /// 팝업을 닫기
+    func handlePopupClose() {
+        showCompletePopUp = false
+        completedCodiImageURL = nil
+    }
+}
+
+// MARK: - LookBook Actions
+extension HomeViewModel {
+    
+    /// 내 룩북 리스트를 불러와 바텀시트를 표시
+    func addLookbook() {
+        Task {
+            do {
+                let list = try await addToLookBookUseCase.execute()
+                self.lookBookList = list
+                self.showLookBookSheet = true
+            } catch {
+                print("Failed to load lookbooks: \(error)")
+            }
+        }
+    }
+    
+    /// 바텀시트에서 특정 룩북을 선택
+    func selectLookBook(_ entity: LookBookBottomSheetEntity) {
+        showLookBookSheet = false
+    }
 }

@@ -12,6 +12,7 @@ struct MainTabView: View {
     // MARK: - Properties
     @StateObject private var viewModel: MainTabViewModel
     @ObservedObject private var navigationRouter: NavigationRouter
+    @ObservedObject private var homeViewModel: HomeViewModel
     private let appDIContainer: AppDIContainer
     private let addDIContainer: AddDIContainer
     private let homeDIContainer: HomeDIContainer
@@ -37,26 +38,30 @@ struct MainTabView: View {
         self._navigationRouter = ObservedObject(wrappedValue: appDIContainer.navigationRouter)
         let viewModel = MainTabViewModel(navigationRouter: appDIContainer.navigationRouter)
         self._viewModel = StateObject(wrappedValue: viewModel)
+        self.homeViewModel = homeDIContainer.makeHomeViewModel()
     }
     
     // MARK: - Body
     var body: some View {
         NavigationStack(path: $navigationRouter.path) {
-            VStack(spacing: 0) {
-                if shouldShowTopBar {
-                    TopNavigationBar(
-                        showSearchButton: showSearchButton,
-                        showNotificationButton: showNotificationButton,
-                        onSearchTap: viewModel.handleSearchTap,
-                        onNotificationTap: viewModel.handleNotificationTap
-                    )
-                }
+            // 최상위 ZStack: 여기서 시트를 띄워야 전체(상단바 포함)를 덮습니다.
+            ZStack(alignment: .bottom) {
+                VStack(spacing: 0) {
+                    // 1. 상단바
+                    if shouldShowTopBar {
+                        TopNavigationBar(
+                            showSearchButton: showSearchButton,
+                            showNotificationButton: showNotificationButton,
+                            onSearchTap: viewModel.handleSearchTap,
+                            onNotificationTap: viewModel.handleNotificationTap
+                        )
+                    }
 
-                ZStack(alignment: .bottom) {
+                    // 2. 메인 콘텐츠 영역
                     Group {
                         switch viewModel.selectedTab {
                         case .home:
-                            HomeView(homeDIContainer: homeDIContainer)
+                            HomeView(homeDIContainer: homeDIContainer, viewModel: homeViewModel)
                                 .ignoresSafeArea(.all, edges: .bottom)
                         case .closet:
                             ClosetView(closetDIContainer: closetDIContainer)
@@ -71,10 +76,39 @@ struct MainTabView: View {
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                    // MARK: - Tab Bar
+                    // 3. 하단 탭바
                     TabBar(selectedTab: $viewModel.selectedTab)
                         .zIndex(shouldShowTabBar ? 1 : 0)
-                        .allowsHitTesting(shouldShowTabBar)
+                }
+
+                // 4. 바텀시트: VStack(상단바+컨텐츠+탭바) 위에 배치하여 전체를 딤 처리
+                if homeViewModel.showLookBookSheet {
+                    AddBottomSheet(
+                        isPresented: $homeViewModel.showLookBookSheet,
+                        entities: homeViewModel.lookBookList,
+                        thumbnailProvider: { entity in
+                            AsyncImage(url: URL(string: entity.imageUrl)) { image in
+                                image.resizable().scaledToFill()
+                            } placeholder: {
+                                ProgressView()
+                            }
+                        },
+                        onTapEntity: { entity in
+                            homeViewModel.selectLookBook(entity)
+                        }
+                    )
+                    .zIndex(100) // 가장 높은 숫자로 설정
+                    .transition(.move(edge: .bottom))
+                }
+                
+                if homeViewModel.showCompletePopUp {
+                    CompletePopUp(
+                        isPresented: $homeViewModel.showCompletePopUp,
+                        onRecordTapped: homeViewModel.handlePopupRecord,
+                        onCloseTapped: homeViewModel.handlePopupClose,
+                        selectedClothes: homeViewModel.selectedCodiClothes
+                    )
+                    .zIndex(200)
                 }
             }
             .navigationDestination(for: AppDestination.self) { destination in
