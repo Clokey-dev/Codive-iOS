@@ -17,11 +17,11 @@ struct BlockMenuPopup: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 14, height: 14)
-                    .foregroundStyle(Color("main1"))
+                    .foregroundStyle(Color.Codive.main1)
 
                 Text("차단하기")
                     .font(.codive_body2_regular)
-                    .foregroundStyle(Color("Grayscale1"))
+                    .foregroundStyle(Color.Codive.grayscale1)
             }
             .padding(.vertical, 8)
             .padding(.leading, 16)

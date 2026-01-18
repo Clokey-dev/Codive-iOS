@@ -33,51 +33,41 @@ final class ProfileSettingViewModel: ObservableObject {
                     nicknameCheckStatus = .none
                 }
             }
+
+            updateCanComplete()
         }
     }
 
     @Published var intro: String = "" {
         didSet {
-            // 20자 제한 처리
             if intro.count > introMaxCount {
                 let trimmed = String(intro.prefix(introMaxCount))
-                // 무한 루프 방지: 값이 실제로 변경된 경우에만 업데이트
                 if trimmed != intro {
                     intro = trimmed
-                    return // didSet이 다시 호출되므로 여기서 종료
+                    return
                 }
             }
-            // 닉네임 중복확인이 완료된 경우에는 canComplete를 절대 변경하지 않음
-            // 한줄소개는 선택사항이므로 닉네임 중복확인 완료 후에는 영향 없음
+
+            updateCanComplete()
         }
     }
 
     @Published var isPublic: Bool = true
-    @Published var nicknameCheckStatus: NicknameCheckStatus = .none
-    @Published var pickedProfileImage: Image? = nil
-    
-    // 닉네임 중복확인이 완료된 경우에는 항상 true를 반환
-    var canComplete: Bool {
-        // 닉네임은 필수이므로 비어있으면 비활성화
-        if nickname.isEmpty {
-            return false
+
+    @Published var nicknameCheckStatus: NicknameCheckStatus = .none {
+        didSet {
+            updateCanComplete()
         }
-        // 닉네임 길이 에러가 있으면 비활성화
-        if nickname.count > nicknameMaxCount {
-            return false
-        }
-        // 닉네임 중복확인이 완료되지 않았으면 비활성화
-        if nicknameCheckStatus != .available {
-            return false
-        }
-        // 닉네임 중복확인이 완료된 경우에는 항상 활성화
-        // (한줄소개는 선택사항이고, 20자 제한은 입력 단계에서 처리됨)
-        return true
     }
+
+    @Published var pickedProfileImage: Image? = nil
+
+    @Published private(set) var canComplete: Bool = false
 
     // MARK: - Initializer
     init(navigationRouter: NavigationRouter) {
         self.navigationRouter = navigationRouter
+        updateCanComplete()
     }
 
     enum NicknameCheckStatus: Equatable {
@@ -106,7 +96,7 @@ final class ProfileSettingViewModel: ObservableObject {
         case .available:
             return "사용 가능한 닉네임 입니다."
         case .duplicated:
-            return nil // 에러 메시지로 표시되므로 여기서는 nil
+            return nil
         }
     }
 
@@ -118,12 +108,18 @@ final class ProfileSettingViewModel: ObservableObject {
     }
 
     var introErrorText: String? {
-        // 20자 제한은 입력 단계에서 처리되므로 에러 메시지 불필요
         return nil
     }
 
     // MARK: - Private Methods
-    // canComplete는 computed property로 변경되어 더 이상 필요 없음
+
+    private func updateCanComplete() {
+        let isNicknameValid = !nickname.isEmpty && nickname.count <= nicknameMaxCount
+        let isNicknameChecked = nicknameCheckStatus == .available
+        let isIntroValid = intro.count <= introMaxCount
+
+        canComplete = isNicknameValid && isNicknameChecked && isIntroValid
+    }
 
     func runNicknameDuplicateCheck() {
         nicknameCheckStatus = .checking
@@ -143,8 +139,6 @@ final class ProfileSettingViewModel: ObservableObject {
     }
 
     func onCompleteTapped() {
-        // TODO: 실제 API 호출로 프로필 업데이트
-        // 성공 후 이전 화면으로 돌아가기
         navigationRouter.navigateBack()
     }
 }
