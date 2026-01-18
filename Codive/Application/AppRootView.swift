@@ -110,8 +110,9 @@ struct AppRootView: View {
                     appRouter.navigateToMain()
                 }
             } catch {
-                // 실패 시에도 일단 메인으로
-                appRouter.navigateToMain()
+                appRouter.hideLoading()
+                // 실패 시 인증 화면으로 이동
+                appRouter.finishSplash()
             }
         }
     }
