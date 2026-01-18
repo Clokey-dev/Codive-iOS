@@ -75,16 +75,8 @@ struct AppRootView: View {
             return
         }
 
-        var accessToken: String?
-        var refreshToken: String?
-
-        for item in queryItems {
-            if item.name == "accessToken" {
-                accessToken = item.value
-            } else if item.name == "refreshToken" {
-                refreshToken = item.value
-            }
-        }
+        let accessToken = queryItems.first(where: { $0.name == "accessToken" })?.value
+        let refreshToken = queryItems.first(where: { $0.name == "refreshToken" })?.value
 
         guard let unwrappedAccessToken = accessToken,
               let unwrappedRefreshToken = refreshToken else {

@@ -17,13 +17,10 @@ struct TermsAgreementView: View {
     private let termsAPIService: TermsAPIServiceProtocol
 
     // 약관 상태 관리 (termId 매핑)
-    @State private var agreements: [Int64: Bool] = [
-        1: false,  // 서비스 이용약관 (필수)
-        2: false,  // 개인정보 처리방침 (필수)
-        3: false,  // 위치기반 서비스 이용약관 (필수)
-        4: false,  // 마케팅 정보 수신 동의 (선택)
-        5: false   // 푸시 알림 수신 동의 (선택)
-    ]
+    @State private var agreements: [Int64: Bool] = [:]
+    
+    // 서버에서 받아온 약관 목록
+    @State private var termsList: [TermItem] = []
 
     // 로딩 상태
     @State private var isLoading = false
@@ -31,12 +28,14 @@ struct TermsAgreementView: View {
 
     // 전체 동의 여부
     private var isAllAgreed: Bool {
-        agreements.values.allSatisfy { $0 }
+        guard !termsList.isEmpty else { return false }
+        return agreements.values.allSatisfy { $0 } && agreements.count == termsList.count
     }
 
-    // 필수 항목 동의 여부 (termId 1, 2, 3)
+    // 필수 항목 동의 여부
     private var canProceed: Bool {
-        (agreements[1] ?? false) && (agreements[2] ?? false) && (agreements[3] ?? false)
+        let requiredTerms = termsList.filter { !$0.isOptional }
+        return requiredTerms.allSatisfy { agreements[$0.termId] == true }
     }
 
     init(
@@ -57,57 +56,44 @@ struct TermsAgreementView: View {
                 .padding(.horizontal, 20)
 
             Spacer()
-
-            // 약관 리스트 섹션
-            VStack(spacing: 0) {
-                // 전체 동의
-                AgreementRow(
-                    title: "전체 동의",
-                    isAgreed: Binding(
-                        get: { isAllAgreed },
-                        set: { newValue in
-                            for key in agreements.keys {
-                                agreements[key] = newValue
+            
+            if isLoading && termsList.isEmpty {
+                ProgressView()
+                    .frame(maxWidth: .infinity)
+            } else {
+                // 약관 리스트 섹션
+                VStack(spacing: 0) {
+                    // 전체 동의
+                    AgreementRow(
+                        title: "전체 동의",
+                        isAgreed: Binding(
+                            get: { isAllAgreed },
+                            set: { newValue in
+                                for term in termsList {
+                                    agreements[term.termId] = newValue
+                                }
                             }
-                        }
-                    ),
-                    isBold: true,
-                    showChevron: false
-                )
+                        ),
+                        isBold: true,
+                        showChevron: false
+                    )
 
-                Divider()
-                    .background(Color.Codive.grayscale2)
-                    .padding(.vertical, 10)
+                    Divider()
+                        .background(Color.Codive.grayscale2)
+                        .padding(.vertical, 10)
 
-                // 개별 항목들
-                AgreementRow(
-                    title: "서비스 이용약관",
-                    isAgreed: binding(for: 1),
-                    isRequired: true
-                )
-                AgreementRow(
-                    title: "개인정보 수집/이용 동의",
-                    isAgreed: binding(for: 2),
-                    isRequired: true
-                )
-                AgreementRow(
-                    title: "위치 기반 서비스 이용약관 동의",
-                    isAgreed: binding(for: 3),
-                    isRequired: true
-                )
-                AgreementRow(
-                    title: "마케팅 정보수신 동의",
-                    isAgreed: binding(for: 4),
-                    isRequired: false
-                )
-                AgreementRow(
-                    title: "푸시 알림 수신 동의",
-                    isAgreed: binding(for: 5),
-                    isRequired: false
-                )
+                    // 개별 항목들
+                    ForEach(termsList, id: \.termId) { term in
+                        AgreementRow(
+                            title: term.title,
+                            isAgreed: binding(for: term.termId),
+                            isRequired: !term.isOptional
+                        )
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 50)
             }
-            .padding(.horizontal, 20)
-            .padding(.bottom, 50)
 
             // 에러 메시지
             if let errorMessage = errorMessage {
@@ -120,9 +106,9 @@ struct TermsAgreementView: View {
 
             // 가입 완료 버튼
             CustomButton(
-                text: isLoading ? "처리 중..." : "가입 완료",
+                text: isLoading && !termsList.isEmpty ? "처리 중..." : "가입 완료",
                 widthType: .fixed,
-                isEnabled: canProceed && !isLoading
+                isEnabled: canProceed && (!isLoading || termsList.isEmpty)
             ) {
                 submitAgreements()
             }
@@ -131,9 +117,33 @@ struct TermsAgreementView: View {
             .padding(.bottom, 10)
         }
         .navigationBarHidden(true)
+        .task {
+            await loadTerms()
+        }
     }
 
     // MARK: - Helper Methods
+    
+    private func loadTerms() async {
+        isLoading = true
+        errorMessage = nil
+        
+        do {
+            let fetchedTerms = try await termsAPIService.fetchTerms()
+            termsList = fetchedTerms
+            
+            // agreements 초기화
+            for term in fetchedTerms {
+                if agreements[term.termId] == nil {
+                    agreements[term.termId] = false
+                }
+            }
+        } catch {
+            errorMessage = "약관 정보를 불러오는데 실패했습니다: \(error.localizedDescription)"
+        }
+        
+        isLoading = false
+    }
 
     private func binding(for termId: Int64) -> Binding<Bool> {
         Binding(
@@ -148,7 +158,8 @@ struct TermsAgreementView: View {
 
         Task {
             do {
-                // 동의 정보 생성
+                // 동의한 항목만 필터링하거나 전체 전송 (API 명세에 따름)
+                // 여기서는 체크된 항목들의 리스트를 전송
                 let termAgreements = agreements.map { termId, agreed in
                     TermAgreement(termId: termId, agreed: agreed)
                 }
