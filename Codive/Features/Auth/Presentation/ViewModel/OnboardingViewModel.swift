@@ -33,8 +33,26 @@ final class OnboardingViewModel: ObservableObject {
     
     // MARK: - Actions
     func kakaoLoginButtonTapped() async {
-        if let url = URL(string: "https://prod.clokey.store/oauth2/authorization/kakao") {
-            identifiableLoginURL = IdentifiableURL(url: url)
+        isLoading = true
+        errorMessage = nil
+        
+        let result = await authRepository.socialLogin(provider: .kakao)
+        
+        isLoading = false
+        
+        switch result {
+        case .success(let user):
+            print("카카오 로그인 성공: \(user.name ?? "Unknown") (\(user.id))")
+            appRouter.navigateToMain()
+            
+        case .failure(let error):
+            switch error {
+            case .cancelled:
+                print("카카오 로그인 취소됨")
+                return
+            default:
+                errorMessage = error.localizedDescription
+            }
         }
     }
     
