@@ -10,20 +10,26 @@ import CoreLocation
 
 struct HomeView: View {
     private let homeDIContainer: HomeDIContainer
-    @StateObject private var viewModel: HomeViewModel
+    @ObservedObject var viewModel: HomeViewModel
     @ObservedObject private var navigationRouter: NavigationRouter
+    @State private var scrollViewID = UUID()
     
-    init(homeDIContainer: HomeDIContainer) {
+    init(homeDIContainer: HomeDIContainer, viewModel: HomeViewModel) {
         self.homeDIContainer = homeDIContainer
+        self.viewModel = viewModel
         self._navigationRouter = ObservedObject(wrappedValue: homeDIContainer.navigationRouter)
-        _viewModel = StateObject(wrappedValue: homeDIContainer.makeHomeViewModel())
     }
     
     var body: some View {
         GeometryReader { outerGeometry in
-            VStack(spacing: 0) {
+            ZStack {
+                // 전체 배경
+                Color.white
+                    .ignoresSafeArea()
+                
                 ScrollView {
                     VStack {
+                        // 날씨 카드
                         if let weather = viewModel.weatherData {
                             WeatherCardView(weatherData: weather)
                                 .padding(.horizontal, 20)
@@ -41,6 +47,7 @@ struct HomeView: View {
                             }
                         }
                         
+                        // 코디 여부에 따라 다른 뷰
                         if viewModel.hasCodi {
                             HomeHasCodiView(
                                 viewModel: viewModel,
@@ -50,17 +57,19 @@ struct HomeView: View {
                             HomeNoCodiView(viewModel: viewModel)
                         }
                     }
+                    .padding(.bottom, 16)
                 }
-            }
-            .background(alignment: .center) {
-                Color.white
+                .id(scrollViewID)
             }
             .task {
                 await viewModel.loadWeather(for: nil)
+                await viewModel.loadActiveCategoriesWithAPI()
             }
             .onChange(of: navigationRouter.currentDestination) { newDestination in
                 if newDestination == nil {
                     viewModel.loadActiveCategories()
+                    // 홈으로 돌아올 때 스크롤 초기화
+                    scrollViewID = UUID()
                 }
             }
         }

@@ -33,11 +33,3 @@ struct CodiButton: View {
         }
     }
 }
-
-#Preview {
-    HStack(spacing: 16) {
-        CodiButton(iconName: "plus", title: TextLiteral.Home.edit) { }
-        CodiButton(iconName: "shuffle", title: TextLiteral.Home.random) { }
-    }
-    .padding()
-}

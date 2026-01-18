@@ -135,9 +135,15 @@ enum TextLiteral {
         static let failWeather = "날씨 정보를 가져오는 데 실패했습니다."
         static let todayCodiTitle = "오늘의 코디"
         static let currentCategoryCount = "현재 카테고리"
-        static let changeAlertTitle = "변경사항이 있습니다"
-        static let changeAlertMessage = "변경사항을 저장하지 않고 나가시겠습니까?"
+        static let changeAlertTitle = "정말 나가시겠습니까?"
+        static let changeAlertMessage = "작성중인 내용은 복구할 수 없습니다"
         static let leave = "나가기"
+        static let noClothTitle = "아직 옷이 없어요!"
+        static let noClothDescription = "옷을 추가해 날씨에\n맞게 코디 해봐요."
+        static let popUpTitle = "오늘의 코디 완성!"
+        static let popUpSubtitle = "오늘의 코디는 홈 화면에서 하루 동안만 유지\n됩니다. 추가로 기록하려면 피드에 남겨보세요!"
+        static let close = "닫기"
+        static let record = "기록하기"
     }
     
     enum Search {

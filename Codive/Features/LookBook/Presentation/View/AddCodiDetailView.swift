@@ -26,7 +26,44 @@ struct AddCodiDetailView: View {
                 let boardSize = geometry.size.width - 40
                 
                 ZStack(alignment: .bottom) {
-                    mainContent(boardSize: boardSize)
+                    VStack(spacing: 20) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(TextLiteral.LookBook.makeNewCodiDescription1)
+                                .font(.system(size: 18, weight: .bold))
+                            Text(TextLiteral.LookBook.makeNewCodiDescription2)
+                                .font(.system(size: 14))
+                                .foregroundColor(.secondary)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 10)
+                        
+                        // MARK: Codi Board (Draggable Area)
+                        
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 15)
+                                .fill(Color(UIColor.systemGray6))
+                                .frame(width: boardSize, height: boardSize)
+                                .overlay(
+                                    Text(TextLiteral.LookBook.selectItem)
+                                        .foregroundColor(.gray)
+                                        .opacity(viewModel.images.isEmpty ? 1 : 0)
+                                )
+                            
+                            // MARK: DraggableImageContainerView 사용
+                            
+                            DraggableImageContainerView(
+                                viewModel: viewModel,
+                                imageHalfSize: imageHalfSize,
+                                minBound: minBound,
+                                maxBound: maxBound
+                            )
+                        }
+                        .frame(width: boardSize, height: boardSize)
+                        .padding(.horizontal, 20)
+                        
+                        Spacer()
+                    }
                     
                     productSelectorSheet(height: geometry.size.height * 0.42)
                 }

@@ -21,8 +21,7 @@ final class AddCodiDetailViewModel: ObservableObject, DraggableImageViewModelPro
     
     @Published var images: [DraggableImageEntity] = []
     @Published var currentlyDraggedID: Int?
-    
-    /// 코디판의 크기 (좌표 계산 기준)
+    @Published var selectedImageID: Int? // 추가된 속성
     var boardSize: CGFloat = 300
     
     // MARK: - Properties (Dependencies)
@@ -120,6 +119,10 @@ private extension AddCodiDetailViewModel {
     /// 보드에서 특정 상품의 이미지를 제거합니다.
     func removeImage(productId: Int) {
         images.removeAll { $0.id == productId }
+        // 삭제된 이미지가 선택되어 있었다면 선택 해제
+        if selectedImageID == productId {
+            selectedImageID = nil
+        }
     }
     
     /// 에러 로그 처리
@@ -165,7 +168,13 @@ extension AddCodiDetailViewModel {
 
 extension AddCodiDetailViewModel {
     
-    /// 이전 화면으로 이동합니다.
+    /// 이미지 선택/해제 (추가된 메서드)
+    func selectImage(id: Int?) {
+        selectedImageID = id
+    }
+    
+    // MARK: - Navigation & Actions
+    
     func handleBackTap() {
         navigationRouter.navigateBack()
     }

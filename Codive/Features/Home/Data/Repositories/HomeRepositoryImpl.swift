@@ -16,35 +16,55 @@ final class HomeRepositoryImpl: HomeRepository {
         self.dataSource = dataSource
     }
     
-    // MARK: - Weather
+    // MARK: - 날씨
+    
     func fetchWeatherData(for location: CLLocation?) async throws -> WeatherData {
         return try await dataSource.fetchWeatherData(for: location)
     }
     
-    // MARK: - Categories
+    // MARK: - 코디가 없는 경우의 Home 관련
+    
+    func fetchClothItems(request: ClothListRequestDTO) async throws -> [HomeClothEntity] {
+        let dtoList = try await dataSource.fetchClothItems(request: request)
+
+        let categoryId = Int(request.categoryId ?? 1)
+        return dtoList.toEntities(categoryId: categoryId)
+    }
+    
+    func createTodayDailyCodi(_ codi: TodayDailyCodi) async throws {
+        try await dataSource.createTodayDailyCodi(codi)
+    }
+    
+    // MARK: - 코디보드
+    
+    func fetchInitialImages() -> [DraggableImageEntity] {
+        dataSource.loadInitialImages()
+    }
+    
+    func saveCodiCoordinate(_ request: CodiCoordinateRequestDTO) async throws {
+        try await dataSource.saveCodiCoordinate(request)
+    }
+    
+    // MARK: - 코디가 있는 경우의 Home 관련
+    
+    func fetchCodiItems() -> [CodiItemEntity] {
+        dataSource.loadDummyCodiItems()
+    }
+    
+    func getToday() -> DateEntity {
+        dataSource.fetchToday()
+    }
+    
+    func fetchLookBookList() async throws -> [LookBookBottomSheetEntity] {
+        return try await dataSource.fetchLookBookList()
+    }
+    
+    // MARK: - 카테고리 수정 관련
     func fetchCategories() -> [CategoryEntity] {
         return dataSource.loadCategories()
     }
     
     func saveCategories(_ categories: [CategoryEntity]) {
         dataSource.saveCategories(categories)
-    }
-    
-    // MARK: - Codi Items
-    func fetchInitialImages() -> [DraggableImageEntity] {
-        dataSource.loadInitialImages()
-    }
-    
-    func saveCodiItems(_ images: [DraggableImageEntity]) {
-        dataSource.saveCodiItems(images)
-    }
-    
-    func fetchCodiItems() -> [CodiItemEntity] {
-        dataSource.loadDummyCodiItems()
-    }
-    
-    // MARK: - Date
-    func getToday() -> DateEntity {
-        dataSource.fetchToday()
     }
 }

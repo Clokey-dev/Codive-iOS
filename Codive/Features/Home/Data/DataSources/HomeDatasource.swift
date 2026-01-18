@@ -22,7 +22,9 @@ final class HomeDatasource {
         self.locationService = locationService
     }
     
-    // MARK: - Location & Geocoding
+    // MARK: - 날씨 및 위치
+    
+    // 위치
     private func geocodeLocation(_ location: CLLocation) async -> String {
         let geocoder = CLGeocoder()
         do {
@@ -64,8 +66,8 @@ final class HomeDatasource {
             return "위치 정보 오류"
         }
     }
-    
-    // MARK: - Weather Data Fetching
+
+    // 날씨
     func fetchWeatherData(for location: CLLocation?) async throws -> WeatherData {
         
         let targetLocation: CLLocation
@@ -95,14 +97,85 @@ final class HomeDatasource {
             currentTemp: currentTemp,
             symbolName: symbolName,
             dailyForecasts: Array(dailyForecasts),
-            // MARK: - 수정: 위치 이름을 추가
             locationName: locationName
         )
         
         return weatherData
     }
     
-    // MARK: - Categories
+    // MARK: - 코디가 없는 경우의 Home 관련
+    
+    /// 홈화면 - 카테고리 별 옷 더미 list
+    func fetchClothItems(request: ClothListRequestDTO) async throws -> [ClothListResponseDTO] {
+
+        let categoryId = request.categoryId ?? 1
+        let mockResponse: [ClothListResponseDTO]
+        
+        switch categoryId {
+        case 1: 
+            mockResponse = [
+                ClothListResponseDTO(clothId: 101, clothImageUrl: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800"),
+                ClothListResponseDTO(clothId: 102, clothImageUrl: "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=800")
+            ]
+        case 2:
+            mockResponse = [
+                ClothListResponseDTO(clothId: 201, clothImageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800"),
+                ClothListResponseDTO(clothId: 202, clothImageUrl: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800")
+            ]
+        case 3:
+            mockResponse = [
+                ClothListResponseDTO(clothId: 201, clothImageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800"),
+                ClothListResponseDTO(clothId: 202, clothImageUrl: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800")
+            ]
+        case 4:
+            mockResponse = [
+                ClothListResponseDTO(clothId: 201, clothImageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800"),
+                ClothListResponseDTO(clothId: 202, clothImageUrl: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800")
+            ]
+        case 5:
+            mockResponse = [
+                ClothListResponseDTO(clothId: 501, clothImageUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800"),
+                ClothListResponseDTO(clothId: 502, clothImageUrl: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800")
+            ]
+        case 6:
+            mockResponse = [
+                ClothListResponseDTO(clothId: 201, clothImageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800"),
+                ClothListResponseDTO(clothId: 202, clothImageUrl: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800")
+            ]
+        case 7:
+            mockResponse = [
+                ClothListResponseDTO(clothId: 201, clothImageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800"),
+                ClothListResponseDTO(clothId: 202, clothImageUrl: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800")
+            ]
+        default:
+            mockResponse = []
+        }
+        
+        return mockResponse
+    }
+    
+    // 오늘의 코디 추가하기
+    func createTodayDailyCodi(_ entity: TodayDailyCodi) async throws {
+
+        let requestDTO = CodiCoordinateRequestDTO(
+            coordinateImageUrl: entity.coordinateImageUrl,
+            Payload: entity.payloads.map {
+                CodiCoordinatePayloadDTO(
+                    clothId: Int64($0.clothId),
+                    locationX: $0.locationX,
+                    locationY: $0.locationY,
+                    ratio: $0.ratio,
+                    degree: Double($0.degree),
+                    order: $0.order
+                )
+            }
+        )
+
+        try await saveCodiCoordinate(requestDTO)
+    }
+    
+    // MARK: - Categorory 수정 뷰 관련
+    /// 카테고리 별 개수
     func loadCategories() -> [CategoryEntity] {
         if let savedCategories = UserDefaults.standard.data(forKey: "SavedCategories"),
            let decoded = try? JSONDecoder().decode([CategoryEntity].self, from: savedCategories) {
@@ -110,7 +183,7 @@ final class HomeDatasource {
         }
 
         return [
-            CategoryEntity(id: 1, title: "상의", itemCount: 1),
+            CategoryEntity(id: 1, title: "상의", itemCount: 2),
             CategoryEntity(id: 2, title: "바지", itemCount: 1),
             CategoryEntity(id: 3, title: "스커트", itemCount: 0),
             CategoryEntity(id: 4, title: "아우터", itemCount: 0),
@@ -120,6 +193,7 @@ final class HomeDatasource {
         ]
     }
     
+    /// 카테고리 적용하기
     func saveCategories(_ categories: [CategoryEntity]) {
         if let encoded = try? JSONEncoder().encode(categories) {
             UserDefaults.standard.set(encoded, forKey: "SavedCategories")
@@ -127,8 +201,25 @@ final class HomeDatasource {
         print("저장 완료:")
         categories.forEach { print("\($0.id): \($0.title): \($0.itemCount)") }
     }
+
+    // MARK: - 코디보드
+    // 코디 추가하기
+    func saveCodiCoordinate(_ request: CodiCoordinateRequestDTO) async throws {
+        try await Task.sleep(nanoseconds: 500_000_000)
+
+        for (index, item) in request.Payload.enumerated() {
+            print("""
+            [Item \(index)] 
+              - clothId: \(item.clothId)
+              - position: (\(item.locationX), \(item.locationY))
+              - ratio(scale): \(item.ratio)
+              - degree: \(item.degree)
+              - order: \(item.order)
+            """)
+        }
+    }
     
-    // MARK: - Codi Items
+    // 코디보드 옷 불러오기
     func loadInitialImages() -> [DraggableImageEntity] {
         return [
             DraggableImageEntity(id: 1, name: "image1", position: CGPoint(x: 80, y: 80), scale: 1.0, rotationAngle: 0.0),
@@ -140,33 +231,63 @@ final class HomeDatasource {
         ]
     }
     
-    func saveCodiItems(_ images: [DraggableImageEntity]) {
-        print("코디 저장 완료 (\(images.count)개)")
-        for image in images {
-            let pos = "pos: (\(Int(image.position.x)), \(Int(image.position.y)))"
-            let scaleStr = "scale: \(String(format: "%.2f", image.scale))"
-            let rotStr = "rotation: \(String(format: "%.2f", image.rotationAngle))°"
-            print("• \(image.name) →", pos + ",", scaleStr + ",", rotStr)
-        }
-    }
-    
+    // MARK: - 코디가 있는 경우의 Home 관련
+    // 코디 불러오기
     func loadDummyCodiItems() -> [CodiItemEntity] {
         return [
-            CodiItemEntity(id: 1, imageName: "image1", x: 80, y: 80, width: 80, height: 80),
-            CodiItemEntity(id: 2, imageName: "image2", x: 160, y: 120, width: 90, height: 90),
-            CodiItemEntity(id: 3, imageName: "image3", x: 240, y: 160, width: 100, height: 100),
-            CodiItemEntity(id: 4, imageName: "image4", x: 120, y: 240, width: 70, height: 70),
-            CodiItemEntity(id: 5, imageName: "image5", x: 200, y: 280, width: 120, height: 120),
-            CodiItemEntity(id: 6, imageName: "image6", x: 250, y: 240, width: 110, height: 110)
+            CodiItemEntity(
+                id: 1,
+                imageName: "image1",
+                clothName: "시계",
+                brandName: "apple",
+                description: "사계절 착용 가능한 시계",
+                x: 300,
+                y: 100,
+                width: 70,
+                height: 70
+            ),
+            CodiItemEntity(
+                id: 2,
+                imageName: "image4",
+                clothName: "체크 셔츠",
+                brandName: "Polo",
+                description: "사계절 착용 가능한 셔츠",
+                x: 100,
+                y: 100,
+                width: 70,
+                height: 70
+            ),
+            CodiItemEntity(
+                id: 3,
+                imageName: "image3",
+                clothName: "와이드 치노 팬츠",
+                brandName: "Basic Concept",
+                description: "사계절 착용 가능한 면 바지",
+                x: 300,
+                y: 200,
+                width: 100,
+                height: 100
+            )
         ]
     }
-    
-    // MARK: - Date Handling
+
+    // 오늘의 날짜
     func fetchToday() -> DateEntity {
         let formatter = DateFormatter()
         formatter.dateFormat = "MM.dd"
         
         let todayString = formatter.string(from: Date())
         return DateEntity(formattedDate: todayString)
+    }
+    
+    // 룩북에 추가 바텀시트 더미데이터
+    func fetchLookBookList() async throws -> [LookBookBottomSheetEntity] {
+        try await Task.sleep(nanoseconds: 300_000_000)
+        
+        return [
+            LookBookBottomSheetEntity(lookbookId: 1, codiId: 101, imageUrl: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800", title: "운동룩", count: 6),
+            LookBookBottomSheetEntity(lookbookId: 2, codiId: 102, imageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800", title: "출근룩", count: 12),
+            LookBookBottomSheetEntity(lookbookId: 3, codiId: 103, imageUrl: "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=800", title: "데이트룩", count: 16)
+        ]
     }
 }
