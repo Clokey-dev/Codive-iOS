@@ -35,7 +35,7 @@ struct ClothCreateAPIRequest {
     let clothUrl: String?
     let name: String?
     let brand: String?
-    let season: Season
+    let seasons: [Season]
     let categoryId: Int64
 }
 
@@ -65,7 +65,7 @@ struct ClothUpdateAPIRequest {
     let clothUrl: String?
     let name: String?
     let brand: String?
-    let season: Season           // API에서 required
+    let seasons: [Season]        // API에서 required
     let categoryId: Int64        // API에서 required
 }
 
@@ -153,7 +153,7 @@ extension ClothAPIService {
                 clothUrl: request.clothUrl,
                 name: request.name,
                 brand: request.brand,
-                season: mapSeasonToCreateAPI(request.season),
+                seasons: request.seasons.map { mapSeasonToCreatePayload($0) },
                 categoryId: request.categoryId
             )
         }
@@ -245,7 +245,7 @@ extension ClothAPIService {
             clothUrl: request.clothUrl,
             name: request.name,
             brand: request.brand,
-            season: mapSeasonToUpdateAPI(request.season),
+            seasons: request.seasons.map { mapSeasonToUpdatePayload($0) },
             categoryId: request.categoryId
         )
 
@@ -291,7 +291,7 @@ private extension ClothAPIService {
         return components.string ?? presignedUrl
     }
 
-    func mapSeasonToCreateAPI(_ season: Season) -> Components.Schemas.ClothCreateRequest.seasonPayload {
+    func mapSeasonToCreatePayload(_ season: Season) -> Components.Schemas.ClothCreateRequest.seasonsPayloadPayload {
         switch season {
         case .spring: return .SPRING
         case .summer: return .SUMMER
@@ -300,7 +300,7 @@ private extension ClothAPIService {
         }
     }
 
-    func mapSeasonToUpdateAPI(_ season: Season) -> Components.Schemas.ClothUpdateRequest.seasonPayload {
+    func mapSeasonToUpdatePayload(_ season: Season) -> Components.Schemas.ClothUpdateRequest.seasonsPayloadPayload {
         switch season {
         case .spring: return .SPRING
         case .summer: return .SUMMER

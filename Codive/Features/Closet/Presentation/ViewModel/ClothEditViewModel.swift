@@ -194,14 +194,12 @@ final class ClothEditViewModel: ObservableObject, ClothEditViewModelInput, Cloth
 
         Task {
             do {
-                let season = clothForm.selectedSeasons.first ?? .spring
-
                 let request = ClothUpdateAPIRequest(
                     clothImageUrl: imageUrl,
                     clothUrl: clothForm.purchaseUrl.isEmpty ? nil : clothForm.purchaseUrl,
                     name: clothForm.name.isEmpty ? nil : clothForm.name,
                     brand: clothForm.brand.isEmpty ? nil : clothForm.brand,
-                    season: season,
+                    seasons: Array(clothForm.selectedSeasons),
                     categoryId: Int64(subcategory.id)
                 )
 

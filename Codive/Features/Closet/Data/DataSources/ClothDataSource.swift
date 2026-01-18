@@ -108,7 +108,7 @@ final class DefaultClothDataSource: ClothDataSource {
                 clothUrl: input.purchaseUrl.isEmpty ? nil : input.purchaseUrl,
                 name: input.name.isEmpty ? nil : input.name,
                 brand: input.brand.isEmpty ? nil : input.brand,
-                season: input.seasons.first ?? .spring,
+                seasons: Array(input.seasons),
                 categoryId: Int64(input.categoryId ?? 0)
             )
         }
