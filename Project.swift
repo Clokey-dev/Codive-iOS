@@ -91,6 +91,7 @@ let project = Project(
                     
                     // 카카오 SDK 설정
                     "KAKAO_APP_KEY": "$(KAKAO_APP_KEY)",
+                    "KAKAO_AUTH_URL": "$(KAKAO_AUTH_URL)",
                     "CFBundleURLTypes": [
                         [
                             "CFBundleURLName": "KAKAO",

@@ -27,7 +27,10 @@ final class SocialAuthService: NSObject, SocialAuthServiceProtocol {
     
     // MARK: - Kakao Login (OIDC via ASWebAuthenticationSession)
     func kakaoLogin() async -> AuthResult {
-        let authURL = URL(string: "https://prod.clokey.store/oauth2/authorization/kakao")!
+        guard let urlString = Bundle.main.object(forInfoDictionaryKey: "KAKAO_AUTH_URL") as? String,
+              let authURL = URL(string: urlString) else {
+            return .failure(.unknown("Invalid auth URL configuration"))
+        }
 
         return await withCheckedContinuation { continuation in
             let session = ASWebAuthenticationSession(
