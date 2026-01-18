@@ -11,8 +11,6 @@ struct HomeNoCodiView: View {
     
     // MARK: - Properties
     @ObservedObject var viewModel: HomeViewModel
-    
-    // 현재 드래그 중인 아이템을 추적
     @State private var draggingItem: CategoryEntity?
 
     // MARK: - Body
@@ -22,8 +20,6 @@ struct HomeNoCodiView: View {
             categoryButtons
             
             codiClothList
-            
-            Spacer()
             
             if !viewModel.isAllCategoriesEmpty {
                 bottomButtons
@@ -63,7 +59,7 @@ private extension HomeNoCodiView {
     }
     
     var codiClothList: some View {
-        ScrollView {
+        ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 16) {
                 ForEach(viewModel.activeCategories) { category in
                     let clothItems = viewModel.clothItemsByCategory[category.id] ?? []
@@ -77,14 +73,10 @@ private extension HomeNoCodiView {
                     }
                     .background(Color.white)
                     .cornerRadius(15)
-                    // 드래그 중인 아이템은 반투명하게 표시
-//                    .opacity(draggingItem?.id == category.id ? 0.5 : 1.0)
-                    // 드래그 시작 설정
                     .onDrag {
                         self.draggingItem = category
                         return NSItemProvider(object: String(category.id) as NSString)
                     }
-                    // 드롭 위치 계산 및 애니메이션 실행
                     .onDrop(of: [.text], delegate: CategoryDropDelegate(
                         item: category,
                         items: $viewModel.activeCategories,
@@ -94,6 +86,7 @@ private extension HomeNoCodiView {
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 10)
+            .frame(maxWidth: .infinity)
         }
     }
     
@@ -135,7 +128,6 @@ private extension HomeNoCodiView {
     }
 }
 
-// MARK: - Drop Delegate
 struct CategoryDropDelegate: DropDelegate {
     let item: CategoryEntity
     @Binding var items: [CategoryEntity]
@@ -147,19 +139,20 @@ struct CategoryDropDelegate: DropDelegate {
               let from = items.firstIndex(where: { $0.id == draggingItem.id }),
               let to = items.firstIndex(where: { $0.id == item.id }) else { return }
         
-        // 드래그 시 항목이 바뀌는 애니메이션 적용
         if items[to].id != draggingItem.id {
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
                 items.move(fromOffsets: IndexSet(integer: from), toOffset: to > from ? to + 1 : to)
             }
         }
     }
-    
+
     func performDrop(info: DropInfo) -> Bool {
-        draggingItem = nil
+        withAnimation(.easeInOut) {
+            draggingItem = nil
+        }
         return true
     }
-    
+
     func dropUpdated(info: DropInfo) -> DropProposal? {
         return DropProposal(operation: .move)
     }
