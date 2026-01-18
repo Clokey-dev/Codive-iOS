@@ -34,7 +34,10 @@ final class KeychainManager {
     func saveAccessToken(_ token: String) throws {
         do {
             try save(token, forKey: accessTokenKey)
-            print("Keychain: Access token saved successfully.")
+            print("----------------------------------------")
+            print("🔑 Access Token Saved:")
+            print(token)
+            print("----------------------------------------")
         } catch {
             print("Keychain: Failed to save access token: \(error.localizedDescription)")
             throw error

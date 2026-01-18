@@ -66,6 +66,11 @@ final class SplashViewModel: ObservableObject {
     }
 
     private func checkAutoLogin() async {
+        // 임시 자동 로그인 해제 (토큰이 있어도 로그인 화면으로 이동)
+        appRouter.finishSplash()
+        return
+
+        /*
         // 1. 키체인에 토큰이 있는지 확인
         guard tokenService.hasValidTokens() else {
             appRouter.finishSplash()
@@ -86,6 +91,7 @@ final class SplashViewModel: ObservableObject {
 
         // 4. 토큰 재발급
         await reissueTokens()
+        */
     }
 
     private func reissueTokens() async {
