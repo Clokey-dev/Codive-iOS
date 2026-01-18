@@ -34,7 +34,7 @@ struct ClothingCardView: View {
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                     case .failure(let error):
-                        let _ = print("❌ [ClothingCard] 이미지 로드 실패: \(error)")
+                        let _ = print(" [ClothingCard] 이미지 로드 실패: \(error)")
                         Rectangle()
                             .fill(Color.Codive.grayscale4)
                             .overlay(

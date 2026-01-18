@@ -49,7 +49,7 @@ final class MyClosetSectionViewModel: ObservableObject {
             clothItems = Array(allItems.prefix(8))
             print("✅ [MyClosetSection] 옷 \(clothItems.count)개 로드 완료")
         } catch {
-            print("❌ [MyClosetSection] 옷 로딩 실패: \(error)")
+            print("[MyClosetSection] 옷 로딩 실패: \(error)")
         }
 
         isLoading = false
