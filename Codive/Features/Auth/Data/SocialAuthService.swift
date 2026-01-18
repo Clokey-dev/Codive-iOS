@@ -176,11 +176,11 @@ extension SocialAuthService: ASAuthorizationControllerDelegate {
 // MARK: - ASWebAuthenticationPresentationContextProviding
 extension SocialAuthService: ASWebAuthenticationPresentationContextProviding {
     func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        // 현재 활성 윈도우 반환
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = windowScene.windows.first else {
-            fatalError("No window found")
-        }
+        let window = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap { $0.windows }
+            .first { $0.isKeyWindow } ?? UIWindow()
+            
         return window
     }
 }
