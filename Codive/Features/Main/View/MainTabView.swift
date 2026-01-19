@@ -72,7 +72,7 @@ struct MainTabView: View {
                             case .feed:
                                 FeedView(viewModel: feedDIContainer.makeFeedViewModel())
                             case .profile:
-                                ProfileView()
+                                ProfileView(navigationRouter: navigationRouter)
                             }
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -184,6 +184,12 @@ struct MainTabView: View {
             homeDIContainer.makeEditCategoryView()
         case .codiBoard:
             homeDIContainer.makeCodiBoardView()
+        case .favoriteCodiList(let showHeart):
+            FavoriteCodiView(showHeart: showHeart, navigationRouter: navigationRouter)
+        case .settings:
+            ProfileSettingView(navigationRouter: navigationRouter)
+        case .followList(let mode):
+            FollowListView(mode: mode, navigationRouter: navigationRouter)
         case .myCloset:
             closetDIContainer.makeMyClosetView()
         case .clothDetail, .clothEdit:
