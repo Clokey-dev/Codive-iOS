@@ -91,10 +91,15 @@ let project = Project(
                     
                     // 카카오 SDK 설정
                     "KAKAO_APP_KEY": "$(KAKAO_APP_KEY)",
+                    "KAKAO_AUTH_URL": "$(KAKAO_AUTH_URL)",
                     "CFBundleURLTypes": [
                         [
                             "CFBundleURLName": "KAKAO",
                             "CFBundleURLSchemes": ["kakao$(KAKAO_APP_KEY)"]
+                        ],
+                        [
+                            "CFBundleURLName": "CODIVE",
+                            "CFBundleURLSchemes": ["codive"]
                         ]
                     ],
                     "LSApplicationQueriesSchemes": [
@@ -123,7 +128,10 @@ let project = Project(
                 .external(name: "KakaoSDKUser"),
                 
                 // 네트워킹
-                .external(name: "Moya")
+                .external(name: "Moya"),
+                
+                // CodiveAPI
+                .external(name: "CodiveAPI")
             ],
             settings: .settings(
                 base: [

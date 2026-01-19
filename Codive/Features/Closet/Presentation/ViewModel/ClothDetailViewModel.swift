@@ -15,29 +15,43 @@ final class ClothDetailViewModel: ObservableObject {
     let cloth: Cloth
     @Published var showDeleteAlert: Bool = false
     @Published var showActionSheet: Bool = false
+    @Published var isLoading: Bool = false
+    @Published var detailData: ClothDetailResult?
 
     // MARK: - Computed Properties
 
     var imageUrl: String {
-        cloth.imageUrl
+        detailData?.clothImageUrl ?? cloth.imageUrl
     }
 
     var name: String {
-        cloth.name ?? "이름 없음"
+        detailData?.name ?? cloth.name ?? "이름 없음"
     }
 
     var brand: String {
-        cloth.brand ?? "브랜드 없음"
+        detailData?.brand ?? cloth.brand ?? "브랜드 없음"
     }
 
     var categoryText: String {
+        // API 응답이 있으면 parentCategory > category 형식 사용
+        if let detail = detailData {
+            let parent = detail.parentCategory ?? ""
+            let child = detail.category ?? ""
+            if !parent.isEmpty && !child.isEmpty {
+                return "\(parent) > \(child)"
+            } else if !parent.isEmpty {
+                return parent
+            } else if !child.isEmpty {
+                return child
+            }
+        }
+
+        // fallback: 기존 로직
         guard let categoryId = cloth.categoryId,
               let category = CategoryConstants.category(byId: categoryId) else {
             return "카테고리 없음"
         }
-
         return category.name
-        // TODO: 서브 카테고리 추가되면 "상의 > 티셔츠" 형식으로 변경
     }
 
     var seasonText: String {
@@ -51,24 +65,40 @@ final class ClothDetailViewModel: ObservableObject {
     }
 
     var purchaseUrl: String {
-        cloth.purchaseUrl ?? "URL 없음"
+        detailData?.clothUrl ?? cloth.purchaseUrl ?? "URL 없음"
     }
 
     // MARK: - Private Properties
 
     private let navigationRouter: NavigationRouter
     private let deleteClothItemsUseCase: DeleteClothItemsUseCase
+    private let clothRepository: ClothRepository
 
     // MARK: - Initializer
 
     init(
         cloth: Cloth,
         navigationRouter: NavigationRouter,
-        deleteClothItemsUseCase: DeleteClothItemsUseCase
+        deleteClothItemsUseCase: DeleteClothItemsUseCase,
+        clothRepository: ClothRepository
     ) {
         self.cloth = cloth
         self.navigationRouter = navigationRouter
         self.deleteClothItemsUseCase = deleteClothItemsUseCase
+        self.clothRepository = clothRepository
+    }
+
+    // MARK: - Fetch Detail
+
+    func fetchDetail() async {
+        isLoading = true
+        do {
+            let result = try await clothRepository.fetchClothDetail(clothId: cloth.id)
+            detailData = result
+        } catch {
+            // 에러는 무시 (UI에서 기존 데이터 사용)
+        }
+        isLoading = false
     }
 
     // MARK: - Actions
@@ -93,11 +123,9 @@ final class ClothDetailViewModel: ObservableObject {
     func confirmDelete() async {
         do {
             try await deleteClothItemsUseCase.execute(clothIds: [cloth.id])
-            // 삭제 성공 시 뒤로가기
             navigationRouter.navigateBack()
         } catch {
-            // TODO: 에러 처리
-            print("삭제 실패: \(error)")
+            // TODO: 에러 메시지를 UI에 표시 (errorMessage 프로퍼티 추가 필요)
         }
     }
 }

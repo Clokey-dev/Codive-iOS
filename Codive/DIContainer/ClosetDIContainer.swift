@@ -20,9 +20,14 @@ final class ClosetDIContainer {
         self.navigationRouter = navigationRouter
     }
 
+    // MARK: - Services
+    private lazy var clothAPIService: ClothAPIServiceProtocol = {
+        return ClothAPIService()
+    }()
+
     // MARK: - DataSources
     private lazy var clothDataSource: ClothDataSource = {
-        return DefaultClothDataSource()
+        return DefaultClothDataSource(apiService: clothAPIService)
     }()
 
     // MARK: - Repositories
@@ -67,14 +72,16 @@ final class ClosetDIContainer {
         return ClothDetailViewModel(
             cloth: cloth,
             navigationRouter: navigationRouter,
-            deleteClothItemsUseCase: makeDeleteClothItemsUseCase()
+            deleteClothItemsUseCase: makeDeleteClothItemsUseCase(),
+            clothRepository: clothRepository
         )
     }
 
     func makeClothEditViewModel(cloth: Cloth) -> ClothEditViewModel {
         return ClothEditViewModel(
             cloth: cloth,
-            navigationRouter: navigationRouter
+            navigationRouter: navigationRouter,
+            clothRepository: clothRepository
         )
     }
 

@@ -8,55 +8,31 @@
 import Foundation
 
 // MARK: - ClothRepositoryImpl
+
 final class ClothRepositoryImpl: ClothRepository {
 
     // MARK: - Properties
+    
     private let dataSource: ClothDataSource
 
     // MARK: - Initializer
+    
     init(dataSource: ClothDataSource) {
         self.dataSource = dataSource
     }
 
     // MARK: - Methods
+    
     func fetchClothItems(category: String?) async throws -> [ProductItem] {
         return try await dataSource.fetchClothItems(category: category)
     }
 
     func saveClothes(_ inputs: [ClothInput], images: [Data]) async throws -> [Cloth] {
-        // TODO: 서버 연결 시 아래 로직으로 구현
-        // 1. ClothInput + Data → ClothRequestDTO 변환
-        // 2. dataSource.uploadClothes(dtos) 호출
-        // 3. 서버 응답 ClothResponseDTO → Cloth Entity 변환 후 반환
-
-        // 임시 구현: 더미 데이터 반환
-        return inputs.enumerated().map { index, input in
-            Cloth(
-                id: index,
-                imageUrl: "", // 서버 연결 시 Presigned URL로 업로드 후 받은 URL
-                name: input.name.isEmpty ? nil : input.name,
-                brand: input.brand.isEmpty ? nil : input.brand,
-                purchaseUrl: input.purchaseUrl.isEmpty ? nil : input.purchaseUrl,
-                categoryId: input.categoryId,
-                seasons: input.seasons
-            )
-        }
-
-        /* 서버 연결 시 실제 구현:
-        let dtos = zip(inputs, images).map { input, imageData in
-            ClothRequestDTO(
-                image: imageData,
-                name: input.name.isEmpty ? nil : input.name,
-                brand: input.brand.isEmpty ? nil : input.brand,
-                purchaseUrl: input.purchaseUrl.isEmpty ? nil : input.purchaseUrl,
-                categoryId: input.categoryId,
-                seasons: input.seasons.map { $0.rawValue }
-            )
-        }
-
-        let responseDTOs = try await dataSource.uploadClothes(dtos)
-        return responseDTOs.map { $0.toEntity() }
-        */
+        // DataSource를 통해 전체 흐름 실행:
+        // 1. Presigned URL 발급
+        // 2. S3 업로드
+        // 3. 옷 생성 API 호출
+        return try await dataSource.saveClothes(inputs: inputs, images: images)
     }
 
     func fetchMyClosetClothItems(
@@ -65,9 +41,19 @@ final class ClothRepositoryImpl: ClothRepository {
         seasons: Set<Season>,
         searchText: String?
     ) async throws -> [Cloth] {
+        // 카테고리 ID 변환 (Repository 레이어에서 처리)
+        var categoryId: Int?
+        if let subCategory = subCategory {
+            for category in CategoryConstants.all {
+                if let sub = category.subcategories.first(where: { $0.name == subCategory }) {
+                    categoryId = sub.id
+                    break
+                }
+            }
+        }
+
         return try await dataSource.fetchMyClosetClothItems(
-            mainCategory: mainCategory,
-            subCategory: subCategory,
+            categoryId: categoryId,
             seasons: seasons,
             searchText: searchText
         )
@@ -75,5 +61,33 @@ final class ClothRepositoryImpl: ClothRepository {
 
     func deleteClothItems(_ clothIds: [Int]) async throws {
         try await dataSource.deleteClothItems(clothIds)
+    }
+    
+    // MARK: - API 연동 메서드
+    
+    func fetchClothList(
+        lastClothId: Int?,
+        size: Int,
+        categoryId: Int?,
+        seasons: Set<Season>
+    ) async throws -> (clothes: [Cloth], isLast: Bool) {
+        return try await dataSource.fetchClothList(
+            lastClothId: lastClothId,
+            size: size,
+            categoryId: categoryId,
+            seasons: seasons
+        )
+    }
+    
+    func fetchClothDetail(clothId: Int) async throws -> ClothDetailResult {
+        return try await dataSource.fetchClothDetail(clothId: clothId)
+    }
+    
+    func updateCloth(clothId: Int, request: ClothUpdateAPIRequest) async throws {
+        try await dataSource.updateCloth(clothId: clothId, request: request)
+    }
+    
+    func deleteCloth(clothId: Int) async throws {
+        try await dataSource.deleteCloth(clothId: clothId)
     }
 }

@@ -8,5 +8,5 @@
 import Foundation
 
 protocol RecordRepository {
-    func create(record: Record) async -> Bool
+    func createRecord(request: RecordCreateRequest) async throws -> Int64
 }

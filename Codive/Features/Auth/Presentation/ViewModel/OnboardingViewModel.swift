@@ -18,6 +18,7 @@ final class OnboardingViewModel: ObservableObject {
     // MARK: - Published Properties
     @Published var isLoading = false
     @Published var errorMessage: String?
+    @Published var identifiableLoginURL: IdentifiableURL?
     
     // MARK: - Initializer
     init(
@@ -35,7 +36,7 @@ final class OnboardingViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
         
-        let result = await authRepository.socialLogin(provider: .kakao)  // Repository 사용
+        let result = await authRepository.socialLogin(provider: .kakao)
         
         isLoading = false
         
@@ -49,13 +50,6 @@ final class OnboardingViewModel: ObservableObject {
             case .cancelled:
                 print("카카오 로그인 취소됨")
                 return
-            case .networkError(let message):
-                if message.contains("The operation couldn't be completed") ||
-                   message.contains("KakaoSDKCommon.SdkError error 0") {
-                    print("카카오 로그인 취소됨 (네트워크 에러로 분류된 취소)")
-                    return
-                }
-                errorMessage = error.localizedDescription
             default:
                 errorMessage = error.localizedDescription
             }
@@ -66,7 +60,7 @@ final class OnboardingViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
         
-        let result = await authRepository.socialLogin(provider: .apple)  // Repository 사용
+        let result = await authRepository.socialLogin(provider: .apple)
         
         isLoading = false
         

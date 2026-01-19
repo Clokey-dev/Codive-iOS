@@ -8,15 +8,34 @@
 import SwiftUI
 
 struct CustomClothCard: View {
-    let imageName: String
+    let imageName: String?
+    let imageUrl: String?
     let brand: String
     let title: String
-    
+
     // 편집 모드 관련 프로퍼티 추가
     var isEditMode: Bool = false
     var isSelected: Bool = false
-    
+
     var action: () -> Void = {}
+
+    init(
+        imageName: String? = nil,
+        imageUrl: String? = nil,
+        brand: String,
+        title: String,
+        isEditMode: Bool = false,
+        isSelected: Bool = false,
+        action: @escaping () -> Void = {}
+    ) {
+        self.imageName = imageName
+        self.imageUrl = imageUrl
+        self.brand = brand
+        self.title = title
+        self.isEditMode = isEditMode
+        self.isSelected = isSelected
+        self.action = action
+    }
 
     var body: some View {
         Button(action: { action() }, label: {
@@ -25,18 +44,16 @@ struct CustomClothCard: View {
                     // 1. 상품 이미지
                     ZStack {
                         Color.Codive.grayscale7
-                        
-                        Image(imageName)
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                        
+
+                        imageContent
+
                         // 선택 시 회색 오버레이 (삭제 선택.png 참고)
                         if isEditMode && isSelected {
                             Color.black.opacity(0.1)
                         }
                     }
                     .clipped()
-                    
+
                     // 2. 편집 모드일 때 나타나는 선택 원
                     if isEditMode {
                         Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
@@ -72,6 +89,34 @@ struct CustomClothCard: View {
             .aspectRatio(3/4, contentMode: .fit)
         })
         .buttonStyle(.plain)
+    }
+
+    @ViewBuilder
+    private var imageContent: some View {
+        if let imageUrl = imageUrl, !imageUrl.isEmpty, let url = URL(string: imageUrl) {
+            AsyncImage(url: url) { phase in
+                switch phase {
+                case .empty:
+                    ProgressView()
+                case .success(let image):
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                case .failure:
+                    Image(systemName: "photo")
+                        .foregroundStyle(Color.Codive.grayscale4)
+                @unknown default:
+                    EmptyView()
+                }
+            }
+        } else if let imageName = imageName, !imageName.isEmpty {
+            Image(imageName)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+        } else {
+            Image(systemName: "photo")
+                .foregroundStyle(Color.Codive.grayscale4)
+        }
     }
 }
 

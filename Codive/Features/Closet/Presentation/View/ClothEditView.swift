@@ -61,6 +61,9 @@ struct ClothEditView: View {
             }
             .padding(.top, 10)
         }
+        .task {
+            await viewModel.fetchDetail()
+        }
         .navigationBarHidden(true)
         .background(Color.white)
         .sheet(isPresented: $viewModel.isCategorySheetPresented) {
@@ -105,10 +108,11 @@ struct ClothEditView: View {
         }
 
         return ClothingItem(
-            imageName: viewModel.cloth.imageUrl,
+            imageName: nil,
             image: nil,
+            imageUrl: viewModel.imageUrl,
             category: form.category?.name ?? "",
-            subcategory: form.subcategory ?? "",
+            subcategory: form.subcategory?.name ?? "",
             season: seasonText,
             name: form.name,
             brand: form.brand,
