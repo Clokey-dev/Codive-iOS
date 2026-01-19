@@ -8,7 +8,7 @@
 import SwiftUI
 
 @MainActor
-final class AddCodiDetailViewModel: ObservableObject, DraggableImageViewModelProtocol {
+final class AddCodiDetailViewModel: ObservableObject {
     
     // MARK: - Dependencies
     

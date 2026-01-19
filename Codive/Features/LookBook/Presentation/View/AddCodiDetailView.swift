@@ -74,12 +74,7 @@ struct AddCodiDetailView: View {
                             
                             // MARK: DraggableImageContainerView 사용
                             
-                            DraggableImageContainerView(
-                                viewModel: viewModel,
-                                imageHalfSize: imageHalfSize,
-                                minBound: minBound,
-                                maxBound: maxBound
-                            )
+                            DraggableImageView()
                         }
                         .frame(width: boardSize, height: boardSize)
                         .padding(.horizontal, 20)

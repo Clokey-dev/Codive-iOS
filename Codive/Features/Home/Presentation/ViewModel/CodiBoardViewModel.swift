@@ -8,7 +8,7 @@
 import SwiftUI
 
 @MainActor
-final class CodiBoardViewModel: ObservableObject, DraggableImageViewModelProtocol {
+final class CodiBoardViewModel: ObservableObject {
     
     // MARK: - Properties
     
