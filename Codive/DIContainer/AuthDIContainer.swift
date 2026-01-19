@@ -17,10 +17,13 @@ final class AuthDIContainer {
     
     // MARK: - Services (Data Layer)
     lazy var socialAuthService: SocialAuthServiceProtocol = SocialAuthService()
+    lazy var authAPIService: AuthAPIServiceProtocol = AuthAPIService()
     
     // MARK: - Repositories (Domain Layer)
     lazy var authRepository: AuthRepository = AuthRepositoryImpl(
-        socialAuthService: socialAuthService
+        socialAuthService: socialAuthService,
+        authAPIService: authAPIService,
+        keychainTokenProvider: KeychainTokenProvider() 
     )
     
     // MARK: - Initializer

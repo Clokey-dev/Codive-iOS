@@ -10,6 +10,7 @@ import Foundation
 enum AppDestination: Hashable, Identifiable {
     case login
     case signup
+    case termsAgreement
     case main
     case recordAdd
     case clothPhotoSelect 

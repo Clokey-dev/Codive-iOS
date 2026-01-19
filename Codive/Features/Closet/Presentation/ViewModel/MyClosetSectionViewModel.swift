@@ -39,16 +39,17 @@ final class MyClosetSectionViewModel: ObservableObject {
         do {
             // 전체 옷 목록 가져오기 (필터 없음)
             let allItems = try await fetchMyClosetClothItemsUseCase.execute(
-                mainCategory: "전체",
+                mainCategory: nil,
                 subCategory: nil,
                 seasons: [],
                 searchText: nil
             )
 
-            // 최대 10개만 표시
-            clothItems = Array(allItems.prefix(10))
+            // 최대 8개만 표시
+            clothItems = Array(allItems.prefix(8))
+            print("[MyClosetSection] 옷 \(clothItems.count)개 로드 완료")
         } catch {
-            print("Error loading cloth items: \(error)")
+            print("[MyClosetSection] 옷 로딩 실패: \(error)")
         }
 
         isLoading = false
