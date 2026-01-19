@@ -25,6 +25,13 @@ struct ZoomRotateDragView<Content: View>: View {
     // Position
     @State private var offset: CGSize = .zero
     @GestureState private var dragOffset: CGSize = .zero
+    
+    private let minimumSize: CGFloat = 150
+    private let baseSize: CGFloat = 300
+
+    private var minScale: CGFloat {
+        minimumSize / baseSize
+    }
 
     init(
         id: UUID,
@@ -97,7 +104,8 @@ struct ZoomRotateDragView<Content: View>: View {
                         activate()
                     }
                     .onEnded { value in
-                        scale *= value.magnification
+                        let newScale = scale * value.magnification
+                        scale = max(newScale, minScale)
                         activeID = nil
                     }
             )
@@ -111,7 +119,8 @@ struct ZoomRotateDragView<Content: View>: View {
                         activate()
                     }
                     .onEnded { value in
-                        scale *= value
+                        let newScale = scale * value
+                        scale = max(newScale, minScale)
                         activeID = nil
                     }
             )
