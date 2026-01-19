@@ -8,36 +8,115 @@
 import SwiftUI
 
 struct CustomClothCard: View {
-    let imageName: String
+    let imageName: String?
+    let imageUrl: String?
     let brand: String
     let title: String
-    var action: () -> Void = {}   
+
+    // 편집 모드 관련 프로퍼티 추가
+    var isEditMode: Bool = false
+    var isSelected: Bool = false
+
+    var action: () -> Void = {}
+
+    init(
+        imageName: String? = nil,
+        imageUrl: String? = nil,
+        brand: String,
+        title: String,
+        isEditMode: Bool = false,
+        isSelected: Bool = false,
+        action: @escaping () -> Void = {}
+    ) {
+        self.imageName = imageName
+        self.imageUrl = imageUrl
+        self.brand = brand
+        self.title = title
+        self.isEditMode = isEditMode
+        self.isSelected = isSelected
+        self.action = action
+    }
 
     var body: some View {
         Button(action: { action() }, label: {
-            VStack(alignment: .leading, spacing: 6) {
-                // 상품 이미지
-                Image(imageName)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(maxWidth: .infinity)
-                    .aspectRatio(1, contentMode: .fit)
+            VStack(alignment: .leading, spacing: 0) {
+                ZStack(alignment: .topTrailing) {
+                    // 1. 상품 이미지
+                    ZStack {
+                        Color.Codive.grayscale7
+
+                        imageContent
+
+                        // 선택 시 회색 오버레이 (삭제 선택.png 참고)
+                        if isEditMode && isSelected {
+                            Color.black.opacity(0.1)
+                        }
+                    }
                     .clipped()
 
-                // 브랜드
-                Text(brand)
-                    .font(.codive_body3_regular)
-                    .foregroundStyle(Color("Grayscale4"))
+                    // 2. 편집 모드일 때 나타나는 선택 원
+                    if isEditMode {
+                        Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                            .resizable()
+                            .frame(width: 18, height: 18)
+                            .foregroundStyle(isSelected ? Color.Codive.main1 : Color.white)
+                            .background(isSelected ? Color.white : Color.black.opacity(0.2))
+                            .clipShape(Circle())
+                            .padding(8)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .layoutPriority(1)
 
-                // 상품명
-                Text(title)
-                    .font(.codive_body2_medium)
-                    .foregroundStyle(Color("Grayscale2"))
-                    .lineLimit(2)
-                    .multilineTextAlignment(.leading)
+                // 3. 텍스트 영역
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(brand)
+                        .font(.codive_body4_regular)
+                        .foregroundStyle(Color.Codive.grayscale4)
+                        .lineLimit(1)
+
+                    Text(title)
+                        .font(.codive_body3_medium)
+                        .foregroundStyle(Color.Codive.grayscale2)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.white)
             }
+            .aspectRatio(3/4, contentMode: .fit)
         })
         .buttonStyle(.plain)
+    }
+
+    @ViewBuilder
+    private var imageContent: some View {
+        if let imageUrl = imageUrl, !imageUrl.isEmpty, let url = URL(string: imageUrl) {
+            AsyncImage(url: url) { phase in
+                switch phase {
+                case .empty:
+                    ProgressView()
+                case .success(let image):
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                case .failure:
+                    Image(systemName: "photo")
+                        .foregroundStyle(Color.Codive.grayscale4)
+                @unknown default:
+                    EmptyView()
+                }
+            }
+        } else if let imageName = imageName, !imageName.isEmpty {
+            Image(imageName)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+        } else {
+            Image(systemName: "photo")
+                .foregroundStyle(Color.Codive.grayscale4)
+        }
     }
 }
 

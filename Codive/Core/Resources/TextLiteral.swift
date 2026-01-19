@@ -135,9 +135,15 @@ enum TextLiteral {
         static let failWeather = "날씨 정보를 가져오는 데 실패했습니다."
         static let todayCodiTitle = "오늘의 코디"
         static let currentCategoryCount = "현재 카테고리"
-        static let changeAlertTitle = "변경사항이 있습니다"
-        static let changeAlertMessage = "변경사항을 저장하지 않고 나가시겠습니까?"
+        static let changeAlertTitle = "정말 나가시겠습니까?"
+        static let changeAlertMessage = "작성중인 내용은 복구할 수 없습니다"
         static let leave = "나가기"
+        static let noClothTitle = "아직 옷이 없어요!"
+        static let noClothDescription = "옷을 추가해 날씨에\n맞게 코디 해봐요."
+        static let popUpTitle = "오늘의 코디 완성!"
+        static let popUpSubtitle = "오늘의 코디는 홈 화면에서 하루 동안만 유지\n됩니다. 추가로 기록하려면 피드에 남겨보세요!"
+        static let close = "닫기"
+        static let record = "기록하기"
     }
     
     enum Search {
@@ -153,6 +159,8 @@ enum TextLiteral {
         static let totalCount = "총"
         static let countUnit = "개"
         static let sortAll = "전체"
+        static let account = "계정"
+        static let hashtag = "해시태그"
     }
     
     enum Notification {
@@ -160,6 +168,47 @@ enum TextLiteral {
         static let read = "읽음"
         static let notRead = "읽지 않음"
         static let noNewNoti = "새로운 알림이 없습니다."
+        static let feedType = "게시글"
+        static let commentType = "댓글"
+        static let reportTitle = "신고 접수 안내"
+        static func reportBody1(_ target: String) -> String {
+            "회원님의 \(target)이 운영 정책 위반으로 신고되었습니다."
+        }
+        static let reportBody2 = "확인 및 조치는 영업일 기준 3~5일정도 소요됩니다."
+    }
+    
+    enum LookBook {
+        static let title = "내 룩북"
+        static let addCodiTitle = "코디 추가하기"
+        static let makeNewCodi = "새 코디 만들기"
+        static let beforeCodi = "이전 코디"
+        static let editCodi = "편집하기"
+        static let codiNameTitle = "코디 명"
+        static let hintCodiNameTitle = "코디 명을 입력하세요"
+        static let hintNameTitle = "영화관 데이트"
+        static let memoTitle = "개인 메모"
+        static let hintMemo = "코디와 관련된 메모를 남겨보세요"
+        static let hintMemoTitle = "1주년이니까 오빠가 사준 신발 신고가야됨"
+        static let complete = "코디를 완성했어요!"
+        static let addLookBookTitle = "룩북 만들기"
+        static let hintAddLookBookTitle = "룩북명을 입력해주세요(10자 이내)"
+        static let addLookBookButtonTitle = "등록하기"
+        static let addCodiCompleteButton = "코디 완성하기"
+        static let codiUpload = "코디 업로드"
+        static let alertDeleteTitle = "해당 룩북을 삭제하시겠습니까?\n한 번 삭제된 기록은 복구할 수 없습니다"
+        static let alertDeleteSubTitle = "한 번 삭제된 기록은 복구할 수 없습니다"
+        static let loadingTitle = "룩북 로드 중..."
+        static let addNewCodi = "새로운 코디 추가하기"
+        static let getBeforeCodi = "이전 코디 불러오기"
+        static let makeNewCodiDescription1 = "옷을 선택해 새로운 코디를 만들어보세요!"
+        static let makeNewCodiDescription2 = "아이템은 최대 10개까지 등록할 수 있어요"
+        static let noBeforeCodice = "해당 룩북에 코디가 없습니다."
+        static let selectItem = "아이템을 선택해 주세요"
+        static let codiDetail = "코디 상세"
+        static let codiDelete = "코디 삭제"
+        static let editCodiComplete = "수정 완료하기"
+        static let exitDescription = "정말 나가시겠습니까?"
+        static let noRecovery = "작성중인 내용은 복구할 수 없습니다"
     }
 
     // MARK: - Setting (설정)

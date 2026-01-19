@@ -9,12 +9,12 @@ import Foundation
 
 final class DefaultRecordRepository: RecordRepository {
     private let dataSource: RecordDataSource
-    
-    init(dataSource: RecordDataSource) {
+
+    init(dataSource: RecordDataSource = DefaultRecordDataSource()) {
         self.dataSource = dataSource
     }
-    
-    func create(record: Record) async -> Bool {
-        return await dataSource.create(record: record)
+
+    func createRecord(request: RecordCreateRequest) async throws -> Int64 {
+        return try await dataSource.createRecord(request: request)
     }
 }

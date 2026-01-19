@@ -12,6 +12,7 @@ struct ClothingItem: Identifiable {
     let id = UUID()
     let imageName: String?
     let image: UIImage?
+    let imageUrl: String?
     let category: String
     let subcategory: String
     let season: String
@@ -22,6 +23,7 @@ struct ClothingItem: Identifiable {
     init(
         imageName: String? = nil,
         image: UIImage? = nil,
+        imageUrl: String? = nil,
         category: String,
         subcategory: String,
         season: String,
@@ -31,6 +33,7 @@ struct ClothingItem: Identifiable {
     ) {
         self.imageName = imageName
         self.image = image
+        self.imageUrl = imageUrl
         self.category = category
         self.subcategory = subcategory
         self.season = season
@@ -64,6 +67,10 @@ struct CustomAIRecommendationView: View {
     let onBrandChanged: ((String) -> Void)?
     let onPurchaseUrlChanged: ((String) -> Void)?
 
+    // UI 표시 제어 (옵션)
+    let showTitle: Bool
+    let showEditButton: Bool
+
     // MARK: - Initializer
     init(
         title: String = TextLiteral.Closet.aiRecommendationTitle,
@@ -80,7 +87,9 @@ struct CustomAIRecommendationView: View {
         isLastPhoto: Bool = false,
         onNameChanged: ((String) -> Void)? = nil,
         onBrandChanged: ((String) -> Void)? = nil,
-        onPurchaseUrlChanged: ((String) -> Void)? = nil
+        onPurchaseUrlChanged: ((String) -> Void)? = nil,
+        showTitle: Bool = true,
+        showEditButton: Bool = true
     ) {
         self.title = title
         self.items = items
@@ -97,6 +106,8 @@ struct CustomAIRecommendationView: View {
         self.onNameChanged = onNameChanged
         self.onBrandChanged = onBrandChanged
         self.onPurchaseUrlChanged = onPurchaseUrlChanged
+        self.showTitle = showTitle
+        self.showEditButton = showEditButton
     }
     
     // 안전한 currentItem 접근
@@ -110,12 +121,14 @@ struct CustomAIRecommendationView: View {
     // MARK: - Body
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Title
-            Text(title)
-                .font(.codive_title1)
-                .foregroundStyle(Color.Codive.grayscale1)
-                .padding(.horizontal, 20)
-            
+            // Title (조건부 표시)
+            if showTitle {
+                Text(title)
+                    .font(.codive_title1)
+                    .foregroundStyle(Color.Codive.grayscale1)
+                    .padding(.horizontal, 20)
+            }
+
             // items가 비어있으면 빈 상태 표시
             if let item = currentItem {
                 contentView(for: item)
@@ -160,7 +173,33 @@ struct CustomAIRecommendationView: View {
                         .frame(height: geometry.size.width)
                         .background(Color.Codive.grayscale6)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
-                } else if let imageName = item.imageName {
+                } else if let imageUrl = item.imageUrl, !imageUrl.isEmpty, let url = URL(string: imageUrl) {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .empty:
+                            Rectangle()
+                                .fill(Color.Codive.grayscale6)
+                                .overlay(ProgressView())
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                        case .failure:
+                            Rectangle()
+                                .fill(Color.Codive.grayscale6)
+                                .overlay(
+                                    Image(systemName: "photo")
+                                        .foregroundStyle(Color.Codive.grayscale4)
+                                )
+                        @unknown default:
+                            EmptyView()
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: geometry.size.width)
+                    .background(Color.Codive.grayscale6)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                } else if let imageName = item.imageName, !imageName.isEmpty {
                     Image(imageName)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
@@ -168,8 +207,18 @@ struct CustomAIRecommendationView: View {
                         .frame(height: geometry.size.width)
                         .background(Color.Codive.grayscale6)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
+                } else {
+                    Rectangle()
+                        .fill(Color.Codive.grayscale6)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: geometry.size.width)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
-                editButton
+
+                // Edit button (조건부 표시)
+                if showEditButton {
+                    editButton
+                }
             }
         }
         .aspectRatio(1, contentMode: .fit)

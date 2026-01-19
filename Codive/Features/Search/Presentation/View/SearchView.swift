@@ -25,7 +25,10 @@ struct SearchView: View {
                 type: .withBackButton {
                     viewModel.handleBackTap()
                 }
-            )
+            ) {
+                viewModel.executeSearch(query: searchText)
+                hideKeyboard()
+            }
             .onSubmit {
                 viewModel.executeSearch(query: searchText)
             }
@@ -63,11 +66,19 @@ struct SearchView: View {
                         .padding(.top, 8)
                     } else {
                         ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 16) {
+                            HStack(spacing: 10) {
                                 ForEach(viewModel.recentSearchTags) { tag in
-                                    SearchTagView(text: tag.text) {
-                                        viewModel.deleteTag(tag: tag)
+                                    Button {
+                                        self.searchText = tag.text
+                                        viewModel.handleTagTap(tag: tag)
+                                    } label: {
+                                        SearchTagView(text: tag.text) {
+                                            viewModel.deleteTag(tag: tag)
+                                        }
+                                        .padding(.vertical, 2)
+                                        .padding(.horizontal, 2)
                                     }
+                                    .buttonStyle(PlainButtonStyle())
                                 }
                             }
                         }
@@ -98,10 +109,20 @@ struct SearchView: View {
                     }.padding(.top, 8)
                 }
                 .padding(.bottom, 20)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    hideKeyboard()
+                }
             }
         }
         .navigationBarHidden(true)
-        .background(Color.white.ignoresSafeArea(.all))
+        .background(
+            Color.white
+                .ignoresSafeArea(.all)
+                .onTapGesture { 
+                    hideKeyboard()
+                }
+        )
         .padding(.horizontal, 20)
         // MARK: - Data Loading Trigger
         .onAppear {

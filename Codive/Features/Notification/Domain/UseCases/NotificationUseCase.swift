@@ -18,4 +18,13 @@ final class NotificationUseCase {
     func fetchNotifications() -> [NotificationEntity] {
         return repository.fetchNotifications()
     }
+    
+    func fetchReportStatus() -> ReportEntity {
+        return repository.fetchReportStatus()
+    }
+    
+    func markNotificationAsRead(notificationId: Int) async throws {
+        let request = NotificationReadRequestEntity(notificationId: notificationId)
+        try await repository.markNotificationAsRead(request: request)
+    }
 }

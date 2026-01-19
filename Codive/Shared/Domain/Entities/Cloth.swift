@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Cloth: Identifiable, Equatable {
+public struct Cloth: Identifiable, Equatable, Hashable {
 
     public let id: Int
     public let imageUrl: String

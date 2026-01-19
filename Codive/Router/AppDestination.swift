@@ -10,6 +10,7 @@ import Foundation
 enum AppDestination: Hashable, Identifiable {
     case login
     case signup
+    case termsAgreement
     case main
     case recordAdd
     case clothPhotoSelect 
@@ -30,11 +31,22 @@ enum AppDestination: Hashable, Identifiable {
     case search
     case searchResult(query: String)
     case notification
+    case lookbook
+    case specificLookbook(lookbookId: Int)
+    case addCodi(lookbookId: Int, selectedCodiData: SelectedCodi? = nil)
+    case editCodi(lookbookId: Int, selectedCodiData: SelectedCodi)
+    case addCodiDetail(lookbookId: Int)
+    case addBeforeCodi(lookbookId: Int)
+    case codiDetail(codiId: Int, lookbookId: Int)
     case feedDetail(feedId: Int)
     case comment(feedId: Int)
     case favoriteCodiList(showHeart: Bool)
     case followList(mode: FollowListMode)
     
+    case myCloset
+    case clothDetail(cloth: Cloth)
+    case clothEdit(cloth: Cloth)
+
     var id: Self { self }
     
     // MARK: - UI 제어
@@ -56,12 +68,19 @@ enum AppDestination: Hashable, Identifiable {
         case .search, .searchResult, .notification:
             return true
             
+        // LookBook
+        case .lookbook, .specificLookbook, .addCodi, .addCodiDetail, .addBeforeCodi, .codiDetail, .editCodi:
+            return true
+            
         // Feed Flow
         case .feedDetail, .comment:
             return true
 
         // Profile Flow
         case .favoriteCodiList, .settings, .followList:
+        
+        // Closet Flow - 전체 화면
+        case .myCloset, .clothDetail, .clothEdit:
             return true
 
         // 다른 플로우 전체 화면은 여기에 추가
@@ -96,6 +115,9 @@ enum AppDestination: Hashable, Identifiable {
 
         // Profile Flow - 자체 네비게이션 바 있음
         case .favoriteCodiList, .settings, .followList:
+        
+        // Closet Flow - 자체 네비게이션 바 있음
+        case .myCloset, .clothDetail, .clothEdit:
             return false
 
         default:

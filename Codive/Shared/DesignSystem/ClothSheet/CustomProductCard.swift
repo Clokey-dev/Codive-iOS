@@ -8,56 +8,67 @@
 import SwiftUI
 
 struct CustomProductCard: View {
-    
-    // MARK: - Properties
     let imageName: String
     let isTodayCloth: Bool
     let isSelected: Bool
     let onTap: () -> Void
     
-    // MARK: - Body
     var body: some View {
         Button(action: onTap) {
-            GeometryReader { geometry in
-                ZStack(alignment: .topLeading) {
-                    // 배경
-                    Color.Codive.grayscale6
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                    
-                    // 상품 이미지
-                    Image(imageName)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: geometry.size.width, height: geometry.size.height)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                    
-                    // 선택 시 오버레이
-                    if isSelected {
-                        Color.black.opacity(0.5)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                        
-                        // 체크 아이콘
-                        Image("check_bt")
+            ZStack(alignment: .topTrailing) {
+                // 이미지
+                Group {
+                    if let url = URL(string: imageName), imageName.hasPrefix("http") {
+                        AsyncImage(url: url) { phase in
+                            switch phase {
+                            case .empty:
+                                ProgressView()
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                            case .failure:
+                                Image(systemName: "photo")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .foregroundColor(.gray)
+                            @unknown default:
+                                EmptyView()
+                            }
+                        }
+                    } else {
+                        Image(imageName)
                             .resizable()
-                            .frame(width: 25, height: 25)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    }
-                    
-                    // 좌상단 라벨 (조건부)
-                    if isTodayCloth {
-                        Text("오늘의 코디")
-                            .font(.codive_body3_medium)
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 3)
-                            .padding(.vertical, 3)
-                            .background(Color.Codive.point2)
-                            .clipShape(RoundedRectangle(cornerRadius: 3))
-                            .padding(6)
+                            .scaledToFill()
                     }
                 }
+                .frame(width: 100, height: 100)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2)
+                )
+                
+                // Today 뱃지
+                if isTodayCloth {
+                    Text("Today")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 3)
+                        .background(Color.blue)
+                        .clipShape(Capsule())
+                        .padding(6)
+                }
+                
+                // 선택 체크마크
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(.blue)
+                        .background(Color.white.clipShape(Circle()))
+                        .padding(6)
+                }
             }
-            .aspectRatio(3/4, contentMode: .fit)
         }
-        .buttonStyle(PlainButtonStyle())
     }
 }
