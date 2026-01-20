@@ -16,6 +16,7 @@ public struct Feed: Identifiable, Equatable {
 
     public let situationId: Int?
     public let styleIds: [Int]?
+    public let styleNames: [String]?
     public let hashtags: [String]?
     public let createdAt: Date?
 
@@ -30,6 +31,7 @@ public struct Feed: Identifiable, Equatable {
         images: [FeedImage],
         situationId: Int? = nil,
         styleIds: [Int]? = nil,
+        styleNames: [String]? = nil,
         hashtags: [String]? = nil,
         createdAt: Date? = nil,
         likeCount: Int? = nil,
@@ -42,6 +44,7 @@ public struct Feed: Identifiable, Equatable {
         self.images = images
         self.situationId = situationId
         self.styleIds = styleIds
+        self.styleNames = styleNames
         self.hashtags = hashtags
         self.createdAt = createdAt
         self.likeCount = likeCount

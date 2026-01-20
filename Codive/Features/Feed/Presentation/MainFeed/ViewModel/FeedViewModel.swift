@@ -157,6 +157,7 @@ final class FeedViewModel: ObservableObject {
             images: originalFeed.images,
             situationId: originalFeed.situationId,
             styleIds: originalFeed.styleIds,
+            styleNames: originalFeed.styleNames,
             hashtags: originalFeed.hashtags,
             createdAt: originalFeed.createdAt,
             likeCount: newLikeCount,

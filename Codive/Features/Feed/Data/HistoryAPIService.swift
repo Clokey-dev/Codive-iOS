@@ -13,6 +13,32 @@ import OpenAPIRuntime
 
 protocol HistoryAPIServiceProtocol {
     func createHistory(request: HistoryCreateAPIRequest) async throws -> Int64
+    func fetchHistoryDetail(historyId: Int64) async throws -> HistoryDetailDTO
+}
+
+// MARK: - History Detail DTO
+
+struct HistoryDetailDTO {
+    let memberId: Int64
+    let profileImageUrl: String?
+    let nickname: String?
+    let images: [HistoryImageDTO]
+    let likeCount: Int64
+    let commentCount: Int64
+    let historyDate: String?
+    let situationId: Int64?
+    let situationName: String?
+    let styles: [HistoryStyleDTO]
+}
+
+struct HistoryImageDTO {
+    let imageId: Int64
+    let imageUrl: String
+}
+
+struct HistoryStyleDTO {
+    let styleId: Int64
+    let styleName: String
 }
 
 // MARK: - Request Types
@@ -86,6 +112,55 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
             }
 
             return historyId
+
+        case .undocumented(statusCode: let code, _):
+            throw HistoryAPIError.serverError(statusCode: code)
+        }
+    }
+
+    // MARK: - Fetch History Detail
+
+    func fetchHistoryDetail(historyId: Int64) async throws -> HistoryDetailDTO {
+        let input = Operations.History_getHistoryDetails.Input(
+            path: .init(historyId: historyId)
+        )
+
+        let response = try await client.History_getHistoryDetails(input)
+
+        switch response {
+        case .ok(let okResponse):
+            let httpBody = try okResponse.body.any
+            let data = try await Data(collecting: httpBody, upTo: .max)
+            let decoded = try jsonDecoder.decode(
+                Components.Schemas.BaseResponseDailyHistoryResponse.self,
+                from: data
+            )
+
+            guard let result = decoded.result else {
+                throw HistoryAPIError.noData
+            }
+
+            return HistoryDetailDTO(
+                memberId: result.memberId ?? 0,
+                profileImageUrl: result.profileImageUrl,
+                nickname: result.nickname,
+                images: result.images?.compactMap { img in
+                    guard let imageUrl = img.imageUrl else { return nil }
+                    return HistoryImageDTO(
+                        imageId: img.imageId ?? 0,
+                        imageUrl: imageUrl
+                    )
+                } ?? [],
+                likeCount: result.likeCount ?? 0,
+                commentCount: result.commentCount ?? 0,
+                historyDate: result.historyDate,
+                situationId: result.situationId,
+                situationName: result.situationName,
+                styles: result.styles?.compactMap { style in
+                    guard let styleId = style.styleId, let styleName = style.styleName else { return nil }
+                    return HistoryStyleDTO(styleId: styleId, styleName: styleName)
+                } ?? []
+            )
 
         case .undocumented(statusCode: let code, _):
             throw HistoryAPIError.serverError(statusCode: code)

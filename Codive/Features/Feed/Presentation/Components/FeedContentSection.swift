@@ -95,8 +95,8 @@ struct FeedContentSection: View {
                     Text(style)
                         .font(.codive_body2_medium)
                         .foregroundStyle(Color.Codive.grayscale1)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
+                        .padding(.horizontal, 9)
+                        .padding(.vertical, 7)
                         .background(Color.white)
                         .overlay(
                             RoundedRectangle(cornerRadius: 100)

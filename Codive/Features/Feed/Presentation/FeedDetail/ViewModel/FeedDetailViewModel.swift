@@ -69,9 +69,7 @@ final class FeedDetailViewModel: ObservableObject {
             self.imageUrls = fetchedFeed.images.map { $0.imageUrl }
             self.displayableTags = mapToDisplayableTags(from: fetchedFeed.images)
             self.formattedDate = format(date: fetchedFeed.createdAt)
-
-            // TODO: styleIds를 실제 스타일 이름으로 변환하는 로직 구현 필요
-            self.displayableStyles = [] // 현재는 임시로 빈 배열 할당
+            self.displayableStyles = fetchedFeed.styleNames ?? []
 
         } catch {
             errorMessage = TextLiteral.Feed.loadDetailFailed
@@ -129,6 +127,7 @@ final class FeedDetailViewModel: ObservableObject {
             images: currentFeed.images,
             situationId: currentFeed.situationId,
             styleIds: currentFeed.styleIds,
+            styleNames: currentFeed.styleNames,
             hashtags: currentFeed.hashtags,
             createdAt: currentFeed.createdAt,
             likeCount: newLikeCount,

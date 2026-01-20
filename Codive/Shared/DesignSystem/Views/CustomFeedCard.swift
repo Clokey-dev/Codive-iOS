@@ -23,9 +23,21 @@ struct CustomFeedCard: View {
             Rectangle()
                 .fill(Color.gray)
                 .overlay(
-                    Image(imageUrl)
-                        .resizable()
-                        .scaledToFill()
+                    AsyncImage(url: URL(string: imageUrl)) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .scaledToFill()
+                        case .failure:
+                            Image(systemName: "photo")
+                                .foregroundColor(.gray)
+                        case .empty:
+                            ProgressView()
+                        @unknown default:
+                            EmptyView()
+                        }
+                    }
                 )
                 .overlay(
                     LinearGradient(
@@ -54,21 +66,31 @@ struct CustomFeedCard: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             
             // 프로필 정보
-            HStack {
+            HStack(spacing: 8) {
                 // 프로필 이미지
-                Image(profileImageUrl)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 28, height: 28)
-                    .clipShape(Circle())
-                    .overlay(
-                        Circle()
-                    )
-                
+                AsyncImage(url: URL(string: profileImageUrl)) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                    case .failure, .empty:
+                        Image(systemName: "person.circle.fill")
+                            .resizable()
+                            .foregroundColor(.gray)
+                    @unknown default:
+                        EmptyView()
+                    }
+                }
+                .frame(width: 28, height: 28)
+                .clipShape(Circle())
+
                 // 닉네임
                 Text(nickname)
                     .font(.codive_body2_medium)
                     .foregroundStyle(.white)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
             }
             .padding(.leading, 15)
             .padding(.bottom, 15)

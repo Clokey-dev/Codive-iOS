@@ -40,9 +40,14 @@ protocol FeedDataSource {
 final class DefaultFeedDataSource: FeedDataSource {
 
     private let apiService: FeedAPIServiceProtocol
+    private let historyAPIService: HistoryAPIServiceProtocol
 
-    init(apiService: FeedAPIServiceProtocol = FeedAPIService()) {
+    init(
+        apiService: FeedAPIServiceProtocol = FeedAPIService(),
+        historyAPIService: HistoryAPIServiceProtocol = HistoryAPIService()
+    ) {
         self.apiService = apiService
+        self.historyAPIService = historyAPIService
     }
 
     func fetchFeeds(
@@ -69,8 +74,8 @@ final class DefaultFeedDataSource: FeedDataSource {
     }
 
     func fetchFeedDetail(id: Int) async throws -> Feed {
-        // TODO: Implement API call for feed detail
-        throw FeedDataSourceError.notFound
+        let dto = try await historyAPIService.fetchHistoryDetail(historyId: Int64(id))
+        return dto.toDomain(feedId: id)
     }
 
     func toggleLike(feedId: Int) async throws {
@@ -110,6 +115,43 @@ private extension FeedAuthorDTO {
             nickname: clokeyId ?? "",
             profileImageUrl: profileImageUrl,
             isFollowing: isFollowing
+        )
+    }
+}
+
+extension HistoryDetailDTO {
+    func toDomain(feedId: Int) -> Feed {
+        let author = User(
+            id: String(memberId),
+            nickname: nickname ?? "",
+            profileImageUrl: profileImageUrl
+        )
+
+        let feedImages = images.map { img in
+            FeedImage(imageUrl: img.imageUrl)
+        }
+
+        let styleIds = styles.map { Int($0.styleId) }
+        let styleNames = styles.map { $0.styleName }
+
+        // historyDate를 Date로 변환
+        let dateFormatter = ISO8601DateFormatter()
+        dateFormatter.formatOptions = [.withFullDate, .withDashSeparatorInDate]
+        let createdAtDate = historyDate.flatMap { dateFormatter.date(from: $0) }
+
+        return Feed(
+            id: feedId,
+            content: nil,
+            author: author,
+            images: feedImages,
+            situationId: situationId.map { Int($0) },
+            styleIds: styleIds.isEmpty ? nil : styleIds,
+            styleNames: styleNames.isEmpty ? nil : styleNames,
+            hashtags: nil,
+            createdAt: createdAtDate,
+            likeCount: Int(likeCount),
+            isLiked: nil,
+            commentCount: Int(commentCount)
         )
     }
 }
@@ -180,6 +222,7 @@ final class MockFeedDataSource: FeedDataSource {
             images: images,
             situationId: (id % 3) + 1,
             styleIds: [(id % 10) + 1, ((id + 1) % 10) + 1],
+            styleNames: ["캐주얼", "스트릿"],
             hashtags: ["#OOTD", "#fashion", "#daily"],
             createdAt: Date().addingTimeInterval(-Double(id * 3600)),
             likeCount: Int.random(in: 0...500),
@@ -273,6 +316,7 @@ final class MockFeedDataSource: FeedDataSource {
             images: oldFeed.images,
             situationId: oldFeed.situationId,
             styleIds: oldFeed.styleIds,
+            styleNames: oldFeed.styleNames,
             hashtags: oldFeed.hashtags,
             createdAt: oldFeed.createdAt,
             likeCount: newLikeCount,
