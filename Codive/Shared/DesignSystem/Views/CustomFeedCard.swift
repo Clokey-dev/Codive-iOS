@@ -18,7 +18,7 @@ struct CustomFeedCard: View {
     // MARK: - Body
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            
+
             // 메인 배경 이미지
             Rectangle()
                 .fill(Color.gray)
@@ -46,7 +46,7 @@ struct CustomFeedCard: View {
                         endPoint: .bottom
                     )
                 )
-            
+
             // 좋아요 버튼 (우측 상단)
             VStack {
                 HStack {
@@ -64,7 +64,7 @@ struct CustomFeedCard: View {
             }
             .padding(15)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            
+
             // 프로필 정보
             HStack(spacing: 8) {
                 // 프로필 이미지

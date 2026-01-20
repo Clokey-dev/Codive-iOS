@@ -51,7 +51,7 @@ struct FeedItemDTO {
 
 struct FeedAuthorDTO {
     let memberId: Int64
-    let clokeyId: String?
+    let nickname: String?
     let profileImageUrl: String?
     let isFollowing: Bool?
 }
@@ -115,7 +115,7 @@ extension FeedAPIService {
                     createdAt: item.createdAt,
                     author: FeedAuthorDTO(
                         memberId: item.author?.memberId ?? 0,
-                        clokeyId: item.author?.clokeyId,
+                        nickname: item.author?.nickname,
                         profileImageUrl: item.author?.profileImageUrl,
                         isFollowing: item.author?.isFollowing
                     )

@@ -112,7 +112,7 @@ private extension FeedAuthorDTO {
     func toDomain() -> User {
         return User(
             id: String(memberId),
-            nickname: clokeyId ?? "",
+            nickname: nickname ?? "",
             profileImageUrl: profileImageUrl,
             isFollowing: isFollowing
         )
