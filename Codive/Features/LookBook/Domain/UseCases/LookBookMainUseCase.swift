@@ -1,11 +1,11 @@
 //
-//  LookBookListUseCase.swift
+//  LookBookMainUseCase.swift
 //  Codive
 //
 //  Created by 한금준 on 12/23/25.
 //
 
-final class LookBookListUseCase {
+final class LookBookMainUseCase {
 
     // MARK: - Dependency
     private let repository: LookBookRepository
@@ -21,9 +21,15 @@ final class LookBookListUseCase {
     func fetchLookBookList() async throws -> [LookBookEntity] {
         try await repository.fetchLookBookList()
     }
+    
+    /// 룩북 생성
+    func createLookBook(title: String) async throws -> CreateLookBookEntity {
+        try await repository.createLookBook(title: title)
+    }
 
     /// 선택된 룩북 삭제
     func deleteLookBooks(ids: [Int]) async throws {
-        try await repository.deleteLookBooks(ids: ids)
+        let requests = ids.map { DeleteLookBookEntity(lookBookId: $0) }
+        try await repository.deleteLookBooks(requests)
     }
 }

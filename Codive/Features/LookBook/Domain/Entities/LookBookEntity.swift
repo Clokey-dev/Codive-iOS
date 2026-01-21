@@ -7,34 +7,70 @@
 
 import Foundation
 
+// 룩북 전체 조회 api의 responseDTO의 content
 struct LookBookEntity: Identifiable {
-    let id: Int
-    let imageURL: String
-    let cardTitle: String
+    let lookBookId: Int
+    var lookbookName: String
+    let imageUrl: String
+    let count: Int
+
+    var id: Int { lookBookId }
 }
 
-struct CodiDetailEntity: Identifiable {
-    let id: Int
-    let imageURL: String
-    let topImageURL: String
-    let bottomImageURL: String
-    let shoeImageURL: String
-    let name: String
-    let memo: String
-    let date: String
+// 룩북 생성하기 api의 request
+struct CreateLookBookEntity {
+    let lookBookId: Int
 }
+
+// 룩북 제거하기 api의 request
+struct DeleteLookBookEntity {
+    let lookBookId: Int
+}
+
+// 개별 룩북 코디 목록 조회 api의 responseDTO의 content
+struct SpecificLookBookCodiEntity: Identifiable {
+    let coordinateId: Int
+    let coordinateName: String
+    let coordinateLiked: Bool
+    let imageUrl: String
+
+    var id: Int { coordinateId }
+}
+
+// 과거 일일 코디 조회 api responseDTO의 content
+struct BeforeCoordinateDailyEntity: Identifiable {
+    let coordinateId: Int
+    let imageUrl: String
+    let date: String
+    
+    var id: Int { coordinateId }
+}
+
+struct CodiLikeEntity {
+    let coordinateId: Int
+}
+
+struct DeleteCodiEntity {
+    let coordinateId: Int
+}
+
+struct EditLookBookEntity {
+    let lookBookId: Int
+    let name: String
+}
+
+struct CoordinatePreviewEntity {
+    let coordinateId: Int
+    let imageUrl: String
+    let coordinateName: String
+    let coordinateMemo: String
+}
+
+//---------------------------------------------------------
 
 // MARK: - Supporting Types
 struct SelectedCodiData: Hashable {
     let imageURL: String
-    let name: String
-    let memo: String
-}
-
-struct BeforeCodiEntity: Identifiable {
-    let id: Int
-    let imageURL: String
-    let date: String
     let name: String
     let memo: String
 }

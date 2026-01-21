@@ -11,17 +11,44 @@ import SwiftUI
 enum NavigationBarRightButton {
     case none
     case text(title: String, isEnabled: Bool, action: () -> Void)
-//    case icon(systemName: String, isEnabled: Bool, action: () -> Void)
-//    case menu(systemName: String, isEnabled: Bool, action: () -> Void)
     case overflow(menuType: MenuType, menuActions: [() -> Void])
     case icon(imageName: String, isSystemIcon: Bool = true, isEnabled: Bool, action: () -> Void)
     case menu(imageName: String, isSystemIcon: Bool = true, isEnabled: Bool, action: () -> Void)
 }
 
 struct CustomNavigationBar: View {
-    var title: String
+    @Binding var title: String
+    var isEditingMode: Bool = false
     var onBack: () -> Void
+    var onBeginEditTitle: (() -> Void)?
+    var onConfirmEditTitle: (() -> Void)?
+    var onCancelEditTitle: (() -> Void)?
     var rightButton: NavigationBarRightButton = .none
+    
+    init(
+        title: Binding<String>,
+        isEditingMode: Bool = false,
+        onBack: @escaping () -> Void,
+        onBeginEditTitle: (() -> Void)? = nil,
+        onConfirmEditTitle: (() -> Void)? = nil,
+        onCancelEditTitle: (() -> Void)? = nil,
+        rightButton: NavigationBarRightButton = .none
+    ) {
+        self._title = title
+        self.isEditingMode = isEditingMode
+        self.onBack = onBack
+        self.onBeginEditTitle = onBeginEditTitle
+        self.onConfirmEditTitle = onConfirmEditTitle
+        self.onCancelEditTitle = onCancelEditTitle
+        self.rightButton = rightButton
+    }
+
+    init(title: String, onBack: @escaping () -> Void, rightButton: NavigationBarRightButton = .none) {
+        self._title = .constant(title)
+        self.isEditingMode = false
+        self.onBack = onBack
+        self.rightButton = rightButton
+    }
     
     var body: some View {
         HStack(spacing: 0) {
@@ -35,10 +62,30 @@ struct CustomNavigationBar: View {
             
             Spacer()
             
-            // 가운데 타이틀
-            Text(title)
-                .font(Font.codive_title1)
-                .foregroundStyle(Color.Codive.grayscale1)
+            if isEditingMode {
+                VStack(spacing: 4) {
+                    TextField("", text: $title) {
+                        onConfirmEditTitle?()
+                    }
+                    .font(Font.codive_title1)
+                    .foregroundStyle(Color.Codive.grayscale1)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                    
+                    Rectangle()
+                        .frame(height: 1)
+                        .foregroundStyle(Color.Codive.grayscale4)
+                        .padding(.horizontal, 20)
+                }
+                .frame(maxWidth: .infinity)
+            } else {
+                Text(title)
+                    .font(Font.codive_title1)
+                    .foregroundStyle(Color.Codive.grayscale1)
+                    .onTapGesture {
+                        onBeginEditTitle?()
+                    }
+            }
             
             Spacer()
             
