@@ -48,6 +48,7 @@ struct ClothTagDTO {
     let clothId: Int64
     let name: String?
     let brand: String?
+    let clothImageUrl: String?
     let locationX: Double
     let locationY: Double
 }
@@ -212,6 +213,7 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
                     clothId: clothId,
                     name: tag.name,
                     brand: tag.brand,
+                    clothImageUrl: tag.clothImageUrl,
                     locationX: locationX,
                     locationY: locationY
                 )

@@ -100,7 +100,7 @@ struct FeedImageSlider: View {
             "https://via.placeholder.com/300x400/0000FF"
         ],
         tags: [
-            [ClothTag(id: UUID(), clothId: 1, brand: "Typeservice", name: "Layered Henry Neck", locationX: 0.3, locationY: 0.4)],
+            [ClothTag(id: UUID(), clothId: 1, brand: "Typeservice", name: "Layered Henry Neck", imageUrl: nil, locationX: 0.3, locationY: 0.4)],
             []
         ],
         currentIndex: .constant(0),

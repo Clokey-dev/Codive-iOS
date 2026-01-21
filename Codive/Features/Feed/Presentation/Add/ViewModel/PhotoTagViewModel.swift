@@ -95,6 +95,7 @@ final class PhotoTagViewModel: ObservableObject {
             clothId: product.id,
             brand: product.brand ?? "",
             name: product.name ?? "",
+            imageUrl: product.imageUrl,
             locationX: 0.5,
             locationY: 0.5
         )

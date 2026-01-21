@@ -108,6 +108,7 @@ final class FeedDetailViewModel: ObservableObject {
                                 clothId: Int(dto.clothId),
                                 brand: dto.brand ?? TextLiteral.Feed.defaultBrand,
                                 name: dto.name ?? TextLiteral.Feed.defaultProductName,
+                                imageUrl: dto.clothImageUrl,
                                 locationX: CGFloat(dto.locationX),
                                 locationY: CGFloat(dto.locationY)
                             )
