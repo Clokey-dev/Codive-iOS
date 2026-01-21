@@ -29,6 +29,8 @@ struct HistoryDetailDTO {
     let historyDate: String?
     let situationId: Int64?
     let situationName: String?
+    let content: String?
+    let hashtags: [String]?
     let styles: [HistoryStyleDTO]
 }
 
@@ -165,6 +167,8 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
                 historyDate: result.historyDate,
                 situationId: result.situationId,
                 situationName: result.situationName,
+                content: result.content,
+                hashtags: result.hashtags?.compactMap { $0 as? String },
                 styles: result.styles?.compactMap { style in
                     guard let styleId = style.styleId, let styleName = style.styleName else { return nil }
                     return HistoryStyleDTO(styleId: styleId, styleName: styleName)

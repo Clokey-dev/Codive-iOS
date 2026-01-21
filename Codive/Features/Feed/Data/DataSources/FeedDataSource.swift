@@ -141,13 +141,13 @@ extension HistoryDetailDTO {
 
         return Feed(
             id: feedId,
-            content: nil,
+            content: content,
             author: author,
             images: feedImages,
             situationId: situationId.map { Int($0) },
             styleIds: styleIds.isEmpty ? nil : styleIds,
             styleNames: styleNames.isEmpty ? nil : styleNames,
-            hashtags: nil,
+            hashtags: hashtags,
             createdAt: createdAtDate,
             likeCount: Int(likeCount),
             isLiked: nil,
