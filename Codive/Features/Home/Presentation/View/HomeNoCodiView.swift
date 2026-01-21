@@ -27,6 +27,9 @@ struct HomeNoCodiView: View {
         }
         .onAppear {
             viewModel.onAppear()
+            Task {
+                await viewModel.loadRecommendCategoryClothList()
+            }
         }
     }
 }

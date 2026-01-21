@@ -24,11 +24,19 @@ final class HomeRepositoryImpl: HomeRepository {
     
     // MARK: - 코디가 없는 경우의 Home 관련
     
-    func fetchClothItems(request: ClothListRequestDTO) async throws -> [HomeClothEntity] {
-        let dtoList = try await dataSource.fetchClothItems(request: request)
-
-        let categoryId = Int(request.categoryId ?? 1)
-        return dtoList.toEntities(categoryId: categoryId)
+    /// 날씨에 따른 카테고리별 옷 리스트 api 연결
+    func fetchRecommendCategoryClothList(
+        lastClothId: Int64?,
+        size: Int,
+        categoryId: Int64,
+        season: Set<Season>
+    ) async throws -> (content: [HomeClothEntity], isLast: Bool) {
+        return try await dataSource.fetchRecommendCategoryCloth(
+            lastClothId: lastClothId,
+            size: size,
+            categoryId: categoryId,
+            season: season
+        )
     }
     
     func createTodayDailyCodi(_ codi: TodayDailyCodi) async throws {

@@ -9,7 +9,16 @@ import Foundation
 import WeatherKit
 import CoreLocation
 
-final class HomeDatasource {
+protocol HomeDatasourceProtocol {
+    func fetchRecommendCategoryCloth(
+        lastClothId: Int64?,
+        size: Int,
+        categoryId: Int64,
+        season: Set<Season>
+    ) async throws -> (content: [HomeClothEntity], isLast: Bool)
+}
+
+final class HomeDatasource: HomeDatasourceProtocol {
     
     // MARK: - Properties
     private let service = WeatherService.shared
@@ -17,9 +26,15 @@ final class HomeDatasource {
     
     private var cachedLocation: CLLocation?
     
+    private let apiService: HomeCategoryAPIServiceProtocol
+    
     // MARK: - Initializer
-    init(locationService: LocationService) {
+    init(
+        locationService: LocationService,
+        apiService: HomeCategoryAPIServiceProtocol = HomeCategoryAPIService()
+    ) {
         self.locationService = locationService
+        self.apiService = apiService
     }
     
     // MARK: - 날씨 및 위치
@@ -105,53 +120,24 @@ final class HomeDatasource {
     
     // MARK: - 코디가 없는 경우의 Home 관련
     
-    /// 홈화면 - 카테고리 별 옷 더미 list
-    func fetchClothItems(request: ClothListRequestDTO) async throws -> [ClothListResponseDTO] {
+    /// 날씨에 따른 카테고리별 옷 리스트 - API 연결
+    func fetchRecommendCategoryCloth(
+        lastClothId: Int64?,
+        size: Int,
+        categoryId: Int64,
+        season seasons: Set<Season>
+    ) async throws -> (content: [HomeClothEntity], isLast: Bool) {
+        let result = try await apiService.fetchRecommendCategoryCloth(
+            lastClothId: lastClothId.map { Int64($0) },
+            size: Int32(size),
+            categoryId: categoryId,
+            season: Array(seasons)
+        )
 
-        let categoryId = request.categoryId ?? 1
-        let mockResponse: [ClothListResponseDTO]
-        
-        switch categoryId {
-        case 1: 
-            mockResponse = [
-                ClothListResponseDTO(clothId: 101, clothImageUrl: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800"),
-                ClothListResponseDTO(clothId: 102, clothImageUrl: "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=800")
-            ]
-        case 2:
-            mockResponse = [
-                ClothListResponseDTO(clothId: 201, clothImageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800"),
-                ClothListResponseDTO(clothId: 202, clothImageUrl: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800")
-            ]
-        case 3:
-            mockResponse = [
-                ClothListResponseDTO(clothId: 201, clothImageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800"),
-                ClothListResponseDTO(clothId: 202, clothImageUrl: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800")
-            ]
-        case 4:
-            mockResponse = [
-                ClothListResponseDTO(clothId: 201, clothImageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800"),
-                ClothListResponseDTO(clothId: 202, clothImageUrl: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800")
-            ]
-        case 5:
-            mockResponse = [
-                ClothListResponseDTO(clothId: 501, clothImageUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800"),
-                ClothListResponseDTO(clothId: 502, clothImageUrl: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800")
-            ]
-        case 6:
-            mockResponse = [
-                ClothListResponseDTO(clothId: 201, clothImageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800"),
-                ClothListResponseDTO(clothId: 202, clothImageUrl: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800")
-            ]
-        case 7:
-            mockResponse = [
-                ClothListResponseDTO(clothId: 201, clothImageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800"),
-                ClothListResponseDTO(clothId: 202, clothImageUrl: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800")
-            ]
-        default:
-            mockResponse = []
-        }
-        
-        return mockResponse
+        return (
+            content: result.content.map { $0.toEntity(categoryId: categoryId) },
+            isLast: result.isLast
+        )
     }
     
     // 오늘의 코디 추가하기

@@ -14,7 +14,13 @@ protocol HomeRepository {
     
     // MARK: - 코디가 없는 경우의 Home 관련
     
-    func fetchClothItems(request: ClothListRequestDTO) async throws -> [HomeClothEntity]
+    /// 날씨에 따른 카테고리별 옷 리스트 api 연결
+    func fetchRecommendCategoryClothList(
+        lastClothId: Int64?,
+        size: Int,
+        categoryId: Int64,
+        season: Set<Season>
+    ) async throws -> (content: [HomeClothEntity], isLast: Bool)
     func createTodayDailyCodi(_ codi: TodayDailyCodi) async throws
     
     // MARK: - 코디보드

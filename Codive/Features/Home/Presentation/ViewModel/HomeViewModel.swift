@@ -124,28 +124,29 @@ extension HomeViewModel {
     }
 
     /// API를 통해 활성 카테고리의 의류 아이템 리스트를 비동기로 가져옴
-    func loadActiveCategoriesWithAPI() async {
+    func loadRecommendCategoryClothList() async {
         let allCategories = categoryUseCase.loadCategories()
         let filteredCategories = allCategories.filter { $0.itemCount > 0 }
         self.activeCategories = filteredCategories
-        
-        var allClothItems: [HomeClothEntity] = []
-        
+
+        var resultMap: [Int: [HomeClothEntity]] = [:]
+
         for category in filteredCategories {
             do {
-                let items = try await categoryUseCase.loadClothItems(
+                let result = try await categoryUseCase.loadClothItems(
                     lastClothId: nil,
-                    size: 20,
+                    size: 10,
                     categoryId: Int64(category.id),
-                    season: nil
+                    season: [.spring]
                 )
-                allClothItems.append(contentsOf: items)
+                resultMap[category.id] = result.content
             } catch {
                 print("Failed to load items for category \(category.id): \(error)")
+                resultMap[category.id] = []
             }
         }
-        
-        clothItemsByCategory = Dictionary(grouping: allClothItems) { $0.categoryId }
+
+        self.clothItemsByCategory = resultMap
     }
 }
 
@@ -249,7 +250,7 @@ extension HomeViewModel {
                 containerSize: containerSize
             )
             return CodiPayload(
-                clothId: cloth.id,
+                clothId: Int(cloth.clothId),
                 locationX: position.x,
                 locationY: position.y,
                 ratio: 1.0,
