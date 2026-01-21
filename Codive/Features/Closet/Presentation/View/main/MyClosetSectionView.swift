@@ -58,39 +58,75 @@ struct MyClosetSectionView: View {
                 }
                 .frame(height: 200)
             } else {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 12) {
-                        // 2개씩 묶어서 세로로 표시
-                        ForEach(stride(from: 0, to: viewModel.clothItems.count, by: 2).map { $0 }, id: \.self) { i in
-                            VStack(spacing: 12) {
-                                // 첫 번째 아이템
-                                ClothingCardView(
-                                    brand: viewModel.clothItems[i].brand ?? "No brand",
-                                    name: viewModel.clothItems[i].name ?? "이름 없음"
-                                )
-                                .onTapGesture {
-                                    viewModel.navigateToClothDetail(viewModel.clothItems[i])
-                                }
-
-                                // 두 번째 아이템 (있을 경우)
-                                if i + 1 < viewModel.clothItems.count {
-                                    ClothingCardView(
-                                        brand: viewModel.clothItems[i + 1].brand ?? "No brand",
-                                        name: viewModel.clothItems[i + 1].name ?? "이름 없음"
-                                    )
-                                    .onTapGesture {
-                                        viewModel.navigateToClothDetail(viewModel.clothItems[i + 1])
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                }
+                clothGridSection
             }
         }
         .task {
             await viewModel.loadClothItems()
+        }
+    }
+
+    // MARK: - Cloth Grid Section
+
+    @ViewBuilder
+    private var clothGridSection: some View {
+        let itemCount = viewModel.clothItems.count
+        let showTwoRows = itemCount >= 8
+
+        ScrollView(.horizontal, showsIndicators: false) {
+            if showTwoRows {
+                // 8개 이상: 2행 x 4열 (총 8개)
+                twoRowGrid
+            } else {
+                // 7개 이하: 1행 (최대 4개)
+                oneRowGrid
+            }
+        }
+    }
+
+    /// 1행 레이아웃 (7개 이하일 때, 최대 4개 표시)
+    @ViewBuilder
+    private var oneRowGrid: some View {
+        HStack(spacing: 12) {
+            ForEach(Array(viewModel.clothItems.prefix(4).enumerated()), id: \.element.id) { _, cloth in
+                clothCard(for: cloth)
+            }
+        }
+        .padding(.horizontal, 20)
+    }
+
+    /// 2행 레이아웃 (8개 이상일 때, 총 8개 표시)
+    @ViewBuilder
+    private var twoRowGrid: some View {
+        let displayItems = Array(viewModel.clothItems.prefix(8))
+
+        HStack(spacing: 12) {
+            // 4개씩 묶어서 세로로 표시
+            ForEach(stride(from: 0, to: displayItems.count, by: 2).map { $0 }, id: \.self) { i in
+                VStack(spacing: 12) {
+                    // 첫 번째 아이템 (위)
+                    clothCard(for: displayItems[i])
+
+                    // 두 번째 아이템 (아래, 있을 경우)
+                    if i + 1 < displayItems.count {
+                        clothCard(for: displayItems[i + 1])
+                    }
+                }
+            }
+        }
+        .padding(.horizontal, 20)
+    }
+
+    /// 개별 옷 카드
+    @ViewBuilder
+    private func clothCard(for cloth: Cloth) -> some View {
+        ClothingCardView(
+            imageUrl: cloth.imageUrl,
+            brand: cloth.brand ?? "No brand",
+            name: cloth.name ?? "이름 없음"
+        )
+        .onTapGesture {
+            viewModel.navigateToClothDetail(cloth)
         }
     }
 }

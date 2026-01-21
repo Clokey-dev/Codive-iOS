@@ -89,7 +89,7 @@ struct ButtonStyleModifier: ViewModifier {
         case .fill:
             content
                 .background(alignment: .center) {
-                    isEnabled ? Color.Codive.main0 : Color.Codive.main3
+                    isEnabled ? Color.Codive.main0 : Color.Codive.main4
                 }
         case .border:
             content

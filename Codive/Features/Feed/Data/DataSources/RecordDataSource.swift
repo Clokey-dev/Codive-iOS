@@ -6,14 +6,112 @@
 //
 
 import Foundation
+import UIKit
 
-protocol RecordDataSource {
-    func create(record: Record) async -> Bool
+// MARK: - Record Create Request
+
+struct RecordCreateRequest {
+    let content: String?
+    let situationId: Int64
+    let styleIds: [Int64]
+    let hashtags: [String]
+    let photos: [RecordPhoto]
 }
 
+struct RecordPhoto {
+    let image: UIImage
+    let clothTags: [RecordClothTag]
+}
+
+struct RecordClothTag {
+    let clothId: Int64
+    let locationX: Double
+    let locationY: Double
+}
+
+// MARK: - Protocol
+
+protocol RecordDataSource {
+    func createRecord(request: RecordCreateRequest) async throws -> Int64
+}
+
+// MARK: - Implementation
+
 final class DefaultRecordDataSource: RecordDataSource {
-    func create(record: Record) async -> Bool {
-        print("Creating record on remote server: \(record)")
-        return true
+
+    private let clothAPIService: ClothAPIServiceProtocol
+    private let historyAPIService: HistoryAPIServiceProtocol
+
+    init(
+        clothAPIService: ClothAPIServiceProtocol = ClothAPIService(),
+        historyAPIService: HistoryAPIServiceProtocol = HistoryAPIService()
+    ) {
+        self.clothAPIService = clothAPIService
+        self.historyAPIService = historyAPIService
+    }
+
+    func createRecord(request: RecordCreateRequest) async throws -> Int64 {
+        // Step 1: 이미지 업로드 (Presigned URL → S3)
+        let imageUrls = try await uploadImages(photos: request.photos)
+
+        // Step 2: API 요청 생성
+        let payloads = zip(imageUrls, request.photos).map { url, photo in
+            HistoryImagePayload(
+                imageUrl: url,
+                clothTags: photo.clothTags
+            )
+        }
+
+        let apiRequest = HistoryCreateAPIRequest(
+            content: request.content,
+            situationId: request.situationId,
+            styleIds: request.styleIds,
+            hashtags: request.hashtags,
+            payloads: payloads
+        )
+
+        // Step 3: 기록 생성 API 호출
+        return try await historyAPIService.createHistory(request: apiRequest)
+    }
+
+    // MARK: - Private Methods
+
+    private func uploadImages(photos: [RecordPhoto]) async throws -> [String] {
+        // 이미지 데이터 변환
+        let imageDatas = photos.compactMap { photo -> Data? in
+            photo.image.jpegData(compressionQuality: 0.8)
+        }
+
+        guard imageDatas.count == photos.count else {
+            throw RecordDataSourceError.imageConversionFailed
+        }
+
+        // Presigned URL 발급 (옷 추가 API 재사용)
+        let presignedInfos = try await clothAPIService.getPresignedUrls(for: imageDatas)
+
+        // S3 업로드
+        for (imageData, presignedInfo) in zip(imageDatas, presignedInfos) {
+            try await clothAPIService.uploadImageToS3(
+                presignedUrl: presignedInfo.presignedUrl,
+                imageData: imageData,
+                contentMD5: presignedInfo.md5Hash
+            )
+        }
+
+        // 최종 URL 반환
+        return presignedInfos.map { $0.finalUrl }
+    }
+}
+
+// MARK: - Error
+
+enum RecordDataSourceError: LocalizedError {
+    case imageConversionFailed
+
+    var errorDescription: String? {
+        switch self {
+        case .imageConversionFailed:
+            return "이미지 변환에 실패했습니다."
+        }
     }
 }

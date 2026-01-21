@@ -16,6 +16,12 @@ final class NavigationRouter: ObservableObject {
     @Published var currentDestination: AppDestination?
     @Published var sheetDestination: AppDestination?
     
+    /// 탭 전환 요청 (MainTabView에서 구독)
+    @Published var pendingTabSwitch: TabBarType?
+    
+    /// 성공 오버레이 표시 (앱 레벨에서 관리)
+    @Published var successMessage: String?
+    
     // MARK: - Navigation Methods
 
     /// 새로운 화면으로 이동 (스택에 추가)
@@ -51,6 +57,38 @@ final class NavigationRouter: ObservableObject {
         path = NavigationPath()
         currentDestination = destination
         path.append(destination)
+    }
+
+    /// 탭 전환 후 특정 화면으로 이동
+    func switchTabAndNavigate(to tab: TabBarType, destination: AppDestination? = nil) {
+        path = NavigationPath()
+        currentDestination = nil
+        pendingTabSwitch = tab
+
+        if let destination = destination {
+            Task {
+                try? await Task.sleep(nanoseconds: 100_000_000) // 0.1초
+                navigate(to: destination)
+            }
+        }
+    }
+
+    /// 성공 화면을 보여주면서 탭 전환 후 네비게이션 (성공 화면이 덮고 있는 동안 뒤에서 이동)
+    func showSuccessAndNavigate(message: String, to tab: TabBarType, destination: AppDestination? = nil, duration: TimeInterval = 1.5) {
+        // 1. 성공 오버레이 표시
+        successMessage = message
+
+        Task {
+            // 2. 뒤에서 탭 전환 + 네비게이션
+            try? await Task.sleep(nanoseconds: 100_000_000) // 0.1초
+            switchTabAndNavigate(to: tab, destination: destination)
+
+            // 3. duration 후 성공 오버레이 닫기
+            try? await Task.sleep(nanoseconds: UInt64(duration * 1_000_000_000))
+            withAnimation(.easeOut(duration: 0.3)) {
+                successMessage = nil
+            }
+        }
     }
     
     // MARK: - Sheet Presentation Methods

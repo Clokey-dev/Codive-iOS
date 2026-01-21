@@ -8,6 +8,7 @@
 import SwiftUI
 
 // MARK: - SplashView (순수 UI)
+
 struct SplashView: View {
 
     let displayedText: String
@@ -44,7 +45,8 @@ struct SplashView: View {
     }
 }
 
-// MARK: - SplashContainerView 
+// MARK: - SplashContainerView
+
 struct SplashContainerView: View {
 
     @StateObject private var viewModel: SplashViewModel
@@ -61,45 +63,8 @@ struct SplashContainerView: View {
     }
 }
 
-// MARK: - SplashViewModel (타이핑 애니메이션 로직)
-@MainActor
-final class SplashViewModel: ObservableObject {
-
-    @Published var displayedText: String = ""
-
-    private let fullText: String = "Codive"
-    private let typingSpeed: Double = 0.4
-    private let appRouter: AppRouter
-
-    init(appRouter: AppRouter) {
-        self.appRouter = appRouter
-    }
-
-    func startAnimation() async {
-        // 타이핑 애니메이션
-        for i in 1...fullText.count {
-            let endIndex = fullText.index(fullText.startIndex, offsetBy: i)
-            displayedText = String(fullText[..<endIndex])
-
-            do {
-                try await Task.sleep(for: .seconds(typingSpeed))
-            } catch {
-                return
-            }
-        }
-
-        // 애니메이션 종료 후 0.5초 대기
-        do {
-            try await Task.sleep(for: .seconds(0.5))
-            appRouter.finishSplash()
-        } catch {
-            // Task 취소됨
-            return
-        }
-    }
-}
-
 // MARK: - Preview
+
 #Preview {
     SplashView(displayedText: "Codi")
 }
