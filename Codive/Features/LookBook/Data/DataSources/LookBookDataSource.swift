@@ -211,12 +211,11 @@ final class LookBookDataSource {
         - lookBookId: \(entity.lookBookId)
         - name: \(entity.name)
         """)
-
-        guard var lookBook = dummyLookBooks.first(where: { $0.id == entity.lookBookId }) else {
+        
+        guard let index = dummyLookBooks.firstIndex(where: { $0.lookBookId == entity.lookBookId }) else {
             throw NSError(domain: "LookBookNotFound", code: 404)
         }
-
-        lookBook.lookbookName = entity.name
+        dummyLookBooks[index].lookbookName = entity.name
     }
     
     /// 코디 preview 조회(GET, 완)
