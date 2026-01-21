@@ -13,15 +13,17 @@ final class SpecificLookBookViewModel: ObservableObject {
     // MARK: - Dependencies
     
     private let navigationRouter: NavigationRouter
-    private let detailUseCase: LookBookDetailUseCase
-    private let codiUseCase: CodiUseCase
+    private let specificLookBookUseCase: SpecificLookBookUseCase
 
-    let lookbookId: Int
-    let lookbookTitle: String
+    private let lookbookId: Int
+    @Published var lookbookTitle: String
+    @Published var isEditingTitle = false
+    private var previousTitle: String = ""
     
     // MARK: - Published State (Data)
     
-    @Published var lookBookList: [LookBookEntity] = []
+    @Published var specificLookBookCodiList: [SpecificLookBookCodiEntity] = []
+    @Published private(set) var likedCodiIds: Set<Int> = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     
@@ -35,44 +37,66 @@ final class SpecificLookBookViewModel: ObservableObject {
     
     init(
         navigationRouter: NavigationRouter,
-        detailUseCase: LookBookDetailUseCase,
-        codiUseCase: CodiUseCase,
+        specificLookBookUseCase: SpecificLookBookUseCase,
         lookbookId: Int,
         lookbookTitle: String = ""
     ) {
         self.navigationRouter = navigationRouter
-        self.detailUseCase = detailUseCase
-        self.codiUseCase = codiUseCase
+        self.specificLookBookUseCase = specificLookBookUseCase
         self.lookbookId = lookbookId
         self.lookbookTitle = lookbookTitle
     }
     
-    // MARK: - Data Fetching
-    
+    // MARK: - 특정 룩북의 코디 조회하기
     func fetchCodis() {
         isLoading = true
         errorMessage = nil
         
         Task {
             do {
-                let list = try await detailUseCase.fetchCodis(forLookbookId: lookbookId)
-                self.lookBookList = list
+                let list = try await specificLookBookUseCase.fetchCodisForLookBook(forLookbookId: lookbookId)
+                self.specificLookBookCodiList = list
+                
+                // 추가: 서버에서 받아온 좋아요 상태를 즉시 반영
+                let initiallyLikedIds = list.filter { $0.coordinateLiked }.map { $0.id }
+                self.likedCodiIds = Set(initiallyLikedIds)
             } catch {
                 self.errorMessage = "데이터 로드에 실패했습니다: \(error.localizedDescription)"
             }
             isLoading = false
         }
     }
-    
-    // MARK: - Editing Actions
-    
-    func toggleEditingMode() {
-        isEditing.toggle()
-        if !isEditing {
-            selectedCodiIds = []
+
+    // MARK: - 코디 좋아요 토글
+    func toggleLike(codyId: Int) {
+        let isCurrentlyLiked = likedCodiIds.contains(codyId)
+
+        if isCurrentlyLiked {
+            likedCodiIds.remove(codyId)
+        } else {
+            likedCodiIds.insert(codyId)
+        }
+
+        Task {
+            do {
+                try await specificLookBookUseCase.toggleLike(
+                    coordinateId: codyId,
+                    isLiked: !isCurrentlyLiked
+                )
+            } catch {
+                if isCurrentlyLiked {
+                    likedCodiIds.insert(codyId)
+                } else {
+                    likedCodiIds.remove(codyId)
+                }
+                self.errorMessage = "좋아요 상태 변경에 실패했습니다."
+            }
         }
     }
     
+    // MARK: - Editing Actions
+    
+    // 토글 - 추가하기
     func toggleSelection(id: Int) {
         if selectedCodiIds.contains(id) {
             selectedCodiIds.remove(id)
@@ -81,10 +105,20 @@ final class SpecificLookBookViewModel: ObservableObject {
         }
     }
     
-    func handleDeleteAction() {
+    // MARK: - 토글(편집하기)
+    func toggleEditingMode() {
+        isEditing.toggle()
+        if !isEditing {
+            selectedCodiIds = []
+        }
+    }
+    
+    // MARK: - 코디 편집 모드 전환
+    func handleEditAction() {
         isEditing = true
     }
     
+    // MARK: - topBar 삭제 버튼 동작
     func handleCompleteAction() {
         guard !selectedCodiIds.isEmpty else {
             toggleEditingMode()
@@ -93,6 +127,7 @@ final class SpecificLookBookViewModel: ObservableObject {
         isShowingDeleteAlert = true
     }
     
+    // MARK: - alert 삭제 버튼
     func beginDelete() {
         isShowingDeleteAlert = false
         isLoading = true
@@ -103,35 +138,78 @@ final class SpecificLookBookViewModel: ObservableObject {
         }
     }
     
+    // MARK: - 코디 삭제 확정
     func confirmDelete() {
+        let idsToDelete = Array(selectedCodiIds)
+
+        isLoading = true
+
         Task {
-            fetchCodis()
-            toggleEditingMode()
+            do {
+                try await specificLookBookUseCase.deleteCodis(
+                    ids: idsToDelete,
+                    lookbookId: lookbookId
+                )
+
+                fetchCodis()
+                toggleEditingMode()
+            } catch {
+                self.errorMessage = "코디 삭제에 실패했습니다."
+            }
+
+            isLoading = false
         }
     }
     
-    // MARK: - Like Action
+    // MARK: - 룩북 이름 수정 시작
+    func beginEditTitle() {
+        previousTitle = lookbookTitle
+        isEditingTitle = true
+    }
     
-    func toggleLike(codyId: Int, isLiked: Bool) {
+    // MARK: - 룩북 이름 수정 확정
+    func confirmEditTitle() {
+        let newTitle = lookbookTitle.trimmingCharacters(in: .whitespaces)
+        
+        guard !newTitle.isEmpty, newTitle != previousTitle else {
+            cancelEditTitle()
+            return
+        }
+        
         Task {
             do {
-                try await codiUseCase.toggleLike(codyId: codyId, isLiked: isLiked)
+                try await specificLookBookUseCase.editLookBookName(
+                    lookBookId: lookbookId,
+                    newName: newTitle
+                )
             } catch {
-                self.errorMessage = "좋아요 상태 변경에 실패했습니다: \(error.localizedDescription)"
+                lookbookTitle = previousTitle
+                errorMessage = "룩북 이름 수정에 실패했습니다."
             }
         }
+        
+        isEditingTitle = false
+    }
+    
+    // MARK: - 룩북 이름 수정 취소
+    func cancelEditTitle() {
+        lookbookTitle = previousTitle
+        isEditingTitle = false
     }
     
     // MARK: - Navigation
     
+    // 코디 추가하기 후 화면 전환
     func navigateToAddCodi() {
-        navigationRouter.navigate(to: .addCodi(lookbookId: lookbookId))
+        navigationRouter.navigate(to: .addCodi(coordinateId: lookbookId))
     }
     
+    // 특정 코디 상세 뷰 전환
     func navigateToCodiDetail(codiId: Int) {
         navigationRouter.navigate(to: .codiDetail(codiId: codiId, lookbookId: lookbookId))
     }
     
+    // 뒤로가기
     func handleBackTap() {
         if isEditing {
             toggleEditingMode()

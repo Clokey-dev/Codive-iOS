@@ -17,62 +17,64 @@ struct CustomBottomSheet: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Handle
-            Capsule()
-                .foregroundStyle(Color("Grayscale5"))
-                .frame(width: 69, height: 4)
-                .padding(.bottom, 33)
-                .padding(.top, 11)
-            Button(action: action1) {
-                HStack(spacing: 16) {
-                    Image(iconName1)
-                        .resizable()
-                        .frame(width: 20, height: 20)
-                        .foregroundStyle(Color("main0"))
-                    
-                    Text(title1)
-                        .font(.codive_title3)
-                        .foregroundStyle(Color("Grayscale1"))
-                    
-                    Spacer()
-                    
-                    Image("backSmall")
-                        .resizable()
-                        .frame(width: 8, height: 13)
-                        .rotationEffect(.degrees(180))
-                        .foregroundStyle(Color("main0"))
-                }
-            }
-            .padding(.horizontal, 20)
-            .padding(.bottom, 16)
+            Spacer(minLength: 0)
             
-            // Row 2 (이전 코디 불러오기)
-            Button(action: action2) {
-                HStack(spacing: 14) {
-                    Image(iconName2)
-                        .resizable()
-                        .frame(width: 25, height: 25)
-                        .foregroundStyle(Color("main0"))
-                    
-                    Text(title2)
-                        .font(.codive_title3)
-                        .foregroundStyle(Color("Grayscale1"))
-                    
-                    Spacer()
-                    
-                    Image("backSmall")
-                        .resizable()
-                        .frame(width: 8, height: 13)
-                        .rotationEffect(.degrees(180))
-                        .foregroundStyle(Color("main0"))
+            VStack(spacing: 0) {
+                Capsule()
+                    .foregroundStyle(Color("Grayscale5"))
+                    .frame(width: 69, height: 4)
+                    .padding(.top, 11)
+                    .padding(.bottom, 33)
+                
+                Button(action: action1) {
+                    HStack(spacing: 16) {
+                        Image(iconName1)
+                            .resizable()
+                            .frame(width: 20, height: 20)
+                        
+                        Text(title1)
+                            .font(.codive_title3)
+                            .foregroundStyle(Color("Grayscale1"))
+                        
+                        Spacer()
+                        
+                        Image("backSmall")
+                            .resizable()
+                            .frame(width: 8, height: 13)
+                            .rotationEffect(.degrees(180))
+                    }
                 }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 16)
+                
+                Button(action: action2) {
+                    HStack(spacing: 14) {
+                        Image(iconName2)
+                            .resizable()
+                            .frame(width: 25, height: 25)
+                        
+                        Text(title2)
+                            .font(.codive_title3)
+                            .foregroundStyle(Color("Grayscale1"))
+                        
+                        Spacer()
+                        
+                        Image("backSmall")
+                            .resizable()
+                            .frame(width: 8, height: 13)
+                            .rotationEffect(.degrees(180))
+                    }
+                }
+                .padding(.leading, 18)
+                .padding(.trailing, 20)
+                .padding(.bottom, 56)
             }
-            .padding(.leading, 18)
-            .padding(.trailing, 20)
-            .padding(.bottom, 56)
+            .background(Color.white)
+            .clipShape(
+                RoundedCorner(radius: 24, corners: [.topLeft, .topRight])
+            )
         }
-        .background(Color.white)
-        .clipShape(RoundedCorner(radius: 24, corners: [.topLeft, .topRight]))
+        .ignoresSafeArea(edges: .bottom)
     }
 }
 

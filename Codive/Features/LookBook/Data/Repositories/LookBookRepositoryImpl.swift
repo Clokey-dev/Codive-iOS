@@ -14,43 +14,40 @@ final class LookBookRepositoryImpl: LookBookRepository {
         self.datasource = datasource
     }
     
-    // MARK: - LookBook List
     func fetchLookBookList() async throws -> [LookBookEntity] {
         return try await datasource.fetchLookBookList()
     }
-    
-    /// LookBook 삭제
-    /// - Parameter ids: 삭제할 룩북 ID 배열
-    func deleteLookBooks(ids: [Int]) async throws {
-        try await datasource.deleteLookBooks(ids: ids)
-    }
-    
-    // MARK: - LookBook Detail (Codi List)
-    
-    /// 특정 LookBook에 속한 코디 목록 조회
-    /// - Parameter id: LookBook ID
-    /// - Returns: 해당 룩북에 포함된 코디 목록
-    func fetchCodis(forLookbookId id: Int) async throws -> [LookBookEntity] {
+
+    func fetchCodisForLookBook(forLookbookId id: Int) async throws -> [SpecificLookBookCodiEntity] {
         return try await datasource.fetchCodisForLookBook(id: id)
     }
-    
-    // MARK: - Codi Detail
-    
-    /// 코디 상세 정보 조회
-    /// - Parameter codiId: 코디 ID
-    /// - Returns: 코디 상세 엔티티 (없을 경우 nil)
-    func fetchCodiDetail(codiId: Int) async throws -> CodiDetailEntity? {
-        return try await datasource.fetchCodiDetail(codiId: codiId)
+
+    func fetchBeforeCoordinateDaily() async throws -> [BeforeCoordinateDailyEntity] {
+        return try await datasource.fetchBeforeCoordinateDaily()
     }
     
-    // MARK: - Codi Like
+    func createLookBook(title: String) async throws -> CreateLookBookEntity {
+        try await datasource.createLookBook(title: title)
+    }
     
-    /// 코디 좋아요 상태 변경
-    /// - Parameters:
-    ///   - codyId: 코디 ID
-    ///   - isLiked: 좋아요 여부
-    func toggleLike(codyId: Int, isLiked: Bool) async throws {
-        try await datasource.toggleLike(codyId: codyId, isLiked: isLiked)
+    func deleteLookBooks(_ lookBooks: [DeleteLookBookEntity]) async throws {
+        try await datasource.deleteLookBooks(lookBooks)
+    }
+
+    func toggleCodiLike(_ request: CodiLikeEntity, isLiked: Bool) async throws {
+        try await datasource.toggleCodiLike(request, isLiked: isLiked)
+    }
+    
+    func deleteCodis(_ codis: [DeleteCodiEntity], lookbookId: Int) async throws {
+        try await datasource.deleteCodis(codis, lookbookId: lookbookId)
+    }
+
+    func editLookBook(_ entity: EditLookBookEntity) async throws {
+        try await datasource.editLookBook(entity)
+    }
+    
+    func fetchCoordinatePreview(coordinateId: Int) async throws -> CoordinatePreviewEntity {
+        try await datasource.fetchCoordinatePreview(coordinateId: coordinateId)
     }
     
     // MARK: - Product
@@ -58,13 +55,5 @@ final class LookBookRepositoryImpl: LookBookRepository {
     /// 코디 구성에 사용되는 상품 목록 조회
     func fetchProductList() async throws -> [ProductItem] {
         return try await datasource.fetchProductList()
-    }
-    
-    // MARK: - Before Codi
-    
-    /// 이전에 저장된 코디 목록 조회
-    /// 코디 추가 전 선택 화면에서 사용된다.
-    func fetchBeforeCodi() async throws -> [BeforeCodiEntity] {
-        return try await datasource.fetchBeforeCodiList()
     }
 }

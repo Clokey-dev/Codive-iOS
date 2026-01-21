@@ -10,31 +10,34 @@ import SwiftUI
 @MainActor
 final class EditCodiViewModel: ObservableObject {
     
-    // MARK: - Dependencies
-    
-    private let navigationRouter: NavigationRouter
-    let lookbookId: Int
-    let codiId: Int?
-    
-    // MARK: - Original Data (Change Detection)
-    
-    private var originalName: String = ""
-    private var originalMemo: String = ""
-    
-    // MARK: - Published State (Editable Fields)
+    // MARK: - Properties (State: Editable)
     
     @Published var codiName: String = ""
     @Published var memo: String = ""
     @Published var selectedImageURL: String?
     
+    // MARK: - Properties (Internal State)
+    
+    /// 변경 사항 감지를 위한 초기 데이터 백업
+    private var originalName: String = ""
+    private var originalMemo: String = ""
+    
+    // MARK: - Properties (Dependencies)
+    
+    private let navigationRouter: NavigationRouter
+    private let lookbookId: Int
+    private let codiId: Int?
+    
     // MARK: - Computed Properties
     
+    /// 초기값과 비교하여 텍스트 데이터에 변경이 있는지 확인합니다.
     var hasChanges: Bool {
         return codiName != originalName || memo != originalMemo
     }
     
+    /// 완료 버튼 활성화 여부 (이름이 비어있지 않고, 변경 사항이 있을 때)
     var isButtonEnabled: Bool {
-        !codiName.isEmpty && hasChanges
+        return !codiName.isEmpty && hasChanges
     }
     
     // MARK: - Initializer
@@ -48,6 +51,7 @@ final class EditCodiViewModel: ObservableObject {
         self.lookbookId = lookbookId
         self.codiId = selectedCodiData?.codiId
         
+        // 전달받은 초기 데이터 설정
         if let data = selectedCodiData {
             self.selectedImageURL = data.imageURL
             self.codiName = data.name
@@ -56,16 +60,34 @@ final class EditCodiViewModel: ObservableObject {
             self.originalMemo = data.memo
         }
     }
+}
+
+// MARK: - User Actions
+
+extension EditCodiViewModel {
     
-    // MARK: - User Actions
-    
-    /// 상단 백 버튼 탭 처리
+    /// 이전 화면으로 이동합니다.
     func handleBackTap() {
         navigationRouter.navigateBack()
     }
     
+    /// 수정 사항을 반영하고 저장 로직을 실행합니다.
     func handleCompleteTap() {
         guard hasChanges else { return }
+        
+        // TODO: 서버 API 호출을 통한 수정 로직 반영 필요
+        // try await codiUseCase.updateCodi(id: codiId, name: codiName, memo: memo)
+        
         navigationRouter.navigateBack()
+    }
+}
+
+// MARK: - Private Helpers
+
+private extension EditCodiViewModel {
+    
+    /// (필요 시) 서버 연동 실패 등 에러 발생 시 처리 로직
+    func handleError(_ error: Error) {
+        print("DEBUG: 코디 수정 실패 - \(error.localizedDescription)")
     }
 }

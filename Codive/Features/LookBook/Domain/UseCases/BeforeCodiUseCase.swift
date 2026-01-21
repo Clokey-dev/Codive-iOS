@@ -17,8 +17,8 @@ final class BeforeCodiUseCase {
 
     // MARK: - Before Codi
 
-    /// 이전에 저장된 코디 목록 조회
-    func fetchBeforeCodiList() async throws -> [BeforeCodiEntity] {
-        try await repository.fetchBeforeCodi()
+    /// 과거 일일 코디 목록 조회
+    func fetchBeforeCoordinateDailyList() async throws -> [BeforeCoordinateDailyEntity] {
+        try await repository.fetchBeforeCoordinateDaily()
     }
 }

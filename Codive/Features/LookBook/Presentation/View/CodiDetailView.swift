@@ -9,49 +9,29 @@ import SwiftUI
 
 struct CodiDetailView: View {
     
-    // MARK: - State Object
-    
+    // MARK: - Properties
     @StateObject private var viewModel: CodiDetailViewModel
     
     // MARK: - Initializer
-    
     init(viewModel: CodiDetailViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
     
     // MARK: - Body
-    
     var body: some View {
         GeometryReader { geometry in
             VStack(spacing: 0) {
-                
-                // MARK: Top Navigation Bar
-                
                 topBar
-                
-                // MARK: Scrollable Content
                 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
-                        
-                        // MARK: Codi Display Area
-                        
                         codiDisplayArea(width: geometry.size.width)
-                        
-                        // MARK: Cloth Selector Toggle Area
                         
                         if viewModel.showClothSelector {
                             clothSelector
                         }
                         
-                        // MARK: Codi Info Section
-                        
-                        if let detail = viewModel.codiDetail {
-                            CodiInfoSection(
-                                name: detail.name,
-                                memo: detail.memo
-                            )
-                        }
+                        infoSection
                     }
                 }
             }
@@ -59,23 +39,23 @@ struct CodiDetailView: View {
         .navigationBarHidden(true)
         .background(Color.white)
         .onAppear {
-            viewModel.fetchCodiDetail()
+            viewModel.fetchCoordinatePreview()
         }
         .alert(TextLiteral.LookBook.codiDelete, isPresented: $viewModel.showDeleteAlert) {
-            Button(TextLiteral.Common.cancel, role: .cancel) { }
-            Button(TextLiteral.Common.delete, role: .destructive) {
-                viewModel.deleteCodi()
-            }
+            deleteAlertButtons
         } message: {
             Text(TextLiteral.LookBook.alertDeleteTitle)
         }
     }
+}
+
+// MARK: - View Components
+private extension CodiDetailView {
     
-    // MARK: - Top Bar
-    
-    private var topBar: some View {
+    /// 상단 네비게이션 및 메뉴 바
+    var topBar: some View {
         CustomNavigationBar(
-            title: viewModel.codiDetail?.name ?? TextLiteral.LookBook.codiDetail,
+            title: viewModel.coordinatePreview?.coordinateName ?? TextLiteral.LookBook.codiDetail,
             onBack: viewModel.handleBackTap,
             rightButton: .overflow(
                 menuType: .closet,
@@ -86,98 +66,45 @@ struct CodiDetailView: View {
             )
         )
         .zIndex(10)
-        .padding(.leading, 15)
+        .padding(.leading, 10)
     }
     
-    // MARK: - Codi Display Area
-    
-    private func codiDisplayArea(width: CGFloat) -> some View {
-        ZStack(alignment: .bottomLeading) {
-            
-            // MARK: Background Frame
-            
+    /// 코디 이미지 및 배경 캔버스 영역
+    func codiDisplayArea(width: CGFloat) -> some View {
+        let boardSize = max(width - 40, 0)
+        
+        return ZStack(alignment: .bottomLeading) {
+            // 배경 프레임
             RoundedRectangle(cornerRadius: 15)
                 .fill(Color.gray.opacity(0.1))
-                .frame(
-                    width: max(width - 40, 0),
-                    height: max(width - 40, 0)
-                )
+                .frame(width: boardSize, height: boardSize)
                 .overlay {
                     RoundedRectangle(cornerRadius: 15)
                         .stroke(Color.gray.opacity(0.4), lineWidth: 1)
                 }
                 .padding(.horizontal, 20)
             
-            // MARK: Codi Image
-            
-            if let detail = viewModel.codiDetail {
-                RemoteFillImage(urlString: detail.imageURL)
+            // 코디 메인 이미지
+            if let detail = viewModel.coordinatePreview {
+                RemoteFillImage(urlString: detail.imageUrl)
                     .frame(width: width - 80, height: width - 80)
-                    .position(
-                        x: width / 2,
-                        y: (width - 40) / 2
-                    )
+                    .position(x: width / 2, y: boardSize / 2)
             }
             
-            // MARK: Tag Button
-            
-            Button(action: viewModel.toggleClothSelector) {
-                Image("ic_tag")
-                    .resizable()
-                    .frame(width: 28, height: 28)
-            }
-            .padding(.leading, 36)
-            .padding(.bottom, 16)
+            // 태그 정보 토글 버튼
+            tagToggleButton
         }
     }
     
-    // MARK: - Cloth Selector
-    
-    private var clothSelector: some View {
+    /// 코디에 포함된 개별 의류 선택기
+    var clothSelector: some View {
         VStack(alignment: .leading, spacing: 8) {
-            
-            // MARK: Selected Cloth Info
-            
-            /// 현재 선택된 의류 정보 표시
-            if let selectedIndex = viewModel.selectedIndex,
-               selectedIndex < viewModel.clothItems.count {
-                SelectedClothInfo(
-                    entity: viewModel.clothItems[selectedIndex]
-                )
-                .padding(.horizontal, 20)
-            }
-            
-            // MARK: Cloth Item List
+            selectedClothInfoSection
             
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
-                    ForEach(
-                        Array(viewModel.clothItems.enumerated()),
-                        id: \.element.id
-                    ) { index, item in
-                        SelectableClothItem(
-                            entity: CodiItemEntity(
-                                id: item.id,
-                                imageName: item.imageName,
-                                clothName: "",
-                                brandName: "",
-                                description: "",
-                                x: 0,
-                                y: 0,
-                                width: 68,
-                                height: 68
-                            ),
-                            isSelected: Binding(
-                                get: { viewModel.selectedIndex == index },
-                                set: { newValue in
-                                    if newValue {
-                                        viewModel.selectCloth(at: index)
-                                    } else if viewModel.selectedIndex == index {
-                                        viewModel.selectCloth(at: -1)
-                                    }
-                                }
-                            )
-                        )
+                    ForEach(Array(viewModel.clothItems.enumerated()), id: \.element.id) { index, item in
+                        clothItemCell(at: index, item: item)
                     }
                 }
                 .padding(.horizontal, 20)
@@ -185,11 +112,73 @@ struct CodiDetailView: View {
         }
         .transition(.move(edge: .bottom).combined(with: .opacity))
     }
+    
+    /// 코디 이름 및 메모 정보 섹션
+    @ViewBuilder
+    var infoSection: some View {
+        if let detail = viewModel.coordinatePreview {
+            CodiInfoSection(name: detail.coordinateName, memo: detail.coordinateMemo)
+        }
+    }
 }
 
-// MARK: - Supporting Views
+// MARK: - Subviews
+private extension CodiDetailView {
+    
+    /// 태그 토글 버튼
+    var tagToggleButton: some View {
+        Button(action: viewModel.toggleClothSelector) {
+            Image("ic_tag")
+                .resizable()
+                .frame(width: 28, height: 28)
+        }
+        .padding(.leading, 36)
+        .padding(.bottom, 16)
+    }
+    
+    /// 현재 선택된 개별 의류 상세 텍스트
+    @ViewBuilder
+    var selectedClothInfoSection: some View {
+        if let selectedIndex = viewModel.selectedIndex,
+           selectedIndex < viewModel.clothItems.count {
+            SelectedClothInfo(entity: viewModel.clothItems[selectedIndex])
+                .padding(.horizontal, 20)
+        }
+    }
+    
+    /// 셀렉터 내 개별 의류 아이템 셀
+    func clothItemCell(at index: Int, item: CodiItem) -> some View {
+        SelectableClothItem(
+            entity: CodiItemEntity(
+                id: item.id,
+                imageName: item.imageName,
+                clothName: "",
+                brandName: "",
+                description: "",
+                x: 0, y: 0, width: 68, height: 68
+            ),
+            isSelected: Binding(
+                get: { viewModel.selectedIndex == index },
+                set: { isSelected in
+                    viewModel.selectCloth(at: isSelected ? index : -1)
+                }
+            )
+        )
+    }
+    
+    /// 삭제 확인 알럿 버튼
+    @ViewBuilder
+    var deleteAlertButtons: some View {
+        Button(TextLiteral.Common.cancel, role: .cancel) { }
+        Button(TextLiteral.Common.delete, role: .destructive) {
+            viewModel.deleteCodi()
+        }
+    }
+}
 
-/// 코디 이름 / 메모 표시 섹션
+// MARK: - Supporting Views (Reusable)
+
+/// 코디 정보 표시 (이름/메모)
 private struct CodiInfoSection: View {
     let name: String
     let memo: String
@@ -202,9 +191,7 @@ private struct CodiInfoSection: View {
             }
             VStack(alignment: .leading, spacing: 8) {
                 Text(TextLiteral.LookBook.memoTitle).font(.headline)
-                Text(memo)
-                    .font(.body)
-                    .foregroundColor(.gray)
+                Text(memo).font(.body).foregroundColor(.gray)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -212,17 +199,14 @@ private struct CodiInfoSection: View {
     }
 }
 
-/// 선택된 의류의 브랜드 / 이름 표시 뷰
+/// 선택된 의류 브랜드/이름 정보
 private struct SelectedClothInfo: View {
     let entity: CodiItem
     
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(entity.brand)
-                .font(.caption)
-                .foregroundColor(.gray)
-            Text(entity.name)
-                .font(.body)
+            Text(entity.brand).font(.caption).foregroundColor(.gray)
+            Text(entity.name).font(.body)
         }
         .padding(12)
         .background(Color.gray.opacity(0.1))
@@ -230,16 +214,14 @@ private struct SelectedClothInfo: View {
     }
 }
 
-/// 서버 이미지 비율 유지 표시용 이미지 뷰
+/// 원격 이미지 로드 뷰
 private struct RemoteFillImage: View {
     let urlString: String
     
     var body: some View {
         AsyncImage(url: URL(string: urlString)) { phase in
             if let image = phase.image {
-                image
-                    .resizable()
-                    .scaledToFit()
+                image.resizable().scaledToFit()
             } else {
                 ProgressView()
             }

@@ -195,7 +195,7 @@ enum TextLiteral {
         static let addLookBookButtonTitle = "등록하기"
         static let addCodiCompleteButton = "코디 완성하기"
         static let codiUpload = "코디 업로드"
-        static let alertDeleteTitle = "해당 룩북을 삭제하시겠습니까?\n한 번 삭제된 기록은 복구할 수 없습니다"
+        static let alertDeleteTitle = "해당 룩북을 삭제하시겠습니까?"
         static let alertDeleteSubTitle = "한 번 삭제된 기록은 복구할 수 없습니다"
         static let loadingTitle = "룩북 로드 중..."
         static let addNewCodi = "새로운 코디 추가하기"

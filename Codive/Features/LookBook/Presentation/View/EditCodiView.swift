@@ -9,7 +9,7 @@ import SwiftUI
 
 struct EditCodiView: View {
     
-    // MARK: - State Object
+    // MARK: - Properties
     
     @StateObject private var viewModel: EditCodiViewModel
     
@@ -23,13 +23,31 @@ struct EditCodiView: View {
     
     var body: some View {
         VStack(spacing: 0) {
+            navigationBar
             
-            // MARK: - Conditional Navigation Bar
+            ScrollView {
+                VStack(spacing: 24) {
+                    imagePreviewArea
+                    inputSection
+                }
+                .padding(20)
+            }
             
+            completeButton
+        }
+        .navigationBarHidden(true)
+        .background(Color.white)
+    }
+}
+
+// MARK: - View Components
+
+private extension EditCodiView {
+    
+    /// 변경 사항 여부에 따른 커스텀 네비게이션 바
+    var navigationBar: some View {
+        Group {
             if viewModel.hasChanges {
-                
-                // MARK: Navigation Bar (With Changes)
-                
                 CustomNavigationBar(
                     title: viewModel.codiName,
                     onBack: { viewModel.handleBackTap() },
@@ -39,80 +57,67 @@ struct EditCodiView: View {
                         action: viewModel.handleCompleteTap
                     )
                 )
-                .padding(.leading, 15)
             } else {
-                
-                // MARK: Navigation Bar (No Changes)
-                
                 CustomNavigationBar(
                     title: viewModel.codiName
                 ) {
                     viewModel.handleBackTap()
                 }
-                .padding(.leading, 15)
             }
-            
-            // MARK: - Scrollable Content
-            
-            ScrollView {
-                VStack(spacing: 24) {
-                    
-                    // MARK: Image Preview Area
-                    
-                    ZStack {
-                        if let url = viewModel.selectedImageURL {
-                            AsyncImage(url: URL(string: url)) { phase in
-                                if let image = phase.image {
-                                    image
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                } else {
-                                    Color.gray.opacity(0.2)
-                                }
-                            }
-                            .frame(height: 335)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                            
-                            // MARK: Animation Overlay
-                            
-                            EditCodiOverlayView()
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
-                        }
-                    }
-                    .frame(height: 335)
-                    
-                    // MARK: Codi Information Input
-                    
-                    VStack(spacing: 12) {
-                        CustomTextField1(
-                            title: TextLiteral.LookBook.codiNameTitle,
-                            placeholder: TextLiteral.LookBook.hintCodiNameTitle,
-                            text: $viewModel.codiName,
-                            showRequiredMark: true
-                        )
-                        
-                        CustomTextField1(
-                            title: TextLiteral.LookBook.memoTitle,
-                            placeholder: TextLiteral.LookBook.hintMemo,
-                            text: $viewModel.memo
-                        )
+        }
+        .padding(.leading, 15)
+    }
+    
+    /// 코디 이미지 미리보기 및 편집 오버레이 영역
+    var imagePreviewArea: some View {
+        ZStack {
+            if let url = viewModel.selectedImageURL {
+                AsyncImage(url: URL(string: url)) { phase in
+                    if let image = phase.image {
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } else {
+                        Color.gray.opacity(0.2)
                     }
                 }
-                .padding(20)
+                .frame(height: 335)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                
+                EditCodiOverlayView()
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
             }
-            
-            // MARK: - Bottom Action Button
-            
-            CustomButton(
-                text: TextLiteral.LookBook.editCodiComplete,
-                widthType: .fixed,
-                isEnabled: viewModel.isButtonEnabled
-            ) {
-                viewModel.handleCompleteTap()
-            }
-            .padding(20)
         }
-        .navigationBarHidden(true)
-        .background(Color.white)
+        .frame(height: 335)
+    }
+    
+    /// 코디 이름 및 메모 입력 섹션
+    var inputSection: some View {
+        VStack(spacing: 12) {
+            CustomTextField1(
+                title: TextLiteral.LookBook.codiNameTitle,
+                placeholder: TextLiteral.LookBook.hintCodiNameTitle,
+                text: $viewModel.codiName,
+                showRequiredMark: true
+            )
+            
+            CustomTextField1(
+                title: TextLiteral.LookBook.memoTitle,
+                placeholder: TextLiteral.LookBook.hintMemo,
+                text: $viewModel.memo
+            )
+        }
+    }
+    
+    /// 하단 수정 완료 버튼
+    var completeButton: some View {
+        CustomButton(
+            text: TextLiteral.LookBook.editCodiComplete,
+            widthType: .fixed,
+            isEnabled: viewModel.isButtonEnabled
+        ) {
+            viewModel.handleCompleteTap()
+        }
+        .padding(20)
     }
 }
