@@ -128,7 +128,7 @@ extension HistoryDetailDTO {
         )
 
         let feedImages = images.map { img in
-            FeedImage(imageUrl: img.imageUrl)
+            FeedImage(imageId: img.imageId, imageUrl: img.imageUrl)
         }
 
         let styleIds = styles.map { Int($0.styleId) }

@@ -28,9 +28,10 @@ final class FeedDetailViewModel: ObservableObject {
 
     private let feedId: Int
     private let fetchFeedDetailUseCase: FetchFeedDetailUseCase
-    private let fetchLikersUseCase: FetchFeedLikersUseCase 
+    private let fetchLikersUseCase: FetchFeedLikersUseCase
     private let feedRepository: FeedRepository
     private let navigationRouter: NavigationRouter
+    private let historyAPIService: HistoryAPIServiceProtocol
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = TextLiteral.Feed.dateFormat
@@ -44,13 +45,15 @@ final class FeedDetailViewModel: ObservableObject {
         fetchFeedDetailUseCase: FetchFeedDetailUseCase,
         fetchLikersUseCase: FetchFeedLikersUseCase,
         feedRepository: FeedRepository,
-        navigationRouter: NavigationRouter
+        navigationRouter: NavigationRouter,
+        historyAPIService: HistoryAPIServiceProtocol = HistoryAPIService()
     ) {
         self.feedId = feedId
         self.fetchFeedDetailUseCase = fetchFeedDetailUseCase
         self.fetchLikersUseCase = fetchLikersUseCase
         self.feedRepository = feedRepository
         self.navigationRouter = navigationRouter
+        self.historyAPIService = historyAPIService
     }
 
     // MARK: - Feed 상세 로딩
@@ -67,9 +70,11 @@ final class FeedDetailViewModel: ObservableObject {
             // 데이터 가공
             self.feed = fetchedFeed
             self.imageUrls = fetchedFeed.images.map { $0.imageUrl }
-            self.displayableTags = mapToDisplayableTags(from: fetchedFeed.images)
             self.formattedDate = format(date: fetchedFeed.createdAt)
             self.displayableStyles = fetchedFeed.styleNames ?? []
+
+            // 각 이미지의 태그를 API로 가져오기
+            self.displayableTags = await loadTagsForImages(images: fetchedFeed.images)
 
         } catch {
             errorMessage = TextLiteral.Feed.loadDetailFailed
@@ -84,20 +89,44 @@ final class FeedDetailViewModel: ObservableObject {
     }
     
     // MARK: - Data Transformation
-    
-    private func mapToDisplayableTags(from images: [FeedImage]) -> [[ClothTag]] {
-        images.map { image in
-            image.tags.map { tag in
-                // TODO: API 연동 시 clothId로 실제 옷 정보(brand, name) 조회하여 사용
-                ClothTag(
-                    id: tag.id,
-                    clothId: tag.clothId,
-                    brand: TextLiteral.Feed.defaultBrand,
-                    name: TextLiteral.Feed.defaultProductName + " \(tag.clothId)",
-                    locationX: CGFloat(tag.locationX),
-                    locationY: CGFloat(tag.locationY)
-                )
+
+    private func loadTagsForImages(images: [FeedImage]) async -> [[ClothTag]] {
+        await withTaskGroup(of: (Int, [ClothTag]).self) { group in
+            // 각 이미지의 태그를 병렬로 가져오기
+            for (index, image) in images.enumerated() {
+                group.addTask { [weak self] in
+                    guard let self = self,
+                          let imageId = image.imageId else {
+                        return (index, [])
+                    }
+
+                    do {
+                        let tagDTOs = try await self.historyAPIService.fetchClothTags(historyImageId: imageId)
+                        let clothTags = tagDTOs.map { dto in
+                            ClothTag(
+                                id: UUID(),
+                                clothId: Int(dto.clothId),
+                                brand: dto.brand ?? TextLiteral.Feed.defaultBrand,
+                                name: dto.name ?? TextLiteral.Feed.defaultProductName,
+                                locationX: CGFloat(dto.locationX),
+                                locationY: CGFloat(dto.locationY)
+                            )
+                        }
+                        return (index, clothTags)
+                    } catch {
+                        print("Failed to load tags for image \(imageId): \(error)")
+                        return (index, [])
+                    }
+                }
             }
+
+            // 결과를 순서대로 정렬
+            var result: [(Int, [ClothTag])] = []
+            for await value in group {
+                result.append(value)
+            }
+            result.sort { $0.0 < $1.0 }
+            return result.map { $0.1 }
         }
     }
     

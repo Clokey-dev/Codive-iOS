@@ -56,10 +56,12 @@ public struct Feed: Identifiable, Equatable {
 // MARK: - FeedImage
 public struct FeedImage: Identifiable, Equatable {
     public let id: UUID = UUID()
+    public let imageId: Int64?
     public let imageUrl: String
     public let tags: [ImageClothTag]
-    
-    public init(imageUrl: String, tags: [ImageClothTag] = []) {
+
+    public init(imageId: Int64? = nil, imageUrl: String, tags: [ImageClothTag] = []) {
+        self.imageId = imageId
         self.imageUrl = imageUrl
         self.tags = tags
     }

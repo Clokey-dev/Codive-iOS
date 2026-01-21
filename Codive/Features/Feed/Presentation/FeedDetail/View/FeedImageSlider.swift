@@ -48,7 +48,26 @@ struct FeedImageSlider: View {
                     .frame(width: geometry.size.width, height: geometry.size.height)
                 }
             }
-            
+
+            // 페이지 인디케이터 (우측 상단)
+            if imageUrls.count > 1 {
+                VStack {
+                    HStack {
+                        Spacer()
+                        Text("\(currentIndex + 1)/\(imageUrls.count)")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color.black.opacity(0.5))
+                            .clipShape(Capsule())
+                    }
+                    Spacer()
+                }
+                .padding(.trailing, 20)
+                .padding(.top, 20)
+            }
+
             Button(action: {
                 withAnimation {
                     onTagButtonTap()
