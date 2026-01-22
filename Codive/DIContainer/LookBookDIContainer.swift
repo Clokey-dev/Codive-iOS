@@ -13,12 +13,16 @@ final class LookBookDIContainer {
     // MARK: - Core Dependencies
     let navigationRouter: NavigationRouter
     
+    private lazy var lookBookAPIService: LooBookAPIServiceServiceProtocol = {
+        return LooBookAPIService()
+    }()
+    
     // MARK: - Factories
     lazy var lookBookViewFactory = LookBookViewFactory(lookBookDIContainer: self)
     
     // MARK: - DataSources
     private lazy var lookBookDataSource: LookBookDataSource = {
-        return LookBookDataSource()
+        return LookBookDataSource(apiService: lookBookAPIService)
     }()
     
     // MARK: - Repositories
