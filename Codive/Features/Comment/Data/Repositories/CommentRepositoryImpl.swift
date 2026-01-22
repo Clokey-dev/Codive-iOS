@@ -25,4 +25,12 @@ final class CommentRepositoryImpl: CommentRepository {
     func postComment(feedId: Int, content: String) async throws -> Comment {
         return try await dataSource.postComment(feedId: feedId, content: content)
     }
+
+    func fetchReplies(commentId: Int, page: Int) async throws -> (replies: [Comment], hasNext: Bool) {
+        return try await dataSource.fetchReplies(commentId: commentId, page: page)
+    }
+
+    func postReply(feedId: Int, commentId: Int, content: String) async throws -> Comment {
+        return try await dataSource.postReply(feedId: feedId, commentId: commentId, content: content)
+    }
 }
