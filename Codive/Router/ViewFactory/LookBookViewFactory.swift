@@ -24,7 +24,7 @@ final class LookBookViewFactory {
             lookBookDIContainer?.makeLookBookView()
         case .specificLookbook(let lookbookId):
             lookBookDIContainer?.makeSpecificLookBookView(
-                lookbookId: lookbookId
+                lookbookId: Int64(lookbookId)
             )
         case .addCodi(let coordinateId):
             lookBookDIContainer?.makeAddCodiView(coordinateId: coordinateId)

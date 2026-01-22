@@ -19,6 +19,13 @@ protocol LooBookAPIServiceProtocol {
         direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
     ) async throws -> LookBookListResponseDTO
     
+    func fetchLookBookCoordinateList(
+        lookBookId: Int64,
+        lastLookBookId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getCoordinates.Input.Query.directionPayload
+    ) async throws -> LookBookCoordinateResponseDTO
+    
     func createLookBook(request: CreateLookBookAPIRequestDTO) async throws -> CreateLookBookResponseDTO
     
     func deleteLookBook(lookBookId: Int64) async throws
@@ -63,6 +70,51 @@ extension LooBookAPIService {
             
         case .undocumented(statusCode: let code, _):
             throw LooBookAPIError.serverError(statusCode: code, message: "룩북 목록 조회 실패")
+        }
+    }
+    
+    func fetchLookBookCoordinateList(
+        lookBookId: Int64,
+        lastLookBookId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getCoordinates.Input.Query.directionPayload = .DESC
+    ) async throws -> LookBookCoordinateResponseDTO {
+        
+        let input = Operations.LookBook_getCoordinates.Input(
+            path: .init(lookBookId: lookBookId),
+            query: .init(
+                lastCoordinateId: lastLookBookId,
+                size: size,
+                direction: direction
+            )
+        )
+        
+        let response = try await client.LookBook_getCoordinates(input)
+        
+        switch response {
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+            if let jsonString = String(data: data, encoding: .utf8) {
+                print("📦 [LookBook Coordinate Raw Response]")
+                print(jsonString)
+            }
+            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseCoordinateListResponse.self, from: data)
+            print("✅ [Decoded LookBook Coordinate Response]")
+            print("isSuccess:", decoded.isSuccess ?? false)
+            print("code:", decoded.code ?? "")
+            print("message:", decoded.message ?? "")
+            print("timeStamp:", decoded.timeStamp ?? "")
+            print("content:", decoded.result?.content ?? [])
+            print("isLast:", decoded.result?.isLast ?? false)
+            
+            let content: [LookBookCoordinateListResponseItem] = decoded.result?.content?.map { item -> LookBookCoordinateListResponseItem in
+                return LookBookCoordinateListResponseItem(coordinateId: item.coordinateId ?? 0, coordinateName: item.coordinateName ?? "",coordinateLiked: item.coordinateLiked ?? false, imageUrl: item.imageUrl ?? "")
+            } ?? []
+            
+            return LookBookCoordinateResponseDTO(content: content, isLast: decoded.result?.isLast ?? true)
+            
+        case .undocumented(statusCode: let code, _):
+            throw LooBookAPIError.serverError(statusCode: code, message: "개별 룩북 코디 목록 조회 실패")
         }
     }
 }

@@ -19,12 +19,12 @@ struct LookBookEntity: Identifiable {
 
 // 개별 룩북 코디 목록 조회 api의 responseDTO의 content
 struct SpecificLookBookCodiEntity: Identifiable {
-    let coordinateId: Int
+    let coordinateId: Int64
     let coordinateName: String
     let coordinateLiked: Bool
     let imageUrl: String
 
-    var id: Int { coordinateId }
+    var id: Int64 { coordinateId }
 }
 
 // 과거 일일 코디 조회 api responseDTO의 content

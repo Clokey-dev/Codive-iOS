@@ -5,6 +5,8 @@
 //  Created by 한금준 on 12/23/25.
 //
 
+import CodiveAPI
+
 final class SpecificLookBookUseCase {
 
     // MARK: - Dependency
@@ -18,8 +20,18 @@ final class SpecificLookBookUseCase {
     // MARK: - LookBook Detail (Codi List)
 
     /// 특정 룩북에 포함된 코디 목록 조회
-    func fetchCodisForLookBook(forLookbookId id: Int) async throws -> [SpecificLookBookCodiEntity] {
-        try await repository.fetchCodisForLookBook(forLookbookId: id)
+    func fetchLookBookCoordinateList(
+        lookBookId: Int64,
+        lastLookBookId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getCoordinates.Input.Query.directionPayload
+    ) async throws -> (content: [SpecificLookBookCodiEntity], isLast: Bool) {
+        return try await repository.fetchLookBookCoordinateList(
+            lookBookId: lookBookId,
+            lastLookBookId: lastLookBookId,
+            size: size,
+            direction: direction
+        )
     }
     
     /// 코디 좋아요 상태 변경

@@ -68,12 +68,12 @@ struct SpecificLookBookView: View {
                                 iconType: viewModel.isEditing ? .checkmark : .heart,
                                 isSelected: viewModel.isEditing
                                 ? viewModel.selectedCodiIds.contains(codi.id)
-                                : viewModel.likedCodiIds.contains(codi.id)
+                                : viewModel.likedCodiIds.contains(Int(codi.id))
                             ) {
                                 if viewModel.isEditing {
                                     viewModel.toggleSelection(id: codi.id)
                                 } else {
-                                    viewModel.toggleLike(codyId: codi.id)
+                                    viewModel.toggleLike(codyId: Int(codi.id))
                                 }
                             }
                             .contentShape(Rectangle())
@@ -81,7 +81,7 @@ struct SpecificLookBookView: View {
                                 if viewModel.isEditing {
                                     viewModel.toggleSelection(id: codi.id)
                                 } else {
-                                    viewModel.navigateToCodiDetail(codiId: codi.id)
+                                    viewModel.navigateToCodiDetail(codiId: Int(codi.id))
                                 }
                             }
                         }

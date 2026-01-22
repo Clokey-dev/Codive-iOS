@@ -15,7 +15,12 @@ protocol LookBookRepository {
         direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
     ) async throws -> (content: [LookBookEntity], isLast: Bool)
     // 특정 룩북의 코디 목록 조회
-    func fetchCodisForLookBook(forLookbookId id: Int) async throws -> [SpecificLookBookCodiEntity]
+    func fetchLookBookCoordinateList(
+        lookBookId: Int64,
+        lastLookBookId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getCoordinates.Input.Query.directionPayload
+    ) async throws -> (content: [SpecificLookBookCodiEntity], isLast: Bool)
     // 과거 일일 코디 조회
     func fetchBeforeCoordinateDaily() async throws -> [BeforeCoordinateDailyEntity]
     // 룩북 생성

@@ -15,7 +15,7 @@ final class SpecificLookBookViewModel: ObservableObject {
     private let navigationRouter: NavigationRouter
     private let specificLookBookUseCase: SpecificLookBookUseCase
 
-    private let lookbookId: Int
+    private let lookbookId: Int64
     @Published var lookbookTitle: String
     @Published var isEditingTitle = false
     private var previousTitle: String = ""
@@ -30,7 +30,7 @@ final class SpecificLookBookViewModel: ObservableObject {
     // MARK: - Published State (Editing)
     
     @Published var isEditing: Bool = false
-    @Published var selectedCodiIds: Set<Int> = []
+    @Published var selectedCodiIds: Set<Int64> = []
     @Published var isShowingDeleteAlert: Bool = false
     
     // MARK: - Initializer
@@ -38,7 +38,7 @@ final class SpecificLookBookViewModel: ObservableObject {
     init(
         navigationRouter: NavigationRouter,
         specificLookBookUseCase: SpecificLookBookUseCase,
-        lookbookId: Int,
+        lookbookId: Int64,
         lookbookTitle: String = ""
     ) {
         self.navigationRouter = navigationRouter
@@ -51,18 +51,27 @@ final class SpecificLookBookViewModel: ObservableObject {
     func fetchCodis() {
         isLoading = true
         errorMessage = nil
-        
+
         Task {
             do {
-                let list = try await specificLookBookUseCase.fetchCodisForLookBook(forLookbookId: lookbookId)
-                self.specificLookBookCodiList = list
-                
-                // 추가: 서버에서 받아온 좋아요 상태를 즉시 반영
-                let initiallyLikedIds = list.filter { $0.coordinateLiked }.map { $0.id }
-                self.likedCodiIds = Set(initiallyLikedIds)
+                let result = try await specificLookBookUseCase.fetchLookBookCoordinateList(
+                    lookBookId: lookbookId,
+                    lastLookBookId: nil,
+                    size: 20,
+                    direction: .DESC
+                )
+
+                self.specificLookBookCodiList = result.content
+
+                let likedIds = result.content
+                    .filter { $0.coordinateLiked }
+                    .map { Int($0.coordinateId) }   // 🔥 여기서 변환
+
+                self.likedCodiIds = Set(likedIds)
             } catch {
-                self.errorMessage = "데이터 로드에 실패했습니다: \(error.localizedDescription)"
+                self.errorMessage = "데이터 로드에 실패했습니다."
             }
+
             isLoading = false
         }
     }
@@ -97,7 +106,7 @@ final class SpecificLookBookViewModel: ObservableObject {
     // MARK: - Editing Actions
     
     // 토글 - 추가하기
-    func toggleSelection(id: Int) {
+    func toggleSelection(id: Int64) {
         if selectedCodiIds.contains(id) {
             selectedCodiIds.remove(id)
         } else {
@@ -144,21 +153,20 @@ final class SpecificLookBookViewModel: ObservableObject {
 
         isLoading = true
 
-        Task {
-            do {
-                try await specificLookBookUseCase.deleteCodis(
-                    ids: idsToDelete,
-                    lookbookId: lookbookId
-                )
-
-                fetchCodis()
-                toggleEditingMode()
-            } catch {
-                self.errorMessage = "코디 삭제에 실패했습니다."
-            }
-
-            isLoading = false
-        }
+//        Task {
+//            do {
+//                try await specificLookBookUseCase.deleteCodis(
+//                    ids: idsToDelete as! [Int],
+//                    lookbookId: Int(lookbookId)
+//                )
+//                fetchCodis()
+//                toggleEditingMode()
+//            } catch {
+//                self.errorMessage = "코디 삭제에 실패했습니다."
+//            }
+//
+//            isLoading = false
+//        }
     }
     
     // MARK: - 룩북 이름 수정 시작
@@ -179,7 +187,7 @@ final class SpecificLookBookViewModel: ObservableObject {
         Task {
             do {
                 try await specificLookBookUseCase.editLookBookName(
-                    lookBookId: lookbookId,
+                    lookBookId: Int(lookbookId),
                     newName: newTitle
                 )
             } catch {
@@ -201,12 +209,12 @@ final class SpecificLookBookViewModel: ObservableObject {
     
     // 코디 추가하기 후 화면 전환
     func navigateToAddCodi() {
-        navigationRouter.navigate(to: .addCodi(coordinateId: lookbookId))
+        navigationRouter.navigate(to: .addCodi(coordinateId: Int(lookbookId)))
     }
     
     // 특정 코디 상세 뷰 전환
     func navigateToCodiDetail(codiId: Int) {
-        navigationRouter.navigate(to: .codiDetail(codiId: codiId, lookbookId: lookbookId))
+        navigationRouter.navigate(to: .codiDetail(codiId: codiId, lookbookId: Int(lookbookId)))
     }
     
     // 뒤로가기

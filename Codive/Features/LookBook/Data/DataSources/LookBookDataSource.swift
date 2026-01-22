@@ -15,6 +15,13 @@ protocol LookBookDataSourceProtocol {
         direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
     ) async throws -> (content: [LookBookEntity], isLast: Bool)
     
+    func fetchLookBookCoordinateList(
+        lookBookId: Int64,
+        lastLookBookId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getCoordinates.Input.Query.directionPayload
+    ) async throws -> (content: [SpecificLookBookCodiEntity], isLast: Bool)
+    
     func createLookBook(request: CreateLookBookAPIRequestDTO) async throws -> CreateLookBookResponseDTO
     
     func deleteLookBook(lookBookId: Int64) async throws
@@ -48,6 +55,26 @@ final class LookBookDataSource: LookBookDataSourceProtocol {
         )
     }
     
+    /// 개별 룩북 전체 리스트 조회
+    func fetchLookBookCoordinateList(
+        lookBookId: Int64,
+        lastLookBookId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getCoordinates.Input.Query.directionPayload
+    ) async throws -> (content: [SpecificLookBookCodiEntity], isLast: Bool) {
+        let result = try await apiService.fetchLookBookCoordinateList(
+            lookBookId: lookBookId,
+            lastLookBookId: lastLookBookId,
+            size: size,
+            direction: direction
+        )
+
+        return (
+            content: result.content.map { $0.toEntity() },
+            isLast: result.isLast
+        )
+    }
+    
     /// 룩북 생성
     func createLookBook(
         request: CreateLookBookAPIRequestDTO
@@ -59,39 +86,6 @@ final class LookBookDataSource: LookBookDataSourceProtocol {
     func deleteLookBook(lookBookId: Int64) async throws {
         try await apiService.deleteLookBook(lookBookId: lookBookId)
     }
-    
-    // MARK: - Dummy Codis by LookBook
-
-    // 룩북의 코디 리스트 더미데이터 (완)
-    private var lookbookDetailCodi: [Int: [SpecificLookBookCodiEntity]] = [
-        1: [ // 데이트 룩 (ID: 1)
-            SpecificLookBookCodiEntity(
-                coordinateId: 11,
-                coordinateName: "로맨틱 시사회 룩",
-                coordinateLiked: false,
-                imageUrl: "https://image.msscdn.net/images/style/detail/37395/detail_37395_1_500.jpg",
-                ),
-            SpecificLookBookCodiEntity(
-                coordinateId: 12,
-                coordinateName: "따뜻한 카페 데이트",
-                coordinateLiked: true,
-                imageUrl: "https://image.msscdn.net/images/style/detail/37390/detail_37390_1_500.jpg")
-           ],
-        2: [ // 데일리 룩 (ID: 2)
-            SpecificLookBookCodiEntity(
-                coordinateId: 21,
-                coordinateName: "캐주얼 오버핏",
-                coordinateLiked: true,
-                imageUrl: "https://image.msscdn.net/images/style/detail/37375/detail_37375_1_500.jpg",
-                ),
-            SpecificLookBookCodiEntity(
-                coordinateId: 22,
-                coordinateName: "편한 집앞 마실룩",
-                coordinateLiked: false,
-                imageUrl: "https://image.msscdn.net/images/style/detail/37370/detail_37370_1_500.jpg",
-                )
-           ]
-    ]
     
     // MARK: - Dummy Before Codi List
     
@@ -146,12 +140,6 @@ final class LookBookDataSource: LookBookDataSourceProtocol {
         return dummyBeforeCoordinateDaily
     }
     
-    /// 특정 LookBook에 속한 코디 목록 조회(완)
-    func fetchCodisForLookBook(id lookbookId: Int) async throws -> [SpecificLookBookCodiEntity] {
-        try await Task.sleep(nanoseconds: 500_000_000)
-        return lookbookDetailCodi[lookbookId] ?? []
-    }
-    
     /// 코디 좋아요 (PATCH, 완)
     func toggleCodiLike(_ request: CodiLikeEntity, isLiked: Bool) async throws {
         try await Task.sleep(nanoseconds: 300_000_000)
@@ -171,12 +159,12 @@ final class LookBookDataSource: LookBookDataSourceProtocol {
 
         print("서버에 코디 삭제 요청: \(ids)")
 
-        guard var codis = lookbookDetailCodi[lookbookId] else { return }
+//        guard var codis = lookbookDetailCodi[lookbookId] else { return }
+//
+//        codis.removeAll { ids.contains(Int($0.coordinateId)) }
+//        lookbookDetailCodi[lookbookId] = codis
 
-        codis.removeAll { ids.contains($0.coordinateId) }
-        lookbookDetailCodi[lookbookId] = codis
-
-        print("삭제 후 남은 코디:", codis.map { $0.coordinateId })
+        print("삭제 후 남은 코디:"/*, codis.map { $0.coordinateId }*/)
     }
     
     /// 룩북 이름 수정(PATCH, 완)

@@ -28,12 +28,22 @@ final class LookBookRepositoryImpl: LookBookRepository {
         )
     }
     
+    func fetchLookBookCoordinateList(
+        lookBookId: Int64,
+        lastLookBookId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getCoordinates.Input.Query.directionPayload
+    ) async throws -> (content: [SpecificLookBookCodiEntity], isLast: Bool) {
+        return try await datasource.fetchLookBookCoordinateList(
+            lookBookId: lookBookId,
+            lastLookBookId: lastLookBookId,
+            size: size,
+            direction: direction
+        )
+    }
+    
     func createLookBook(request: CreateLookBookAPIRequestDTO) async throws -> CreateLookBookResponseDTO {
         return try await datasource.createLookBook(request: request)
-    }
-
-    func fetchCodisForLookBook(forLookbookId id: Int) async throws -> [SpecificLookBookCodiEntity] {
-        return try await datasource.fetchCodisForLookBook(id: id)
     }
 
     func fetchBeforeCoordinateDaily() async throws -> [BeforeCoordinateDailyEntity] {
