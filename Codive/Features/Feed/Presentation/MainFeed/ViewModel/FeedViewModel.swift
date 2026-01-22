@@ -35,7 +35,7 @@ final class FeedViewModel: ObservableObject {
 
     private let navigationRouter: NavigationRouter
     private let fetchFeedsUseCase: FetchFeedsUseCase
-    private let feedRepository: FeedRepository
+    private let toggleLikeUseCase: ToggleLikeUseCase
     private let pageSize: Int = 20
     private var nextCursor: String?
     private var hasMorePages: Bool = true
@@ -45,11 +45,11 @@ final class FeedViewModel: ObservableObject {
     init(
         navigationRouter: NavigationRouter,
         fetchFeedsUseCase: FetchFeedsUseCase,
-        feedRepository: FeedRepository
+        toggleLikeUseCase: ToggleLikeUseCase
     ) {
         self.navigationRouter = navigationRouter
         self.fetchFeedsUseCase = fetchFeedsUseCase
-        self.feedRepository = feedRepository
+        self.toggleLikeUseCase = toggleLikeUseCase
     }
 
     // MARK: - Public Methods
@@ -167,7 +167,7 @@ final class FeedViewModel: ObservableObject {
 
         // 서버에 요청
         do {
-            try await feedRepository.toggleLike(feedId: feedId)
+            try await toggleLikeUseCase.execute(feedId: feedId)
         } catch {
             // 에러 시 롤백
             feeds[index] = originalFeed

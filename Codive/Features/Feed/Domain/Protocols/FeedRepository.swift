@@ -25,4 +25,7 @@ protocol FeedRepository {
 
     // MARK: - 좋아요 누른 유저 목록 조회
     func fetchLikers(feedId: Int) async throws -> [User]
+
+    // MARK: - 이미지의 옷 태그 조회
+    func fetchClothTags(historyImageId: Int64) async throws -> [ClothTag]
 }

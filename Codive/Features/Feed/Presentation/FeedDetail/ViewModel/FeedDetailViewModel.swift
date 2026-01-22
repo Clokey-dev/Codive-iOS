@@ -29,9 +29,9 @@ final class FeedDetailViewModel: ObservableObject {
     private let feedId: Int
     private let fetchFeedDetailUseCase: FetchFeedDetailUseCase
     private let fetchLikersUseCase: FetchFeedLikersUseCase
-    private let feedRepository: FeedRepository
+    private let toggleLikeUseCase: ToggleLikeUseCase
+    private let fetchClothTagsUseCase: FetchClothTagsUseCase
     private let navigationRouter: NavigationRouter
-    private let historyAPIService: HistoryAPIServiceProtocol
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = TextLiteral.Feed.dateFormat
@@ -44,16 +44,16 @@ final class FeedDetailViewModel: ObservableObject {
         feedId: Int,
         fetchFeedDetailUseCase: FetchFeedDetailUseCase,
         fetchLikersUseCase: FetchFeedLikersUseCase,
-        feedRepository: FeedRepository,
-        navigationRouter: NavigationRouter,
-        historyAPIService: HistoryAPIServiceProtocol = HistoryAPIService()
+        toggleLikeUseCase: ToggleLikeUseCase,
+        fetchClothTagsUseCase: FetchClothTagsUseCase,
+        navigationRouter: NavigationRouter
     ) {
         self.feedId = feedId
         self.fetchFeedDetailUseCase = fetchFeedDetailUseCase
         self.fetchLikersUseCase = fetchLikersUseCase
-        self.feedRepository = feedRepository
+        self.toggleLikeUseCase = toggleLikeUseCase
+        self.fetchClothTagsUseCase = fetchClothTagsUseCase
         self.navigationRouter = navigationRouter
-        self.historyAPIService = historyAPIService
     }
 
     // MARK: - Feed 상세 로딩
@@ -101,18 +101,7 @@ final class FeedDetailViewModel: ObservableObject {
                     }
 
                     do {
-                        let tagDTOs = try await self.historyAPIService.fetchClothTags(historyImageId: imageId)
-                        let clothTags = tagDTOs.map { dto in
-                            ClothTag(
-                                id: UUID(),
-                                clothId: Int(dto.clothId),
-                                brand: dto.brand ?? TextLiteral.Feed.defaultBrand,
-                                name: dto.name ?? TextLiteral.Feed.defaultProductName,
-                                imageUrl: dto.clothImageUrl,
-                                locationX: CGFloat(dto.locationX),
-                                locationY: CGFloat(dto.locationY)
-                            )
-                        }
+                        let clothTags = try await self.fetchClothTagsUseCase.execute(historyImageId: imageId)
                         return (index, clothTags)
                     } catch {
                         print("Failed to load tags for image \(imageId): \(error)")
@@ -167,7 +156,7 @@ final class FeedDetailViewModel: ObservableObject {
 
         // 서버 요청
         do {
-            try await feedRepository.toggleLike(feedId: currentFeed.id)
+            try await toggleLikeUseCase.execute(feedId: currentFeed.id)
         } catch {
             // 실패 시 롤백
             feed = originalFeed
