@@ -19,6 +19,10 @@ protocol FeedAPIServiceProtocol {
         situationIds: [Int64]?,
         followScope: FeedFollowScope
     ) async throws -> FeedListResult
+
+    func toggleLike(historyId: Int64) async throws
+
+    func fetchLikers(historyId: Int64, lastLikeId: Int64?, size: Int32) async throws -> LikersResult
 }
 
 // MARK: - Supporting Types
@@ -50,6 +54,19 @@ struct FeedItemDTO {
 }
 
 struct FeedAuthorDTO {
+    let memberId: Int64
+    let nickname: String?
+    let profileImageUrl: String?
+    let isFollowing: Bool?
+}
+
+struct LikersResult {
+    let likers: [LikerDTO]
+    let hasNext: Bool
+}
+
+struct LikerDTO {
+    let likeId: Int64
     let memberId: Int64
     let nickname: String?
     let profileImageUrl: String?
@@ -130,6 +147,77 @@ extension FeedAPIService {
 
         case .undocumented(statusCode: let code, _):
             throw FeedAPIError.serverError(statusCode: code, message: "피드 목록 조회 실패")
+        }
+    }
+}
+
+// MARK: - Toggle Like
+
+extension FeedAPIService {
+
+    func toggleLike(historyId: Int64) async throws {
+        let input = Operations.Like_toggleLike.Input(
+            query: .init(historyId: historyId)
+        )
+
+        let response = try await client.Like_toggleLike(input)
+
+        switch response {
+        case .ok:
+            return
+        case .undocumented(statusCode: let code, _):
+            throw FeedAPIError.serverError(statusCode: code, message: "좋아요 토글 실패")
+        }
+    }
+}
+
+// MARK: - Fetch Likers
+
+extension FeedAPIService {
+
+    func fetchLikers(historyId: Int64, lastLikeId: Int64?, size: Int32) async throws -> LikersResult {
+        let input = Operations.Like_getLikedMembers.Input(
+            query: .init(
+                historyId: historyId,
+                lastLikeId: lastLikeId,
+                size: size
+            )
+        )
+
+        let response = try await client.Like_getLikedMembers(input)
+
+        switch response {
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+            let decoded = try jsonDecoder.decode(
+                Components.Schemas.BaseResponseSliceResponseLikedMemberPreview.self,
+                from: data
+            )
+
+            guard let result = decoded.result else {
+                throw FeedAPIError.serverError(statusCode: 200, message: "좋아요 유저 목록 없음")
+            }
+
+            let likers: [LikerDTO] = result.content?.compactMap { member in
+                guard let memberId = member.id else {
+                    return nil
+                }
+                return LikerDTO(
+                    likeId: member.lastLikeId ?? 0,
+                    memberId: memberId,
+                    nickname: member.nickname,
+                    profileImageUrl: member.imageUrl,
+                    isFollowing: member.followStatus
+                )
+            } ?? []
+
+            return LikersResult(
+                likers: likers,
+                hasNext: !(result.isLast ?? false)
+            )
+
+        case .undocumented(statusCode: let code, _):
+            throw FeedAPIError.serverError(statusCode: code, message: "좋아요 유저 목록 조회 실패")
         }
     }
 }

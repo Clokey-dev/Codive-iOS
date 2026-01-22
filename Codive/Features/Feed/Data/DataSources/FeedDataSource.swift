@@ -79,12 +79,16 @@ final class DefaultFeedDataSource: FeedDataSource {
     }
 
     func toggleLike(feedId: Int) async throws {
-        // TODO: Implement API call for toggle like
+        try await apiService.toggleLike(historyId: Int64(feedId))
     }
 
     func fetchLikers(feedId: Int) async throws -> [User] {
-        // TODO: Implement API call for likers
-        return []
+        let result = try await apiService.fetchLikers(
+            historyId: Int64(feedId),
+            lastLikeId: nil,
+            size: 100
+        )
+        return result.likers.map { $0.toDomain() }
     }
 }
 
@@ -109,6 +113,17 @@ private extension FeedItemDTO {
 }
 
 private extension FeedAuthorDTO {
+    func toDomain() -> User {
+        return User(
+            id: String(memberId),
+            nickname: nickname ?? "",
+            profileImageUrl: profileImageUrl,
+            isFollowing: isFollowing
+        )
+    }
+}
+
+private extension LikerDTO {
     func toDomain() -> User {
         return User(
             id: String(memberId),
