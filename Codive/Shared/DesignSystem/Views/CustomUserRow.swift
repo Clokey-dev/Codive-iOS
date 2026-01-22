@@ -73,9 +73,11 @@ struct CustomUserRow: View {
                 Text(user.nickname)
                     .font(.codive_body1_medium)
                     .foregroundStyle(Color.Codive.grayscale1)
-                Text(user.handle)
-                    .font(.codive_body3_medium)
-                    .foregroundStyle(Color.Codive.grayscale3)
+                if !user.handle.isEmpty {
+                    Text(user.handle)
+                        .font(.codive_body3_medium)
+                        .foregroundStyle(Color.Codive.grayscale3)
+                }
             }
             .padding(.leading, 8)
 
