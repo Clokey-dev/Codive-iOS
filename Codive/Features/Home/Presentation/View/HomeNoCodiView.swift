@@ -54,6 +54,7 @@ private extension HomeNoCodiView {
             }
             CodiButton(iconName: "shuffle", title: TextLiteral.Home.random) {
                 // 랜덤 로직
+                viewModel.selectEditCodi()
             }
         }
         .padding(.horizontal, 20)

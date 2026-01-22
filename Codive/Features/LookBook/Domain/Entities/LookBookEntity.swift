@@ -19,12 +19,12 @@ struct LookBookEntity: Identifiable {
 
 // 룩북 생성하기 api의 request
 struct CreateLookBookEntity {
-    let lookBookId: Int
+    let lookBookId: Int64
 }
 
 // 룩북 제거하기 api의 request
 struct DeleteLookBookEntity {
-    let lookBookId: Int
+    let lookBookId: Int64
 }
 
 // 개별 룩북 코디 목록 조회 api의 responseDTO의 content

@@ -169,7 +169,7 @@ private struct LookBookContent: View {
                 ForEach(viewModel.lookBookList) { lookbook in
                     LookBookFolder(
                         title: lookbook.lookbookName,
-                        count: lookbook.count,
+                        count: Int(lookbook.count),
                         imageUrl: lookbook.imageUrl,
                         mode: viewModel.isEditing
                             ? .check(isSelected: viewModel.selectedLookBookIds.contains(lookbook.id))

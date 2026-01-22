@@ -24,7 +24,7 @@ final class LookBookViewModel: ObservableObject {
     // MARK: - Published State (Editing)
     
     @Published var isEditing: Bool = false
-    @Published var selectedLookBookIds: Set<Int> = []
+    @Published var selectedLookBookIds: Set<Int64> = []
     
     // MARK: - Published State (Dialog / Alert)
     
@@ -49,10 +49,10 @@ final class LookBookViewModel: ObservableObject {
         
         Task {
             do {
-                let list = try await listUseCase.fetchLookBookList()
-                self.lookBookList = list
+                let result = try await listUseCase.fetchLookBookList(lastLookBookId: nil, size: 10, direction: .DESC)
+                self.lookBookList = result.content
                 
-                if list.isEmpty {
+                if result.content.isEmpty {
                     self.isShowingAddDialog = true
                 }
             } catch {
@@ -71,7 +71,7 @@ final class LookBookViewModel: ObservableObject {
     }
     
     // MARK: - 삭제할 룩북 선택
-    func toggleSelection(id: Int) {
+    func toggleSelection(id: Int64) {
         if selectedLookBookIds.contains(id) {
             selectedLookBookIds.remove(id)
         } else {
@@ -114,8 +114,8 @@ final class LookBookViewModel: ObservableObject {
             do {
                 try await listUseCase.deleteLookBooks(ids: idsToDelete)
 
-                let updatedList = try await listUseCase.fetchLookBookList()
-                self.lookBookList = updatedList
+//                let updatedResult = try await listUseCase.fetchLookBookList()
+//                self.lookBookList = updatedResult.content
                 
                 self.handleDeleteAction()
             } catch {
@@ -151,8 +151,8 @@ final class LookBookViewModel: ObservableObject {
             do {
                 _ = try await listUseCase.createLookBook(title: trimmedTitle)
 
-                let updatedList = try await listUseCase.fetchLookBookList()
-                self.lookBookList = updatedList
+//                let updatedResult = try await listUseCase.fetchLookBookList()
+//                self.lookBookList = updatedResult.content
 
                 self.isShowingAddDialog = false
             } catch {
@@ -173,10 +173,10 @@ final class LookBookViewModel: ObservableObject {
         }
     }
     
-    func navigateToSpecificLookBook(id: Int) {
+    func navigateToSpecificLookBook(id: Int64) {
         navigationRouter.navigate(
             to: .specificLookbook(
-                lookbookId: id
+                lookbookId: Int(id)
             )
         )
     }

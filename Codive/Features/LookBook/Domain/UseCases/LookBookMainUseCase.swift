@@ -5,6 +5,8 @@
 //  Created by 한금준 on 12/23/25.
 //
 
+import CodiveAPI
+
 final class LookBookMainUseCase {
 
     // MARK: - Dependency
@@ -18,8 +20,16 @@ final class LookBookMainUseCase {
     // MARK: - LookBook List
 
     /// 룩북 목록 조회
-    func fetchLookBookList() async throws -> [LookBookEntity] {
-        try await repository.fetchLookBookList()
+    func fetchLookBookList(
+        lastLookBookId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
+    ) async throws -> (content: [LookBookEntity], isLast: Bool) {
+        return try await repository.fetchLookBookList(
+            lastLookBookId: lastLookBookId,
+            size: size,
+            direction: direction
+        )
     }
     
     /// 룩북 생성
@@ -28,7 +38,7 @@ final class LookBookMainUseCase {
     }
 
     /// 선택된 룩북 삭제
-    func deleteLookBooks(ids: [Int]) async throws {
+    func deleteLookBooks(ids: [Int64]) async throws {
         let requests = ids.map { DeleteLookBookEntity(lookBookId: $0) }
         try await repository.deleteLookBooks(requests)
     }

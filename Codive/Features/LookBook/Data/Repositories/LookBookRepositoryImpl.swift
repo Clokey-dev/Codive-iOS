@@ -5,6 +5,8 @@
 //  Created by 한금준 on 11/22/25.
 //
 
+import CodiveAPI
+
 final class LookBookRepositoryImpl: LookBookRepository {
     // MARK: - Properties
     private let datasource: LookBookDataSource
@@ -14,8 +16,16 @@ final class LookBookRepositoryImpl: LookBookRepository {
         self.datasource = datasource
     }
     
-    func fetchLookBookList() async throws -> [LookBookEntity] {
-        return try await datasource.fetchLookBookList()
+    func fetchLookBookList(
+        lastLookBookId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
+    ) async throws -> (content: [LookBookEntity], isLast: Bool) {
+        return try await datasource.fetchLookBookList(
+            lastLookBookId: lastLookBookId,
+            size: size,
+            direction: direction
+        )
     }
 
     func fetchCodisForLookBook(forLookbookId id: Int) async throws -> [SpecificLookBookCodiEntity] {

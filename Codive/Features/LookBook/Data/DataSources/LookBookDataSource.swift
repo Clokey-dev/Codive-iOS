@@ -6,38 +6,43 @@
 //
 
 import Foundation
+import CodiveAPI
 
-final class LookBookDataSource {
+protocol LookBookDataSourceProtocol {
+    func fetchLookBookList(
+        lastLookBookId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
+    ) async throws -> (content: [LookBookEntity], isLast: Bool)
+}
+
+final class LookBookDataSource: LookBookDataSourceProtocol {
+    private let apiService: LooBookAPIServiceServiceProtocol
     
-    // MARK: - Dummy LookBook List
+    // MARK: - Initializer
+    init(
+        apiService: LooBookAPIServiceServiceProtocol = LooBookAPIService()
+    ) {
+        self.apiService = apiService
+    }
     
-    // 룩북 리스트 더미데이터(완)
-    private var dummyLookBooks: [LookBookEntity] = [
-        LookBookEntity(
-            lookBookId: 1,
-            lookbookName: "영화관 데이트 룩",
-            imageUrl: "https://images.unsplash.com/photo-1520975916090-3105956dac38?w=600&q=80",
-            count: 2
-        ),
-        LookBookEntity(
-            lookBookId: 2,
-            lookbookName: "편안한 데일리 코디",
-            imageUrl: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80",
-            count: 1
-        ),
-        LookBookEntity(
-            lookBookId: 3,
-            lookbookName: "스트릿 캐주얼",
-            imageUrl: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=600&q=80",
-            count: 4
-        ),
-        LookBookEntity(
-            lookBookId: 4,
-            lookbookName: "파티/모임 코디",
-            imageUrl: "https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?w=600&q=80",
-            count: 3
+    /// 룩북 전체 리스트 조회
+    func fetchLookBookList(
+        lastLookBookId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
+    ) async throws -> (content: [LookBookEntity], isLast: Bool) {
+        let result = try await apiService.fetchLookBookList(
+            lastLookBookId: lastLookBookId,
+            size: size,
+            direction: direction
         )
-    ]
+
+        return (
+            content: result.content.map { $0.toEntity() },
+            isLast: result.isLast
+        )
+    }
     
     // MARK: - Dummy Codis by LookBook
 
@@ -125,12 +130,6 @@ final class LookBookDataSource {
     
     // MARK: - Fetch APIs
     
-    /// LookBook 목록 조회(완)
-    func fetchLookBookList() async throws -> [LookBookEntity] {
-        try await Task.sleep(nanoseconds: 500_000_000)
-        return dummyLookBooks
-    }
-    
     /// 이전 코디 목록 조회(완)
     func fetchBeforeCoordinateDaily() async throws -> [BeforeCoordinateDailyEntity] {
         try await Task.sleep(nanoseconds: 500_000_000)
@@ -145,21 +144,21 @@ final class LookBookDataSource {
     
     /// 룩북 생성 (POST, 완)
     func createLookBook(title: String) async throws -> CreateLookBookEntity {
-        try await Task.sleep(nanoseconds: 500_000_000)
+//        try await Task.sleep(nanoseconds: 500_000_000)
 
-        let newId = (dummyLookBooks.map { $0.lookBookId }.max() ?? 0) + 1
+//        let newId = (dummyLookBooks.map { $0.lookBookId }.max() ?? 0) + 1
 
-        let newLookBook = LookBookEntity(
-            lookBookId: newId,
-            lookbookName: title,
-            imageUrl: "https://via.placeholder.com/160",
-            count: 0
-        )
-
-        dummyLookBooks.append(newLookBook)
-
-        print("서버에 룩북 생성 요청: \(title)")
-        return CreateLookBookEntity(lookBookId: newId)
+//        let newLookBook = LookBookEntity(
+//            lookBookId: newId,
+//            lookbookName: title,
+//            imageUrl: "https://via.placeholder.com/160",
+//            count: 0
+//        )
+//
+////        dummyLookBooks.append(newLookBook)
+//
+//        print("서버에 룩북 생성 요청: \(title)")
+        return CreateLookBookEntity(lookBookId: 0)
     }
     
     /// 룩북 삭제 (DELETE, 완)
@@ -170,9 +169,9 @@ final class LookBookDataSource {
 
         print("서버에 삭제 요청: lookBookIds \(ids)")
 
-        dummyLookBooks.removeAll { ids.contains($0.lookBookId) }
-
-        print("삭제 후 남은 LookBook: \(dummyLookBooks.map { $0.lookBookId })")
+//        dummyLookBooks.removeAll { ids.contains($0.lookBookId) }
+//
+//        print("삭제 후 남은 LookBook: \(dummyLookBooks.map { $0.lookBookId })")
     }
     
     /// 코디 좋아요 (PATCH, 완)
@@ -212,10 +211,10 @@ final class LookBookDataSource {
         - name: \(entity.name)
         """)
         
-        guard let index = dummyLookBooks.firstIndex(where: { $0.lookBookId == entity.lookBookId }) else {
-            throw NSError(domain: "LookBookNotFound", code: 404)
-        }
-        dummyLookBooks[index].lookbookName = entity.name
+//        guard let index = dummyLookBooks.firstIndex(where: { $0.lookBookId == entity.lookBookId }) else {
+//            throw NSError(domain: "LookBookNotFound", code: 404)
+//        }
+//        dummyLookBooks[index].lookbookName = entity.name
     }
     
     /// 코디 preview 조회(GET, 완)
