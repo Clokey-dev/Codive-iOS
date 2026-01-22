@@ -19,7 +19,7 @@ protocol LookBookRepository {
     // 과거 일일 코디 조회
     func fetchBeforeCoordinateDaily() async throws -> [BeforeCoordinateDailyEntity]
     // 룩북 생성
-    func createLookBook(title: String) async throws -> CreateLookBookEntity
+    func createLookBook(request: CreateLookBookAPIRequestDTO) async throws -> CreateLookBookResponseDTO
     // 룩북 삭제
     func deleteLookBooks(_ lookBooks: [DeleteLookBookEntity]) async throws
     // 코디 좋아요

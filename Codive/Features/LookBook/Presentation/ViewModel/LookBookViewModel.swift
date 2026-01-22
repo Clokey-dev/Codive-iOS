@@ -146,19 +146,24 @@ final class LookBookViewModel: ObservableObject {
         guard !trimmedTitle.isEmpty else { return }
 
         isLoading = true
+        errorMessage = nil
+
+        let request = CreateLookBookAPIRequestDTO(name: trimmedTitle)
 
         Task {
             do {
-                _ = try await listUseCase.createLookBook(title: trimmedTitle)
+                _ = try await listUseCase.createLookBook(request: request)
 
-//                let updatedResult = try await listUseCase.fetchLookBookList()
-//                self.lookBookList = updatedResult.content
-
+                let updatedResult = try await listUseCase.fetchLookBookList(
+                    lastLookBookId: nil,
+                    size: 10,
+                    direction: .DESC
+                )
+                self.lookBookList = updatedResult.content
                 self.isShowingAddDialog = false
             } catch {
                 self.errorMessage = "룩북 생성에 실패했습니다."
             }
-
             isLoading = false
         }
     }

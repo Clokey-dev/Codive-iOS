@@ -13,7 +13,7 @@ final class LookBookDIContainer {
     // MARK: - Core Dependencies
     let navigationRouter: NavigationRouter
     
-    private lazy var lookBookAPIService: LooBookAPIServiceServiceProtocol = {
+    private lazy var lookBookAPIService: LooBookAPIServiceProtocol = {
         return LooBookAPIService()
     }()
     

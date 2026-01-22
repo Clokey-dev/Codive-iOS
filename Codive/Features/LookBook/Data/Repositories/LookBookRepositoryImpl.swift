@@ -27,6 +27,10 @@ final class LookBookRepositoryImpl: LookBookRepository {
             direction: direction
         )
     }
+    
+    func createLookBook(request: CreateLookBookAPIRequestDTO) async throws -> CreateLookBookResponseDTO {
+        return try await datasource.createLookBook(request: request)
+    }
 
     func fetchCodisForLookBook(forLookbookId id: Int) async throws -> [SpecificLookBookCodiEntity] {
         return try await datasource.fetchCodisForLookBook(id: id)
@@ -36,9 +40,9 @@ final class LookBookRepositoryImpl: LookBookRepository {
         return try await datasource.fetchBeforeCoordinateDaily()
     }
     
-    func createLookBook(title: String) async throws -> CreateLookBookEntity {
-        try await datasource.createLookBook(title: title)
-    }
+//    func createLookBook(title: String) async throws -> CreateLookBookEntity {
+//        try await datasource.createLookBook(title: title)
+//    }
     
     func deleteLookBooks(_ lookBooks: [DeleteLookBookEntity]) async throws {
         try await datasource.deleteLookBooks(lookBooks)

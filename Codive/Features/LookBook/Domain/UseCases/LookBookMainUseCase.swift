@@ -33,8 +33,8 @@ final class LookBookMainUseCase {
     }
     
     /// 룩북 생성
-    func createLookBook(title: String) async throws -> CreateLookBookEntity {
-        try await repository.createLookBook(title: title)
+    func createLookBook(request: CreateLookBookAPIRequestDTO) async throws -> CreateLookBookResponseDTO {
+        return try await repository.createLookBook(request: request)
     }
 
     /// 선택된 룩북 삭제

@@ -14,14 +14,16 @@ protocol LookBookDataSourceProtocol {
         size: Int32,
         direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
     ) async throws -> (content: [LookBookEntity], isLast: Bool)
+    
+    func createLookBook(request: CreateLookBookAPIRequestDTO) async throws -> CreateLookBookResponseDTO
 }
 
 final class LookBookDataSource: LookBookDataSourceProtocol {
-    private let apiService: LooBookAPIServiceServiceProtocol
+    private let apiService: LooBookAPIServiceProtocol
     
     // MARK: - Initializer
     init(
-        apiService: LooBookAPIServiceServiceProtocol = LooBookAPIService()
+        apiService: LooBookAPIServiceProtocol = LooBookAPIService()
     ) {
         self.apiService = apiService
     }
@@ -42,6 +44,13 @@ final class LookBookDataSource: LookBookDataSourceProtocol {
             content: result.content.map { $0.toEntity() },
             isLast: result.isLast
         )
+    }
+    
+    /// 룩북 생성
+    func createLookBook(
+        request: CreateLookBookAPIRequestDTO
+    ) async throws -> CreateLookBookResponseDTO {
+        return try await apiService.createLookBook(request: request)
     }
     
     // MARK: - Dummy Codis by LookBook
@@ -99,18 +108,12 @@ final class LookBookDataSource: LookBookDataSourceProtocol {
         11: CoordinatePreviewEntity(
             coordinateId: 11,
             imageUrl: "https://image.msscdn.net/images/style/detail/37395/detail_37395_1_500.jpg",
-//            topImageURL: "https://image.msscdn.net/images/goods_img/20230823/3505663/3505663_16927703370903_500.jpg",
-//            bottomImageURL: "https://image.msscdn.net/images/goods_img/20230209/3067644/3067644_16759086395254_500.jpg",
-//            shoeImageURL: "https://image.msscdn.net/images/goods_img/20221031/2902341/2902341_1_500.jpg",
             coordinateName: "로맨틱 시사회 룩",
             coordinateMemo: "1주년이니까 오빠가 사준 신발 신고가야됨"
         ),
         12: CoordinatePreviewEntity(
             coordinateId: 12,
             imageUrl: "https://image.msscdn.net/images/style/detail/37390/detail_37390_1_500.jpg",
-//            topImageURL: "https://image.msscdn.net/images/goods_img/20240115/3792446/3792446_17053040307044_500.jpg",
-//            bottomImageURL: "https://image.msscdn.net/images/goods_img/20230209/3067644/3067644_16759086395254_500.jpg",
-//            shoeImageURL: "https://image.msscdn.net/images/goods_img/20221031/2902341/2902341_1_500.jpg",
             coordinateName: "따뜻한 카페 데이트",
             coordinateMemo: "겨울 카페 데이트 코디"
         )
@@ -143,23 +146,23 @@ final class LookBookDataSource: LookBookDataSourceProtocol {
     }
     
     /// 룩북 생성 (POST, 완)
-    func createLookBook(title: String) async throws -> CreateLookBookEntity {
-//        try await Task.sleep(nanoseconds: 500_000_000)
-
-//        let newId = (dummyLookBooks.map { $0.lookBookId }.max() ?? 0) + 1
-
-//        let newLookBook = LookBookEntity(
-//            lookBookId: newId,
-//            lookbookName: title,
-//            imageUrl: "https://via.placeholder.com/160",
-//            count: 0
-//        )
+//    func createLookBook(title: String) async throws -> CreateLookBookEntity {
+////        try await Task.sleep(nanoseconds: 500_000_000)
 //
-////        dummyLookBooks.append(newLookBook)
+////        let newId = (dummyLookBooks.map { $0.lookBookId }.max() ?? 0) + 1
 //
-//        print("서버에 룩북 생성 요청: \(title)")
-        return CreateLookBookEntity(lookBookId: 0)
-    }
+////        let newLookBook = LookBookEntity(
+////            lookBookId: newId,
+////            lookbookName: title,
+////            imageUrl: "https://via.placeholder.com/160",
+////            count: 0
+////        )
+////
+//////        dummyLookBooks.append(newLookBook)
+////
+////        print("서버에 룩북 생성 요청: \(title)")
+//        return CreateLookBookEntity(lookBookId: 0)
+//    }
     
     /// 룩북 삭제 (DELETE, 완)
     func deleteLookBooks(_ requests: [DeleteLookBookEntity]) async throws {

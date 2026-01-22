@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// 룩북 전체 조회
 struct LookBookListResponseDTO {
     let content: [LookBookListResponseItem]
     let isLast: Bool
@@ -34,4 +35,12 @@ struct LookBookListResponseItem {
             count: 0
         )
     }
+}
+
+struct CreateLookBookAPIRequestDTO {
+    let name: String
+}
+
+struct CreateLookBookResponseDTO {
+    let lookBookId: Int64
 }

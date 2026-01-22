@@ -10,22 +10,19 @@ import CodiveAPI
 import OpenAPIRuntime
 import CryptoKit
 
-enum SortDirection: String {
-    case asc = "ASC"
-    case desc = "DESC"
-}
-
 // MARK: - HomeCategoryAPIService Protocol
 
-protocol LooBookAPIServiceServiceProtocol {
+protocol LooBookAPIServiceProtocol {
     func fetchLookBookList(
         lastLookBookId: Int64?,
         size: Int32,
         direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
     ) async throws -> LookBookListResponseDTO
+    
+    func createLookBook(request: CreateLookBookAPIRequestDTO) async throws -> CreateLookBookResponseDTO
 }
 
-final class LooBookAPIService: LooBookAPIServiceServiceProtocol {
+final class LooBookAPIService: LooBookAPIServiceProtocol {
 
     private let client: Client
     private let jsonDecoder: JSONDecoder
@@ -67,6 +64,33 @@ extension LooBookAPIService {
         }
     }
     
+}
+
+extension LooBookAPIService {
+    func createLookBook(request: CreateLookBookAPIRequestDTO) async throws -> CreateLookBookResponseDTO {
+        let requestBody = Components.Schemas.LookBookCreateRequest(
+            name: request.name
+        )
+        let input = Operations.LookBook_createLookBook.Input(body: .json(requestBody))
+        let response = try await client.LookBook_createLookBook(input)
+
+        switch response {
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+            let decoded = try jsonDecoder.decode(
+                Components.Schemas.BaseResponseLookBookCreateResponse.self,
+                from: data
+            )
+
+            guard let lookBookId = decoded.result?.lookBookId else {
+                throw LooBookAPIError.noClothIdsReturned
+            }
+            return CreateLookBookResponseDTO(lookBookId: lookBookId)
+
+        case .undocumented(statusCode: let code, _):
+            throw LooBookAPIError.serverError(statusCode: code, message: "룩북 생성 실패")
+        }
+    }
 }
 
 // MARK: - ClothAPIError
