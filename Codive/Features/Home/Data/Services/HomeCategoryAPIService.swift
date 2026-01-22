@@ -46,7 +46,7 @@ extension HomeCategoryAPIService {
         switch response {
         case .ok(let okResponse):
             let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseClothListResponse.self, from: data)
+            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseClothRecommendListResponse.self, from: data)
             
             let content: [HomeCategoryResponseItem] = decoded.result?.content?.map { item -> HomeCategoryResponseItem in
                 return HomeCategoryResponseItem(clothId: item.clothId ?? 0, ImageUrl: item.ImageUrl ?? "")

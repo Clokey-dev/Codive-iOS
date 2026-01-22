@@ -9,12 +9,12 @@ import Foundation
 
 // 룩북 전체 조회 api의 responseDTO의 content
 struct LookBookEntity: Identifiable {
-    let lookBookId: Int
+    let lookBookId: Int64
     var lookbookName: String
     let imageUrl: String
-    let count: Int
+    let count: Int64
 
-    var id: Int { lookBookId }
+    var id: Int64 { lookBookId }
 }
 
 // 룩북 생성하기 api의 request

@@ -1,0 +1,98 @@
+//
+//  LooBookAPIService.swift
+//  Codive
+//
+//  Created by 한금준 on 1/22/26.
+//
+
+import Foundation
+import CodiveAPI
+import OpenAPIRuntime
+import CryptoKit
+
+enum SortDirection: String {
+    case asc = "ASC"
+    case desc = "DESC"
+}
+
+// MARK: - HomeCategoryAPIService Protocol
+
+protocol LooBookAPIServiceServiceProtocol {
+    func fetchLookBookList(
+        lastLookBookId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
+    ) async throws -> LookBookListResponseDTO
+}
+
+final class LooBookAPIService: LooBookAPIServiceServiceProtocol {
+
+    private let client: Client
+    private let jsonDecoder: JSONDecoder
+
+    init(tokenProvider: TokenProvider = KeychainTokenProvider()) {
+        self.client = CodiveAPIProvider.createClient(
+            middlewares: [CodiveAuthMiddleware(provider: tokenProvider)]
+        )
+        self.jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
+    }
+}
+
+extension LooBookAPIService {
+    func fetchLookBookList(
+        lastLookBookId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload = .DESC
+    ) async throws -> LookBookListResponseDTO {
+        
+        let input = Operations.LookBook_getLookBooks.Input(
+            query: .init(lastLookBookId: lastLookBookId, size: size, direction: direction)
+        )
+        
+        let response = try await client.LookBook_getLookBooks(input)
+        
+        switch response {
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseLookBookListResponse.self, from: data)
+            
+            let content: [LookBookListResponseItem] = decoded.result?.content?.map { item -> LookBookListResponseItem in
+                return LookBookListResponseItem(lookBookId: item.lookBookId ?? 0, lookBookName: item.lookBookName ?? "", imageUrl: item.imageUrl ?? ""/*, count: item.count ?? 0*/)
+            } ?? []
+            
+            return LookBookListResponseDTO(content: content, isLast: decoded.result?.isLast ?? true)
+            
+        case .undocumented(statusCode: let code, _):
+            throw LooBookAPIError.serverError(statusCode: code, message: "룩북 목록 조회 실패")
+        }
+    }
+    
+}
+
+// MARK: - ClothAPIError
+
+enum LooBookAPIError: LocalizedError {
+    case presignedUrlMismatch
+    case invalidUrl
+    case invalidResponse
+    case s3UploadFailed(statusCode: Int)
+    case noClothIdsReturned
+    case serverError(statusCode: Int, message: String)
+
+    var errorDescription: String? {
+        switch self {
+        case .presignedUrlMismatch:
+            return "Presigned URL 개수가 요청한 이미지 개수와 일치하지 않습니다."
+        case .invalidUrl:
+            return "유효하지 않은 URL입니다."
+        case .invalidResponse:
+            return "서버 응답을 처리할 수 없습니다."
+        case .s3UploadFailed(let statusCode):
+            return "S3 업로드 실패 (상태 코드: \(statusCode))"
+        case .noClothIdsReturned:
+            return "서버에서 생성된 옷 ID를 반환하지 않았습니다."
+        case .serverError(let statusCode, let message):
+            return "서버 오류 (\(statusCode)): \(message)"
+        }
+    }
+}
