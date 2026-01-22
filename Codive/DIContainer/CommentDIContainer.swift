@@ -6,10 +6,11 @@
 //
 
 import Foundation
+import CodiveAPI
 
 @MainActor
 final class CommentDIContainer {
-    
+
     // MARK: - Properties
     let navigationRouter: NavigationRouter
     lazy var commentViewFactory = CommentViewFactory(commentDIContainer: self)
@@ -22,8 +23,7 @@ final class CommentDIContainer {
     // MARK: - DataSources
 
     private lazy var commentDataSource: CommentDataSource = {
-        // 나중에 실제 API가 구현되면 이 부분만 DefaultCommentDataSource()로 교체
-        return MockCommentDataSource()
+        return DefaultCommentDataSource()
     }()
 
     // MARK: - Repositories
@@ -42,13 +42,23 @@ final class CommentDIContainer {
         return DefaultPostCommentUseCase(commentRepository: commentRepository)
     }
 
+    func makeFetchRepliesUseCase() -> FetchRepliesUseCase {
+        return DefaultFetchRepliesUseCase(commentRepository: commentRepository)
+    }
+
+    func makePostReplyUseCase() -> PostReplyUseCase {
+        return DefaultPostReplyUseCase(commentRepository: commentRepository)
+    }
+
     // MARK: - ViewModels
 
     func makeCommentViewModel(feedId: Int) -> CommentViewModel {
         return CommentViewModel(
             feedId: feedId,
             fetchCommentsUseCase: makeFetchCommentsUseCase(),
-            postCommentUseCase: makePostCommentUseCase()
+            postCommentUseCase: makePostCommentUseCase(),
+            fetchRepliesUseCase: makeFetchRepliesUseCase(),
+            postReplyUseCase: makePostReplyUseCase()
         )
     }
 

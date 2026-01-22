@@ -13,6 +13,7 @@ final class FeedDIContainer {
     // MARK: - Properties
     let navigationRouter: NavigationRouter
     lazy var feedViewFactory = FeedViewFactory(feedDIContainer: self)
+    lazy var commentDIContainer = CommentDIContainer(navigationRouter: navigationRouter)
 
     // MARK: - Initializer
     init(navigationRouter: NavigationRouter) {
@@ -94,7 +95,8 @@ final class FeedDIContainer {
     func makeFeedDetailView(feedId: Int) -> FeedDetailView {
         return FeedDetailView(
             viewModel: makeFeedDetailViewModel(feedId: feedId),
-            navigationRouter: navigationRouter
+            navigationRouter: navigationRouter,
+            commentDIContainer: commentDIContainer
         )
     }
 }

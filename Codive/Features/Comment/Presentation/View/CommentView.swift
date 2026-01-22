@@ -40,7 +40,7 @@ struct CommentView: View {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 24) {
                     ForEach(viewModel.comments) { comment in
-                        CommentRow(comment: comment)
+                        CommentRow(comment: comment, viewModel: viewModel)
                     }
                     if viewModel.isLoading {
                         ProgressView()
@@ -59,15 +59,57 @@ struct CommentView: View {
             // MARK: - Comment Input Area
             VStack(spacing: 0) {
                 Divider().overlay(Color.Codive.grayscale6)
-                HStack(alignment: .center, spacing: 12) {
-                    TextField(TextLiteral.Comment.placeholder, text: $viewModel.currentCommentText)
-                        .padding(.horizontal, 15)
-                        .frame(height: 40)
-                        .background(Color.Codive.main6)
+
+                // 대댓글 입력 중이면 표시
+                if let replyingCommentId = viewModel.replyingToCommentId,
+                   let replyingComment = viewModel.comments.first(where: { $0.id == replyingCommentId }) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("@\(replyingComment.author.nickname)")
+                                    .font(.codive_body2_medium)
+                                    .foregroundStyle(Color.Codive.main0)
+                                Text(replyingComment.content)
+                                    .font(.codive_body3_regular)
+                                    .foregroundStyle(Color.Codive.grayscale2)
+                                    .lineLimit(1)
+                            }
+                            Spacer()
+                            Button(action: {
+                                viewModel.cancelReply()
+                            }, label: {
+                                Image(systemName: "xmark")
+                                    .font(.system(size: 12))
+                                    .foregroundStyle(Color.Codive.grayscale4)
+                            })
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 12)
+                        .background(Color.Codive.grayscale6)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
-                        .font(.codive_body2_regular)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 8)
+                    }
+                }
+
+                // 댓글/대댓글 입력 필드
+                HStack(alignment: .center, spacing: 12) {
+                    TextField(
+                        viewModel.replyingToCommentId != nil ? "대댓글 입력..." : TextLiteral.Comment.placeholder,
+                        text: viewModel.replyingToCommentId != nil ? $viewModel.currentReplyText : $viewModel.currentCommentText
+                    )
+                    .padding(.horizontal, 15)
+                    .frame(height: 40)
+                    .background(Color.Codive.main6)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .font(.codive_body2_regular)
+
                     Button(action: {
-                        viewModel.postComment()
+                        if viewModel.replyingToCommentId != nil {
+                            viewModel.postReply()
+                        } else {
+                            viewModel.postComment()
+                        }
                     }, label: {
                         Image("comment_enter")
                             .foregroundStyle(.white)
@@ -75,7 +117,11 @@ struct CommentView: View {
                             .background(Color.Codive.main0)
                             .clipShape(Circle())
                     })
-                    .disabled(viewModel.currentCommentText.isEmpty)
+                    .disabled(
+                        viewModel.replyingToCommentId != nil
+                        ? viewModel.currentReplyText.isEmpty
+                        : viewModel.currentCommentText.isEmpty
+                    )
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 40)
@@ -99,7 +145,8 @@ struct CommentView: View {
 struct CommentRow: View {
     let comment: Comment
     var isReply: Bool = false
-    
+    @ObservedObject var viewModel: CommentViewModel
+
     @State private var isExpanded: Bool = false
 
     var body: some View {
@@ -117,9 +164,17 @@ struct CommentRow: View {
                 
                 VStack(alignment: .leading, spacing: 4) {
                     // 닉네임
-                    Text(comment.author.nickname)
-                        .font(.codive_body2_medium)
-                        .foregroundStyle(Color.Codive.grayscale1)
+                    HStack(spacing: 4) {
+                        Text(comment.author.nickname)
+                            .font(.codive_body2_medium)
+                            .foregroundStyle(Color.Codive.grayscale1)
+
+                        if comment.isMine {
+                            Text("(작성자)")
+                                .font(.codive_body3_regular)
+                                .foregroundStyle(Color.Codive.main0)
+                        }
+                    }
                     
                     // 댓글내용
                     Text(comment.content)
@@ -128,7 +183,9 @@ struct CommentRow: View {
                         .fixedSize(horizontal: false, vertical: true)
                         .lineSpacing(4)
                     
-                    Button(action: {}, label: {
+                    Button(action: {
+                        viewModel.setReplyingTo(commentId: comment.id)
+                    }, label: {
                         Text(TextLiteral.Comment.addReply)
                             .font(.codive_body3_regular)
                             .foregroundStyle(Color.Codive.grayscale4)
@@ -136,13 +193,24 @@ struct CommentRow: View {
                     .padding(.top, 4)
                     
                     // MARK: 답글 더보기/숨기기 버튼
-                    if comment.hasReplies, let replies = comment.replies, !replies.isEmpty {
+                    if comment.hasReplies {
                         Button(action: {
-                            withAnimation(.easeOut(duration: 0.2)) { isExpanded.toggle() }
+                            withAnimation(.easeOut(duration: 0.2)) {
+                                isExpanded.toggle()
+                                if isExpanded && (comment.replies?.isEmpty ?? true) {
+                                    viewModel.fetchReplies(for: comment.id)
+                                }
+                            }
                         }, label: {
-                            Text(isExpanded ? TextLiteral.Comment.hideReplies : TextLiteral.Comment.repliesCount(replies.count))
-                                .font(.codive_body2_regular)
-                                .foregroundStyle(Color.Codive.grayscale4)
+                            if let replies = comment.replies, !replies.isEmpty {
+                                Text(isExpanded ? TextLiteral.Comment.hideReplies : TextLiteral.Comment.repliesCount(replies.count))
+                                    .font(.codive_body2_regular)
+                                    .foregroundStyle(Color.Codive.grayscale4)
+                            } else {
+                                Text(TextLiteral.Comment.repliesCount(1))
+                                    .font(.codive_body2_regular)
+                                    .foregroundStyle(Color.Codive.grayscale4)
+                            }
                         })
                         .padding(.top, 8)
                     }
@@ -160,7 +228,7 @@ struct CommentRow: View {
             if isExpanded, let replies = comment.replies {
                 VStack(alignment: .leading, spacing: 20) {
                     ForEach(replies) { reply in
-                        CommentRow(comment: reply, isReply: true)
+                        CommentRow(comment: reply, isReply: true, viewModel: viewModel)
                     }
                 }
                 .padding(.top, 10)
@@ -171,18 +239,22 @@ struct CommentRow: View {
 
 // MARK: - Preview
 struct CommentView_Previews: PreviewProvider {
-    
+
     static var previews: some View {
         let mockRepository = MockCommentRepository()
         let fetchUseCase = DefaultFetchCommentsUseCase(commentRepository: mockRepository)
         let postUseCase = DefaultPostCommentUseCase(commentRepository: mockRepository)
-        
+        let fetchRepliesUseCase = DefaultFetchRepliesUseCase(commentRepository: mockRepository)
+        let postReplyUseCase = DefaultPostReplyUseCase(commentRepository: mockRepository)
+
         let viewModel = CommentViewModel(
             feedId: 1,
             fetchCommentsUseCase: fetchUseCase,
-            postCommentUseCase: postUseCase
+            postCommentUseCase: postUseCase,
+            fetchRepliesUseCase: fetchRepliesUseCase,
+            postReplyUseCase: postReplyUseCase
         )
-        
+
         return CommentView(viewModel: viewModel)
             .previewDisplayName("댓글과 답글")
     }
