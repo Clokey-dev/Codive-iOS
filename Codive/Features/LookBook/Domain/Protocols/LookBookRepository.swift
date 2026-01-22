@@ -21,7 +21,7 @@ protocol LookBookRepository {
     // 룩북 생성
     func createLookBook(request: CreateLookBookAPIRequestDTO) async throws -> CreateLookBookResponseDTO
     // 룩북 삭제
-    func deleteLookBooks(_ lookBooks: [DeleteLookBookEntity]) async throws
+    func deleteLookBook(lookBookId: Int64) async throws
     // 코디 좋아요
     func toggleCodiLike(_ request: CodiLikeEntity, isLiked: Bool) async throws
     // 코디 삭제

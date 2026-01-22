@@ -24,7 +24,7 @@ final class LookBookViewModel: ObservableObject {
     // MARK: - Published State (Editing)
     
     @Published var isEditing: Bool = false
-    @Published var selectedLookBookIds: Set<Int64> = []
+    @Published var selectedLookBookId: Int64?
     
     // MARK: - Published State (Dialog / Alert)
     
@@ -66,16 +66,16 @@ final class LookBookViewModel: ObservableObject {
     func toggleDeleteMode() {
         isEditing.toggle()
         if !isEditing {
-            selectedLookBookIds = []
+            selectedLookBookId = nil
         }
     }
     
     // MARK: - 삭제할 룩북 선택
     func toggleSelection(id: Int64) {
-        if selectedLookBookIds.contains(id) {
-            selectedLookBookIds.remove(id)
+        if selectedLookBookId == id {
+            selectedLookBookId = nil
         } else {
-            selectedLookBookIds.insert(id)
+            selectedLookBookId = id
         }
     }
     
@@ -86,7 +86,7 @@ final class LookBookViewModel: ObservableObject {
     
     // MARK: - alert 삭제 동작
     func handleCompleteAction() {
-        guard !selectedLookBookIds.isEmpty else {
+        guard selectedLookBookId != nil else {
             toggleDeleteMode()
             return
         }
@@ -106,22 +106,26 @@ final class LookBookViewModel: ObservableObject {
     
     // MARK: - 룩북 삭제 확정
     func confirmDelete() {
-        let idsToDelete = Array(selectedLookBookIds)
-        
+        guard let idToDelete = selectedLookBookId else { return }
+
         isLoading = true
-        
+        errorMessage = nil
+
         Task {
             do {
-                try await listUseCase.deleteLookBooks(ids: idsToDelete)
+                try await listUseCase.deleteLookBook(lookBookId: idToDelete)
 
-//                let updatedResult = try await listUseCase.fetchLookBookList()
-//                self.lookBookList = updatedResult.content
+                let updatedResult = try await listUseCase.fetchLookBookList(
+                    lastLookBookId: nil,
+                    size: 10,
+                    direction: .DESC
+                )
+                self.lookBookList = updatedResult.content
                 
                 self.handleDeleteAction()
             } catch {
                 self.errorMessage = "룩북 삭제에 실패했습니다."
             }
-            
             isLoading = false
         }
     }

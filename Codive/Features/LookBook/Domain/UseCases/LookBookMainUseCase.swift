@@ -38,8 +38,7 @@ final class LookBookMainUseCase {
     }
 
     /// 선택된 룩북 삭제
-    func deleteLookBooks(ids: [Int64]) async throws {
-        let requests = ids.map { DeleteLookBookEntity(lookBookId: $0) }
-        try await repository.deleteLookBooks(requests)
+    func deleteLookBook(lookBookId: Int64) async throws {
+        try await repository.deleteLookBook(lookBookId: lookBookId)
     }
 }

@@ -81,7 +81,7 @@ struct LookBookView: View {
             rightButton: viewModel.isEditing
             ? .text(
                 title: TextLiteral.Common.delete,
-                isEnabled: !viewModel.selectedLookBookIds.isEmpty,
+                isEnabled: viewModel.selectedLookBookId != nil,
                 action: viewModel.handleCompleteAction
             )
             : .overflow(
@@ -172,7 +172,7 @@ private struct LookBookContent: View {
                         count: Int(lookbook.count),
                         imageUrl: lookbook.imageUrl,
                         mode: viewModel.isEditing
-                            ? .check(isSelected: viewModel.selectedLookBookIds.contains(lookbook.id))
+                            ? .check(isSelected: viewModel.selectedLookBookId == lookbook.id)
                             : .none
                     ) {
                         if viewModel.isEditing {

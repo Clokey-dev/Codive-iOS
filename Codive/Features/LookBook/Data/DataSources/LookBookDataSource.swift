@@ -16,6 +16,8 @@ protocol LookBookDataSourceProtocol {
     ) async throws -> (content: [LookBookEntity], isLast: Bool)
     
     func createLookBook(request: CreateLookBookAPIRequestDTO) async throws -> CreateLookBookResponseDTO
+    
+    func deleteLookBook(lookBookId: Int64) async throws
 }
 
 final class LookBookDataSource: LookBookDataSourceProtocol {
@@ -51,6 +53,11 @@ final class LookBookDataSource: LookBookDataSourceProtocol {
         request: CreateLookBookAPIRequestDTO
     ) async throws -> CreateLookBookResponseDTO {
         return try await apiService.createLookBook(request: request)
+    }
+    
+    /// 룩북 삭제
+    func deleteLookBook(lookBookId: Int64) async throws {
+        try await apiService.deleteLookBook(lookBookId: lookBookId)
     }
     
     // MARK: - Dummy Codis by LookBook
@@ -143,38 +150,6 @@ final class LookBookDataSource: LookBookDataSourceProtocol {
     func fetchCodisForLookBook(id lookbookId: Int) async throws -> [SpecificLookBookCodiEntity] {
         try await Task.sleep(nanoseconds: 500_000_000)
         return lookbookDetailCodi[lookbookId] ?? []
-    }
-    
-    /// 룩북 생성 (POST, 완)
-//    func createLookBook(title: String) async throws -> CreateLookBookEntity {
-////        try await Task.sleep(nanoseconds: 500_000_000)
-//
-////        let newId = (dummyLookBooks.map { $0.lookBookId }.max() ?? 0) + 1
-//
-////        let newLookBook = LookBookEntity(
-////            lookBookId: newId,
-////            lookbookName: title,
-////            imageUrl: "https://via.placeholder.com/160",
-////            count: 0
-////        )
-////
-//////        dummyLookBooks.append(newLookBook)
-////
-////        print("서버에 룩북 생성 요청: \(title)")
-//        return CreateLookBookEntity(lookBookId: 0)
-//    }
-    
-    /// 룩북 삭제 (DELETE, 완)
-    func deleteLookBooks(_ requests: [DeleteLookBookEntity]) async throws {
-        try await Task.sleep(nanoseconds: 500_000_000)
-
-        let ids = requests.map { $0.lookBookId }
-
-        print("서버에 삭제 요청: lookBookIds \(ids)")
-
-//        dummyLookBooks.removeAll { ids.contains($0.lookBookId) }
-//
-//        print("삭제 후 남은 LookBook: \(dummyLookBooks.map { $0.lookBookId })")
     }
     
     /// 코디 좋아요 (PATCH, 완)

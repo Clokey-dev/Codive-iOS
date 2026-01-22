@@ -40,12 +40,8 @@ final class LookBookRepositoryImpl: LookBookRepository {
         return try await datasource.fetchBeforeCoordinateDaily()
     }
     
-//    func createLookBook(title: String) async throws -> CreateLookBookEntity {
-//        try await datasource.createLookBook(title: title)
-//    }
-    
-    func deleteLookBooks(_ lookBooks: [DeleteLookBookEntity]) async throws {
-        try await datasource.deleteLookBooks(lookBooks)
+    func deleteLookBook(lookBookId: Int64) async throws {
+        try await datasource.deleteLookBook(lookBookId: lookBookId)
     }
 
     func toggleCodiLike(_ request: CodiLikeEntity, isLiked: Bool) async throws {
