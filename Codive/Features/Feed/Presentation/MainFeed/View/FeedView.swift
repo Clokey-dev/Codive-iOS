@@ -33,18 +33,31 @@ struct FeedView: View {
     ]
     
     private let styleCategories = [
-        TextLiteral.Add.styleCasual, TextLiteral.Add.styleLoving, TextLiteral.Add.styleMinimal,
-        TextLiteral.Add.styleVintage, TextLiteral.Add.styleSporty, TextLiteral.Add.styleStreet,
-        TextLiteral.Add.styleChic, TextLiteral.Add.styleOffice, TextLiteral.Add.styleClassic,
+        TextLiteral.Add.styleLoving, TextLiteral.Add.styleMinimal, TextLiteral.Add.styleVintage,
+        TextLiteral.Add.styleSporty, TextLiteral.Add.styleStreet, TextLiteral.Add.styleChic,
+        TextLiteral.Add.styleOffice, TextLiteral.Add.styleCasual, TextLiteral.Add.styleClassic,
         TextLiteral.Add.styleHighteen
     ]
-    
+
+    // 선택된 카테고리를 앞으로, 나머지를 뒤로 정렬
+    private var sortedCategories: [String] {
+        let selected = Array(selectedCategory).sorted { a, b in
+            guard let indexA = styleCategories.firstIndex(of: a),
+                  let indexB = styleCategories.firstIndex(of: b) else {
+                return false
+            }
+            return indexA < indexB
+        }
+        let notSelected = styleCategories.filter { !selectedCategory.contains($0) }
+        return selected + notSelected
+    }
+
     // MARK: - Body
     var body: some View {
         VStack {
             FeedFilterBar(
                 isFollowingSelected: $isFollowingSelected,
-                categories: styleCategories,
+                categories: sortedCategories,
                 selectedCategory: $selectedCategory
             ) {
                 isShowingFilterSheet = true
