@@ -16,7 +16,7 @@ struct FeedView: View {
     // MARK: Filter States
     // Top Bar States
     @State private var isFollowingSelected: Bool = false
-    @State private var selectedCategory: String = ""
+    @State private var selectedCategory: Set<String> = []
 
     // Bottom Sheet States
     @State private var isShowingFilterSheet: Bool = false
@@ -57,15 +57,8 @@ struct FeedView: View {
             Task { await viewModel.applyFilters() }
         }
         .onChange(of: selectedCategory) { _ in
-            if selectedCategory.isEmpty {
-                viewModel.selectedStyleIds = nil
-            } else {
-                if let styleItem = StyleConstants.find(byName: selectedCategory) {
-                    viewModel.selectedStyleIds = [Int(styleItem.styleId)]
-                } else {
-                    viewModel.selectedStyleIds = nil
-                }
-            }
+            let styleIds = StyleConstants.getIds(from: selectedCategory).map { Int($0) }
+            viewModel.selectedStyleIds = styleIds.isEmpty ? nil : styleIds
             viewModel.selectedSituationIds = nil
             Task { await viewModel.applyFilters() }
         }
@@ -78,7 +71,8 @@ struct FeedView: View {
                 selectedSheetSituations.removeAll()
             } onApply: {
                 isShowingFilterSheet = false
-                selectedCategory = "" // Clear top category when applying sheet filters
+                // Update top category with selected styles from sheet
+                selectedCategory = selectedSheetStyles
                 let styleIds = StyleConstants.getIds(from: selectedSheetStyles).map { Int($0) }
                 let situationIds = SituationConstants.getIds(from: selectedSheetSituations).map { Int($0) }
                 viewModel.selectedStyleIds = styleIds.isEmpty ? nil : styleIds
@@ -111,7 +105,7 @@ struct FeedView: View {
                 } else {
                     FeedEmptyView(type: .noFeeds) {
                         viewModel.clearFiltersAndReload()
-                        selectedCategory = ""
+                        selectedCategory.removeAll()
                     }
                 }
             } else if let errorMessage = viewModel.errorMessage {
