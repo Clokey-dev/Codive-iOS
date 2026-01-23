@@ -37,11 +37,15 @@ struct HashtagView: View {
             
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 11) {
                 ForEach(viewModel.posts) { post in
-                    PostCard(
-                        postImageUrl: post.postImageUrl,
-                        profileImageUrl: post.profileImageUrl,
-                        nickname: post.nickname
-                    )
+                    Button {
+                        viewModel.navigateToFeedDetail(feedId: post.id)
+                    } label: {
+                        PostCard(
+                            postImageUrl: post.postImageUrl,
+                            profileImageUrl: post.profileImageUrl,
+                            nickname: post.nickname
+                        )
+                    }
                 }
             }
             .padding(.top, 18)

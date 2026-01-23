@@ -99,7 +99,16 @@ final class SearchResultViewModel: ObservableObject {
     }
     
     // MARK: - Navigation
+
     func handleBackTap() {
         navigationRouter.navigateBack()
+    }
+
+    func navigateToUserProfile(userId: Int) {
+        navigationRouter.navigate(to: .otherProfile(userId: userId))
+    }
+
+    func navigateToFeedDetail(feedId: Int) {
+        navigationRouter.navigate(to: .feedDetail(feedId: feedId))
     }
 }

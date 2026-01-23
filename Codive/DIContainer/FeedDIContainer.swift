@@ -12,7 +12,7 @@ final class FeedDIContainer {
 
     // MARK: - Properties
     let navigationRouter: NavigationRouter
-    lazy var feedViewFactory = FeedViewFactory(feedDIContainer: self)
+    lazy var feedViewFactory = FeedViewFactory(feedDIContainer: self, navigationRouter: navigationRouter)
     lazy var commentDIContainer = CommentDIContainer(navigationRouter: navigationRouter)
 
     // MARK: - Initializer

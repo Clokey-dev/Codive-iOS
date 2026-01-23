@@ -178,6 +178,8 @@ struct MainTabView: View {
             notificationDIContainer.makeNotificationView()
         case .feedDetail(let feedId):
             feedDIContainer.makeFeedDetailView(feedId: feedId)
+        case .otherProfile:
+            feedDIContainer.feedViewFactory.makeView(for: destination)
         case .comment(let feedId):
             commentDIContainer.makeCommentView(feedId: feedId)
         case .editCategory:

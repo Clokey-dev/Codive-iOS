@@ -42,7 +42,8 @@ enum AppDestination: Hashable, Identifiable {
     case comment(feedId: Int)
     case favoriteCodiList(showHeart: Bool)
     case followList(mode: FollowListMode)
-    
+    case otherProfile(userId: Int)
+
     case myCloset
     case clothDetail(cloth: Cloth)
     case clothEdit(cloth: Cloth)
