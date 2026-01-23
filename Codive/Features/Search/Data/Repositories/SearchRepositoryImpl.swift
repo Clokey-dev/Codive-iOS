@@ -28,8 +28,8 @@ final class SearchRepositoryImpl: SearchRepository {
         return datasource.fetchRecommendedNews()
     }
     
-    func fetchPosts(query: String) async throws -> [PostEntity] {
-        return try await datasource.fetchPosts(query: query)
+    func fetchPosts(query: String, sort: String?) async throws -> [PostEntity] {
+        return try await datasource.fetchPosts(query: query, sort: sort)
     }
 
     func fetchUsers(query: String) async throws -> [SimpleUser] {

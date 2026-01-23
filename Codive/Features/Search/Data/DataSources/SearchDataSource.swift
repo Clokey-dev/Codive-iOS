@@ -49,12 +49,13 @@ final class SearchDataSource {
         ]
     }
 
-    func fetchPosts(query: String) async throws -> [PostEntity] {
+    func fetchPosts(query: String, sort: String?) async throws -> [PostEntity] {
+        let sortParam = sort == "인기순" ? "POPULAR" : (sort == "최신순" ? "LATEST" : nil)
         let result = try await apiService.searchHistories(
             keyword: query,
             page: 0,
             size: 10,
-            sort: "LATEST"
+            sort: sortParam
         )
         return result.posts
     }

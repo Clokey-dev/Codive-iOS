@@ -46,23 +46,11 @@ final class SearchResultViewModel: ObservableObject {
         $currentSort
             .removeDuplicates()
             .sink { [weak self] newSort in
-                self?.applySorting(newSort: newSort)
+                Task {
+                    await self?.loadPosts()
+                }
             }
             .store(in: &cancellables)
-    }
-
-    private func applySorting(newSort: String) {
-        switch newSort {
-        case "인기순":
-            self.posts = self.allPosts.sorted { $0.likes > $1.likes }
-        case "최신순":
-            self.posts = self.allPosts.sorted { $0.date > $1.date }
-        case "전체":
-            self.posts = self.allPosts
-        default:
-            break
-        }
-        print("정렬 적용 완료: \(newSort), 결과 \(self.posts.count)개")
     }
     
     // MARK: - Public Methods
@@ -76,9 +64,8 @@ final class SearchResultViewModel: ObservableObject {
 
     func loadPosts() async {
         do {
-            self.allPosts = try await useCase.fetchPosts(query: self.initialQuery)
-            self.posts = self.allPosts
-            self.applySorting(newSort: self.currentSort)
+            let sort = currentSort == "전체" ? nil : currentSort
+            self.posts = try await useCase.fetchPosts(query: self.initialQuery, sort: sort)
         } catch {
             print("게시물 로딩 실패: \(error.localizedDescription)")
         }
