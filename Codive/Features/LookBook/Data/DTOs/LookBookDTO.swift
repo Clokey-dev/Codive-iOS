@@ -44,3 +44,7 @@ struct CreateLookBookAPIRequestDTO {
 struct CreateLookBookResponseDTO {
     let lookBookId: Int64
 }
+
+struct UpdateLookBookAPIRequestDTO {
+    let name: String
+}

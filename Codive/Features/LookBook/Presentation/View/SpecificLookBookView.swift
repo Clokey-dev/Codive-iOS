@@ -28,7 +28,7 @@ struct SpecificLookBookView: View {
                 // MARK: Top Navigation Bar
                 
                 CustomNavigationBar(
-                    title: $viewModel.lookbookTitle,
+                    title: $viewModel.name,
                     isEditingMode: viewModel.isEditing,
                     onBack: viewModel.handleBackTap,
                     onBeginEditTitle: viewModel.beginEditTitle,

@@ -16,7 +16,7 @@ final class SpecificLookBookViewModel: ObservableObject {
     private let specificLookBookUseCase: SpecificLookBookUseCase
 
     private let lookbookId: Int64
-    @Published var lookbookTitle: String
+    @Published var name: String
     @Published var isEditingTitle = false
     private var previousTitle: String = ""
     
@@ -39,12 +39,12 @@ final class SpecificLookBookViewModel: ObservableObject {
         navigationRouter: NavigationRouter,
         specificLookBookUseCase: SpecificLookBookUseCase,
         lookbookId: Int64,
-        lookbookTitle: String = ""
+        name: String
     ) {
         self.navigationRouter = navigationRouter
         self.specificLookBookUseCase = specificLookBookUseCase
         self.lookbookId = lookbookId
-        self.lookbookTitle = lookbookTitle
+        self.name = name
     }
     
     // MARK: - 특정 룩북의 코디 조회하기
@@ -171,37 +171,44 @@ final class SpecificLookBookViewModel: ObservableObject {
     
     // MARK: - 룩북 이름 수정 시작
     func beginEditTitle() {
-        previousTitle = lookbookTitle
+        previousTitle = name
         isEditingTitle = true
     }
     
     // MARK: - 룩북 이름 수정 확정
     func confirmEditTitle() {
-        let newTitle = lookbookTitle.trimmingCharacters(in: .whitespaces)
+        let newTitle = name.trimmingCharacters(in: .whitespaces)
         
         guard !newTitle.isEmpty, newTitle != previousTitle else {
             cancelEditTitle()
             return
         }
         
+        isEditingTitle = false
+        isLoading = true
+
+        let request = UpdateLookBookAPIRequestDTO(
+            name: newTitle
+        )
+        
         Task {
             do {
-                try await specificLookBookUseCase.editLookBookName(
-                    lookBookId: Int(lookbookId),
-                    newName: newTitle
+                try await specificLookBookUseCase.updateLookBook(
+                    lookBookId: lookbookId,
+                    request: request
                 )
             } catch {
-                lookbookTitle = previousTitle
+                name = previousTitle
                 errorMessage = "룩북 이름 수정에 실패했습니다."
             }
+            
+            isLoading = false
         }
-        
-        isEditingTitle = false
     }
     
     // MARK: - 룩북 이름 수정 취소
     func cancelEditTitle() {
-        lookbookTitle = previousTitle
+        name = previousTitle
         isEditingTitle = false
     }
     

@@ -183,9 +183,14 @@ final class LookBookViewModel: ObservableObject {
     }
     
     func navigateToSpecificLookBook(id: Int64) {
+        guard let lookBook = lookBookList.first(where: { $0.lookBookId == id }) else {
+            return
+        }
+        
         navigationRouter.navigate(
             to: .specificLookbook(
-                lookbookId: Int(id)
+                lookbookId: lookBook.lookBookId,
+                name: lookBook.lookbookName
             )
         )
     }

@@ -32,7 +32,7 @@ enum AppDestination: Hashable, Identifiable {
     case searchResult(query: String)
     case notification
     case lookbook
-    case specificLookbook(lookbookId: Int)
+    case specificLookbook(lookbookId: Int64, name: String)
     case addCodi(coordinateId: Int)
     case editCodi(lookbookId: Int, selectedCodiData: SelectedCodi)
     case addCodiDetail(lookbookId: Int)

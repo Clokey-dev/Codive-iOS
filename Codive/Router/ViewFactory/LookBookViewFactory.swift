@@ -22,9 +22,10 @@ final class LookBookViewFactory {
         switch destination {
         case .lookbook:
             lookBookDIContainer?.makeLookBookView()
-        case .specificLookbook(let lookbookId):
+        case .specificLookbook(let lookbookId, let name):
             lookBookDIContainer?.makeSpecificLookBookView(
-                lookbookId: Int64(lookbookId)
+                lookbookId: lookbookId,
+                name: name
             )
         case .addCodi(let coordinateId):
             lookBookDIContainer?.makeAddCodiView(coordinateId: coordinateId)

@@ -29,6 +29,8 @@ protocol LooBookAPIServiceProtocol {
     func createLookBook(request: CreateLookBookAPIRequestDTO) async throws -> CreateLookBookResponseDTO
     
     func deleteLookBook(lookBookId: Int64) async throws
+    
+    func updateLookBook(lookBookId: Int64, request: UpdateLookBookAPIRequestDTO) async throws
 }
 
 final class LooBookAPIService: LooBookAPIServiceProtocol {
@@ -156,6 +158,22 @@ extension LooBookAPIService {
             return
         case .undocumented(statusCode: let code, _):
             throw LooBookAPIError.serverError(statusCode: code, message: "룩북 삭제 실패")
+        }
+    }
+    
+    func updateLookBook(lookBookId: Int64, request: UpdateLookBookAPIRequestDTO) async throws {
+        let requestBody = Components.Schemas.LookBookUpdateRequest(
+            name: request.name
+        )
+
+        let input = Operations.LookBook_updateLookBook.Input(path: .init(lookBookId: lookBookId), body: .json(requestBody))
+        let response = try await client.LookBook_updateLookBook(input)
+
+        switch response {
+        case .ok:
+            return
+        case .undocumented(statusCode: let code, _):
+            throw LooBookAPIError.serverError(statusCode: code, message: "룩북 수정 실패")
         }
     }
 }

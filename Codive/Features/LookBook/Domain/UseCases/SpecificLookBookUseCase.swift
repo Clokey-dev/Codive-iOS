@@ -34,6 +34,11 @@ final class SpecificLookBookUseCase {
         )
     }
     
+    /// 룩북 수정
+    func updateLookBook(lookBookId: Int64, request: UpdateLookBookAPIRequestDTO) async throws {
+        try await repository.updateLookBook(lookBookId: lookBookId, request: request)
+    }
+    
     /// 코디 좋아요 상태 변경
     func toggleLike(coordinateId: Int, isLiked: Bool) async throws {
         let request = CodiLikeEntity(coordinateId: coordinateId)
@@ -49,15 +54,5 @@ final class SpecificLookBookUseCase {
             requests,
             lookbookId: lookbookId
         )
-    }
-    
-    /// 룩북 이름 수정
-    func editLookBookName(lookBookId: Int, newName: String) async throws {
-        let entity = EditLookBookEntity(
-            lookBookId: lookBookId,
-            name: newName
-        )
-        
-        try await repository.editLookBook(entity)
     }
 }

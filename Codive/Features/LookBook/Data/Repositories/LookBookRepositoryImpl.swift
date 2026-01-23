@@ -62,8 +62,8 @@ final class LookBookRepositoryImpl: LookBookRepository {
         try await datasource.deleteCodis(codis, lookbookId: lookbookId)
     }
 
-    func editLookBook(_ entity: EditLookBookEntity) async throws {
-        try await datasource.editLookBook(entity)
+    func updateLookBook(lookBookId: Int64, request: UpdateLookBookAPIRequestDTO) async throws {
+        try await datasource.updateLookBook(lookBookId: lookBookId, request: request)
     }
     
     func fetchCoordinatePreview(coordinateId: Int) async throws -> CoordinatePreviewEntity {

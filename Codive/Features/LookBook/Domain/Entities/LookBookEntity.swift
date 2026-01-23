@@ -44,11 +44,6 @@ struct DeleteCodiEntity {
     let coordinateId: Int
 }
 
-struct EditLookBookEntity {
-    let lookBookId: Int
-    let name: String
-}
-
 struct CoordinatePreviewEntity {
     let coordinateId: Int
     let imageUrl: String

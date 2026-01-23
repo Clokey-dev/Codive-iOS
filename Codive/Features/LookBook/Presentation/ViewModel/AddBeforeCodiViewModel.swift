@@ -77,7 +77,7 @@ final class AddBeforeCodiViewModel: ObservableObject {
     
     /// 특정 룩북 상세 화면으로 이동합니다.
     func navigateToSpecificLookBook(id: Int) {
-        navigationRouter.navigate(to: .specificLookbook(lookbookId: id))
+//        navigationRouter.navigate(to: .specificLookbook(lookbookId: id))
     }
 }
 

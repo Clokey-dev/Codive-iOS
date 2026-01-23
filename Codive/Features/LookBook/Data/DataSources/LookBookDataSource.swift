@@ -25,6 +25,8 @@ protocol LookBookDataSourceProtocol {
     func createLookBook(request: CreateLookBookAPIRequestDTO) async throws -> CreateLookBookResponseDTO
     
     func deleteLookBook(lookBookId: Int64) async throws
+    
+    func updateLookBook(lookBookId: Int64, request: UpdateLookBookAPIRequestDTO) async throws
 }
 
 final class LookBookDataSource: LookBookDataSourceProtocol {
@@ -85,6 +87,11 @@ final class LookBookDataSource: LookBookDataSourceProtocol {
     /// 룩북 삭제
     func deleteLookBook(lookBookId: Int64) async throws {
         try await apiService.deleteLookBook(lookBookId: lookBookId)
+    }
+    
+    /// 룩북 수정
+    func updateLookBook(lookBookId: Int64, request: UpdateLookBookAPIRequestDTO) async throws {
+        try await apiService.updateLookBook(lookBookId: lookBookId, request: request)
     }
     
     // MARK: - Dummy Before Codi List
@@ -165,22 +172,6 @@ final class LookBookDataSource: LookBookDataSourceProtocol {
 //        lookbookDetailCodi[lookbookId] = codis
 
         print("삭제 후 남은 코디:"/*, codis.map { $0.coordinateId }*/)
-    }
-    
-    /// 룩북 이름 수정(PATCH, 완)
-    func editLookBook(_ entity: EditLookBookEntity) async throws {
-        try await Task.sleep(nanoseconds: 300_000_000)
-
-        print("""
-        서버에 룩북 수정 PATCH 요청
-        - lookBookId: \(entity.lookBookId)
-        - name: \(entity.name)
-        """)
-        
-//        guard let index = dummyLookBooks.firstIndex(where: { $0.lookBookId == entity.lookBookId }) else {
-//            throw NSError(domain: "LookBookNotFound", code: 404)
-//        }
-//        dummyLookBooks[index].lookbookName = entity.name
     }
     
     /// 코디 preview 조회(GET, 완)

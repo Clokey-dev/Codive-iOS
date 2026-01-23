@@ -74,24 +74,24 @@ final class LookBookDIContainer {
     // MARK: - Specific LookBook
     func makeSpecificLookBookViewModel(
         lookbookId: Int64,
-        lookbookTitle: String = ""
+        name: String
     ) -> SpecificLookBookViewModel {
         return SpecificLookBookViewModel(
             navigationRouter: navigationRouter,
             specificLookBookUseCase: makeSpecificLookBookUseCase(),
             lookbookId: lookbookId,
-            lookbookTitle: lookbookTitle
+            name: name
         )
     }
     
     func makeSpecificLookBookView(
         lookbookId: Int64,
-        lookbookTitle: String = ""
+        name: String
     ) -> SpecificLookBookView {
         return SpecificLookBookView(
             viewModel: makeSpecificLookBookViewModel(
                 lookbookId: lookbookId,
-                lookbookTitle: lookbookTitle
+                name: name
             )
         )
     }

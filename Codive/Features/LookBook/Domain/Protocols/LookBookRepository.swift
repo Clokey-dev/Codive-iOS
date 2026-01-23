@@ -32,7 +32,7 @@ protocol LookBookRepository {
     // 코디 삭제
     func deleteCodis(_ codis: [DeleteCodiEntity], lookbookId: Int) async throws
     // 룩북 이름 수정
-    func editLookBook(_ entity: EditLookBookEntity) async throws
+    func updateLookBook(lookBookId: Int64, request: UpdateLookBookAPIRequestDTO) async throws
     // 코디 프리뷰 조회
     func fetchCoordinatePreview(coordinateId: Int) async throws -> CoordinatePreviewEntity
     func fetchProductList() async throws -> [ProductItem]
