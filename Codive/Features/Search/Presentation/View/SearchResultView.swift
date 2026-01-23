@@ -55,6 +55,7 @@ struct SearchResultView: View {
                             ) {
                                 // 버튼 동작
                             }
+                            .padding(.vertical, 6)
                         }
                     }
                     .padding(.top, 18)

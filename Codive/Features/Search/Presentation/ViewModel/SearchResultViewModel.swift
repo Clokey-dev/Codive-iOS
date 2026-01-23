@@ -68,36 +68,47 @@ final class SearchResultViewModel: ObservableObject {
     // MARK: - Public Methods
 
     func loadInitialData() {
-        loadPosts()
-        loadUsers()
+        Task {
+            await loadPosts()
+            await loadUsers()
+        }
     }
-    
-    func loadPosts() {
-        self.allPosts = useCase.fetchPosts(query: self.initialQuery)
-        self.posts = self.allPosts
-        self.applySorting(newSort: self.currentSort)
+
+    func loadPosts() async {
+        do {
+            self.allPosts = try await useCase.fetchPosts(query: self.initialQuery)
+            self.posts = self.allPosts
+            self.applySorting(newSort: self.currentSort)
+        } catch {
+            print("게시물 로딩 실패: \(error.localizedDescription)")
+        }
     }
-    
-    func loadUsers() {
-        self.allUsers = useCase.fetchUsers(query: self.initialQuery)
-        self.users = self.allUsers
-        print("유저 로딩 완료: \(self.users.count)명")
+
+    func loadUsers() async {
+        do {
+            self.allUsers = try await useCase.fetchUsers(query: self.initialQuery)
+            self.users = self.allUsers
+            print("유저 로딩 완료: \(self.users.count)명")
+        } catch {
+            print("유저 로딩 실패: \(error.localizedDescription)")
+        }
     }
-    
+
     func executeNewSearch(query: String) {
         let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmedQuery.isEmpty {
             print("검색어를 입력해 주세요.")
             return
         }
-        
+
         self.initialQuery = trimmedQuery
         self.currentSort = "전체"
 
-        loadPosts()
-        loadUsers()
-        
-        print("현재 페이지에서 검색 결과 갱신: \(trimmedQuery)")
+        Task {
+            await loadPosts()
+            await loadUsers()
+            print("현재 페이지에서 검색 결과 갱신: \(trimmedQuery)")
+        }
     }
     
     // MARK: - Navigation

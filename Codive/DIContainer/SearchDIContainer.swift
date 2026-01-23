@@ -13,8 +13,10 @@ final class SearchDIContainer {
     let navigationRouter: NavigationRouter
     lazy var searchViewFactory = SearchViewFactory(searchDIContainer: self)
     
-    lazy var searchDataSource = SearchDataSource()
-    
+    lazy var searchAPIService: SearchAPIServiceProtocol = SearchAPIService()
+
+    lazy var searchDataSource = SearchDataSource(apiService: searchAPIService)
+
     lazy var searchRepository: SearchRepository = SearchRepositoryImpl(datasource: searchDataSource)
     
     lazy var searchUseCase = SearchUseCase(repository: searchRepository)
