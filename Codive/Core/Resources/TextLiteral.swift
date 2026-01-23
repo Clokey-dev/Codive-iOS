@@ -111,7 +111,7 @@ enum TextLiteral {
         static let situationTravel = "여행"
         static let situationExercise = "운동"
         static let situationFestival = "축제"
-        static let situationWork = "출근복"
+        static let situationWork = "출근룩"
         static let situationParty = "파티"
         
         // Photo Tag

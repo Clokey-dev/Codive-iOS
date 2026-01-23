@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Foundation
 
 struct FeedView: View {
 
@@ -56,7 +57,15 @@ struct FeedView: View {
             Task { await viewModel.applyFilters() }
         }
         .onChange(of: selectedCategory) { _ in
-            viewModel.selectedStyleIds = nil
+            if selectedCategory.isEmpty {
+                viewModel.selectedStyleIds = nil
+            } else {
+                if let styleItem = StyleConstants.find(byName: selectedCategory) {
+                    viewModel.selectedStyleIds = [Int(styleItem.styleId)]
+                } else {
+                    viewModel.selectedStyleIds = nil
+                }
+            }
             viewModel.selectedSituationIds = nil
             Task { await viewModel.applyFilters() }
         }
@@ -69,6 +78,11 @@ struct FeedView: View {
                 selectedSheetSituations.removeAll()
             } onApply: {
                 isShowingFilterSheet = false
+                selectedCategory = "" // Clear top category when applying sheet filters
+                let styleIds = StyleConstants.getIds(from: selectedSheetStyles).map { Int($0) }
+                let situationIds = SituationConstants.getIds(from: selectedSheetSituations).map { Int($0) }
+                viewModel.selectedStyleIds = styleIds.isEmpty ? nil : styleIds
+                viewModel.selectedSituationIds = situationIds.isEmpty ? nil : situationIds
                 Task { await viewModel.applyFilters() }
             }
             .presentationDetents([.height(500)])
