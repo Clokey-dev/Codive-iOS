@@ -16,6 +16,8 @@ protocol HomeAPIServiceProtocol {
     func fetchRecommendCategoryCloth(lastClothId: Int64?, size: Int32, categoryId: Int64, season: [Season]) async throws -> HomeCategoryResponseDTO
     
     func postTodayTemp(request: PostTodayTemperatureAPIRequestDTO) async throws
+    
+    func fetchNotificationExist() async throws -> NotificationExistAPIResponseDTO
 }
 
 final class HomeAPIService: HomeAPIServiceProtocol {
@@ -77,6 +79,30 @@ extension HomeAPIService {
             return
         case .undocumented(statusCode: let code, _):
             throw HomeAPIError.serverError(statusCode: code, message: "오늘의 기온 알림 보내기 실패")
+        }
+    }
+    
+    func fetchNotificationExist() async throws -> NotificationExistAPIResponseDTO {
+        
+        let input = Operations.Notification_existsUnreadNotification.Input()
+        
+        let response = try await client.Notification_existsUnreadNotification(input)
+        
+        switch response {
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseUnreadNotificationResponse.self, from: data)
+            
+            guard let exists = decoded.result?.existsUnreadNotification else {
+                throw HomeAPIError.invalidResponse
+            }
+            
+            return NotificationExistAPIResponseDTO(
+                existsUnreadNotification: exists
+            )
+            
+        case .undocumented(statusCode: let code, _):
+            throw HomeAPIError.serverError(statusCode: code, message: "안읽은 알림 존재 유무 확인 실패")
         }
     }
 }

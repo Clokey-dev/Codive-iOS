@@ -10,3 +10,7 @@ import Foundation
 struct PostTodayTemperatureAPIRequestDTO {
     let temperature: Double
 }
+
+struct NotificationExistAPIResponseDTO {
+    let existsUnreadNotification: Bool
+}

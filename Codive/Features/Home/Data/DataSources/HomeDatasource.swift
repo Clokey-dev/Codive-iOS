@@ -18,6 +18,8 @@ protocol HomeDatasourceProtocol {
     ) async throws -> (content: [HomeClothEntity], isLast: Bool)
     
     func postTodayTemp(request: PostTodayTemperatureAPIRequestDTO) async throws
+    
+    func fetchNotificationExist() async throws -> NotificationExistAPIResponseDTO
 }
 
 final class HomeDatasource: HomeDatasourceProtocol {
@@ -49,7 +51,7 @@ final class HomeDatasource: HomeDatasourceProtocol {
             guard let placemark = placemarks.first else {
                 return "알 수 없는 위치"
             }
-        
+            
             let province = placemark.administrativeArea ?? ""
             let city = placemark.locality ?? ""
             let district = placemark.subLocality ?? ""
@@ -83,7 +85,7 @@ final class HomeDatasource: HomeDatasourceProtocol {
             return "위치 정보 오류"
         }
     }
-
+    
     // 날씨
     func fetchWeatherData(for location: CLLocation?) async throws -> WeatherData {
         
@@ -144,7 +146,7 @@ final class HomeDatasource: HomeDatasourceProtocol {
             categoryId: categoryId,
             season: Array(seasons)
         )
-
+        
         return (
             content: result.content.map { $0.toEntity(categoryId: categoryId) },
             isLast: result.isLast
@@ -156,8 +158,12 @@ final class HomeDatasource: HomeDatasourceProtocol {
         try await apiService.postTodayTemp(request: request)
     }
     
-    /// ---------------------------
+    func fetchNotificationExist() async throws -> NotificationExistAPIResponseDTO {
+        return try await apiService.fetchNotificationExist()
+    }
+}
 
+extension HomeDatasource {
     // 오늘의 코디 추가하기
     func createTodayDailyCodi(_ entity: TodayDailyCodi) async throws {
 
