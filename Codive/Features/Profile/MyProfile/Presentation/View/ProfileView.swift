@@ -21,7 +21,7 @@ struct ProfileView: View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
                 topBar
-
+                
                 profileSection
                     .padding(.top, 32)
                 

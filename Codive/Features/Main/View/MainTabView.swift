@@ -150,8 +150,8 @@ struct MainTabView: View {
             }
         }
 
-        // 기본 규칙: Add 탭에서만 상단바 숨김
-        return viewModel.selectedTab != .add
+        // 기본 규칙: Add, Profile 탭에서만 상단바 숨김
+        return viewModel.selectedTab != .add && viewModel.selectedTab != .profile
     }
 
     /// 하단 탭 바를 표시할지 여부
