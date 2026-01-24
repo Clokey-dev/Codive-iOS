@@ -58,17 +58,18 @@ final class NotificationViewModel: ObservableObject {
     func markAsRead(notificationId: Int64) {
         Task {
             do {
-                try await useCase.markNotificationAsRead(notificationId: notificationId)
+                try await useCase.patchEachNotification(notificationId: notificationId)
                 
                 if let index = unreadNotifications.firstIndex(where: { $0.notificationId == notificationId }) {
                     var readItem = unreadNotifications.remove(at: index)
                     readItem.readStatus = .read
                     readNotifications.insert(readItem, at: 0)
                 }
+                
+                print("✅ Notification marked as read:", notificationId)
             } catch {
                 readErrorMessage = "알림 읽음 처리에 실패했어요. 잠시 후 다시 시도해 주세요."
-                print("알림 읽음 처리 실패: \(error)")
-            }
+                print("❌ Notification markAsRead failed:", error)}
         }
     }
     

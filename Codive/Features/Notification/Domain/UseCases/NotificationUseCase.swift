@@ -15,7 +15,7 @@ final class NotificationUseCase {
     }
     
     // MARK: - Methods
-    func patchEachNotification(notificationId: Int64) async throws{
+    func patchEachNotification(notificationId: Int64) async throws {
         try await repository.patchEachNotification(notificationId: notificationId)
     }
     
@@ -33,9 +33,4 @@ final class NotificationUseCase {
 //    func fetchReportStatus() -> ReportEntity {
 //        return false
 //    }
-    
-    func markNotificationAsRead(notificationId: Int64) async throws {
-//        let request = NotificationReadRequestEntity(notificationId: notificationId)
-//        try await repository.markNotificationAsRead(request: request)
-    }
 }
