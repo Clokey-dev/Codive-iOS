@@ -15,15 +15,18 @@ final class NotificationRepositoryImpl: NotificationRepository {
     }
     
     // MARK: - Methods
-    func fetchNotifications() -> [NotificationEntity] {
-        return datasource.fetchNotifications()
+    func patchEachNotification(notificationId: Int64) async throws{
+        try await datasource.patchEachNotification(notificationId: notificationId)
     }
     
-    func fetchReportStatus() -> ReportEntity {
-        return datasource.fetchReportStatus()
+    func patchAllNotification() async throws {
+        try await datasource.patchAllNotification()
     }
     
-    func markNotificationAsRead(request: NotificationReadRequestEntity) async throws {
-        try await datasource.patchNotificationRead(notificationId: request.notificationId)
+    func fetchNotificationList(lastNotificationId: Int64?, size: Int32) async throws -> (content: [NotificationEntity], isLast: Bool) {
+        return try await datasource.fetchNotificationList(
+            lastNotificationId: lastNotificationId,
+            size: size
+        )
     }
 }

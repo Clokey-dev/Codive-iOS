@@ -15,16 +15,27 @@ final class NotificationUseCase {
     }
     
     // MARK: - Methods
-    func fetchNotifications() -> [NotificationEntity] {
-        return repository.fetchNotifications()
+    func patchEachNotification(notificationId: Int64) async throws{
+        try await repository.patchEachNotification(notificationId: notificationId)
     }
     
-    func fetchReportStatus() -> ReportEntity {
-        return repository.fetchReportStatus()
+    func patchAllNotification() async throws {
+        try await repository.patchAllNotification()
     }
     
-    func markNotificationAsRead(notificationId: Int) async throws {
-        let request = NotificationReadRequestEntity(notificationId: notificationId)
-        try await repository.markNotificationAsRead(request: request)
+    func fetchNotificationList(lastNotificationId: Int64?, size: Int32) async throws -> (content: [NotificationEntity], isLast: Bool) {
+        return try await repository.fetchNotificationList(
+            lastNotificationId: lastNotificationId,
+            size: size
+        )
+    }
+    
+//    func fetchReportStatus() -> ReportEntity {
+//        return false
+//    }
+    
+    func markNotificationAsRead(notificationId: Int64) async throws {
+//        let request = NotificationReadRequestEntity(notificationId: notificationId)
+//        try await repository.markNotificationAsRead(request: request)
     }
 }

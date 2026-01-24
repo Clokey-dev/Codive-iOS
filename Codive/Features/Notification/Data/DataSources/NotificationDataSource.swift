@@ -7,65 +7,44 @@
 
 import Foundation
 
-final class NotificationDataSource {
+protocol NotificationDataSourceProtocol {
+    func patchEachNotification(notificationId: Int64) async throws
+    func patchAllNotification() async throws
+    func fetchNotificationList(lastNotificationId: Int64?, size: Int32) async throws -> (content: [NotificationEntity], isLast: Bool)
+}
+
+final class NotificationDataSource: NotificationDataSourceProtocol {
+    private let apiService: NotificationAPIServiceProtocol
+    
+    // MARK: - Initializer
+    init(
+        apiService: NotificationAPIServiceProtocol = NotificationAPIService()
+    ) {
+        self.apiService = apiService
+    }
     
     // MARK: - Fetch Methods
     
-    func fetchNotifications() -> [NotificationEntity] {
-        return [
-            NotificationEntity(
-                notificationId: 1,
-                notificationImageUrl: "https://picsum.photos/id/237/200/200",
-                notificationContent: "홍길동님이 회원님의 옷장을 팔로우하기 시작했습니다.",
-                redirectInfo: "user_123",
-                redirectType: .member,
-                readStatus: .unread,
-                createdAt: "2025-11-18T10:00:00"
-            ),
-            NotificationEntity(
-                notificationId: 2,
-                notificationImageUrl: nil,
-                notificationContent: "1년 전 오늘의 기록을 확인해보세요.",
-                redirectInfo: "post_456",
-                redirectType: .history,
-                readStatus: .unread,
-                createdAt: "2025-11-18T11:00:00"
-            ),
-            NotificationEntity(
-                notificationId: 3,
-                notificationImageUrl: "https://picsum.photos/id/100/200/200",
-                notificationContent: "내일은 비가 올 예정입니다. 우산을 챙기세요!",
-                redirectInfo: "seoul",
-                redirectType: .weather,
-                readStatus: .read,
-                createdAt: "2025-11-18T12:00:00"
-            ),
-            NotificationEntity(
-                notificationId: 4,
-                notificationImageUrl: nil,
-                notificationContent: "홍길동님이 팔로우를 취소했습니다.",
-                redirectInfo: "user_123",
-                redirectType: .member,
-                readStatus: .unread,
-                createdAt: "2025-11-18T10:00:00"
-            ),
-            NotificationEntity(
-                notificationId: 6,
-                notificationImageUrl: nil,
-                notificationContent: "내일은 비가 올 예정입니다. 우산을 챙기세요!",
-                redirectInfo: "Busan",
-                redirectType: .weather,
-                readStatus: .unread,
-                createdAt: "2025-11-18T12:00:00"
-            )
-        ]
+    /// 알림 읽음 처리
+    func patchEachNotification(notificationId: Int64) async throws {
+        try await apiService.patchEachNotification(notificationId: notificationId)
     }
     
-    func fetchReportStatus() -> ReportEntity {
-        return ReportEntity(isReported: true, reportType: .feed)
+    /// 알림 전체 읽음 처리
+    func patchAllNotification() async throws {
+        try await apiService.patchAllNotification()
     }
     
-    func patchNotificationRead(notificationId: Int) async throws {
-        print("서버에 알림 \(notificationId)번 읽음 처리 요청 전송")
+    /// 알림 목록 조회
+    func fetchNotificationList(lastNotificationId: Int64?, size: Int32) async throws -> (content: [NotificationEntity], isLast: Bool) {
+        let result = try await apiService.fetchNotificationList(
+            lastNotificationId: lastNotificationId,
+            size: size
+        )
+
+        return (
+            content: result.content.map { $0.toEntity() },
+            isLast: result.isLast
+        )
     }
 }

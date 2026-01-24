@@ -10,9 +10,16 @@ import Foundation
 @MainActor
 final class NotificationDIContainer {
     let navigationRouter: NavigationRouter
+    
+    private lazy var notificationAPIService: NotificationAPIServiceProtocol = {
+        return NotificationAPIService()
+    }()
+    
     lazy var notificationViewFactory = NotificationViewFactory(notificationDIContainer: self)
     
-    lazy var notificationDataSource = NotificationDataSource()
+    lazy var notificationDataSource = NotificationDataSource(
+        apiService: notificationAPIService
+    )
     
     lazy var notificationRepository: NotificationRepository = NotificationRepositoryImpl(datasource: notificationDataSource)
     
