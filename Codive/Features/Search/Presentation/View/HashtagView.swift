@@ -10,7 +10,13 @@ import SwiftUI
 // MARK: - Hashtag View
 struct HashtagView: View {
     @ObservedObject var viewModel: SearchResultViewModel
-    
+
+    // MARK: - Grid Columns
+    private let columns: [GridItem] = [
+        GridItem(.flexible(), spacing: 11),
+        GridItem(.flexible(), spacing: 11)
+    ]
+
     // MARK: - Computed Properties
     private var sortOptionsString: [String] {
         viewModel.sortOptions.map { $0.displayName }
@@ -35,7 +41,7 @@ struct HashtagView: View {
             .padding(.top, 18)
             .zIndex(10)
             
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 11) {
+            LazyVGrid(columns: columns, spacing: 16) {
                 ForEach(viewModel.posts) { post in
                     Button {
                         viewModel.navigateToFeedDetail(feedId: post.id)
