@@ -115,11 +115,32 @@ extension HomeViewModel {
 extension HomeViewModel {
     
     /// 날씨 정보를 서버에서 가져옴
+//    func loadWeather(for location: CLLocation?) async {
+//        do {
+//            weatherData = try await fetchWeatherUseCase.execute(for: location)
+//        } catch {
+//            weatherErrorMessage = TextLiteral.Home.failWeather
+//        }
+//    }
     func loadWeather(for location: CLLocation?) async {
         do {
-            weatherData = try await fetchWeatherUseCase.execute(for: location)
+            // 1️⃣ 날씨 조회
+            let weather = try await fetchWeatherUseCase.execute(for: location)
+            self.weatherData = weather
+            
+            // 2️⃣ 현재 온도 추출
+            let temperature = weather.currentTemp
+            
+            // 3️⃣ 서버에 오늘 온도 전송
+            let request = PostTodayTemperatureAPIRequestDTO(
+                temperature: Double(temperature)
+            )
+            
+            try await fetchWeatherUseCase.postTodayTemp(request: request)
+            
         } catch {
             weatherErrorMessage = TextLiteral.Home.failWeather
+            print("Weather load or post failed:", error)
         }
     }
 

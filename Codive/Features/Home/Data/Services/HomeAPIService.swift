@@ -1,5 +1,5 @@
 //
-//  HomeCategoryAPIService.swift
+//  HomeAPIService.swift
 //  Codive
 //
 //  Created by 한금준 on 1/21/26.
@@ -12,11 +12,13 @@ import CryptoKit
 
 // MARK: - HomeCategoryAPIService Protocol
 
-protocol HomeCategoryAPIServiceProtocol {
+protocol HomeAPIServiceProtocol {
     func fetchRecommendCategoryCloth(lastClothId: Int64?, size: Int32, categoryId: Int64, season: [Season]) async throws -> HomeCategoryResponseDTO
+    
+    func postTodayTemp(request: PostTodayTemperatureAPIRequestDTO) async throws
 }
 
-final class HomeCategoryAPIService: HomeCategoryAPIServiceProtocol {
+final class HomeAPIService: HomeAPIServiceProtocol {
 
     private let client: Client
     private let jsonDecoder: JSONDecoder
@@ -29,11 +31,11 @@ final class HomeCategoryAPIService: HomeCategoryAPIServiceProtocol {
     }
 }
 
-extension HomeCategoryAPIService {
+extension HomeAPIService {
     
     func fetchRecommendCategoryCloth(lastClothId: Int64?, size: Int32, categoryId: Int64, season: [Season]) async throws -> HomeCategoryResponseDTO {
         guard let firstSeason = season.first else {
-                throw HomeCategoryAPIError.invalidResponse
+                throw HomeAPIError.invalidResponse
             }
         let seasonPayload = mapSeasonToQueryParam(firstSeason)
         
@@ -55,12 +57,31 @@ extension HomeCategoryAPIService {
             return HomeCategoryResponseDTO(content: content, isLast: decoded.result?.isLast ?? true)
             
         case .undocumented(statusCode: let code, _):
-            throw HomeCategoryAPIError.serverError(statusCode: code, message: "옷 목록 조회 실패")
+            throw HomeAPIError.serverError(statusCode: code, message: "옷 목록 조회 실패")
         }
     }
 }
 
-private extension HomeCategoryAPIService {
+extension HomeAPIService {
+    
+    func postTodayTemp(request: PostTodayTemperatureAPIRequestDTO) async throws {
+        let requestBody = Components.Schemas.TemperatureNotificationRequest(
+            temperature: request.temperature
+        )
+
+        let input = Operations.sendTemperatureNotification.Input(body: .json(requestBody))
+        let response = try await client.sendTemperatureNotification(input)
+
+        switch response {
+        case .ok:
+            return
+        case .undocumented(statusCode: let code, _):
+            throw HomeAPIError.serverError(statusCode: code, message: "오늘의 기온 알림 보내기 실패")
+        }
+    }
+}
+
+private extension HomeAPIService {
 
     func calculateMD5(from data: Data) -> String {
         let digest = Insecure.MD5.hash(data: data)
@@ -90,7 +111,7 @@ private extension HomeCategoryAPIService {
 
 // MARK: - ClothAPIError
 
-enum HomeCategoryAPIError: LocalizedError {
+enum HomeAPIError: LocalizedError {
     case presignedUrlMismatch
     case invalidUrl
     case invalidResponse

@@ -16,6 +16,8 @@ protocol HomeDatasourceProtocol {
         categoryId: Int64,
         season: Set<Season>
     ) async throws -> (content: [HomeClothEntity], isLast: Bool)
+    
+    func postTodayTemp(request: PostTodayTemperatureAPIRequestDTO) async throws
 }
 
 final class HomeDatasource: HomeDatasourceProtocol {
@@ -26,12 +28,12 @@ final class HomeDatasource: HomeDatasourceProtocol {
     
     private var cachedLocation: CLLocation?
     
-    private let apiService: HomeCategoryAPIServiceProtocol
+    private let apiService: HomeAPIServiceProtocol
     
     // MARK: - Initializer
     init(
         locationService: LocationService,
-        apiService: HomeCategoryAPIServiceProtocol = HomeCategoryAPIService()
+        apiService: HomeAPIServiceProtocol = HomeAPIService()
     ) {
         self.locationService = locationService
         self.apiService = apiService
@@ -118,6 +120,15 @@ final class HomeDatasource: HomeDatasourceProtocol {
         return weatherData
     }
     
+    // 오늘의 날짜
+    func fetchToday() -> DateEntity {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM.dd"
+        
+        let todayString = formatter.string(from: Date())
+        return DateEntity(formattedDate: todayString)
+    }
+    
     // MARK: - 코디가 없는 경우의 Home 관련
     
     /// 날씨에 따른 카테고리별 옷 리스트 - API 연결
@@ -140,6 +151,13 @@ final class HomeDatasource: HomeDatasourceProtocol {
         )
     }
     
+    /// 오늘의 날씨 보내기
+    func postTodayTemp(request: PostTodayTemperatureAPIRequestDTO) async throws {
+        try await apiService.postTodayTemp(request: request)
+    }
+    
+    /// ---------------------------
+
     // 오늘의 코디 추가하기
     func createTodayDailyCodi(_ entity: TodayDailyCodi) async throws {
 
@@ -255,15 +273,6 @@ final class HomeDatasource: HomeDatasourceProtocol {
                 height: 100
             )
         ]
-    }
-
-    // 오늘의 날짜
-    func fetchToday() -> DateEntity {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MM.dd"
-        
-        let todayString = formatter.string(from: Date())
-        return DateEntity(formattedDate: todayString)
     }
     
     // 룩북에 추가 바텀시트 더미데이터

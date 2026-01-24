@@ -22,6 +22,10 @@ final class HomeRepositoryImpl: HomeRepository {
         return try await dataSource.fetchWeatherData(for: location)
     }
     
+    func postTodayTemp(request: PostTodayTemperatureAPIRequestDTO) async throws {
+        try await dataSource.postTodayTemp(request: request)
+    }
+    
     // MARK: - 코디가 없는 경우의 Home 관련
     
     /// 계절에 따른 카테고리별 옷 리스트 api 연결

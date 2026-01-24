@@ -12,6 +12,8 @@ protocol HomeRepository {
     
     func fetchWeatherData(for location: CLLocation?) async throws -> WeatherData
     
+    func postTodayTemp(request: PostTodayTemperatureAPIRequestDTO) async throws
+    
     // MARK: - 코디가 없는 경우의 Home 관련
     
     /// 날씨에 따른 카테고리별 옷 리스트 api 연결
@@ -21,6 +23,7 @@ protocol HomeRepository {
         categoryId: Int64,
         season: Set<Season>
     ) async throws -> (content: [HomeClothEntity], isLast: Bool)
+    
     func createTodayDailyCodi(_ codi: TodayDailyCodi) async throws
     
     // MARK: - 코디보드
