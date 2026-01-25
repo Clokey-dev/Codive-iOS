@@ -42,6 +42,10 @@ final class ProfileDIContainer {
         return DefaultFetchFollowsUseCase(repository: profileRepository)
     }
 
+    func makeUpdateProfileUseCase() -> UpdateProfileUseCase {
+        return DefaultUpdateProfileUseCase(repository: profileRepository)
+    }
+
     // MARK: - ViewModels
     func makeProfileViewModel() -> ProfileViewModel {
         return ProfileViewModel(
@@ -59,7 +63,11 @@ final class ProfileDIContainer {
     }
 
     func makeProfileSettingViewModel() -> ProfileSettingViewModel {
-        return ProfileSettingViewModel(navigationRouter: navigationRouter)
+        return ProfileSettingViewModel(
+            navigationRouter: navigationRouter,
+            updateProfileUseCase: makeUpdateProfileUseCase(),
+            profileRepository: profileRepository
+        )
     }
 
     func makeOtherProfileViewModel() -> OtherProfileViewModel {

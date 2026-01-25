@@ -107,7 +107,8 @@ let project = Project(
                         "storykompassauth",
                         "kakaolink",
                         "kakaotalk-5.9.7"
-                    ]
+                    ],
+
                 ]
             ),
             sources: [

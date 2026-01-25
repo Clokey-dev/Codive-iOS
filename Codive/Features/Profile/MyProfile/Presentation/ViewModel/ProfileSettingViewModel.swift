@@ -7,6 +7,9 @@
 
 import SwiftUI
 import Combine
+import Photos
+import PhotosUI
+import UIKit
 
 @MainActor
 final class ProfileSettingViewModel: ObservableObject {
@@ -16,6 +19,8 @@ final class ProfileSettingViewModel: ObservableObject {
 
     // MARK: - Dependencies
     private let navigationRouter: NavigationRouter
+    private let updateProfileUseCase: UpdateProfileUseCase
+    private let profileRepository: ProfileRepository
 
     // MARK: - Published Properties
     @Published var nickname: String = "" {
@@ -61,12 +66,21 @@ final class ProfileSettingViewModel: ObservableObject {
     }
 
     @Published var pickedProfileImage: Image? = nil
+    @Published var selectedPhotoPickerItem: PhotosPickerItem? = nil
+    @Published var isLoading: Bool = false
+    @Published var errorMessage: String? = nil
+    @Published var currentProfileImageUrl: String? = nil
 
     @Published private(set) var canComplete: Bool = false
+    @Published var isLoadingProfile: Bool = false
+
+    private var selectedImageData: Data? = nil
 
     // MARK: - Initializer
-    init(navigationRouter: NavigationRouter) {
+    init(navigationRouter: NavigationRouter, updateProfileUseCase: UpdateProfileUseCase, profileRepository: ProfileRepository) {
         self.navigationRouter = navigationRouter
+        self.updateProfileUseCase = updateProfileUseCase
+        self.profileRepository = profileRepository
         updateCanComplete()
     }
 
@@ -124,21 +138,121 @@ final class ProfileSettingViewModel: ObservableObject {
     func runNicknameDuplicateCheck() {
         nicknameCheckStatus = .checking
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-            let lowered = self.nickname.lowercased()
-            if lowered == "trendbox" || lowered == "ckj11" {
-                self.nicknameCheckStatus = .duplicated
-            } else {
+        Task {
+            do {
+                let isDuplicated = try await profileRepository.checkNicknameDuplicate(nickname: nickname)
+                DispatchQueue.main.async {
+                    self.nicknameCheckStatus = isDuplicated ? .duplicated : .available
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    self.errorMessage = "닉네임 중복확인 실패: \(error.localizedDescription)"
+                    self.nicknameCheckStatus = .none
+                }
+            }
+        }
+    }
+
+    func loadCurrentProfile() async {
+        isLoadingProfile = true
+
+        do {
+            let profileInfo = try await profileRepository.fetchMyProfile()
+            DispatchQueue.main.async {
+                self.nickname = profileInfo.nickname
+                self.intro = profileInfo.introduction ?? ""
+                self.isPublic = true // API에서 공개여부 정보가 있으면 적용
                 self.nicknameCheckStatus = .available
+
+                // 프로필 이미지 URL 저장 (null이면 기본 이미지 사용)
+                self.currentProfileImageUrl = profileInfo.profileImageUrl
+
+                self.updateCanComplete()
+                self.isLoadingProfile = false
+            }
+        } catch {
+            DispatchQueue.main.async {
+                self.errorMessage = "프로필 정보 로드 실패: \(error.localizedDescription)"
+                self.isLoadingProfile = false
             }
         }
     }
 
     func onProfileImageTapped() {
-        print("Profile image tapped")
+        requestPhotoLibraryAccess()
+    }
+
+    private func requestPhotoLibraryAccess() {
+        PHPhotoLibrary.requestAuthorization { [weak self] status in
+            DispatchQueue.main.async {
+                switch status {
+                case .authorized, .limited:
+                    self?.selectedPhotoPickerItem = nil
+                case .denied, .restricted:
+                    self?.openAppSettings()
+                case .notDetermined:
+                    break
+                @unknown default:
+                    break
+                }
+            }
+        }
+    }
+
+    private func openAppSettings() {
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(url)
+        }
+    }
+
+    func handlePhotoSelection(_ item: PhotosPickerItem?) async {
+        guard let item = item else { return }
+
+        do {
+            if let data = try await item.loadTransferable(type: Data.self) {
+                // 선택한 이미지 미리보기 표시
+                if let uiImage = UIImage(data: data) {
+                    DispatchQueue.main.async {
+                        self.selectedImageData = data
+                        self.pickedProfileImage = Image(uiImage: uiImage)
+                        self.errorMessage = nil
+                    }
+                }
+            }
+        } catch {
+            DispatchQueue.main.async {
+                self.errorMessage = "이미지 선택 실패: \(error.localizedDescription)"
+            }
+        }
     }
 
     func onCompleteTapped() {
-        navigationRouter.navigateBack()
+        Task {
+            await submitProfileUpdate()
+        }
+    }
+
+    private func submitProfileUpdate() async {
+        isLoading = true
+        errorMessage = nil
+
+        defer {
+            isLoading = false
+        }
+
+        do {
+            let _ = try await updateProfileUseCase.execute(
+                nickname: nickname,
+                bio: intro,
+                isPublic: isPublic,
+                imageData: selectedImageData
+            )
+
+            DispatchQueue.main.async {
+                self.navigationRouter.navigateBack()
+            }
+        } catch {
+            errorMessage = "프로필 수정 실패: \(error.localizedDescription)"
+        }
     }
 }
