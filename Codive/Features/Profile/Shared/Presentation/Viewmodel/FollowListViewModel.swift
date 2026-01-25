@@ -8,19 +8,20 @@
 import Foundation
 import SwiftUI
 
+@MainActor
 final class FollowListViewModel: ObservableObject {
     @Published private(set) var items: [FollowRowItem] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
 
     let mode: FollowListMode
-    private let profileAPIService: ProfileAPIServiceProtocol
+    private let fetchFollowsUseCase: FetchFollowsUseCase
     private let memberId: Int
 
-    init(mode: FollowListMode, memberId: Int, profileAPIService: ProfileAPIServiceProtocol = ProfileAPIService()) {
+    init(mode: FollowListMode, memberId: Int, fetchFollowsUseCase: FetchFollowsUseCase) {
         self.mode = mode
         self.memberId = memberId
-        self.profileAPIService = profileAPIService
+        self.fetchFollowsUseCase = fetchFollowsUseCase
     }
 
     func load() async {
@@ -28,7 +29,7 @@ final class FollowListViewModel: ObservableObject {
         errorMessage = nil
 
         do {
-            let result = try await profileAPIService.fetchFollows(
+            let result = try await fetchFollowsUseCase.execute(
                 memberId: memberId,
                 isFollowing: mode == .followings,
                 lastFollowId: nil,

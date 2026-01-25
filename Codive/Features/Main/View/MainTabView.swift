@@ -23,6 +23,7 @@ struct MainTabView: View {
     private let commentDIContainer: CommentDIContainer
     private let lookBookDIContainer: LookBookDIContainer
     private let settingDIContainer: SettingDIContainer
+    private let profileDIContainer: ProfileDIContainer
 
     // MARK: - Initializer
     init(appDIContainer: AppDIContainer) {
@@ -36,6 +37,7 @@ struct MainTabView: View {
         self.commentDIContainer = appDIContainer.makeCommentDIContainer()
         self.lookBookDIContainer = appDIContainer.makeLookBookDIContainer()
         self.settingDIContainer = appDIContainer.makeSettingDIContainer()
+        self.profileDIContainer = appDIContainer.makeProfileDIContainer()
 
         self._navigationRouter = ObservedObject(wrappedValue: appDIContainer.navigationRouter)
         let viewModel = MainTabViewModel(navigationRouter: appDIContainer.navigationRouter)
@@ -74,7 +76,7 @@ struct MainTabView: View {
                             case .feed:
                                 FeedView(viewModel: feedDIContainer.makeFeedViewModel())
                             case .profile:
-                                ProfileView(navigationRouter: navigationRouter)
+                                profileDIContainer.makeProfileView()
                             }
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -193,9 +195,9 @@ struct MainTabView: View {
         case .settings:
             settingDIContainer.makeSettingView()
         case .profileSetting:
-            ProfileSettingView(navigationRouter: navigationRouter)
+            profileDIContainer.makeProfileSettingView()
         case .followList(let mode, let memberId):
-            FollowListView(mode: mode, memberId: memberId, navigationRouter: navigationRouter)
+            profileDIContainer.makeFollowListView(mode: mode, memberId: memberId)
         case .myCloset:
             closetDIContainer.makeMyClosetView()
         case .clothDetail, .clothEdit:

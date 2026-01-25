@@ -10,11 +10,11 @@ import SwiftUI
 // MARK: - View
 struct OtherProfileView: View {
     @ObservedObject private var navigationRouter: NavigationRouter
-    @StateObject private var viewModel: OtherProfileViewModel
+    @ObservedObject private var viewModel: OtherProfileViewModel
 
-    init(navigationRouter: NavigationRouter) {
+    init(viewModel: OtherProfileViewModel, navigationRouter: NavigationRouter) {
+        self._viewModel = ObservedObject(wrappedValue: viewModel)
         self.navigationRouter = navigationRouter
-        self._viewModel = StateObject(wrappedValue: OtherProfileViewModel(navigationRouter: navigationRouter))
     }
 
     var body: some View {

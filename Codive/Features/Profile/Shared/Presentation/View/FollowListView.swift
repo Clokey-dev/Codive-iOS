@@ -9,11 +9,11 @@ import SwiftUI
 
 struct FollowListView: View {
     @ObservedObject private var navigationRouter: NavigationRouter
-    @StateObject private var viewModel: FollowListViewModel
+    @ObservedObject private var viewModel: FollowListViewModel
 
-    init(mode: FollowListMode, memberId: Int, navigationRouter: NavigationRouter) {
+    init(viewModel: FollowListViewModel, navigationRouter: NavigationRouter) {
+        self._viewModel = ObservedObject(wrappedValue: viewModel)
         self.navigationRouter = navigationRouter
-        _viewModel = StateObject(wrappedValue: FollowListViewModel(mode: mode, memberId: memberId))
     }
 
     var body: some View {

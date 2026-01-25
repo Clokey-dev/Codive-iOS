@@ -25,7 +25,14 @@ final class FeedViewFactory {
         case .feedDetail(let feedId):
             feedDIContainer?.makeFeedDetailView(feedId: feedId)
         case .otherProfile:
-            OtherProfileView(navigationRouter: navigationRouter)
+            if let profileDIContainer = feedDIContainer?.profileDIContainer {
+                OtherProfileView(
+                    viewModel: profileDIContainer.makeOtherProfileViewModel(),
+                    navigationRouter: navigationRouter
+                )
+            } else {
+                EmptyView()
+            }
         default:
             EmptyView()
         }

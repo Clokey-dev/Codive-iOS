@@ -26,12 +26,12 @@ class ProfileViewModel: ObservableObject {
 
     // MARK: - Dependencies
     private let navigationRouter: NavigationRouter
-    private let profileAPIService: ProfileAPIServiceProtocol
+    private let fetchMyProfileUseCase: FetchMyProfileUseCase
 
     // MARK: - Initializer
-    init(navigationRouter: NavigationRouter, profileAPIService: ProfileAPIServiceProtocol = ProfileAPIService()) {
+    init(navigationRouter: NavigationRouter, fetchMyProfileUseCase: FetchMyProfileUseCase) {
         self.navigationRouter = navigationRouter
-        self.profileAPIService = profileAPIService
+        self.fetchMyProfileUseCase = fetchMyProfileUseCase
     }
     
     // MARK: - Loading
@@ -40,7 +40,7 @@ class ProfileViewModel: ObservableObject {
         errorMessage = nil
 
         do {
-            let profileInfo = try await profileAPIService.fetchMyProfile()
+            let profileInfo = try await fetchMyProfileUseCase.execute()
             self.userId = profileInfo.userId
             self.username = profileInfo.nickname
             self.displayName = profileInfo.displayName

@@ -14,6 +14,7 @@ final class FeedDIContainer {
     let navigationRouter: NavigationRouter
     lazy var feedViewFactory = FeedViewFactory(feedDIContainer: self, navigationRouter: navigationRouter)
     lazy var commentDIContainer = CommentDIContainer(navigationRouter: navigationRouter)
+    lazy var profileDIContainer = ProfileDIContainer(navigationRouter: navigationRouter)
 
     // MARK: - Initializer
     init(navigationRouter: NavigationRouter) {

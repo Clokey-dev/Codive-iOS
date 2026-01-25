@@ -16,23 +16,6 @@ protocol ProfileAPIServiceProtocol {
     func fetchFollows(memberId: Int, isFollowing: Bool, lastFollowId: Int64?, size: Int32) async throws -> FollowListResult
 }
 
-// MARK: - Supporting Types
-
-struct MyProfileInfo {
-    let userId: Int
-    let nickname: String
-    let displayName: String
-    let introduction: String?
-    let profileImageUrl: String?
-    let followerCount: Int
-    let followingCount: Int
-}
-
-struct FollowListResult {
-    let followers: [SimpleUser]
-    let isLast: Bool
-}
-
 // MARK: - Profile API Service Implementation
 
 final class ProfileAPIService: ProfileAPIServiceProtocol {

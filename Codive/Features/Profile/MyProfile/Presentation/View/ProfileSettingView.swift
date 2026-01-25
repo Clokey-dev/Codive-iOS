@@ -10,11 +10,11 @@ import Combine
 
 struct ProfileSettingView: View {
     @ObservedObject private var navigationRouter: NavigationRouter
-    @StateObject private var viewModel: ProfileSettingViewModel
+    @ObservedObject private var viewModel: ProfileSettingViewModel
 
-    init(navigationRouter: NavigationRouter) {
+    init(viewModel: ProfileSettingViewModel, navigationRouter: NavigationRouter) {
+        self._viewModel = ObservedObject(wrappedValue: viewModel)
         self.navigationRouter = navigationRouter
-        self._viewModel = StateObject(wrappedValue: ProfileSettingViewModel(navigationRouter: navigationRouter))
     }
 
     enum Field: Hashable {
