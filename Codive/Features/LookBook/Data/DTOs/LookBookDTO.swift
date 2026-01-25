@@ -17,13 +17,13 @@ struct LookBookListResponseItem {
     let lookBookId: Int64
     let lookBookName: String
     let imageUrl: String
-//    let count: Int64
+    let count: Int64
     
     enum CodingKeys: String, CodingKey {
         case lookBookId
         case lookBookName
         case ImageUrl
-//        case count
+        case count
     }
     
     func toEntity() -> LookBookEntity {
@@ -31,8 +31,7 @@ struct LookBookListResponseItem {
             lookBookId: lookBookId,
             lookbookName: lookBookName,
             imageUrl: imageUrl,
-//            count: count
-            count: 0
+            count: count
         )
     }
 }

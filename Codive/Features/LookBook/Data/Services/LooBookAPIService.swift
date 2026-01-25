@@ -65,7 +65,7 @@ extension LooBookAPIService {
             let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseLookBookListResponse.self, from: data)
             
             let content: [LookBookListResponseItem] = decoded.result?.content?.map { item -> LookBookListResponseItem in
-                return LookBookListResponseItem(lookBookId: item.lookBookId ?? 0, lookBookName: item.lookBookName ?? "", imageUrl: item.imageUrl ?? ""/*, count: item.count ?? 0*/)
+                return LookBookListResponseItem(lookBookId: item.lookBookId ?? 0, lookBookName: item.lookBookName ?? "", imageUrl: item.imageUrl ?? "", count: item.count ?? 0)
             } ?? []
             
             return LookBookListResponseDTO(content: content, isLast: decoded.result?.isLast ?? true)
