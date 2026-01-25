@@ -58,7 +58,7 @@ class ProfileViewModel: ObservableObject {
 
     // MARK: - Actions
     func onEditProfileTapped() {
-        print("Edit profile tapped")
+        navigationRouter.navigate(to: .profileSetting)
     }
 
     func onSettingsTapped() {

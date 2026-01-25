@@ -22,6 +22,7 @@ struct MainTabView: View {
     private let notificationDIContainer: NotificationDIContainer
     private let commentDIContainer: CommentDIContainer
     private let lookBookDIContainer: LookBookDIContainer
+    private let settingDIContainer: SettingDIContainer
 
     // MARK: - Initializer
     init(appDIContainer: AppDIContainer) {
@@ -34,6 +35,7 @@ struct MainTabView: View {
         self.notificationDIContainer = appDIContainer.makeNotificationDIContainer()
         self.commentDIContainer = appDIContainer.makeCommentDIContainer()
         self.lookBookDIContainer = appDIContainer.makeLookBookDIContainer()
+        self.settingDIContainer = appDIContainer.makeSettingDIContainer()
 
         self._navigationRouter = ObservedObject(wrappedValue: appDIContainer.navigationRouter)
         let viewModel = MainTabViewModel(navigationRouter: appDIContainer.navigationRouter)
@@ -189,6 +191,8 @@ struct MainTabView: View {
         case .favoriteCodiList(let showHeart):
             FavoriteCodiView(showHeart: showHeart, navigationRouter: navigationRouter)
         case .settings:
+            settingDIContainer.makeSettingView()
+        case .profileSetting:
             ProfileSettingView(navigationRouter: navigationRouter)
         case .followList(let mode, let memberId):
             FollowListView(mode: mode, memberId: memberId, navigationRouter: navigationRouter)

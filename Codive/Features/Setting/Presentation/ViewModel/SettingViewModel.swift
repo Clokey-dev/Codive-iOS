@@ -66,4 +66,9 @@ final class SettingViewModel: ObservableObject {
             self.error = error
         }
     }
+
+    // MARK: - Navigation
+    func navigateBack() {
+        navigationRouter.navigateBack()
+    }
 }
