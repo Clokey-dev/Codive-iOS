@@ -13,24 +13,47 @@ import CryptoKit
 // MARK: - HomeCategoryAPIService Protocol
 
 protocol LooBookAPIServiceProtocol {
+    /// 룩북 전체 조회
     func fetchLookBookList(
         lastLookBookId: Int64?,
         size: Int32,
         direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
     ) async throws -> LookBookListResponseDTO
     
+    /// 개별 룩북 내 코디 조회
     func fetchLookBookCoordinateList(
         lookBookId: Int64,
-        lastLookBookId: Int64?,
+        lastCoordinateId: Int64?,
         size: Int32,
         direction: Operations.LookBook_getCoordinates.Input.Query.directionPayload
     ) async throws -> LookBookCoordinateResponseDTO
     
+    /// 과거 일일 코디 조회
+    func fetchPastCoordinates(
+        lastCoordinateId: Int64?,
+        size: Int32,
+        direction: Operations.Coordinate_getDailyCoordinates.Input.Query.directionPayload
+    ) async throws -> PastDailyCoordinateResponseDTO
+    
+    /// 코디 preview 조회
+    func fetchCoordinatePreview(coordinateId: Int64) async throws -> CoordinatePreviewResponseDTO
+    
+    /// 코디 detail 조회
+    func fetchCoordinateDetail(
+        coordinateId: Int64
+    ) async throws -> [CoordinateDetailResponseDTO]
+    
+    /// 룩북 생성
     func createLookBook(request: CreateLookBookAPIRequestDTO) async throws -> CreateLookBookResponseDTO
     
+    /// 룩북 삭제
     func deleteLookBook(lookBookId: Int64) async throws
     
+    /// 룩북 수정
     func updateLookBook(lookBookId: Int64, request: UpdateLookBookAPIRequestDTO) async throws
+    
+    /// 코디 삭제
+    func deleteCoordinate(coordinateId: Int64) async throws
 }
 
 final class LooBookAPIService: LooBookAPIServiceProtocol {
@@ -77,7 +100,7 @@ extension LooBookAPIService {
     
     func fetchLookBookCoordinateList(
         lookBookId: Int64,
-        lastLookBookId: Int64?,
+        lastCoordinateId: Int64?,
         size: Int32,
         direction: Operations.LookBook_getCoordinates.Input.Query.directionPayload = .DESC
     ) async throws -> LookBookCoordinateResponseDTO {
@@ -85,7 +108,7 @@ extension LooBookAPIService {
         let input = Operations.LookBook_getCoordinates.Input(
             path: .init(lookBookId: lookBookId),
             query: .init(
-                lastCoordinateId: lastLookBookId,
+                lastCoordinateId: lastCoordinateId,
                 size: size,
                 direction: direction
             )
@@ -113,6 +136,114 @@ extension LooBookAPIService {
             
         case .undocumented(statusCode: let code, _):
             throw LooBookAPIError.serverError(statusCode: code, message: "개별 룩북 코디 목록 조회 실패")
+        }
+    }
+    
+    func fetchPastCoordinates(
+        lastCoordinateId: Int64?,
+        size: Int32,
+        direction: Operations.Coordinate_getDailyCoordinates.Input.Query.directionPayload
+    ) async throws -> PastDailyCoordinateResponseDTO {
+        let input = Operations.Coordinate_getDailyCoordinates.Input(
+            query: .init(
+                lastCoordinateId: lastCoordinateId,
+                size: size,
+                direction: direction
+            )
+        )
+        
+        let response = try await client.Coordinate_getDailyCoordinates(input)
+        
+        switch response {
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+
+            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseDailyCoordinateListResponse.self, from: data)
+            
+            let content: [PastDailyCoordinateListResponseItem] =
+                decoded.result?.content?.map { item -> PastDailyCoordinateListResponseItem in
+                    return PastDailyCoordinateListResponseItem(
+                        coordinateId: item.coordinateId ?? 0,
+                        imageUrl: item.imageUrl ?? "",
+                        date: formatDate(item.date)
+                    )
+                } ?? []
+            
+            return PastDailyCoordinateResponseDTO(content: content, isLast: decoded.result?.isLast ?? true)
+            
+        case .undocumented(statusCode: let code, _):
+            throw LooBookAPIError.serverError(statusCode: code, message: "과거 일일 코디 조회 실패")
+        }
+    }
+    
+    func fetchCoordinatePreview(coordinateId: Int64) async throws -> CoordinatePreviewResponseDTO {
+        let input = Operations.Coordinate_getCoordinatePreview.Input(
+            path: .init(
+                coordinateId: coordinateId
+            )
+        )
+        
+        let response = try await client.Coordinate_getCoordinatePreview(input)
+        
+        switch response {
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+
+            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseCoordinatePreviewResponse.self, from: data)
+            
+            guard let item = decoded.result else {
+                throw LooBookAPIError.invalidResponse
+            }
+
+            return CoordinatePreviewResponseDTO(
+                coordinateId: item.coordinateId ?? 0,
+                imageUrl: item.imageUrl ?? "",
+                coordinateName: item.coordinateName ?? "",
+                coordinateMemo: item.coordinateMemo ?? ""
+            )
+            
+        case .undocumented(statusCode: let code, _):
+            throw LooBookAPIError.serverError(statusCode: code, message: "코디 preview 조회 실패")
+        }
+    }
+    
+    func fetchCoordinateDetail(
+        coordinateId: Int64
+    ) async throws -> [CoordinateDetailResponseDTO] {
+        let input = Operations.Coordinate_getCoordinateDetails.Input(
+            path: .init(
+                coordinateId: coordinateId
+            )
+        )
+        
+        let response = try await client.Coordinate_getCoordinateDetails(input)
+        
+        switch response {
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+
+            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseListCoordinateDetailsListResponse.self, from: data)
+            
+            let items = decoded.result ?? []
+
+            return items.map { item in
+                CoordinateDetailResponseDTO(
+                    coordinateClothId: item.coordinateClothId ?? 0,
+                    locationX: item.locationX ?? 0,
+                    locationY: item.locationY ?? 0,
+                    ratio: item.ratio ?? 1.0,
+                    degree: item.degree ?? 0,
+                    order: item.order ?? 0,
+                    imageUrl: item.imageUrl ?? "",
+                    brand: item.brand ?? "",
+                    name: item.name ?? "",
+                    category: item.category ?? "",
+                    parentCategory: item.parentCategory ?? ""
+                )
+            }
+            
+        case .undocumented(statusCode: let code, _):
+            throw LooBookAPIError.serverError(statusCode: code, message: "코디 detail 조회 실패")
         }
     }
 }
@@ -171,6 +302,31 @@ extension LooBookAPIService {
         case .undocumented(statusCode: let code, _):
             throw LooBookAPIError.serverError(statusCode: code, message: "룩북 수정 실패")
         }
+    }
+    
+    func deleteCoordinate(coordinateId: Int64) async throws {
+        let input = Operations.Coordinate_deleteCoordinate.Input(path: .init(coordinateId: coordinateId))
+        let response = try await client.Coordinate_deleteCoordinate(input)
+
+        switch response {
+        case .ok:
+            return
+        case .undocumented(statusCode: let code, _):
+            throw LooBookAPIError.serverError(statusCode: code, message: "코디 삭제 실패")
+        }
+    }
+}
+
+extension LooBookAPIService {
+    private func formatDate(_ date: Date?) -> String {
+        guard let date else { return "" }
+        
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [
+            .withInternetDateTime,
+            .withFractionalSeconds
+        ]
+        return formatter.string(from: date)
     }
 }
 
