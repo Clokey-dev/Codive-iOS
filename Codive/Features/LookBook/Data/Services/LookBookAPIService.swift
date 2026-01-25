@@ -1,5 +1,5 @@
 //
-//  LooBookAPIService.swift
+//  LookBookAPIService.swift
 //  Codive
 //
 //  Created by 한금준 on 1/22/26.
@@ -12,7 +12,7 @@ import CryptoKit
 
 // MARK: - HomeCategoryAPIService Protocol
 
-protocol LooBookAPIServiceProtocol {
+protocol LookBookAPIServiceProtocol {
     /// 룩북 전체 조회
     func fetchLookBookList(
         lastLookBookId: Int64?,
@@ -46,6 +46,9 @@ protocol LooBookAPIServiceProtocol {
     /// 룩북 생성
     func createLookBook(request: CreateLookBookAPIRequestDTO) async throws -> CreateLookBookResponseDTO
     
+    /// 코디 수동 생성
+    func createManualCoordinate(request: CreateManualCoordinateAPIRequestDTO) async throws -> CreateManualCoordinateAPIResponseDTO
+    
     /// 룩북 삭제
     func deleteLookBook(lookBookId: Int64) async throws
     
@@ -54,9 +57,15 @@ protocol LooBookAPIServiceProtocol {
     
     /// 코디 삭제
     func deleteCoordinate(coordinateId: Int64) async throws
+    
+    /// 코디 좋아요 토글
+    func patchCoordinateLike(coordinateId: Int64) async throws
+    
+    /// 코디 수정
+    func patchUpdateCoordinates(coordinateId: Int64, request: EditCoordinateRequestDTO) async throws
 }
 
-final class LooBookAPIService: LooBookAPIServiceProtocol {
+final class LookBookAPIService: LookBookAPIServiceProtocol {
 
     private let client: Client
     private let jsonDecoder: JSONDecoder
@@ -69,7 +78,7 @@ final class LooBookAPIService: LooBookAPIServiceProtocol {
     }
 }
 
-extension LooBookAPIService {
+extension LookBookAPIService {
     func fetchLookBookList(
         lastLookBookId: Int64?,
         size: Int32,
@@ -94,7 +103,7 @@ extension LooBookAPIService {
             return LookBookListResponseDTO(content: content, isLast: decoded.result?.isLast ?? true)
             
         case .undocumented(statusCode: let code, _):
-            throw LooBookAPIError.serverError(statusCode: code, message: "룩북 목록 조회 실패")
+            throw LookBookAPIError.serverError(statusCode: code, message: "룩북 목록 조회 실패")
         }
     }
     
@@ -135,7 +144,7 @@ extension LooBookAPIService {
             return LookBookCoordinateResponseDTO(content: content, isLast: decoded.result?.isLast ?? true)
             
         case .undocumented(statusCode: let code, _):
-            throw LooBookAPIError.serverError(statusCode: code, message: "개별 룩북 코디 목록 조회 실패")
+            throw LookBookAPIError.serverError(statusCode: code, message: "개별 룩북 코디 목록 조회 실패")
         }
     }
     
@@ -172,7 +181,7 @@ extension LooBookAPIService {
             return PastDailyCoordinateResponseDTO(content: content, isLast: decoded.result?.isLast ?? true)
             
         case .undocumented(statusCode: let code, _):
-            throw LooBookAPIError.serverError(statusCode: code, message: "과거 일일 코디 조회 실패")
+            throw LookBookAPIError.serverError(statusCode: code, message: "과거 일일 코디 조회 실패")
         }
     }
     
@@ -192,7 +201,7 @@ extension LooBookAPIService {
             let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseCoordinatePreviewResponse.self, from: data)
             
             guard let item = decoded.result else {
-                throw LooBookAPIError.invalidResponse
+                throw LookBookAPIError.invalidResponse
             }
 
             return CoordinatePreviewResponseDTO(
@@ -203,7 +212,7 @@ extension LooBookAPIService {
             )
             
         case .undocumented(statusCode: let code, _):
-            throw LooBookAPIError.serverError(statusCode: code, message: "코디 preview 조회 실패")
+            throw LookBookAPIError.serverError(statusCode: code, message: "코디 preview 조회 실패")
         }
     }
     
@@ -243,12 +252,12 @@ extension LooBookAPIService {
             }
             
         case .undocumented(statusCode: let code, _):
-            throw LooBookAPIError.serverError(statusCode: code, message: "코디 detail 조회 실패")
+            throw LookBookAPIError.serverError(statusCode: code, message: "코디 detail 조회 실패")
         }
     }
 }
 
-extension LooBookAPIService {
+extension LookBookAPIService {
     func createLookBook(request: CreateLookBookAPIRequestDTO) async throws -> CreateLookBookResponseDTO {
         let requestBody = Components.Schemas.LookBookCreateRequest(
             name: request.name
@@ -265,17 +274,58 @@ extension LooBookAPIService {
             )
 
             guard let lookBookId = decoded.result?.lookBookId else {
-                throw LooBookAPIError.noClothIdsReturned
+                throw LookBookAPIError.noClothIdsReturned
             }
             return CreateLookBookResponseDTO(lookBookId: lookBookId)
 
         case .undocumented(statusCode: let code, _):
-            throw LooBookAPIError.serverError(statusCode: code, message: "룩북 생성 실패")
+            throw LookBookAPIError.serverError(statusCode: code, message: "룩북 생성 실패")
+        }
+    }
+    
+    func createManualCoordinate(request: CreateManualCoordinateAPIRequestDTO) async throws -> CreateManualCoordinateAPIResponseDTO {
+        let requestBody = Components.Schemas.CoordinateManualCreateRequest(
+            coordinateImageUrl: request.coordinateImageUrl,
+            name: request.name,
+            memo: request.memo,
+            lookBookId: request.lookBookId,
+            payloads: request.payloads.map {
+                Components.Schemas.CoordinateManualCreateRequestPayLoad(
+                    clothId: $0.clothId,
+                    locationX: $0.locationX,
+                    locationY: $0.locationY,
+                    ratio: $0.ratio,
+                    degree: $0.degree,
+                    order: $0.order
+                )
+            }
+        )
+
+        let input = Operations.Coordinate_createCoordinateManual.Input(
+            body: .json(requestBody)
+        )
+        let response = try await client.Coordinate_createCoordinateManual(input)
+
+        switch response {
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+            let decoded = try jsonDecoder.decode(
+                Components.Schemas.BaseResponseCoordinateCreateResponse.self,
+                from: data
+            )
+
+            guard let coordinateId = decoded.result?.coordinateId else {
+                throw LookBookAPIError.invalidResponse
+            }
+            return CreateManualCoordinateAPIResponseDTO(coordinateId: coordinateId)
+
+        case .undocumented(statusCode: let code, _):
+            throw LookBookAPIError.serverError(statusCode: code, message: "코디 수동 생성 실패")
         }
     }
 }
 
-extension LooBookAPIService {
+extension LookBookAPIService {
     func deleteLookBook(lookBookId: Int64) async throws {
         let input = Operations.LookBook_deleteLookBook.Input(path: .init(lookBookId: lookBookId))
         let response = try await client.LookBook_deleteLookBook(input)
@@ -284,7 +334,7 @@ extension LooBookAPIService {
         case .ok:
             return
         case .undocumented(statusCode: let code, _):
-            throw LooBookAPIError.serverError(statusCode: code, message: "룩북 삭제 실패")
+            throw LookBookAPIError.serverError(statusCode: code, message: "룩북 삭제 실패")
         }
     }
     
@@ -300,7 +350,7 @@ extension LooBookAPIService {
         case .ok:
             return
         case .undocumented(statusCode: let code, _):
-            throw LooBookAPIError.serverError(statusCode: code, message: "룩북 수정 실패")
+            throw LookBookAPIError.serverError(statusCode: code, message: "룩북 수정 실패")
         }
     }
     
@@ -312,12 +362,57 @@ extension LooBookAPIService {
         case .ok:
             return
         case .undocumented(statusCode: let code, _):
-            throw LooBookAPIError.serverError(statusCode: code, message: "코디 삭제 실패")
+            throw LookBookAPIError.serverError(statusCode: code, message: "코디 삭제 실패")
         }
     }
 }
 
-extension LooBookAPIService {
+extension LookBookAPIService {
+    func patchCoordinateLike(coordinateId: Int64) async throws{
+        let input = Operations.Coordinate_toggleCoordinateLike.Input(path: .init(coordinateId: coordinateId))
+        let response = try await client.Coordinate_toggleCoordinateLike(input)
+
+        switch response {
+        case .ok:
+            return
+        case .undocumented(statusCode: let code, _):
+            throw LookBookAPIError.serverError(statusCode: code, message: "코디 좋아요 토글 실패")
+        }
+    }
+    
+    func patchUpdateCoordinates(coordinateId: Int64, request: EditCoordinateRequestDTO) async throws {
+        let requestBody = Components.Schemas.CoordinateUpdateRequest(
+            coordinateImageUrl: request.coordinateImageUrl,
+            name: request.name,
+            memo: request.memo,
+            payloads: request.payloads?.map {
+                Components.Schemas.CoordinateUpdateRequestPayload(
+                    clothId: $0.clothId,
+                    locationX: $0.locationX,
+                    locationY: $0.locationY,
+                    ratio: $0.ratio,
+                    degree: $0.degree,
+                    order: Int32($0.order)
+                )
+            }
+        )
+        
+        let input = Operations.Coordinate_updateCoordinate.Input(
+            path: .init(coordinateId: coordinateId),
+            body: .json(requestBody)
+        )
+        let response = try await client.Coordinate_updateCoordinate(input)
+
+        switch response {
+        case .ok:
+            return
+        case .undocumented(statusCode: let code, _):
+            throw LookBookAPIError.serverError(statusCode: code, message: "코디 수정 실패")
+        }
+    }
+}
+
+extension LookBookAPIService {
     private func formatDate(_ date: Date?) -> String {
         guard let date else { return "" }
         
@@ -332,7 +427,7 @@ extension LooBookAPIService {
 
 // MARK: - ClothAPIError
 
-enum LooBookAPIError: LocalizedError {
+enum LookBookAPIError: LocalizedError {
     case presignedUrlMismatch
     case invalidUrl
     case invalidResponse

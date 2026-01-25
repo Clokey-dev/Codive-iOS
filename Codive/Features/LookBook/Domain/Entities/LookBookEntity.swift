@@ -29,11 +29,11 @@ struct SpecificLookBookCodiEntity: Identifiable {
 
 // 과거 일일 코디 조회 api responseDTO의 content
 struct BeforeCoordinateDailyEntity: Identifiable {
-    let coordinateId: Int
+    let coordinateId: Int64
     let imageUrl: String
     let date: String
     
-    var id: Int { coordinateId }
+    var id: Int64 { coordinateId }
 }
 
 struct CodiLikeEntity {
@@ -50,8 +50,6 @@ struct CoordinatePreviewEntity {
     let coordinateName: String
     let coordinateMemo: String
 }
-
-//---------------------------------------------------------
 
 // MARK: - Supporting Types
 struct SelectedCodiData: Hashable {

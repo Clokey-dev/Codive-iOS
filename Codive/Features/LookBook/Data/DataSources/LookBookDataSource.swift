@@ -17,7 +17,7 @@ protocol LookBookDataSourceProtocol {
     
     func fetchLookBookCoordinateList(
         lookBookId: Int64,
-        lastLookBookId: Int64?,
+        lastCoordinateId: Int64?,
         size: Int32,
         direction: Operations.LookBook_getCoordinates.Input.Query.directionPayload
     ) async throws -> (content: [SpecificLookBookCodiEntity], isLast: Bool)
@@ -30,11 +30,11 @@ protocol LookBookDataSourceProtocol {
 }
 
 final class LookBookDataSource: LookBookDataSourceProtocol {
-    private let apiService: LooBookAPIServiceProtocol
+    private let apiService: LookBookAPIServiceProtocol
     
     // MARK: - Initializer
     init(
-        apiService: LooBookAPIServiceProtocol = LooBookAPIService()
+        apiService: LookBookAPIServiceProtocol = LookBookAPIService()
     ) {
         self.apiService = apiService
     }
@@ -60,13 +60,13 @@ final class LookBookDataSource: LookBookDataSourceProtocol {
     /// 개별 룩북 전체 리스트 조회
     func fetchLookBookCoordinateList(
         lookBookId: Int64,
-        lastLookBookId: Int64?,
+        lastCoordinateId: Int64?,
         size: Int32,
         direction: Operations.LookBook_getCoordinates.Input.Query.directionPayload
     ) async throws -> (content: [SpecificLookBookCodiEntity], isLast: Bool) {
         let result = try await apiService.fetchLookBookCoordinateList(
             lookBookId: lookBookId,
-            lastLookBookId: lastLookBookId,
+            lastCoordinateId: lastCoordinateId,
             size: size,
             direction: direction
         )

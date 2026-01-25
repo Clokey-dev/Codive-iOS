@@ -22,13 +22,13 @@ final class SpecificLookBookUseCase {
     /// 특정 룩북에 포함된 코디 목록 조회
     func fetchLookBookCoordinateList(
         lookBookId: Int64,
-        lastLookBookId: Int64?,
+        lastCoordinateId: Int64?,
         size: Int32,
         direction: Operations.LookBook_getCoordinates.Input.Query.directionPayload
     ) async throws -> (content: [SpecificLookBookCodiEntity], isLast: Bool) {
         return try await repository.fetchLookBookCoordinateList(
             lookBookId: lookBookId,
-            lastLookBookId: lastLookBookId,
+            lastCoordinateId: lastCoordinateId,
             size: size,
             direction: direction
         )

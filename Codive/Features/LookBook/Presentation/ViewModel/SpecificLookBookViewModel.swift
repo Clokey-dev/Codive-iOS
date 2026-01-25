@@ -56,7 +56,7 @@ final class SpecificLookBookViewModel: ObservableObject {
             do {
                 let result = try await specificLookBookUseCase.fetchLookBookCoordinateList(
                     lookBookId: lookbookId,
-                    lastLookBookId: nil,
+                    lastCoordinateId: nil,
                     size: 20,
                     direction: .DESC
                 )
@@ -65,7 +65,7 @@ final class SpecificLookBookViewModel: ObservableObject {
 
                 let likedIds = result.content
                     .filter { $0.coordinateLiked }
-                    .map { Int($0.coordinateId) }   // 🔥 여기서 변환
+                    .map { Int($0.coordinateId) }
 
                 self.likedCodiIds = Set(likedIds)
             } catch {

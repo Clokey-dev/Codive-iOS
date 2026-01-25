@@ -35,3 +35,29 @@ struct LookBookCoordinateListResponseItem {
         )
     }
 }
+
+/// 과거 일일 코디 조회
+struct PastDailyCoordinateResponseDTO {
+    let content: [PastDailyCoordinateListResponseItem]
+    let isLast: Bool
+}
+
+struct PastDailyCoordinateListResponseItem {
+    let coordinateId: Int64
+    let imageUrl: String
+    let date: String
+    
+    enum CodingKeys: String, CodingKey {
+        case coordinateId
+        case imageUrl
+        case date
+    }
+    
+    func toEntity() -> BeforeCoordinateDailyEntity {
+        return BeforeCoordinateDailyEntity(
+            coordinateId: coordinateId,
+            imageUrl: imageUrl,
+            date: date
+        )
+    }
+}
