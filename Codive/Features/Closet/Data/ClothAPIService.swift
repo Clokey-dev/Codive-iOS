@@ -58,6 +58,7 @@ struct ClothDetailResult {
     let name: String?
     let brand: String?
     let clothUrl: String?
+    let seasons: [Season]
 }
 
 struct ClothUpdateAPIRequest {
@@ -220,13 +221,18 @@ extension ClothAPIService {
                 throw ClothAPIError.serverError(statusCode: 0, message: "result가 nil입니다")
             }
 
+            let seasons = result.seasons?.compactMap { seasonString -> Season? in
+                Season(rawValue: seasonString.rawValue)
+            } ?? []
+
             return ClothDetailResult(
                 clothImageUrl: result.clothImageUrl ?? "",
                 parentCategory: result.parentCategory,
                 category: result.category,
                 name: result.name,
                 brand: result.brand,
-                clothUrl: result.clothUrl
+                clothUrl: result.clothUrl,
+                seasons: seasons
             )
 
         case .undocumented(statusCode: let code, _):

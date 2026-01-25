@@ -240,9 +240,11 @@ struct CustomAIRecommendationView: View {
     }
     
     private var thumbnailImagesView: some View {
-        HStack(spacing: 8) {
-            ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
-                thumbnailButton(for: item, at: index)
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+                    thumbnailButton(for: item, at: index)
+                }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

@@ -55,12 +55,15 @@ final class ClothDetailViewModel: ObservableObject {
     }
 
     var seasonText: String {
-        if cloth.seasons.isEmpty {
+        // API 상세 응답이 있으면 우선 사용
+        let seasons: [Season] = detailData?.seasons ?? Array(cloth.seasons)
+
+        if seasons.isEmpty {
             return "계절 없음"
         }
 
         let orderedSeasons: [Season] = [.spring, .summer, .fall, .winter]
-        let selectedSeasons = orderedSeasons.filter { cloth.seasons.contains($0) }
+        let selectedSeasons = orderedSeasons.filter { seasons.contains($0) }
         return selectedSeasons.map { $0.displayName }.joined(separator: ", ")
     }
 
