@@ -42,8 +42,6 @@ struct AddCodiDetailView: View {
             GeometryReader { geometry in
                 let boardSize = geometry.size.width - 40
                 let imageHalfSize: CGFloat = 40
-                let minBound = imageHalfSize
-                let maxBound = boardSize - imageHalfSize
                 
                 // MARK: Main Content ZStack
                 

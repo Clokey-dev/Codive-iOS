@@ -30,6 +30,10 @@ final class NotificationUseCase {
         )
     }
     
+    func fetchReportReceived() async throws -> ReportReceivedAPIResponseDTO {
+        return try await repository.fetchReportReceived()
+    }
+    
 //    func fetchReportStatus() -> ReportEntity {
 //        return false
 //    }

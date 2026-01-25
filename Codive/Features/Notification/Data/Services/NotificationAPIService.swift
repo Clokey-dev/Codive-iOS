@@ -14,9 +14,14 @@ import CryptoKit
 
 protocol NotificationAPIServiceProtocol {
     func patchEachNotification(notificationId: Int64) async throws
+    
     func patchAllNotification() async throws
+    
     func fetchNotificationList(lastNotificationId: Int64?, size: Int32) async throws -> NotificationListResponseDTO
+    
     func fetchNotificationExist() async throws -> NotificationExistAPIResponseDTO
+    
+    func fetchReportReceived() async throws -> ReportReceivedAPIResponseDTO
 }
 
 final class NotificationAPIService: NotificationAPIServiceProtocol {
@@ -99,6 +104,31 @@ extension NotificationAPIService {
             } ?? []
             
             return NotificationListResponseDTO(content: content, isLast: decoded.result?.isLast ?? true)
+            
+        case .undocumented(statusCode: let code, _):
+            throw NotificationAPIError.serverError(statusCode: code, message: "개별 룩북 코디 목록 조회 실패")
+        }
+    }
+    
+    func fetchReportReceived() async throws -> ReportReceivedAPIResponseDTO {
+        let input = Operations.Report_checkReportReceived.Input()
+        
+        let response = try await client.Report_checkReportReceived(input)
+        
+        switch response {
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+            
+            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseReportedCheckResponse.self, from: data)
+            
+            guard let item = decoded.result else {
+                throw NotificationAPIError.invalidResponse
+            }
+
+            return ReportReceivedAPIResponseDTO(
+                isReported: item.isReported ?? false,
+                targetType: item.targetType.flatMap { ReportType(rawValue: $0.rawValue) }
+            )
             
         case .undocumented(statusCode: let code, _):
             throw NotificationAPIError.serverError(statusCode: code, message: "개별 룩북 코디 목록 조회 실패")

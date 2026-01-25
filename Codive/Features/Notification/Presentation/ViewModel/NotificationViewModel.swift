@@ -30,27 +30,30 @@ final class NotificationViewModel: ObservableObject {
     func loadData() {
         Task {
             do {
-                // 1️⃣ 알림 목록 조회
                 let result = try await useCase.fetchNotificationList(
                     lastNotificationId: nil,
                     size: 20
                 )
-                
-                // 2️⃣ unread / read 분리
+
                 updateNotificationLists(result.content)
+
+                let reportResult = try await useCase.fetchReportReceived()
+                self.isReported = reportResult.isReported
                 
-                // 3️⃣ 신고 상태 조회 (기존 동기 로직 유지)
-//                let reportStatus = useCase.fetchReportStatus()
-//                self.isReported = reportStatus.isReported
-//                self.reportType = reportStatus.reportType
-                
-                // 4️⃣ 성공 로그
-                print("✅ Notification fetch success")
-                print("isLast:", result.isLast)
-                print("total:", result.content.count)
-                
+                if reportResult.isReported {
+                    switch reportResult.targetType {
+                    case .COMMENT:
+                        self.reportType = .COMMENT
+                    case .HISTORY:
+                        self.reportType = .HISTORY
+                    case .none:
+                        self.reportType = nil
+                    }
+                } else {
+                    self.reportType = nil
+                }
             } catch {
-                print("❌ Notification fetch failed:", error)
+                print(error)
             }
         }
     }

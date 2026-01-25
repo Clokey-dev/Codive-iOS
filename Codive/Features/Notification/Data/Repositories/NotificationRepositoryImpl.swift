@@ -30,7 +30,11 @@ final class NotificationRepositoryImpl: NotificationRepository {
         )
     }
     
-    func fetchNotificationExist() async throws -> NotificationExistAPIResponseDTO  {
+    func fetchNotificationExist() async throws -> NotificationExistAPIResponseDTO {
         return try await datasource.fetchNotificationExist()
+    }
+    
+    func fetchReportReceived() async throws -> ReportReceivedAPIResponseDTO {
+        return try await datasource.fetchReportReceived()
     }
 }

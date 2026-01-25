@@ -77,18 +77,18 @@ struct TopNavigationBar: View {
     }
 }
 
-//#Preview {
-//    VStack(spacing: 0) {
-//        TopNavigationBar(
-//            onSearchTap: {
-//                print("Search tapped")
-//            },
-//            onNotificationTap: {
-//                print("Notification tapped")
-//            }
-//        )
-//        
-//        Spacer()
-//    }
-//    .background(Color.gray.opacity(0.1))
-//}
+#Preview {
+    VStack(spacing: 0) {
+        TopNavigationBar(
+            onSearchTap: {
+                print("Search tapped")
+            },
+            onNotificationTap: {
+                print("Notification tapped")
+            }
+        )
+        
+        Spacer()
+    }
+    .background(Color.gray.opacity(0.1))
+}

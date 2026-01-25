@@ -34,31 +34,32 @@ struct DraggableImageView: View {
                         activeID: $activeImageID,
                         onActivate: {
                             bringToFront(id: image.id)
-                        }
-                    ) {
-                        AsyncImage(url: image.url) { phase in
-                            switch phase {
-                            case .empty:
-                                ProgressView()
-                                    .frame(width: 180, height: 180)
+                        },
+                        content: {
+                            AsyncImage(url: image.url) { phase in
+                                switch phase {
+                                case .empty:
+                                    ProgressView()
+                                        .frame(width: 180, height: 180)
 
-                            case .success(let img):
-                                img
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 180, height: 180)
+                                case .success(let img):
+                                    img
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 180, height: 180)
 
-                            case .failure:
-                                Image(systemName: "xmark.circle")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 180, height: 180)
+                                case .failure:
+                                    Image(systemName: "xmark.circle")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 180, height: 180)
 
-                            @unknown default:
-                                EmptyView()
+                                @unknown default:
+                                    EmptyView()
+                                }
                             }
                         }
-                    }
+                    )
                 }
             }
             .frame(width: size, height: size)

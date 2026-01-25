@@ -12,9 +12,9 @@ struct ReportSubmissionGuide: View {
     
     private var reportTargetText: String {
         switch reportType {
-        case .feed:
+        case .HISTORY:
             return TextLiteral.Notification.feedType
-        case .comment:
+        case .COMMENT:
             return TextLiteral.Notification.commentType
         }
     }
@@ -53,17 +53,5 @@ struct ReportSubmissionGuide: View {
             RoundedRectangle(cornerRadius: 8, style: .continuous)
                 .fill(Color.Codive.point4)
         )
-    }
-}
-
-// MARK: - Preview
-
-#Preview {
-    VStack {
-        ReportSubmissionGuide(reportType: .comment)
-            .padding(.horizontal, 20)
-        
-        ReportSubmissionGuide(reportType: .feed)
-            .padding(.horizontal, 20)
     }
 }

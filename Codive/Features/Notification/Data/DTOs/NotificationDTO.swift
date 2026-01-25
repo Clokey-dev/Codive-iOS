@@ -57,3 +57,8 @@ struct NotificationListResponseItem {
 struct NotificationExistAPIResponseDTO {
     let existsUnreadNotification: Bool
 }
+
+struct ReportReceivedAPIResponseDTO {
+    let isReported: Bool
+    let targetType: ReportType?
+}

@@ -35,14 +35,14 @@ struct NotificationEntity: Codable, Identifiable {
 
 /// 신고 접수 유형
 enum ReportType: String, Codable {
-    case feed = "FEED"
-    case comment = "COMMENT"
+    case HISTORY = "HISTORY"
+    case COMMENT = "COMMENT"
 }
 
 /// 신고 접수 안내 api
 struct ReportEntity: Codable {
     let isReported: Bool
-    let reportType: ReportType? 
+    let reportType: ReportType?
 }
 
 /// 알림 읽음 처리 request api

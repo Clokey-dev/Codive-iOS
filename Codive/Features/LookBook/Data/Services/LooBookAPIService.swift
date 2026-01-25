@@ -99,9 +99,15 @@ extension LooBookAPIService {
 
             let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseCoordinateListResponse.self, from: data)
             
-            let content: [LookBookCoordinateListResponseItem] = decoded.result?.content?.map { item -> LookBookCoordinateListResponseItem in
-                return LookBookCoordinateListResponseItem(coordinateId: item.coordinateId ?? 0, coordinateName: item.coordinateName ?? "",coordinateLiked: item.coordinateLiked ?? false, imageUrl: item.imageUrl ?? "")
-            } ?? []
+            let content: [LookBookCoordinateListResponseItem] =
+                decoded.result?.content?.map { item -> LookBookCoordinateListResponseItem in
+                    return LookBookCoordinateListResponseItem(
+                        coordinateId: item.coordinateId ?? 0,
+                        coordinateName: item.coordinateName ?? "",
+                        coordinateLiked: item.coordinateLiked ?? false,
+                        imageUrl: item.imageUrl ?? ""
+                    )
+                } ?? []
             
             return LookBookCoordinateResponseDTO(content: content, isLast: decoded.result?.isLast ?? true)
             

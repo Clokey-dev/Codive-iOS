@@ -9,9 +9,14 @@ import Foundation
 
 protocol NotificationDataSourceProtocol {
     func patchEachNotification(notificationId: Int64) async throws
+    
     func patchAllNotification() async throws
+    
     func fetchNotificationList(lastNotificationId: Int64?, size: Int32) async throws -> (content: [NotificationEntity], isLast: Bool)
+    
     func fetchNotificationExist() async throws -> NotificationExistAPIResponseDTO
+    
+    func fetchReportReceived() async throws -> ReportReceivedAPIResponseDTO
 }
 
 final class NotificationDataSource: NotificationDataSourceProtocol {
@@ -52,5 +57,10 @@ final class NotificationDataSource: NotificationDataSourceProtocol {
     /// 알림 유무
     func fetchNotificationExist() async throws -> NotificationExistAPIResponseDTO {
         return try await apiService.fetchNotificationExist()
+    }
+    
+    func fetchReportReceived() async throws -> ReportReceivedAPIResponseDTO {
+        let result = try await apiService.fetchReportReceived()
+        return result
     }
 }
