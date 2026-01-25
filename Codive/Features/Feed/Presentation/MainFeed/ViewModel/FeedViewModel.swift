@@ -36,8 +36,8 @@ final class FeedViewModel: ObservableObject {
     private let navigationRouter: NavigationRouter
     private let fetchFeedsUseCase: FetchFeedsUseCase
     private let feedRepository: FeedRepository
-    private var currentPage: Int = 1
     private let pageSize: Int = 20
+    private var nextCursor: String?
     private var hasMorePages: Bool = true
 
     // MARK: - Initialization
@@ -66,19 +66,20 @@ final class FeedViewModel: ObservableObject {
 
         isLoading = true
         errorMessage = nil
+        nextCursor = nil
 
         do {
-            let newFeeds = try await fetchFeedsUseCase.execute(
-                page: 1,
+            let result = try await fetchFeedsUseCase.execute(
+                cursor: nil,
                 limit: pageSize,
                 styleIds: selectedStyleIds,
                 situationIds: selectedSituationIds,
                 followingOnly: followingOnly
             )
 
-            feeds = newFeeds
-            currentPage = 1
-            hasMorePages = newFeeds.count == pageSize
+            feeds = result.feeds
+            nextCursor = result.nextCursor
+            hasMorePages = result.hasNext
         } catch {
             errorMessage = "Feed를 불러오는데 실패했습니다: \(error.localizedDescription)"
             feeds = []
@@ -95,18 +96,17 @@ final class FeedViewModel: ObservableObject {
         isLoading = true
 
         do {
-            let nextPage = currentPage + 1
-            let newFeeds = try await fetchFeedsUseCase.execute(
-                page: nextPage,
+            let result = try await fetchFeedsUseCase.execute(
+                cursor: nextCursor,
                 limit: pageSize,
                 styleIds: selectedStyleIds,
                 situationIds: selectedSituationIds,
                 followingOnly: followingOnly
             )
 
-            feeds.append(contentsOf: newFeeds)
-            currentPage = nextPage
-            hasMorePages = newFeeds.count == pageSize
+            feeds.append(contentsOf: result.feeds)
+            nextCursor = result.nextCursor
+            hasMorePages = result.hasNext
         } catch {
             errorMessage = "더 많은 Feed를 불러오는데 실패했습니다: \(error.localizedDescription)"
         }

@@ -17,14 +17,14 @@ final class FeedRepositoryImpl: FeedRepository {
     }
 
     func fetchFeeds(
-        page: Int,
+        cursor: String? = nil,
         limit: Int,
         styleIds: [Int]? = nil,
         situationIds: [Int]? = nil,
         followingOnly: Bool = false
-    ) async throws -> [Feed] {
+    ) async throws -> FeedPageResult {
         return try await dataSource.fetchFeeds(
-            page: page,
+            cursor: cursor,
             limit: limit,
             styleIds: styleIds,
             situationIds: situationIds,
@@ -39,7 +39,7 @@ final class FeedRepositoryImpl: FeedRepository {
     func toggleLike(feedId: Int) async throws {
         try await dataSource.toggleLike(feedId: feedId)
     }
-    
+
     func fetchLikers(feedId: Int) async throws -> [User] {
         return try await dataSource.fetchLikers(feedId: feedId)
     }

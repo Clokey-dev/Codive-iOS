@@ -70,7 +70,6 @@ final class SplashViewModel: ObservableObject {
         appRouter.finishSplash()
         return
 
-        /*
         // 1. 키체인에 토큰이 있는지 확인
         guard tokenService.hasValidTokens() else {
             appRouter.finishSplash()
@@ -91,7 +90,6 @@ final class SplashViewModel: ObservableObject {
 
         // 4. 토큰 재발급
         await reissueTokens()
-        */
     }
 
     private func reissueTokens() async {

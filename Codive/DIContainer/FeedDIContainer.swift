@@ -26,7 +26,7 @@ final class FeedDIContainer {
     }()
 
     private lazy var feedDataSource: FeedDataSource = {
-        return MockFeedDataSource()
+        return DefaultFeedDataSource()
     }()
 
     // MARK: - Repositories

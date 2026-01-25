@@ -51,8 +51,14 @@ final class MockFeedRepository: FeedRepository {
         }
     }
 
-    func fetchFeeds(page: Int, limit: Int, styleIds: [Int]?, situationIds: [Int]?, followingOnly: Bool) async throws -> [Feed] {
-        return []
+    func fetchFeeds(
+        cursor: String?,
+        limit: Int,
+        styleIds: [Int]?,
+        situationIds: [Int]?,
+        followingOnly: Bool
+    ) async throws -> FeedPageResult {
+        return FeedPageResult(feeds: [], nextCursor: nil, hasNext: false)
     }
 
     func fetchFeedDetail(feedId: Int) async throws -> Feed {
