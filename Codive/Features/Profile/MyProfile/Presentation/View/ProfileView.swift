@@ -21,10 +21,10 @@ struct ProfileView: View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
                 topBar
-                
+
                 profileSection
                     .padding(.top, 32)
-                
+
                 Divider()
                     .padding(.top, 24)
                     .foregroundStyle(Color.Codive.grayscale7)
@@ -39,6 +39,9 @@ struct ProfileView: View {
             }
         }
         .background(Color.white)
+        .task {
+            await viewModel.loadMyProfile()
+        }
     }
 
     // MARK: - Top Bar
@@ -71,11 +74,45 @@ struct ProfileView: View {
     // MARK: - Profile
     private var profileSection: some View {
         VStack {
-            Image("CustomProfile")
-                .resizable()
-                .scaledToFill()
-                .frame(width: 80, height: 80)
-                .clipShape(Circle())
+            if let profileImageUrl = viewModel.profileImageUrl, let url = URL(string: profileImageUrl) {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 80, height: 80)
+                            .clipShape(Circle())
+                    case .empty, .failure:
+                        Image(systemName: "person.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 80, height: 80)
+                            .clipShape(Circle())
+                            .foregroundColor(.gray)
+                            .background(Color.gray.opacity(0.1))
+                            .clipShape(Circle())
+                    @unknown default:
+                        Image(systemName: "person.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 80, height: 80)
+                            .clipShape(Circle())
+                            .foregroundColor(.gray)
+                            .background(Color.gray.opacity(0.1))
+                            .clipShape(Circle())
+                    }
+                }
+            } else {
+                Image(systemName: "person.fill")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 80, height: 80)
+                    .clipShape(Circle())
+                    .foregroundColor(.gray)
+                    .background(Color.gray.opacity(0.1))
+                    .clipShape(Circle())
+            }
 
             Text(viewModel.displayName)
                 .font(.codive_title2)

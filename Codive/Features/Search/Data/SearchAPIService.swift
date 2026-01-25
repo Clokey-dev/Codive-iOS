@@ -69,7 +69,7 @@ final class SearchAPIService: SearchAPIServiceProtocol {
                 return SimpleUser(
                     userId: Int(userId),
                     nickname: member.nickname ?? "",
-                    handle: member.clokeyId ?? "",
+                    handle: member.nickname ?? "",
                     avatarURL: member.profileImageUrl.flatMap { URL(string: $0) }
                 )
             }

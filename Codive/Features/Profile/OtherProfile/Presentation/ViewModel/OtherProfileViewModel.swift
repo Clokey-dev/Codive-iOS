@@ -48,11 +48,11 @@ class OtherProfileViewModel: ObservableObject {
     }
     
     func onFollowerTapped() {
-        navigationRouter.navigate(to: .followList(mode: .followers))
+        navigationRouter.navigate(to: .followList(mode: .followers, memberId: 0)) // TODO: 실제 userId로 변경 필요
     }
-    
+
     func onFollowingTapped() {
-        navigationRouter.navigate(to: .followList(mode: .followings))
+        navigationRouter.navigate(to: .followList(mode: .followings, memberId: 0)) // TODO: 실제 userId로 변경 필요
     }
     
     func onFollowButtonTapped() {

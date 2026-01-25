@@ -11,9 +11,9 @@ struct FollowListView: View {
     @ObservedObject private var navigationRouter: NavigationRouter
     @StateObject private var viewModel: FollowListViewModel
 
-    init(mode: FollowListMode, navigationRouter: NavigationRouter) {
+    init(mode: FollowListMode, memberId: Int, navigationRouter: NavigationRouter) {
         self.navigationRouter = navigationRouter
-        _viewModel = StateObject(wrappedValue: FollowListViewModel(mode: mode))
+        _viewModel = StateObject(wrappedValue: FollowListViewModel(mode: mode, memberId: memberId))
     }
 
     var body: some View {
@@ -44,5 +44,8 @@ struct FollowListView: View {
         }
         .background(Color.white)
         .navigationBarBackButtonHidden(true)
+        .task {
+            await viewModel.load()
+        }
     }
 }

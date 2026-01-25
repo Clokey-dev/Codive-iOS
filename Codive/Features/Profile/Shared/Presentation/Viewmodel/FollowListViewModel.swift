@@ -10,27 +10,40 @@ import SwiftUI
 
 final class FollowListViewModel: ObservableObject {
     @Published private(set) var items: [FollowRowItem] = []
-    let mode: FollowListMode
+    @Published var isLoading: Bool = false
+    @Published var errorMessage: String?
 
-    init(mode: FollowListMode) {
+    let mode: FollowListMode
+    private let profileAPIService: ProfileAPIServiceProtocol
+    private let memberId: Int
+
+    init(mode: FollowListMode, memberId: Int, profileAPIService: ProfileAPIServiceProtocol = ProfileAPIService()) {
         self.mode = mode
-        load()
+        self.memberId = memberId
+        self.profileAPIService = profileAPIService
     }
 
-    func load() {
-        // 실제 구현에서는 mode에 따라 API 분기
+    func load() async {
+        isLoading = true
+        errorMessage = nil
 
-        if mode == .followers {
-            items = [
-                .init(user: .init(userId: 1, nickname: "닉네임", handle: "아이디", avatarURL: nil), isFollowing: false),
-                .init(user: .init(userId: 2, nickname: "닉네임", handle: "아이디", avatarURL: nil), isFollowing: true)
-            ]
-        } else {
-            items = [
-                .init(user: .init(userId: 3, nickname: "닉네임", handle: "아이디", avatarURL: nil), isFollowing: true),
-                .init(user: .init(userId: 4, nickname: "닉네임", handle: "아이디", avatarURL: nil), isFollowing: true)
-            ]
+        do {
+            let result = try await profileAPIService.fetchFollows(
+                memberId: memberId,
+                isFollowing: mode == .followings,
+                lastFollowId: nil,
+                size: 20
+            )
+
+            self.items = result.followers.map { user in
+                FollowRowItem(user: user, isFollowing: true)
+            }
+        } catch {
+            self.errorMessage = error.localizedDescription
+            print("팔로우 목록 로드 실패: \(error.localizedDescription)")
         }
+
+        isLoading = false
     }
 
     func onTapButton(userId: UserID) {

@@ -43,7 +43,7 @@ extension Comment {
     static func from(apiResponse: Components.Schemas.CommentListResponse) -> Comment {
         let user = User(
             id: String(apiResponse.memberId ?? 0),
-            nickname: apiResponse.nickName ?? "",
+            nickname: apiResponse.nickname ?? "",
             profileImageUrl: apiResponse.profileImageUrl
         )
 
@@ -61,7 +61,7 @@ extension Comment {
     static func from(apiResponse: Components.Schemas.ReplyListResponse) -> Comment {
         let user = User(
             id: String(apiResponse.memberId ?? 0),
-            nickname: apiResponse.nickName ?? "",
+            nickname: apiResponse.nickname ?? "",
             profileImageUrl: apiResponse.profileImageUrl
         )
 

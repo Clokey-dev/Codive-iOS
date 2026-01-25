@@ -190,8 +190,8 @@ struct MainTabView: View {
             FavoriteCodiView(showHeart: showHeart, navigationRouter: navigationRouter)
         case .settings:
             ProfileSettingView(navigationRouter: navigationRouter)
-        case .followList(let mode):
-            FollowListView(mode: mode, navigationRouter: navigationRouter)
+        case .followList(let mode, let memberId):
+            FollowListView(mode: mode, memberId: memberId, navigationRouter: navigationRouter)
         case .myCloset:
             closetDIContainer.makeMyClosetView()
         case .clothDetail, .clothEdit:
