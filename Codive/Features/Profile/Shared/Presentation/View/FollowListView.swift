@@ -13,7 +13,7 @@ struct FollowListView: View {
 
     init(viewModel: FollowListViewModel, navigationRouter: NavigationRouter) {
         self._viewModel = ObservedObject(wrappedValue: viewModel)
-        self.navigationRouter = navigationRouter
+        self._navigationRouter = ObservedObject(wrappedValue: navigationRouter)
     }
 
     var body: some View {

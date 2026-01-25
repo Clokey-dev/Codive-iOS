@@ -14,7 +14,7 @@ struct ProfileSettingView: View {
 
     init(viewModel: ProfileSettingViewModel, navigationRouter: NavigationRouter) {
         self._viewModel = ObservedObject(wrappedValue: viewModel)
-        self.navigationRouter = navigationRouter
+        self._navigationRouter = ObservedObject(wrappedValue: navigationRouter)
     }
 
     enum Field: Hashable {
@@ -190,5 +190,5 @@ struct ProfileSettingView: View {
 }
 
 #Preview {
-    ProfileSettingView(navigationRouter: NavigationRouter())
+    EmptyView()
 }

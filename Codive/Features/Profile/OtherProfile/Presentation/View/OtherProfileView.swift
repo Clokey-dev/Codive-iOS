@@ -14,7 +14,7 @@ struct OtherProfileView: View {
 
     init(viewModel: OtherProfileViewModel, navigationRouter: NavigationRouter) {
         self._viewModel = ObservedObject(wrappedValue: viewModel)
-        self.navigationRouter = navigationRouter
+        self._navigationRouter = ObservedObject(wrappedValue: navigationRouter)
     }
 
     var body: some View {
@@ -218,5 +218,5 @@ struct OtherProfileView: View {
 }
 
 #Preview {
-    OtherProfileView(navigationRouter: NavigationRouter())
+    EmptyView()
 }
