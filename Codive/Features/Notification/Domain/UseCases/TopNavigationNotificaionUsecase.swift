@@ -1,5 +1,5 @@
 //
-//  TopBarNotificaionUsecase.swift
+//  TopNavigationNotificaionUsecase.swift
 //  Codive
 //
 //  Created by 한금준 on 1/25/26.
@@ -7,11 +7,11 @@
 
 import Foundation
 
-final class TopBarNotificaionUsecase {
+final class TopNavigationNotificaionUsecase {
 
-    private let repository: HomeRepository
+    private let repository: NotificationRepository
 
-    init(repository: HomeRepository) {
+    init(repository: NotificationRepository) {
         self.repository = repository
     }
 

@@ -53,3 +53,7 @@ struct NotificationListResponseItem {
         )
     }
 }
+
+struct NotificationExistAPIResponseDTO {
+    let existsUnreadNotification: Bool
+}

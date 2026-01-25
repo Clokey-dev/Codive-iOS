@@ -15,7 +15,7 @@ final class NotificationRepositoryImpl: NotificationRepository {
     }
     
     // MARK: - Methods
-    func patchEachNotification(notificationId: Int64) async throws{
+    func patchEachNotification(notificationId: Int64) async throws {
         try await datasource.patchEachNotification(notificationId: notificationId)
     }
     
@@ -28,5 +28,9 @@ final class NotificationRepositoryImpl: NotificationRepository {
             lastNotificationId: lastNotificationId,
             size: size
         )
+    }
+    
+    func fetchNotificationExist() async throws -> NotificationExistAPIResponseDTO  {
+        return try await datasource.fetchNotificationExist()
     }
 }

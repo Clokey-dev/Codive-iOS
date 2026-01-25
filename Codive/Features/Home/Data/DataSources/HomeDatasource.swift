@@ -18,8 +18,6 @@ protocol HomeDatasourceProtocol {
     ) async throws -> (content: [HomeClothEntity], isLast: Bool)
     
     func postTodayTemp(request: PostTodayTemperatureAPIRequestDTO) async throws
-    
-    func fetchNotificationExist() async throws -> NotificationExistAPIResponseDTO
 }
 
 final class HomeDatasource: HomeDatasourceProtocol {
@@ -156,10 +154,6 @@ final class HomeDatasource: HomeDatasourceProtocol {
     /// 오늘의 날씨 보내기
     func postTodayTemp(request: PostTodayTemperatureAPIRequestDTO) async throws {
         try await apiService.postTodayTemp(request: request)
-    }
-    
-    func fetchNotificationExist() async throws -> NotificationExistAPIResponseDTO {
-        return try await apiService.fetchNotificationExist()
     }
 }
 

@@ -25,6 +25,8 @@ final class NotificationDIContainer {
     
     lazy var notificationUseCase = NotificationUseCase(repository: notificationRepository)
     
+    lazy var topNavigationNotificaionUsecase = TopNavigationNotificaionUsecase(repository: notificationRepository)
+    
     init(navigationRouter: NavigationRouter) {
         self.navigationRouter = navigationRouter
     }

@@ -16,6 +16,7 @@ protocol NotificationAPIServiceProtocol {
     func patchEachNotification(notificationId: Int64) async throws
     func patchAllNotification() async throws
     func fetchNotificationList(lastNotificationId: Int64?, size: Int32) async throws -> NotificationListResponseDTO
+    func fetchNotificationExist() async throws -> NotificationExistAPIResponseDTO
 }
 
 final class NotificationAPIService: NotificationAPIServiceProtocol {
@@ -101,6 +102,33 @@ extension NotificationAPIService {
             
         case .undocumented(statusCode: let code, _):
             throw NotificationAPIError.serverError(statusCode: code, message: "개별 룩북 코디 목록 조회 실패")
+        }
+    }
+}
+
+extension NotificationAPIService {
+    
+    func fetchNotificationExist() async throws -> NotificationExistAPIResponseDTO {
+        
+        let input = Operations.Notification_existsUnreadNotification.Input()
+        
+        let response = try await client.Notification_existsUnreadNotification(input)
+        
+        switch response {
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseUnreadNotificationResponse.self, from: data)
+            
+            guard let exists = decoded.result?.existsUnreadNotification else {
+                throw HomeAPIError.invalidResponse
+            }
+            
+            return NotificationExistAPIResponseDTO(
+                existsUnreadNotification: exists
+            )
+            
+        case .undocumented(statusCode: let code, _):
+            throw NotificationAPIError.serverError(statusCode: code, message: "안읽은 알림 존재 유무 확인 실패")
         }
     }
 }

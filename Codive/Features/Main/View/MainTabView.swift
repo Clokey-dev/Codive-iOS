@@ -36,7 +36,10 @@ struct MainTabView: View {
         self.lookBookDIContainer = appDIContainer.makeLookBookDIContainer()
 
         self._navigationRouter = ObservedObject(wrappedValue: appDIContainer.navigationRouter)
-        let viewModel = MainTabViewModel(navigationRouter: appDIContainer.navigationRouter)
+        let viewModel = MainTabViewModel(
+            navigationRouter: appDIContainer.navigationRouter,
+            notificationUsecase: notificationDIContainer.topNavigationNotificaionUsecase
+        )
         self._viewModel = StateObject(wrappedValue: viewModel)
         self.homeViewModel = homeDIContainer.makeHomeViewModel()
     }
@@ -53,6 +56,7 @@ struct MainTabView: View {
                             TopNavigationBar(
                                 showSearchButton: showSearchButton,
                                 showNotificationButton: showNotificationButton,
+                                hasUnreadNotification: viewModel.hasUnreadNotification,
                                 onSearchTap: viewModel.handleSearchTap,
                                 onNotificationTap: viewModel.handleNotificationTap
                             )
@@ -133,6 +137,9 @@ struct MainTabView: View {
                     .zIndex(100)
                     .transition(.opacity)
             }
+        }
+        .onAppear {
+            viewModel.loadNotificationExist()
         }
     }
     
