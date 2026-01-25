@@ -87,7 +87,7 @@ struct OtherProfileView: View {
     // MARK: - Profile
     private var profileSection: some View {
         VStack {
-            Image("CustomProfile")
+            Image("Profile")
                 .resizable()
                 .scaledToFill()
                 .frame(width: 80, height: 80)

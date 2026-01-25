@@ -75,9 +75,9 @@ struct CustomFeedCard: View {
                             .resizable()
                             .scaledToFill()
                     case .failure, .empty:
-                        Image(systemName: "person.circle.fill")
+                        Image("Profile")
                             .resizable()
-                            .foregroundColor(.gray)
+                            .scaledToFill()
                     @unknown default:
                         EmptyView()
                     }

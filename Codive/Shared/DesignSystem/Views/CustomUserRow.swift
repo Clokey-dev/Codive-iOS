@@ -58,11 +58,17 @@ struct CustomUserRow: View {
                         .resizable()
                         .scaledToFill()
                 case .empty:
-                    Color.Codive.grayscale4
+                    Image("Profile")
+                        .resizable()
+                        .scaledToFill()
                 case .failure:
-                    Color.Codive.grayscale4
+                    Image("Profile")
+                        .resizable()
+                        .scaledToFill()
                 @unknown default:
-                    Color.Codive.grayscale4
+                    Image("Profile")
+                        .resizable()
+                        .scaledToFill()
                 }
             }
             .frame(width: 40, height: 40)

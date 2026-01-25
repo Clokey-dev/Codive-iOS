@@ -157,7 +157,9 @@ struct CommentRow: View {
                 AsyncImage(url: URL(string: comment.author.profileImageUrl ?? "")) { image in
                     image.resizable().aspectRatio(contentMode: .fill)
                 } placeholder: {
-                    Circle().fill(Color.Codive.grayscale5)
+                    Image("Profile")
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
                 }
                 .frame(width: isReply ? 28 : 36, height: isReply ? 28 : 36)
                 .clipShape(Circle())

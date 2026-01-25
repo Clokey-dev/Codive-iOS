@@ -47,7 +47,7 @@ struct ReportView: View {
             Group {
                 HStack {
                     // 후에 실제 프로필 이미지 주입
-                    Image("CustomProfile")
+                    Image("Profile")
                         .resizable()
                         .scaledToFill()
                         .frame(width: 40, height: 40)

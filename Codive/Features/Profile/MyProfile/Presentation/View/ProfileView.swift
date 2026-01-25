@@ -84,33 +84,24 @@ struct ProfileView: View {
                             .frame(width: 80, height: 80)
                             .clipShape(Circle())
                     case .empty, .failure:
-                        Image(systemName: "person.fill")
+                        Image("Profile")
                             .resizable()
-                            .scaledToFit()
+                            .scaledToFill()
                             .frame(width: 80, height: 80)
-                            .clipShape(Circle())
-                            .foregroundColor(.gray)
-                            .background(Color.gray.opacity(0.1))
                             .clipShape(Circle())
                     @unknown default:
-                        Image(systemName: "person.fill")
+                        Image("Profile")
                             .resizable()
-                            .scaledToFit()
+                            .scaledToFill()
                             .frame(width: 80, height: 80)
-                            .clipShape(Circle())
-                            .foregroundColor(.gray)
-                            .background(Color.gray.opacity(0.1))
                             .clipShape(Circle())
                     }
                 }
             } else {
-                Image(systemName: "person.fill")
+                Image("Profile")
                     .resizable()
-                    .scaledToFit()
+                    .scaledToFill()
                     .frame(width: 80, height: 80)
-                    .clipShape(Circle())
-                    .foregroundColor(.gray)
-                    .background(Color.gray.opacity(0.1))
                     .clipShape(Circle())
             }
 

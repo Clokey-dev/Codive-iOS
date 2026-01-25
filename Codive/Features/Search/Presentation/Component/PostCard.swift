@@ -51,10 +51,9 @@ struct PostCard: View {
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
                         } else if phase.error != nil {
-                            Image(systemName: "person.circle.fill")
+                            Image("Profile")
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
-                                .foregroundStyle(Color.gray.opacity(0.3))
                         } else {
                             ProgressView()
                         }
@@ -62,10 +61,9 @@ struct PostCard: View {
                     .frame(width: profileImageSize, height: profileImageSize)
                     .clipShape(Circle())
                 } else {
-                    Image(systemName: "person.circle.fill")
+                    Image("Profile")
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .foregroundStyle(Color.gray.opacity(0.3))
                         .frame(width: profileImageSize, height: profileImageSize)
                         .clipShape(Circle())
                 }

@@ -57,13 +57,9 @@ struct ProfileSettingView: View {
                         .resizable()
                         .scaledToFill()
                 } else {
-                    Circle()
-                        .fill(Color.Codive.grayscale6)
-                        .overlay {
-                            Image("settingProfile")
-                                .resizable()
-                                .scaledToFit()
-                        }
+                    Image("Profile")
+                        .resizable()
+                        .scaledToFill()
                 }
             }
             .frame(width: 100, height: 100)
