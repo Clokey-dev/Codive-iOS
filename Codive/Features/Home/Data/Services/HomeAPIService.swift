@@ -13,9 +13,14 @@ import CryptoKit
 // MARK: - HomeCategoryAPIService Protocol
 
 protocol HomeAPIServiceProtocol {
+    /// 계절에 따른 카테고리별 옷 리스트
     func fetchRecommendCategoryCloth(lastClothId: Int64?, size: Int32, categoryId: Int64, season: [Season]) async throws -> HomeCategoryResponseDTO
     
+    /// 오늘의 온도 알림
     func postTodayTemp(request: PostTodayTemperatureAPIRequestDTO) async throws
+    
+    /// 오늘의 코디 생성
+    func createTodayCoordinate(request: CreateTodayCoordinateRequestDTO) async throws -> CreateTodayCoordinateResponseDTO
 }
 
 final class HomeAPIService: HomeAPIServiceProtocol {
@@ -77,6 +82,43 @@ extension HomeAPIService {
             return
         case .undocumented(statusCode: let code, _):
             throw HomeAPIError.serverError(statusCode: code, message: "오늘의 기온 알림 보내기 실패")
+        }
+    }
+}
+
+extension HomeAPIService {
+    func createTodayCoordinate(request: CreateTodayCoordinateRequestDTO) async throws -> CreateTodayCoordinateResponseDTO {
+        let requestBody = Components.Schemas.DailyCoordinateCreateRequest(
+            coordinateImageUrl: request.coordinateImageUrl,
+            payloads: request.payloads.map {
+                Components.Schemas.DailyCoordinateCreateRequestPayload(
+                    clothId: $0.clothId,
+                    locationX: $0.locationX,
+                    locationY: $0.locationY,
+                    ratio: $0.ratio,
+                    degree: $0.degree,
+                    order: $0.order
+                )
+            }
+        )
+        let input = Operations.Coordinate_createDailyCoordinate.Input(body: .json(requestBody))
+        let response = try await client.Coordinate_createDailyCoordinate(input)
+
+        switch response {
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+            let decoded = try jsonDecoder.decode(
+                Components.Schemas.BaseResponseCoordinateCreateResponse.self,
+                from: data
+            )
+
+            guard let coordinateId = decoded.result?.coordinateId else {
+                throw HomeAPIError.invalidResponse
+            }
+            return CreateTodayCoordinateResponseDTO(coordinateId: coordinateId)
+
+        case .undocumented(statusCode: let code, _):
+            throw HomeAPIError.serverError(statusCode: code, message: "오늘의 코디 생성 실패")
         }
     }
 }
