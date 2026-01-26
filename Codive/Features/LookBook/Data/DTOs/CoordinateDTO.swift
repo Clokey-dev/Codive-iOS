@@ -67,3 +67,11 @@ struct CreateAutoDailyCoordinateAPIRequestDTO {
 struct CreateAutoDailyCoordinateAPIResponseDTO {
     let coordinateId: Int64
 }
+
+struct GetTodayCoordinateClothResponseDTO {
+    let imageUrl: String
+    let brand: String
+    let name: String
+    let category: String
+    let parentCategory: String
+}

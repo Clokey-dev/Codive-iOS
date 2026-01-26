@@ -43,6 +43,9 @@ protocol LookBookAPIServiceProtocol {
         coordinateId: Int64
     ) async throws -> [CoordinateDetailResponseDTO]
     
+    /// 오늘의 코디 옷 정보 조회
+    func fetchTodayCoordinateClothes() async throws -> [GetTodayCoordinateClothResponseDTO]
+    
     /// 룩북 생성
     func createLookBook(request: CreateLookBookAPIRequestDTO) async throws -> CreateLookBookResponseDTO
     
@@ -256,6 +259,34 @@ extension LookBookAPIService {
             
         case .undocumented(statusCode: let code, _):
             throw LookBookAPIError.serverError(statusCode: code, message: "코디 detail 조회 실패")
+        }
+    }
+    
+    func fetchTodayCoordinateClothes() async throws -> [GetTodayCoordinateClothResponseDTO] {
+        let input = Operations.Coordinate_getTodayDailyCoordinateClothes.Input()
+        
+        let response = try await client.Coordinate_getTodayDailyCoordinateClothes(input)
+        
+        switch response {
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+
+            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseListDailyCoordinateClothResponse.self, from: data)
+            
+            let items = decoded.result ?? []
+
+            return items.map { item in
+                GetTodayCoordinateClothResponseDTO(
+                    imageUrl: item.imageUrl ?? "",
+                    brand: item.brand ?? "",
+                    name: item.name ?? "",
+                    category: item.category ?? "",
+                    parentCategory: item.parentCategory ?? ""
+                )
+            }
+            
+        case .undocumented(statusCode: let code, _):
+            throw LookBookAPIError.serverError(statusCode: code, message: "오늘의 코디 옷 정보 조회 실패")
         }
     }
 }
