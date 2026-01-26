@@ -40,7 +40,12 @@ struct CommentView: View {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 24) {
                     ForEach(viewModel.comments) { comment in
-                        CommentRow(comment: comment, viewModel: viewModel)
+                        CommentRow(
+                            comment: comment,
+                            replyingToCommentId: viewModel.replyingToCommentId,
+                            onReplyTap: { viewModel.setReplyingTo(commentId: $0) },
+                            onFetchRepliesTap: { viewModel.fetchReplies(for: $0) }
+                        )
                     }
                     if viewModel.isLoading {
                         ProgressView()
@@ -145,7 +150,9 @@ struct CommentView: View {
 struct CommentRow: View {
     let comment: Comment
     var isReply: Bool = false
-    @ObservedObject var viewModel: CommentViewModel
+    let replyingToCommentId: Int?
+    let onReplyTap: (Int) -> Void
+    let onFetchRepliesTap: (Int) -> Void
 
     @State private var isExpanded: Bool = false
 
@@ -163,7 +170,7 @@ struct CommentRow: View {
                 }
                 .frame(width: isReply ? 28 : 36, height: isReply ? 28 : 36)
                 .clipShape(Circle())
-                
+
                 VStack(alignment: .leading, spacing: 4) {
                     // 닉네임
                     HStack(spacing: 4) {
@@ -177,30 +184,30 @@ struct CommentRow: View {
                                 .foregroundStyle(Color.Codive.main0)
                         }
                     }
-                    
+
                     // 댓글내용
                     Text(comment.content)
                         .font(.codive_body3_regular)
                         .foregroundStyle(Color.Codive.grayscale2)
                         .fixedSize(horizontal: false, vertical: true)
                         .lineSpacing(4)
-                    
+
                     Button(action: {
-                        viewModel.setReplyingTo(commentId: comment.id)
+                        onReplyTap(comment.id)
                     }, label: {
                         Text(TextLiteral.Comment.addReply)
                             .font(.codive_body3_regular)
                             .foregroundStyle(Color.Codive.grayscale4)
                     })
                     .padding(.top, 4)
-                    
+
                     // MARK: 답글 더보기/숨기기 버튼
                     if comment.hasReplies {
                         Button(action: {
                             withAnimation(.easeOut(duration: 0.2)) {
                                 isExpanded.toggle()
                                 if isExpanded && (comment.replies?.isEmpty ?? true) {
-                                    viewModel.fetchReplies(for: comment.id)
+                                    onFetchRepliesTap(comment.id)
                                 }
                             }
                         }, label: {
@@ -218,19 +225,25 @@ struct CommentRow: View {
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                
+
                 Button(action: {}, label: {
                     Image("more")
                         .font(.system(size: 12))
                 })
             }
             .padding(.leading, isReply ? 40 : 0)
-            
+
             // MARK: 답글 리스트
             if isExpanded, let replies = comment.replies {
                 VStack(alignment: .leading, spacing: 20) {
                     ForEach(replies) { reply in
-                        CommentRow(comment: reply, isReply: true, viewModel: viewModel)
+                        CommentRow(
+                            comment: reply,
+                            isReply: true,
+                            replyingToCommentId: replyingToCommentId,
+                            onReplyTap: onReplyTap,
+                            onFetchRepliesTap: onFetchRepliesTap
+                        )
                     }
                 }
                 .padding(.top, 10)
@@ -261,3 +274,44 @@ struct CommentView_Previews: PreviewProvider {
             .previewDisplayName("댓글과 답글")
     }
 }
+
+#if DEBUG
+// MARK: - CommentRow Preview
+struct CommentRow_Previews: PreviewProvider {
+    static var previews: some View {
+        let mockComment = Comment(
+            id: 1,
+            content: "좋은 코디네요! 스타일이 정말 멋있습니다.",
+            author: User(
+                id: "1",
+                nickname: "패셔니스타",
+                profileImageUrl: nil
+            ),
+            isMine: false,
+            hasReplies: true,
+            replies: [
+                Comment(
+                    id: 2,
+                    content: "감사합니다! 피드백 정말 고마워요 😊",
+                    author: User(
+                        id: "2",
+                        nickname: "코디장인",
+                        profileImageUrl: nil
+                    ),
+                    isMine: true,
+                    hasReplies: false,
+                    replies: []
+                )
+            ]
+        )
+
+        return CommentRow(
+            comment: mockComment,
+            replyingToCommentId: nil,
+            onReplyTap: { _ in },
+            onFetchRepliesTap: { _ in }
+        )
+        .previewDisplayName("댓글 아이템")
+    }
+}
+#endif

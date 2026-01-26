@@ -135,6 +135,12 @@ private extension LikerDTO {
 }
 
 extension HistoryDetailDTO {
+    private static let iso8601DateFormatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withFullDate, .withDashSeparatorInDate]
+        return formatter
+    }()
+
     func toDomain(feedId: Int) -> Feed {
         let author = User(
             id: String(memberId),
@@ -150,9 +156,7 @@ extension HistoryDetailDTO {
         let styleNames = styles.map { $0.styleName }
 
         // historyDate를 Date로 변환
-        let dateFormatter = ISO8601DateFormatter()
-        dateFormatter.formatOptions = [.withFullDate, .withDashSeparatorInDate]
-        let createdAtDate = historyDate.flatMap { dateFormatter.date(from: $0) }
+        let createdAtDate = historyDate.flatMap { Self.iso8601DateFormatter.date(from: $0) }
 
         return Feed(
             id: feedId,
