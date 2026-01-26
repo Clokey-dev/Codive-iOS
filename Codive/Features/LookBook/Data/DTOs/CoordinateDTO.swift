@@ -40,6 +40,13 @@ struct CreateManualCoordinateAPIResponseDTO {
     let coordinateId: Int64
 }
 
+struct EditCoordinateRequestDTO {
+    let coordinateImageUrl: String?
+    let name: String?
+    let memo: String?
+    let payloads: [Payloads]?
+}
+
 struct Payloads {
     let clothId: Int64
     let locationX: Double
@@ -49,11 +56,14 @@ struct Payloads {
     let order: Int32
 }
 
-struct EditCoordinateRequestDTO {
-    let coordinateImageUrl: String?
-    let name: String?
-    let memo: String?
-    let payloads: [Payloads]?
+
+struct CreateAutoDailyCoordinateAPIRequestDTO {
+    let name : String
+    let memo : String
+    let dailyCoordinateId : Int64
+    let lookBookId : Int64
 }
 
-
+struct CreateAutoDailyCoordinateAPIResponseDTO {
+    let coordinateId: Int64
+}
