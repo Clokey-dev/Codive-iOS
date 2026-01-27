@@ -15,6 +15,17 @@ struct SearchRecommendationResponseDTO {
     let title: String
     let subTitle: String
     let imageUrl: String
+    
+    func toEntity() -> SearchRecommendationEntity {
+        return SearchRecommendationEntity(
+            historyId: historyId,
+            memberId: memberId,
+            recommendType: recommendType,
+            title: title,
+            subTitle: subTitle,
+            imageUrl: imageUrl
+        )
+    }
 }
 
 /// 유저 검색
@@ -27,6 +38,14 @@ struct SearchUserResponseItem {
     let memberId: Int64
     let profileImageUrl: String
     let nickname: String
+    
+    func toEntity() -> SearchMembersEntity {
+        return SearchMembersEntity(
+            memberId: memberId,
+            profileImageUrl: profileImageUrl,
+            nickname: nickname
+        )
+    }
 }
 
 /// 기록 검색
@@ -40,4 +59,14 @@ struct SearchHistoryResponseItem {
     let historyImageUrl: String
     let profileImageUrl: String
     let nickname: String
+    
+    
+    func toEntity() -> SearchHistoriesEntity {
+        return SearchHistoriesEntity(
+            historyId: historyId,
+            historyImageUrl: historyImageUrl,
+            profileImageUrl: profileImageUrl,
+            nickname: nickname
+        )
+    }
 }
