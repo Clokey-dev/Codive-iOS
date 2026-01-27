@@ -35,11 +35,16 @@ final class HomeRepositoryImpl: HomeRepository {
         categoryId: Int64,
         season: Set<Season>
     ) async throws -> (content: [HomeClothEntity], isLast: Bool) {
-        return try await dataSource.fetchRecommendCategoryCloth(
+        let dto = try await dataSource.fetchRecommendCategoryCloth(
             lastClothId: lastClothId,
             size: size,
             categoryId: categoryId,
             season: season
+        )
+        
+        return (
+            content: dto.content.map { $0.toEntity(categoryId: categoryId) },
+            isLast: dto.isLast
         )
     }
     

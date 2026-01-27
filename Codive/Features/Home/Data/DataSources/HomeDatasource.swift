@@ -10,14 +10,22 @@ import WeatherKit
 import CoreLocation
 
 protocol HomeDatasourceProtocol {
+    /// 계절에 따른 카테고리별 옷 리스트
     func fetchRecommendCategoryCloth(
         lastClothId: Int64?,
         size: Int,
         categoryId: Int64,
         season: Set<Season>
-    ) async throws -> (content: [HomeClothEntity], isLast: Bool)
+    ) async throws -> HomeCategoryResponseDTO
     
+    /// 오늘의 온도 알림
     func postTodayTemp(request: PostTodayTemperatureAPIRequestDTO) async throws
+    
+    /// 오늘의 코디 생성
+    func createTodayCoordinate(request: CreateTodayCoordinateRequestDTO) async throws -> CreateTodayCoordinateResponseDTO
+    
+    /// 오늘의 코디 옷 정보 조회
+    func fetchTodayCoordinateClothes() async throws -> [GetTodayCoordinateClothResponseDTO]
 }
 
 final class HomeDatasource: HomeDatasourceProtocol {
@@ -25,9 +33,7 @@ final class HomeDatasource: HomeDatasourceProtocol {
     // MARK: - Properties
     private let service = WeatherService.shared
     private let locationService: LocationService
-    
     private var cachedLocation: CLLocation?
-    
     private let apiService: HomeAPIServiceProtocol
     
     // MARK: - Initializer
@@ -137,23 +143,28 @@ final class HomeDatasource: HomeDatasourceProtocol {
         size: Int,
         categoryId: Int64,
         season seasons: Set<Season>
-    ) async throws -> (content: [HomeClothEntity], isLast: Bool) {
-        let result = try await apiService.fetchRecommendCategoryCloth(
-            lastClothId: lastClothId.map { Int64($0) },
+    ) async throws -> HomeCategoryResponseDTO {
+        return try await apiService.fetchRecommendCategoryCloth(
+            lastClothId: lastClothId,
             size: Int32(size),
             categoryId: categoryId,
             season: Array(seasons)
-        )
-        
-        return (
-            content: result.content.map { $0.toEntity(categoryId: categoryId) },
-            isLast: result.isLast
         )
     }
     
     /// 오늘의 날씨 보내기
     func postTodayTemp(request: PostTodayTemperatureAPIRequestDTO) async throws {
         try await apiService.postTodayTemp(request: request)
+    }
+    
+    /// 오늘의 코디 생성
+    func createTodayCoordinate(request: CreateTodayCoordinateRequestDTO) async throws -> CreateTodayCoordinateResponseDTO {
+        return try await apiService.createTodayCoordinate(request: request)
+    }
+    
+    /// 오늘의 코디 옷 정보 조회
+    func fetchTodayCoordinateClothes() async throws -> [GetTodayCoordinateClothResponseDTO] {
+        return try await apiService.fetchTodayCoordinateClothes()
     }
 }
 
