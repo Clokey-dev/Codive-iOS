@@ -37,7 +37,7 @@ final class LookBookMainUseCase {
         return try await repository.createLookBook(request: request)
     }
 
-    /// 선택된 룩북 삭제
+    /// 룩북 삭제
     func deleteLookBook(lookBookId: Int64) async throws {
         try await repository.deleteLookBook(lookBookId: lookBookId)
     }

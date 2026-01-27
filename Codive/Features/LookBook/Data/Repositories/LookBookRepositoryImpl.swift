@@ -138,7 +138,6 @@ final class LookBookRepositoryImpl: LookBookRepository {
     func createAutoDailyCoordinate(
         request: CreateAutoDailyCoordinateAPIRequestDTO
     ) async throws -> AutoDailyCoordinateEntity {
-
         let dto = try await datasource.createAutoDailyCoordinate(request: request)
         return dto.toEntity()
     }

@@ -16,8 +16,6 @@ final class ProductUseCase {
     }
 
     // MARK: - Product
-
-    /// 코디 구성에 사용되는 상품 목록 조회
     func fetchProductList() async throws -> [ProductItem] {
         try await repository.fetchProductList()
     }

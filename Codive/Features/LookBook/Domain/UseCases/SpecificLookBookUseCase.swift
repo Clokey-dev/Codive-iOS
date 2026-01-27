@@ -38,14 +38,14 @@ final class SpecificLookBookUseCase {
     func updateLookBook(lookBookId: Int64, request: UpdateLookBookAPIRequestDTO) async throws {
         try await repository.updateLookBook(lookBookId: lookBookId, request: request)
     }
-    
-    /// 코디 좋아요 상태 변경
+}
+
+extension SpecificLookBookUseCase {
     func toggleLike(coordinateId: Int, isLiked: Bool) async throws {
         let request = CodiLikeEntity(coordinateId: coordinateId)
         try await repository.toggleCodiLike(request, isLiked: isLiked)
     }
     
-    /// 코디 삭제
     func deleteCodis(ids: [Int], lookbookId: Int) async throws {
         let requests = ids.map {
             DeleteCodiEntity(coordinateId: $0)
