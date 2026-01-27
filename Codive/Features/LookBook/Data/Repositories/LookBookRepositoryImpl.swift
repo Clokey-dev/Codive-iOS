@@ -21,10 +21,15 @@ final class LookBookRepositoryImpl: LookBookRepository {
         size: Int32,
         direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
     ) async throws -> (content: [LookBookEntity], isLast: Bool) {
-        return try await datasource.fetchLookBookList(
+        let dto = try await datasource.fetchLookBookList(
             lastLookBookId: lastLookBookId,
             size: size,
             direction: direction
+        )
+        
+        return (
+            content: dto.content.map { $0.toEntity() },
+            isLast: dto.isLast
         )
     }
     
@@ -34,11 +39,16 @@ final class LookBookRepositoryImpl: LookBookRepository {
         size: Int32,
         direction: Operations.LookBook_getCoordinates.Input.Query.directionPayload
     ) async throws -> (content: [SpecificLookBookCodiEntity], isLast: Bool) {
-        return try await datasource.fetchLookBookCoordinateList(
+        let dto = try await datasource.fetchLookBookCoordinateList(
             lookBookId: lookBookId,
             lastCoordinateId: lastCoordinateId,
             size: size,
             direction: direction
+        )
+
+        return (
+            content: dto.content.map { $0.toEntity() },
+            isLast: dto.isLast
         )
     }
     
