@@ -11,29 +11,40 @@ import Foundation
 final class SearchDIContainer {
     
     let navigationRouter: NavigationRouter
+    
+    private lazy var searchAPIService: SearchAPIServiceProtocol = {
+        return SearchAPIService()
+    }()
+    
+    // MARK: - Factories
     lazy var searchViewFactory = SearchViewFactory(searchDIContainer: self)
     
-    lazy var searchDataSource = SearchDataSource()
+    // MARK: - DataSources
+    private lazy var searchDataSource: SearchDataSource = {
+        return SearchDataSource(apiService: searchAPIService)
+    }()
     
     lazy var searchRepository: SearchRepository = SearchRepositoryImpl(datasource: searchDataSource)
-    
-    lazy var searchUseCase = SearchUseCase(repository: searchRepository)
     
     init(navigationRouter: NavigationRouter) {
         self.navigationRouter = navigationRouter
     }
     
+    func makeSearchUseCase() -> SearchUseCase {
+        return SearchUseCase(repository: searchRepository)
+    }
+    
     func makeSearchViewModel() -> SearchViewModel {
         return SearchViewModel(
             navigationRouter: navigationRouter,
-            useCase: searchUseCase
+            useCase: makeSearchUseCase()
         )
     }
     
     func makeSearchResultViewModel(initialQuery: String) -> SearchResultViewModel {
         return SearchResultViewModel(
             navigationRouter: navigationRouter,
-            useCase: searchUseCase,
+            useCase: makeSearchUseCase(),
             initialQuery: initialQuery
         )
     }

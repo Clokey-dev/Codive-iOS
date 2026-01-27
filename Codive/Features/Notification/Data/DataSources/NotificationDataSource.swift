@@ -12,7 +12,7 @@ protocol NotificationDataSourceProtocol {
     
     func patchAllNotification() async throws
     
-    func fetchNotificationList(lastNotificationId: Int64?, size: Int32) async throws -> (content: [NotificationEntity], isLast: Bool)
+    func fetchNotificationList(lastNotificationId: Int64?, size: Int32) async throws -> NotificationListResponseDTO
     
     func fetchNotificationExist() async throws -> NotificationExistAPIResponseDTO
     
@@ -42,15 +42,10 @@ final class NotificationDataSource: NotificationDataSourceProtocol {
     }
     
     /// 알림 목록 조회
-    func fetchNotificationList(lastNotificationId: Int64?, size: Int32) async throws -> (content: [NotificationEntity], isLast: Bool) {
-        let result = try await apiService.fetchNotificationList(
+    func fetchNotificationList(lastNotificationId: Int64?, size: Int32) async throws -> NotificationListResponseDTO {
+        return try await apiService.fetchNotificationList(
             lastNotificationId: lastNotificationId,
             size: size
-        )
-
-        return (
-            content: result.content.map { $0.toEntity() },
-            isLast: result.isLast
         )
     }
     
