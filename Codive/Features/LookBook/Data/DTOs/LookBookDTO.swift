@@ -36,10 +36,12 @@ struct LookBookListResponseItem {
     }
 }
 
+/// 룩북 생성
 struct CreateLookBookAPIRequestDTO {
     let name: String
 }
 
+/// 룩북 생성
 struct CreateLookBookResponseDTO {
     let lookBookId: Int64
 }

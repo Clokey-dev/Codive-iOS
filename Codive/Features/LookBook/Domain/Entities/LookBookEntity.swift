@@ -7,7 +7,7 @@
 
 import Foundation
 
-// 룩북 전체 조회 api의 responseDTO의 content
+// 룩북 조회
 struct LookBookEntity: Identifiable {
     let lookBookId: Int64
     var lookbookName: String
@@ -17,7 +17,7 @@ struct LookBookEntity: Identifiable {
     var id: Int64 { lookBookId }
 }
 
-// 개별 룩북 코디 목록 조회 api의 responseDTO의 content
+// 특정 룩북의 코디 목록 조회
 struct SpecificLookBookCodiEntity: Identifiable {
     let coordinateId: Int64
     let coordinateName: String
@@ -27,7 +27,7 @@ struct SpecificLookBookCodiEntity: Identifiable {
     var id: Int64 { coordinateId }
 }
 
-// 과거 일일 코디 조회 api responseDTO의 content
+/// 과거 일일 코디 조회
 struct BeforeCoordinateDailyEntity: Identifiable {
     let coordinateId: Int64
     let imageUrl: String
@@ -36,19 +36,54 @@ struct BeforeCoordinateDailyEntity: Identifiable {
     var id: Int64 { coordinateId }
 }
 
+/// 코디 preview 조회
+struct CoordinatePreviewEntity {
+    let coordinateId: Int
+    let imageUrl: String
+    let coordinateName: String
+    let coordinateMemo: String
+}
+
+/// 코디 detail 조회
+struct CoordinateDetailEntity {
+    let coordinateClothId: Int64
+    let locationX: Double
+    let locationY: Double
+    let ratio: Double
+    let degree: Double
+    let order: Int32
+    let imageUrl: String
+    let brand: String
+    let name: String
+    let category: String
+    let parentCategory: String
+}
+
+/// 오늘의 코디 옷 정보 조회
+struct TodayCoordinateClothEntity {
+    let imageUrl: String
+    let brand: String
+    let name: String
+    let category: String
+    let parentCategory: String
+}
+
+/// 코디 수동 생성
+struct ManualCoordinateEntity {
+    let coordinateId: Int64
+}
+
+/// 이전 일일 코디로 자동 생성
+struct AutoDailyCoordinateEntity {
+    let coordinateId: Int64
+}
+
 struct CodiLikeEntity {
     let coordinateId: Int
 }
 
 struct DeleteCodiEntity {
     let coordinateId: Int
-}
-
-struct CoordinatePreviewEntity {
-    let coordinateId: Int
-    let imageUrl: String
-    let coordinateName: String
-    let coordinateMemo: String
 }
 
 // MARK: - Supporting Types
