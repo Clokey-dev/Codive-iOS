@@ -42,26 +42,23 @@ struct RecordDetailView: View {
                             multiSelectSection()
                             captionSection()
                                 .id("captionSection")
+                                .onReceive(NotificationCenter.default.publisher(for: UITextView.textDidBeginEditingNotification)) { _ in
+                                    withAnimation {
+                                        scrollProxy.scrollTo("captionSection", anchor: .bottom)
+                                    }
+                                }
 
-                            Spacer(minLength: 100)
-                        }
-                    }
-                    .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            scrollProxy.scrollTo("captionSection", anchor: .bottom)
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                UIApplication.shared.sendAction(#selector(UIResponder.becomeFirstResponder), to: nil, from: nil)
-                            }
+                            bottomButton()
+                                .padding(.vertical, 20)
                         }
                     }
                 }
-
-                bottomButton()
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 20)
             }
             .navigationBarHidden(true)
             .background(Color.white)
+            .onTapGesture {
+                UIApplication.shared.hideKeyboard()
+            }
             .alert(TextLiteral.Add.exitAlertTitle, isPresented: $viewModel.showExitAlert) {
                 Button(TextLiteral.Add.exitAlertLeave, role: .destructive) {
                     viewModel.confirmExit()
@@ -171,7 +168,6 @@ private extension RecordDetailView {
                 RoundedRectangle(cornerRadius: 10)
                     .stroke(Color.Codive.grayscale5, lineWidth: 1)
             )
-            .focused($isCaptionFocused)
         }
         .padding(.horizontal, 20)
         .padding(.bottom, 40)
