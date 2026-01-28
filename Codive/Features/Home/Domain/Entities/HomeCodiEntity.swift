@@ -7,6 +7,11 @@
 
 import Foundation
 
+/// 오늘의 코디 생성
+struct TodayCoordinateEntity {
+    let coordinateId: Int64
+}
+
 // MARK: - Codi Item
 struct CodiItemEntity: Identifiable {
     let id: Int

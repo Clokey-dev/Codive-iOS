@@ -48,6 +48,22 @@ final class HomeRepositoryImpl: HomeRepository {
         )
     }
     
+    /// 오늘의 코디 생성
+    func createTodayCoordinate(
+        request: CreateTodayCoordinateRequestDTO
+    ) async throws -> TodayCoordinateEntity {
+        let dto = try await dataSource.createTodayCoordinate(request: request)
+        return dto.toEntity()
+    }
+    
+    /// 오늘의 코디 옷 정보 조회
+    func fetchTodayCoordinateClothes() async throws -> [TodayCoordinateClothEntity] {
+        let dtos = try await dataSource.fetchTodayCoordinateClothes()
+        return dtos.map { $0.toEntity() }
+    }
+}
+
+extension HomeRepositoryImpl {
     func createTodayDailyCodi(_ codi: TodayDailyCodi) async throws {
         try await dataSource.createTodayDailyCodi(codi)
     }

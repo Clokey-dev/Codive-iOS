@@ -24,6 +24,14 @@ protocol HomeRepository {
         season: Set<Season>
     ) async throws -> (content: [HomeClothEntity], isLast: Bool)
     
+    /// 오늘의 코디 생성
+    func createTodayCoordinate(request: CreateTodayCoordinateRequestDTO) async throws -> TodayCoordinateEntity
+    
+    /// 오늘의 코디 옷 정보 조회
+    func fetchTodayCoordinateClothes() async throws -> [TodayCoordinateClothEntity]
+    
+    /// 기존 api
+    
     func createTodayDailyCodi(_ codi: TodayDailyCodi) async throws
     
     // MARK: - 코디보드
