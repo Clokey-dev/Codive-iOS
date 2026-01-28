@@ -142,6 +142,7 @@ struct FeedDetailView: View {
         ), content: {
             if case .comment(let feedId) = navigationRouter.sheetDestination {
                 commentDIContainer.commentViewFactory.makeView(for: .comment(feedId: feedId))
+                    .presentationDetents([.fraction(0.7), .large])
             }
         })
     }

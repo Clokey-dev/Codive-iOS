@@ -9,9 +9,10 @@ import SwiftUI
 
 struct CommentView: View {
     @StateObject var viewModel: CommentViewModel
-    
+
     @Environment(\.dismiss) private var dismiss
-    
+    @FocusState private var isTextFieldFocused: Bool
+
     var body: some View {
         VStack(spacing: 0) {
             // MARK: - Header
@@ -57,11 +58,18 @@ struct CommentView: View {
                 .padding(.trailing, 30)
                 .padding(.vertical, 24)
             }
+            .simultaneousGesture(
+                DragGesture()
+                    .onChanged { value in
+                        // 스크롤을 올릴 때만 (아래에서 위로 드래그) 키보드 닫기
+                        if value.translation.height < 0 {
+                            isTextFieldFocused = false
+                        }
+                    }
+            )
             .onAppear {
                 viewModel.fetchFirstPage()
             }
-
-            Spacer(minLength: 0)
 
             // MARK: - Comment Input Area
             VStack(spacing: 0) {
@@ -105,6 +113,7 @@ struct CommentView: View {
                         viewModel.replyingToCommentId != nil ? "대댓글 입력..." : TextLiteral.Comment.placeholder,
                         text: viewModel.replyingToCommentId != nil ? $viewModel.currentReplyText : $viewModel.currentCommentText
                     )
+                    .focused($isTextFieldFocused)
                     .padding(.horizontal, 15)
                     .frame(height: 40)
                     .background(Color.Codive.main6)
@@ -131,9 +140,10 @@ struct CommentView: View {
                     )
                 }
                 .padding(.horizontal, 20)
-                .padding(.bottom, 40)
-                .padding(.vertical, 12)
+                .padding(.bottom, 16)
+                .padding(.top, 12)
             }
+            .background(Color.white)
         }
         .background(Color.white)
         .clipShape(
@@ -144,7 +154,6 @@ struct CommentView: View {
                 topTrailingRadius: 20
             )
         )
-        .ignoresSafeArea(edges: .bottom)
     }
 }
 
