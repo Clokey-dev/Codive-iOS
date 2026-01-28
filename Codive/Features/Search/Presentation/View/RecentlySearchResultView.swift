@@ -19,9 +19,9 @@ struct RecentlySearchResultView: View {
     var body: some View {
         VStack {
             CustomNavigationBar(
-                title: "완료 버튼",
+                title: TextLiteral.Search.recentlySearchResultTitle,
                 onBack: { },
-                rightButton: .text(title: "전체삭제", isEnabled: true) {
+                rightButton: .text(title: TextLiteral.Search.deleteAll, isEnabled: true) {
                     viewModel.handleDeleteAll()
                 }
             )

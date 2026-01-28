@@ -149,7 +149,7 @@ enum TextLiteral {
     enum Search {
         static let searchHint = "찾고 싶은 옷이나 브랜드를 검색해보세요"
         static let recentSearch = "최근 검색어"
-        static let deleteAll = "전체 삭제"
+        static let deleteAll = "전체삭제"
         static let noTag = "최근 검색어가 없습니다."
         static let recommendedNewsTitle = "님을 위한 추천 소식"
         static let alertTitle = "최근 검색어를 모두 삭제하시겠습니까?"
@@ -161,6 +161,7 @@ enum TextLiteral {
         static let sortAll = "전체"
         static let account = "계정"
         static let hashtag = "해시태그"
+        static let recentlySearchResultTitle = "최근 검색어"
     }
     
     enum Notification {
