@@ -20,7 +20,7 @@ struct CommentView: View {
                     .font(.codive_title2)
                     .foregroundStyle(Color.Codive.grayscale1)
                     .padding(.top, 5)
-                
+
                 HStack {
                     Spacer()
                     Button(action: { dismiss() }, label: {
@@ -33,9 +33,9 @@ struct CommentView: View {
                 }
             }
             .frame(height: 56)
-            
+
             Divider().overlay(Color.Codive.grayscale6)
-            
+
             // MARK: - Comment List
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 24) {
@@ -60,7 +60,7 @@ struct CommentView: View {
             .onAppear {
                 viewModel.fetchFirstPage()
             }
-            
+
             // MARK: - Comment Input Area
             VStack(spacing: 0) {
                 Divider().overlay(Color.Codive.grayscale6)
