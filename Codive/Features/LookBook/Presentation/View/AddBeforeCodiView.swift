@@ -80,7 +80,7 @@ private extension AddBeforeCodiView {
                     isSelected: false
                 )
                 .onTapGesture {
-                    viewModel.toggleSelection(id: lookbook.id)
+                    viewModel.toggleSelection(id: Int(lookbook.id))
                 }
             }
         }
