@@ -6,13 +6,13 @@
 //
 
 import SwiftUI
+import UIKit
 
 // MARK: - RecordDetailView
 struct RecordDetailView: View {
 
     // MARK: - Properties
     @StateObject private var viewModel: RecordDetailViewModel
-    @FocusState private var isCaptionFocused: Bool
 
     // MARK: - Initializer
     init(viewModel: RecordDetailViewModel) {
@@ -42,17 +42,23 @@ struct RecordDetailView: View {
                             multiSelectSection()
                             captionSection()
                                 .id("captionSection")
+
+                            Spacer(minLength: 100)
                         }
                     }
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            isCaptionFocused = true
                             scrollProxy.scrollTo("captionSection", anchor: .bottom)
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                UIApplication.shared.sendAction(#selector(UIResponder.becomeFirstResponder), to: nil, from: nil)
+                            }
                         }
                     }
                 }
 
                 bottomButton()
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 20)
             }
             .navigationBarHidden(true)
             .background(Color.white)

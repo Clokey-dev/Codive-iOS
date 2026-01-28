@@ -61,6 +61,8 @@ struct CommentView: View {
                 viewModel.fetchFirstPage()
             }
 
+            Spacer(minLength: 0)
+
             // MARK: - Comment Input Area
             VStack(spacing: 0) {
                 Divider().overlay(Color.Codive.grayscale6)

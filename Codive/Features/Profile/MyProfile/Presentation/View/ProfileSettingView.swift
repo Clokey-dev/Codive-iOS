@@ -26,54 +26,61 @@ struct ProfileSettingView: View {
     @FocusState private var focus: Field?
 
     var body: some View {
-        VStack(spacing: 0) {
-            CustomNavigationBar(
-                title: "프로필 설정",
-                onBack: { navigationRouter.navigateBack() },
-                rightButton: .none
-            )
+        ZStack {
+            VStack(spacing: 0) {
+                CustomNavigationBar(
+                    title: "프로필 설정",
+                    onBack: { navigationRouter.navigateBack() },
+                    rightButton: .none
+                )
 
-            if viewModel.isLoadingProfile {
-                VStack {
-                    ProgressView()
-                        .tint(.black)
-                    Text("프로필 정보 로딩 중...")
-                        .font(.codive_body3_medium)
-                        .foregroundStyle(Color.Codive.grayscale4)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else {
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 0) {
-                        if let errorMessage = viewModel.errorMessage {
-                            Text(errorMessage)
-                                .font(.codive_body3_medium)
-                                .foregroundStyle(Color.Codive.point1)
-                                .padding(.horizontal, 20)
-                                .padding(.vertical, 12)
-                                .background(Color.Codive.point4)
-                                .cornerRadius(8)
-                                .padding(.top, 16)
-                        }
-
-                        profileImageSection
-                            .padding(.top, 32)
-
-                        formSection
-                            .padding(.top, 56)
-
-                        Spacer(minLength: 120)
+                if viewModel.isLoadingProfile {
+                    VStack {
+                        ProgressView()
+                            .tint(.black)
+                        Text("프로필 정보 로딩 중...")
+                            .font(.codive_body3_medium)
+                            .foregroundStyle(Color.Codive.grayscale4)
                     }
-                }
-                .opacity(viewModel.isLoading ? 0.5 : 1)
-                .disabled(viewModel.isLoading)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 0) {
+                            if let errorMessage = viewModel.errorMessage {
+                                Text(errorMessage)
+                                    .font(.codive_body3_medium)
+                                    .foregroundStyle(Color.Codive.point1)
+                                    .padding(.horizontal, 20)
+                                    .padding(.vertical, 12)
+                                    .background(Color.Codive.point4)
+                                    .cornerRadius(8)
+                                    .padding(.top, 16)
+                            }
 
+                            profileImageSection
+                                .padding(.top, 32)
+
+                            formSection
+                                .padding(.top, 56)
+
+                            Spacer(minLength: 120)
+                        }
+                    }
+                    .opacity(viewModel.isLoading ? 0.5 : 1)
+                    .disabled(viewModel.isLoading)
+                }
+            }
+            .background(Color.white)
+
+            VStack {
+                Spacer()
                 completeButton
                     .padding(.horizontal, 20)
                     .padding(.vertical, 20)
+                    .background(Color.white)
             }
+            .ignoresSafeArea(edges: .bottom)
         }
-        .background(Color.white)
         .navigationBarHidden(true)
         .onAppear {
             Task {
