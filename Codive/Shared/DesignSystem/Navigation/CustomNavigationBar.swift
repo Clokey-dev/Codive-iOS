@@ -51,17 +51,7 @@ struct CustomNavigationBar: View {
     }
     
     var body: some View {
-        HStack(spacing: 0) {
-            // 왼쪽 뒤로가기 버튼
-            Button(action: onBack) {
-                Image(systemName: "chevron.backward")
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundStyle(Color.Codive.grayscale3)
-            }
-            .frame(width: 44, height: 44)
-            
-            Spacer()
-            
+        ZStack {
             if isEditingMode {
                 VStack(spacing: 4) {
                     TextField("", text: $title) {
@@ -70,14 +60,13 @@ struct CustomNavigationBar: View {
                     .font(Font.codive_title1)
                     .foregroundStyle(Color.Codive.grayscale1)
                     .multilineTextAlignment(.center)
-                    .fixedSize(horizontal: false, vertical: true)
-                    
+
                     Rectangle()
                         .frame(height: 1)
                         .foregroundStyle(Color.Codive.grayscale4)
                         .padding(.horizontal, 20)
                 }
-                .frame(maxWidth: .infinity)
+                .padding(.horizontal, 60) // 버튼 영역 침범 방지
             } else {
                 Text(title)
                     .font(Font.codive_title1)
@@ -85,20 +74,31 @@ struct CustomNavigationBar: View {
                     .onTapGesture {
                         onBeginEditTitle?()
                     }
+                    .padding(.horizontal, 60)
             }
             
-            Spacer()
-            
-            // 오른쪽 버튼
-            Group {
-                if case .overflow = rightButton {
-                    rightButtonView
-                        .padding(.trailing, 10)
-                } else {
-                    rightButtonView
-                        .frame(width: 44, height: 44)
-                        .padding(.trailing, 10)
+            HStack {
+                Button(action: onBack) {
+                    Image(systemName: "chevron.backward")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundStyle(Color.Codive.grayscale3)
                 }
+                .frame(width: 44, height: 44)
+
+                Spacer()
+                
+                Group {
+                    if case .text = rightButton {
+                        rightButtonView
+                            .padding(.horizontal, 10)
+                    } else if case .overflow = rightButton {
+                        rightButtonView
+                    } else {
+                        rightButtonView
+                            .frame(width: 44, height: 44)
+                    }
+                }
+                .padding(.trailing, 10)
             }
         }
         .frame(height: 56)
