@@ -34,11 +34,19 @@ final class SearchDIContainer {
         return SearchUseCase(repository: searchRepository)
     }
     
+    func makeSearchView() -> SearchView {
+        return SearchView(viewModel: makeSearchViewModel())
+    }
+    
     func makeSearchViewModel() -> SearchViewModel {
         return SearchViewModel(
             navigationRouter: navigationRouter,
             useCase: makeSearchUseCase()
         )
+    }
+    
+    func makeSearchResultView(initialQuery: String) -> SearchResultView {
+        return SearchResultView(viewModel: makeSearchResultViewModel(initialQuery: initialQuery))
     }
     
     func makeSearchResultViewModel(initialQuery: String) -> SearchResultViewModel {
@@ -49,11 +57,13 @@ final class SearchDIContainer {
         )
     }
     
-    func makeSearchView() -> SearchView {
-        return SearchView(viewModel: makeSearchViewModel())
+    func makeRecentlySearchResultView() -> RecentlySearchResultView {
+        return RecentlySearchResultView(viewModel: makeRecentlySearchResultViewModel())
     }
     
-    func makeSearchResultView(initialQuery: String) -> SearchResultView {
-        return SearchResultView(viewModel: makeSearchResultViewModel(initialQuery: initialQuery))
+    func makeRecentlySearchResultViewModel() -> RecentlySearchResultViewModel {
+        return RecentlySearchResultViewModel(
+            navigationRouter: navigationRouter
+        )
     }
 }

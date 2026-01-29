@@ -20,7 +20,7 @@ struct RecentlySearchResultView: View {
         VStack {
             CustomNavigationBar(
                 title: TextLiteral.Search.recentlySearchResultTitle,
-                onBack: { },
+                onBack: { viewModel.handleBackTap() },
                 rightButton: .text(title: TextLiteral.Search.deleteAll, isEnabled: true) {
                     viewModel.handleDeleteAll()
                 }
@@ -66,12 +66,4 @@ struct RecentlySearchResultView: View {
             Text(TextLiteral.Search.noRestore)
         }
     }
-}
-
-#Preview {
-    RecentlySearchResultView(
-        viewModel: RecentlySearchResultViewModel(
-            navigationRouter: NavigationRouter()
-        )
-    )
 }

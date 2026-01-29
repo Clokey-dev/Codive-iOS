@@ -181,6 +181,8 @@ struct MainTabView: View {
             searchDIContainer.makeSearchView()
         case .searchResult(let query):
             searchDIContainer.makeSearchResultView(initialQuery: query)
+        case .recentlySearchResult:
+            searchDIContainer.makeRecentlySearchResultView()
         case .notification:
             notificationDIContainer.makeNotificationView()
         case .feedDetail(let feedId):

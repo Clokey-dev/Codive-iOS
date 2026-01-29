@@ -50,4 +50,9 @@ final class RecentlySearchResultViewModel: ObservableObject {
         print("최근 검색어 전체 삭제 실행 완료")
         self.recentSearchTags = []
     }
+    
+    // MARK: - Navigation
+    func handleBackTap() {
+        navigationRouter.navigateBack()
+    }
 }

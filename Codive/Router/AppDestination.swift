@@ -30,6 +30,7 @@ enum AppDestination: Hashable, Identifiable {
     case codiBoard
     case search
     case searchResult(query: String)
+    case recentlySearchResult
     case notification
     case lookbook
     case specificLookbook(lookbookId: Int64, name: String)
@@ -65,7 +66,7 @@ enum AppDestination: Hashable, Identifiable {
             return true
 
         // Search, Alarm Flow
-        case .search, .searchResult, .notification:
+        case .search, .searchResult, .recentlySearchResult, .notification:
             return true
             
         // LookBook

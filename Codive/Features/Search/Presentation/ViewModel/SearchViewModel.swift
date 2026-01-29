@@ -30,8 +30,10 @@ final class SearchViewModel: ObservableObject {
         // 1. 로컬 데이터 (동기)
         let user = useCase.fetchUserName()
         self.username = user.username
-        
-        self.recentSearchTags = useCase.fetchRecentSearchTags()
+    }
+    
+    func recentlySearchResultList() {
+        self.recentSearchTags = recentSearchTags
     }
     
     func loadSearchRecommendation() {
@@ -74,13 +76,8 @@ final class SearchViewModel: ObservableObject {
         }
     }
     
-    func handleDeleteAll() {
-        self.showingDeleteAlert = true
-    }
-    
-    func executeDeleteAll() {
-        print("최근 검색어 전체 삭제 실행 완료")
-        self.recentSearchTags = []
+    func handleShowAll() {
+        navigationRouter.navigate(to: .recentlySearchResult)
     }
     
     func handleTagTap(tag: SearchTagEntity) {
