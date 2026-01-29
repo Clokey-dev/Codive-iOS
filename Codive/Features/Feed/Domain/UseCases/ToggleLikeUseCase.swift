@@ -2,7 +2,7 @@
 //  ToggleLikeUseCase.swift
 //  Codive
 //
-//  Created by Claude on 2026/01/22.
+//  Created by 황상환 on 2026/01/22.
 //
 
 import Foundation

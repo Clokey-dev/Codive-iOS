@@ -2,7 +2,7 @@
 //  FetchMyProfileUseCase.swift
 //  Codive
 //
-//  Created by Claude on 1/25/26.
+//  Created by 황상환 on 1/25/26.
 //
 
 protocol FetchMyProfileUseCase {

@@ -2,7 +2,7 @@
 //  FeedAPIService.swift
 //  Codive
 //
-//  Created by Gemini on 1/19/26.
+//  Created by 황상환 on 1/19/26.
 //
 
 import Foundation

@@ -2,7 +2,7 @@
 //  SearchAPIService.swift
 //  Codive
 //
-//  Created by Claude on 1/23/26.
+//  Created by 황상환 on 1/23/26.
 //
 
 import Foundation

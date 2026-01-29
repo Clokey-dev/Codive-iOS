@@ -2,7 +2,7 @@
 //  UIApplication+Keyboard.swift
 //  Codive
 //
-//  Created by Claude on 2025/01/28.
+//  Created by 황상환 on 2025/01/28.
 //
 
 import UIKit
