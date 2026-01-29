@@ -203,14 +203,16 @@ struct CommentRow: View {
                         .fixedSize(horizontal: false, vertical: true)
                         .lineSpacing(4)
 
-                    Button(action: {
-                        onReplyTap(comment.id)
-                    }, label: {
-                        Text(TextLiteral.Comment.addReply)
-                            .font(.codive_body3_regular)
-                            .foregroundStyle(Color.Codive.grayscale4)
-                    })
-                    .padding(.top, 4)
+                    if !isReply {
+                        Button(action: {
+                            onReplyTap(comment.id)
+                        }, label: {
+                            Text(TextLiteral.Comment.addReply)
+                                .font(.codive_body3_regular)
+                                .foregroundStyle(Color.Codive.grayscale4)
+                        })
+                        .padding(.top, 4)
+                    }
 
                     // MARK: 답글 더보기/숨기기 버튼
                     if comment.hasReplies {

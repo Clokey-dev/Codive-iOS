@@ -164,13 +164,15 @@ final class CommentViewModel: ObservableObject {
 
         Task {
             do {
-                _ = try await postReplyUseCase.execute(feedId: feedId, commentId: commentId, content: content)
+                let newReply = try await postReplyUseCase.execute(feedId: feedId, commentId: commentId, content: content)
 
                 self.currentReplyText = ""
                 self.replyingToCommentId = nil
 
-                // 대댓글 작성 후 목록 다시 로드 (실제 사용자 정보 반영)
-                self.reloadReplies(for: commentId)
+                // 대댓글 작성 후 해당 댓글의 replies 배열에 추가
+                if let index = self.comments.firstIndex(where: { $0.id == commentId }) {
+                    self.comments[index].replies?.append(newReply)
+                }
             } catch {
                 print("Error posting reply: \(error)")
             }
