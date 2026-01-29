@@ -66,6 +66,10 @@ struct ProfileSettingView: View {
                             Spacer(minLength: 120)
                         }
                     }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        UIApplication.shared.hideKeyboard()
+                    }
                     .opacity(viewModel.isLoading ? 0.5 : 1)
                     .disabled(viewModel.isLoading)
                 }
@@ -80,6 +84,7 @@ struct ProfileSettingView: View {
                     .background(Color.white)
             }
             .ignoresSafeArea(edges: .bottom)
+            .padding(.bottom, 10)
         }
         .navigationBarHidden(true)
         .onAppear {
