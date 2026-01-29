@@ -15,7 +15,7 @@ final class SearchViewModel: ObservableObject {
     
     @Published var username: String = ""
     @Published var recentSearchTags: [SearchTagEntity] = []
-    @Published var recommendedNews: [NewsEntity] = []
+    @Published var recommendedNews: [SearchRecommendationEntity] = []
     @Published var showingDeleteAlert: Bool = false
     
     // MARK: - Initializer
@@ -27,9 +27,33 @@ final class SearchViewModel: ObservableObject {
     // MARK: - Methods
     
     func loadData() {
-        self.username = useCase.fetchUserName().username
+        // 1. 로컬 데이터 (동기)
+        let user = useCase.fetchUserName()
+        self.username = user.username
+        
         self.recentSearchTags = useCase.fetchRecentSearchTags()
-        self.recommendedNews = useCase.fetchRecommendedNews()
+    }
+    
+    func loadSearchRecommendation() {
+        Task {
+            do {
+                let recommendations = try await useCase.fetchSearchRecommendation()
+
+                self.recommendedNews = recommendations.map {
+                    SearchRecommendationEntity(
+                        historyId: $0.historyId,
+                        memberId: $0.memberId,
+                        recommendType: $0.recommendType,
+                        title: $0.title,
+                        subTitle: $0.subTitle,
+                        imageUrl: $0.imageUrl
+                    )
+                }
+            } catch {
+                print("❌ 추천 검색 로딩 실패:", error)
+                self.recommendedNews = []
+            }
+        }
     }
     
     func executeSearch(query: String) {

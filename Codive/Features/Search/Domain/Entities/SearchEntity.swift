@@ -39,13 +39,15 @@ struct SortOptionEntity: Identifiable, Hashable {
 
 /// 서버 연결 용 entity
 
-struct SearchRecommendationEntity {
+struct SearchRecommendationEntity: Identifiable {
     let historyId: Int64
     let memberId: Int64
     let recommendType: String
     let title: String
     let subTitle: String
     let imageUrl: String
+    
+    var id: Int64 { historyId }
 }
 
 struct SearchMembersEntity {

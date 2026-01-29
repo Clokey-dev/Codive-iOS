@@ -10,6 +10,7 @@ import SwiftUI
 struct NewsCard: View {
     let imageUrl: String
     let title: String
+    let subTitle: String
     
     var body: some View {
         ZStack(alignment: .bottomLeading) {
@@ -48,13 +49,19 @@ struct NewsCard: View {
             )
             
             // 텍스트
-            Text(title)
-                .font(.system(size: 20, weight: .bold))
-                .foregroundColor(.white)
-                .multilineTextAlignment(.leading)
-                .lineLimit(2)
-                .padding(.horizontal, 20)
-                .padding(.bottom, 24)
+            VStack(alignment: .leading) {
+                Text(title)
+                    .font(Font.codive_title1)
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.leading)
+
+                Text(subTitle)
+                    .font(Font.codive_title1)
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.leading)
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 24)
         }
         .frame(width: 273, height: 300)
         .cornerRadius(16)
@@ -67,12 +74,14 @@ struct NewsCard: View {
         HStack(spacing: 16) {
             NewsCard(
                 imageUrl: "https://picsum.photos/273/300",
-                title: "개강룩!\n첫 인상 잡수 올리기"
+                title: "개강룩!",
+                subTitle: "첫 인상 잡수 올리기"
             )
             
             NewsCard(
                 imageUrl: "https://picsum.photos/273/301",
-                title: "가을 자켓\n오늘의 코디"
+                title: "가을 자켓",
+                subTitle: "오늘의 코디"
             )
         }
         .padding(.horizontal, 20)

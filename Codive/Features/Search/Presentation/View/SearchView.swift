@@ -102,7 +102,8 @@ struct SearchView: View {
                             ForEach(viewModel.recommendedNews) { news in
                                 NewsCard(
                                     imageUrl: news.imageUrl,
-                                    title: news.title
+                                    title: news.title,
+                                    subTitle: news.subTitle
                                 )
                             }
                         }
@@ -127,6 +128,7 @@ struct SearchView: View {
         // MARK: - Data Loading Trigger
         .onAppear {
             viewModel.loadData()
+            viewModel.loadSearchRecommendation()
         }
         // MARK: - Alert
         .alert(
