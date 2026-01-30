@@ -250,51 +250,50 @@ extension HomeViewModel {
     
     /// 팝업에서 '기록하기' 버튼을 눌러 오늘 완성한 코디를 서버에 전송
     func handlePopupRecord() {
-        let containerSize: CGFloat = 260
-        let payloads = selectedCodiClothes.enumerated().map { index, cloth in
-            let position = CodiLayoutCalculator.position(
-                index: index,
-                totalCount: selectedCodiClothes.count,
-                containerSize: containerSize
-            )
-            return CodiPayload(
-                clothId: cloth.clothId,
-                locationX: position.x,
-                locationY: position.y,
-                ratio: 1.0,
-                degree: 0,
-                order: index
-            )
-        }
-
         Task {
             do {
+                // 1️⃣ CodiCompositeView 캡처
+                let image = captureCompletedCodiImage()
+
+                // 2️⃣ UIImage → Base64 String
+                guard let coordinateImageUrl = image.toBase64String() else {
+                    throw NSError(domain: "Base64EncodingFail", code: 0)
+                }
+
+                self.completedCodiImageURL = coordinateImageUrl
+
+                // 3️⃣ 좌표 payload 생성
+                let containerSize: CGFloat = 260
+                let payloads = selectedCodiClothes.enumerated().map { index, cloth in
+                    let position = CodiLayoutCalculator.position(
+                        index: index,
+                        totalCount: selectedCodiClothes.count,
+                        containerSize: containerSize
+                    )
+
+                    return Payloads(
+                        clothId: cloth.clothId,
+                        locationX: position.x,
+                        locationY: position.y,
+                        ratio: 1.0,
+                        degree: 0,
+                        order: Int32(index)
+                    )
+                }
+
+                // 4️⃣ 오늘의 코디 생성 (String 그대로 전달)
                 let request = CreateTodayCoordinateRequestDTO(
-                    coordinateImageUrl: completedCodiImageURL ?? "",
-                    payloads: payloads.map {
-                        Payloads(
-                            clothId: Int64($0.clothId),
-                            locationX: $0.locationX,
-                            locationY: $0.locationY,
-                            ratio: $0.ratio,
-                            degree: $0.degree,
-                            order: Int32($0.order)
-                        )
-                    }
+                    coordinateImageUrl: coordinateImageUrl,
+                    payloads: payloads
                 )
 
-                let result = try await todayCodiUseCase.createTodayCoordinate(
-                    request: request
-                )
-
-                // 생성된 오늘의 코디 ID
-                let createdCoordinateId = result.coordinateId
-                print("✅ 오늘 코디 생성 완료, coordinateId:", createdCoordinateId)
+                let result = try await todayCodiUseCase.createTodayCoordinate(request: request)
+                print("✅ 오늘 코디 생성 완료:", result.coordinateId)
 
                 showCompletePopUp = false
                 hasCodi = true
             } catch {
-                print("Failed to record today's codi: \(error)")
+                print("❌ 코디 기록 실패:", error)
             }
         }
     }
@@ -336,5 +335,30 @@ extension HomeViewModel {
         
         // 순서 변경을 로컬에 저장하려면 categoryUseCase를 통해 저장
         // categoryUseCase.saveCategoryOrder(activeCategories)
+    }
+    
+    /// 이미지 캡처
+    private func captureCompletedCodiImage() -> UIImage {
+        let view = CodiCompositeView(clothes: selectedCodiClothes)
+            .frame(width: 260, height: 260)
+
+        let controller = UIHostingController(rootView: view)
+        let uiView = controller.view!
+        uiView.bounds = CGRect(origin: .zero, size: CGSize(width: 260, height: 260))
+        uiView.backgroundColor = .clear
+
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 260, height: 260))
+        return renderer.image { _ in
+            uiView.drawHierarchy(in: uiView.bounds, afterScreenUpdates: true)
+        }
+    }
+}
+
+extension UIImage {
+    func toBase64String() -> String? {
+        guard let data = self.jpegData(compressionQuality: 0.9) else {
+            return nil
+        }
+        return data.base64EncodedString()
     }
 }
