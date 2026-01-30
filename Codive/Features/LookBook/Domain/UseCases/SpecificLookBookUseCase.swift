@@ -45,6 +45,13 @@ final class SpecificLookBookUseCase {
     ) async throws {
         try await repository.deleteCoordinate(coordinateId: coordinateId)
     }
+    
+    /// 코디 좋아요 토글
+    func toggleCoordinateLike(
+        coordinateId: Int64
+    ) async throws {
+        try await repository.patchCoordinateLike(coordinateId: coordinateId)
+    }
 }
 
 extension SpecificLookBookUseCase {

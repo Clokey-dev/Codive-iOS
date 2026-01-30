@@ -21,7 +21,7 @@ struct LookBookEntity: Identifiable {
 struct SpecificLookBookCodiEntity: Identifiable {
     let coordinateId: Int64
     let coordinateName: String
-    let coordinateLiked: Bool
+    var coordinateLiked: Bool
     let imageUrl: String
 
     var id: Int64 { coordinateId }
@@ -79,7 +79,7 @@ struct AutoDailyCoordinateEntity {
 }
 
 struct CodiLikeEntity {
-    let coordinateId: Int
+    var coordinateId: Int
 }
 
 struct DeleteCodiEntity {

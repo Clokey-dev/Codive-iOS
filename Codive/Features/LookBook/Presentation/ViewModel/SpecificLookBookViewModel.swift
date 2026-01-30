@@ -23,7 +23,7 @@ final class SpecificLookBookViewModel: ObservableObject {
     // MARK: - Published State (Data)
     
     @Published var specificLookBookCodiList: [SpecificLookBookCodiEntity] = []
-    @Published private(set) var likedCodiIds: Set<Int> = []
+    @Published var likedCodiId: Int64?
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     
@@ -63,11 +63,7 @@ final class SpecificLookBookViewModel: ObservableObject {
 
                 self.specificLookBookCodiList = result.content
 
-                let likedIds = result.content
-                    .filter { $0.coordinateLiked }
-                    .map { Int($0.coordinateId) }
-
-                self.likedCodiIds = Set(likedIds)
+                self.likedCodiId = result.content.first(where: { $0.coordinateLiked })?.coordinateId
             } catch {
                 self.errorMessage = "데이터 로드에 실패했습니다."
             }
@@ -77,28 +73,30 @@ final class SpecificLookBookViewModel: ObservableObject {
     }
 
     // MARK: - 코디 좋아요 토글
-    func toggleLike(codyId: Int) {
-        let isCurrentlyLiked = likedCodiIds.contains(codyId)
-
-        if isCurrentlyLiked {
-            likedCodiIds.remove(codyId)
-        } else {
-            likedCodiIds.insert(codyId)
-        }
-
+    func toggleLike(coordinateId: Int64) {
         Task {
             do {
-                try await specificLookBookUseCase.toggleLike(
-                    coordinateId: codyId,
-                    isLiked: !isCurrentlyLiked
+                try await specificLookBookUseCase.toggleCoordinateLike(
+                    coordinateId: coordinateId
                 )
-            } catch {
-                if isCurrentlyLiked {
-                    likedCodiIds.insert(codyId)
-                } else {
-                    likedCodiIds.remove(codyId)
+
+                // 기존 좋아요 해제
+                if let currentLikedId = likedCodiId,
+                   let currentIndex = specificLookBookCodiList.firstIndex(where: { $0.id == currentLikedId }) {
+                    specificLookBookCodiList[currentIndex].coordinateLiked = false
                 }
-                self.errorMessage = "좋아요 상태 변경에 실패했습니다."
+
+                // 동일 코디 재탭 → 좋아요 해제
+                if likedCodiId == coordinateId {
+                    likedCodiId = nil
+                } else {
+                    likedCodiId = coordinateId
+                    if let newIndex = specificLookBookCodiList.firstIndex(where: { $0.id == coordinateId }) {
+                        specificLookBookCodiList[newIndex].coordinateLiked = true
+                    }
+                }
+            } catch {
+                errorMessage = "좋아요 처리에 실패했습니다."
             }
         }
     }

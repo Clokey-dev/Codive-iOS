@@ -68,12 +68,12 @@ struct SpecificLookBookView: View {
                                 iconType: viewModel.isEditing ? .checkmark : .heart,
                                 isSelected: viewModel.isEditing
                                 ? viewModel.selectedCodiId == codi.id
-                                : viewModel.likedCodiIds.contains(Int(codi.id))
+                                : viewModel.likedCodiId == codi.id
                             ) {
                                 if viewModel.isEditing {
                                     viewModel.toggleSelection(id: codi.id)
                                 } else {
-                                    viewModel.toggleLike(codyId: Int(codi.id))
+                                    viewModel.toggleLike(coordinateId: codi.id)
                                 }
                             }
                             .contentShape(Rectangle())

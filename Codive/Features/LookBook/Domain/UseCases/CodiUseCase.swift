@@ -43,13 +43,6 @@ final class CodiUseCase {
         try await repository.createManualCoordinate(request: request)
     }
     
-    /// 코디 좋아요 토글
-    func toggleCoordinateLike(
-        coordinateId: Int64
-    ) async throws {
-        try await repository.patchCoordinateLike(coordinateId: coordinateId)
-    }
-    
     /// 코디 수정
     func patchUpdateCoordinates(coordinateId: Int64, request: EditCoordinateRequestDTO) async throws {
         try await repository.patchUpdateCoordinates(coordinateId: coordinateId, request: request)
