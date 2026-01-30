@@ -142,12 +142,9 @@ extension CodiDetailViewModel {
     /// 코디 삭제를 실행하고 목록으로 돌아갑니다.
     func deleteCodi() {
         Task {
-            // TODO: 실제 서버 삭제 API 호출 로직 추가 (try await codiUseCase.deleteCodi(id: codiId))
-            print("DEBUG: 코디 \(coordinateId) 삭제 요청")
             do {
-                try await specificLookBookUseCase.deleteCodis(
-                    ids: [Int(coordinateId)],
-                    lookbookId: lookbookId
+                try await specificLookBookUseCase.deleteCoordinate(
+                    coordinateId: coordinateId
                 )
                 navigationRouter.navigateBack()
             } catch {
