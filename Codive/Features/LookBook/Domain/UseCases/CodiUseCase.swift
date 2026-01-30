@@ -55,9 +55,3 @@ final class CodiUseCase {
         try await repository.createAutoDailyCoordinate(request: request)
     }
 }
-
-extension CodiUseCase {
-    func fetchCoordinatePreview(coordinateId: Int) async throws -> CoordinatePreviewEntity {
-        try await repository.fetchCoordinatePreview(coordinateId: coordinateId)
-    }
-}

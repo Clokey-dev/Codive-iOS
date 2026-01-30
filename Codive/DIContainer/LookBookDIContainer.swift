@@ -148,25 +148,25 @@ final class LookBookDIContainer {
     
     // MARK: - Codi Detail
     func makeCodiDetailViewModel(
-        codiId: Int,
+        coordinateId: Int64,
         lookbookId: Int
     ) -> CodiDetailViewModel {
         return CodiDetailViewModel(
             navigationRouter: navigationRouter,
             codiUseCase: makeCodiUseCase(),
             specificLookBookUseCase: makeSpecificLookBookUseCase(),
-            codiId: codiId,
+            coordinateId: coordinateId,
             lookbookId: lookbookId
         )
     }
     
     func makeCodiDetailView(
-        codiId: Int,
+        coordinateId: Int64,
         lookbookId: Int
     ) -> CodiDetailView {
         return CodiDetailView(
             viewModel: makeCodiDetailViewModel(
-                codiId: codiId,
+                coordinateId: coordinateId,
                 lookbookId: lookbookId
             )
         )

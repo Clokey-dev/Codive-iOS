@@ -33,8 +33,8 @@ final class LookBookViewFactory {
             lookBookDIContainer?.makeAddCodiDetailView(lookbookId: lookbookId)
         case .addBeforeCodi(let coordinateId):
             lookBookDIContainer?.makeAddBeforeCodiView(coordinateId: coordinateId)
-        case .codiDetail(let codiId, let lookbookId):
-            lookBookDIContainer?.makeCodiDetailView(codiId: codiId, lookbookId: lookbookId)
+        case .codiDetail(let coordinateId, let lookbookId):
+            lookBookDIContainer?.makeCodiDetailView(coordinateId: Int64(coordinateId), lookbookId: lookbookId)
         case .editCodi(let lookbookId, let selectedCodiData):
             lookBookDIContainer?.makeEditCodiView(
                 lookbookId: lookbookId,

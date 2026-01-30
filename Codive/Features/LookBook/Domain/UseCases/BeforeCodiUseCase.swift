@@ -32,9 +32,3 @@ final class BeforeCodiUseCase {
         )
     }
 }
-
-extension BeforeCodiUseCase {
-    func fetchBeforeCoordinateDailyList() async throws -> [BeforeCoordinateDailyEntity] {
-        try await repository.fetchBeforeCoordinateDaily()
-    }
-}

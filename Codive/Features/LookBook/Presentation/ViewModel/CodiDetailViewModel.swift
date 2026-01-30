@@ -29,7 +29,7 @@ final class CodiDetailViewModel: ObservableObject {
     private let specificLookBookUseCase: SpecificLookBookUseCase
 
     /// 현재 조회 중인 코디 ID
-    private let codiId: Int
+    private let coordinateId: Int64
 
     /// 현재 코디가 속한 룩북 ID (편집 화면 이동 시 컨텍스트 유지용)
     private let lookbookId: Int
@@ -53,13 +53,13 @@ final class CodiDetailViewModel: ObservableObject {
         navigationRouter: NavigationRouter,
         codiUseCase: CodiUseCase,
         specificLookBookUseCase: SpecificLookBookUseCase,
-        codiId: Int,
+        coordinateId: Int64,
         lookbookId: Int
     ) {
         self.navigationRouter = navigationRouter
         self.codiUseCase = codiUseCase
         self.specificLookBookUseCase = specificLookBookUseCase
-        self.codiId = codiId
+        self.coordinateId = coordinateId
         self.lookbookId = lookbookId
     }
 }
@@ -76,7 +76,7 @@ extension CodiDetailViewModel {
             do {
                 self.coordinatePreview =
                     try await codiUseCase.fetchCoordinatePreview(
-                        coordinateId: codiId
+                        coordinateId: coordinateId
                     )
             } catch {
                 handleError(error)
@@ -120,7 +120,7 @@ extension CodiDetailViewModel {
         guard let detail = coordinatePreview else { return }
         
         let data = SelectedCodi(
-            codiId: codiId,
+            codiId: Int(coordinateId),
             imageURL: detail.imageUrl,
             name: detail.coordinateName,
             memo: detail.coordinateMemo
@@ -143,10 +143,10 @@ extension CodiDetailViewModel {
     func deleteCodi() {
         Task {
             // TODO: 실제 서버 삭제 API 호출 로직 추가 (try await codiUseCase.deleteCodi(id: codiId))
-            print("DEBUG: 코디 \(codiId) 삭제 요청")
+            print("DEBUG: 코디 \(coordinateId) 삭제 요청")
             do {
                 try await specificLookBookUseCase.deleteCodis(
-                    ids: [codiId],
+                    ids: [Int(coordinateId)],
                     lookbookId: lookbookId
                 )
                 navigationRouter.navigateBack()
