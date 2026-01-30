@@ -17,6 +17,7 @@ final class CategoryUseCase {
         return repository.fetchCategories()
     }
     
+    /// 카테고리별 계절에 맞는 옷 조회
     func loadClothItems(
         lastClothId: Int64?,
         size: Int = 10,

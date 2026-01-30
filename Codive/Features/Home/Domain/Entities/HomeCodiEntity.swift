@@ -31,7 +31,7 @@ struct TodayDailyCodi {
 }
 
 struct CodiPayload {
-    let clothId: Int
+    let clothId: Int64
     let locationX: Double
     let locationY: Double
     let ratio: Double

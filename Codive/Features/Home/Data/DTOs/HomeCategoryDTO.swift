@@ -24,8 +24,7 @@ struct HomeCategoryResponseItem {
     func toEntity(categoryId: Int64) -> HomeClothEntity {
         return HomeClothEntity(
             clothId: clothId,
-            imageUrl: ImageUrl,
-            categoryId: Int(categoryId)
+            imageUrl: ImageUrl
         )
     }
 }

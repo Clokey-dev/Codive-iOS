@@ -16,15 +16,12 @@ struct CategoryEntity: Identifiable, Codable {
 struct HomeClothEntity {
     let clothId: Int64
     let imageUrl: String
-    let categoryId: Int
 
     public init(
         clothId: Int64,
         imageUrl: String,
-        categoryId: Int
     ) {
         self.clothId = clothId
         self.imageUrl = imageUrl
-        self.categoryId = categoryId
     }
 }

@@ -129,6 +129,7 @@ extension HomeViewModel {
         }
     }
 
+    /// 카테고리별 계절에 맞는 옷 조회
     func loadRecommendCategoryClothList() async {
         let allCategories = categoryUseCase.loadCategories()
         let filteredCategories = allCategories.filter { $0.itemCount > 0 }
@@ -137,6 +138,8 @@ extension HomeViewModel {
         var resultMap: [Int: [HomeClothEntity]] = [:]
 
         for category in filteredCategories {
+            print("📦 category title:", category.title)
+            print("📦 category.id:", category.id)
             do {
                 let result = try await categoryUseCase.loadClothItems(
                     lastClothId: nil,
@@ -255,7 +258,7 @@ extension HomeViewModel {
                 containerSize: containerSize
             )
             return CodiPayload(
-                clothId: Int(cloth.clothId),
+                clothId: cloth.clothId,
                 locationX: position.x,
                 locationY: position.y,
                 ratio: 1.0,
@@ -264,14 +267,30 @@ extension HomeViewModel {
             )
         }
 
-        let todayCodi = TodayDailyCodi(
-            coordinateImageUrl: completedCodiImageURL ?? "",
-            payloads: payloads
-        )
-
         Task {
             do {
-                try await todayCodiUseCase.recordTodayCodi(todayCodi)
+                let request = CreateTodayCoordinateRequestDTO(
+                    coordinateImageUrl: completedCodiImageURL ?? "",
+                    payloads: payloads.map {
+                        Payloads(
+                            clothId: Int64($0.clothId),
+                            locationX: $0.locationX,
+                            locationY: $0.locationY,
+                            ratio: $0.ratio,
+                            degree: $0.degree,
+                            order: Int32($0.order)
+                        )
+                    }
+                )
+
+                let result = try await todayCodiUseCase.createTodayCoordinate(
+                    request: request
+                )
+
+                // 생성된 오늘의 코디 ID
+                let createdCoordinateId = result.coordinateId
+                print("✅ 오늘 코디 생성 완료, coordinateId:", createdCoordinateId)
+
                 showCompletePopUp = false
                 hasCodi = true
             } catch {
