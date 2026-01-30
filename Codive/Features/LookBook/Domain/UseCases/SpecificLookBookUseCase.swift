@@ -38,6 +38,13 @@ final class SpecificLookBookUseCase {
     func updateLookBook(lookBookId: Int64, request: UpdateLookBookAPIRequestDTO) async throws {
         try await repository.updateLookBook(lookBookId: lookBookId, request: request)
     }
+    
+    /// 코디 삭제
+    func deleteCoordinate(
+        coordinateId: Int64
+    ) async throws {
+        try await repository.deleteCoordinate(coordinateId: coordinateId)
+    }
 }
 
 extension SpecificLookBookUseCase {

@@ -30,7 +30,7 @@ final class SpecificLookBookViewModel: ObservableObject {
     // MARK: - Published State (Editing)
     
     @Published var isEditing: Bool = false
-    @Published var selectedCodiIds: Set<Int64> = []
+    @Published var selectedCodiId: Int64?
     @Published var isShowingDeleteAlert: Bool = false
     
     // MARK: - Initializer
@@ -107,10 +107,10 @@ final class SpecificLookBookViewModel: ObservableObject {
     
     // 토글 - 추가하기
     func toggleSelection(id: Int64) {
-        if selectedCodiIds.contains(id) {
-            selectedCodiIds.remove(id)
+        if selectedCodiId == id {
+            selectedCodiId = nil
         } else {
-            selectedCodiIds.insert(id)
+            selectedCodiId = id
         }
     }
     
@@ -118,7 +118,7 @@ final class SpecificLookBookViewModel: ObservableObject {
     func toggleEditingMode() {
         isEditing.toggle()
         if !isEditing {
-            selectedCodiIds = []
+            selectedCodiId = nil
         }
     }
     
@@ -129,7 +129,7 @@ final class SpecificLookBookViewModel: ObservableObject {
     
     // MARK: - topBar 삭제 버튼 동작
     func handleCompleteAction() {
-        guard !selectedCodiIds.isEmpty else {
+        guard selectedCodiId != nil else {
             toggleEditingMode()
             return
         }
@@ -149,24 +149,28 @@ final class SpecificLookBookViewModel: ObservableObject {
     
     // MARK: - 코디 삭제 확정
     func confirmDelete() {
-        let idsToDelete = Array(selectedCodiIds)
+        guard let idToDelete = selectedCodiId else {
+            isLoading = false
+            isEditing = false
+            return
+        }
 
-        isLoading = true
+        Task {
+            do {
+                try await specificLookBookUseCase.deleteCoordinate(coordinateId: idToDelete)
 
-//        Task {
-//            do {
-//                try await specificLookBookUseCase.deleteCodis(
-//                    ids: idsToDelete as! [Int],
-//                    lookbookId: Int(lookbookId)
-//                )
-//                fetchCodis()
-//                toggleEditingMode()
-//            } catch {
-//                self.errorMessage = "코디 삭제에 실패했습니다."
-//            }
-//
-//            isLoading = false
-//        }
+                specificLookBookCodiList.removeAll { codi in
+                    codi.id == idToDelete
+                }
+
+                selectedCodiId = nil
+                isEditing = false
+            } catch {
+                errorMessage = "코디 삭제에 실패했습니다."
+            }
+
+            isLoading = false
+        }
     }
     
     // MARK: - 룩북 이름 수정 시작

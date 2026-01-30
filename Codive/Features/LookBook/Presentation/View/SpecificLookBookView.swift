@@ -37,7 +37,7 @@ struct SpecificLookBookView: View {
                     rightButton: viewModel.isEditing
                     ? .text(
                         title: TextLiteral.Common.delete,
-                        isEnabled: !viewModel.selectedCodiIds.isEmpty,
+                        isEnabled: viewModel.selectedCodiId != nil,
                         action: viewModel.handleCompleteAction
                     )
                     : .overflow(
@@ -67,7 +67,7 @@ struct SpecificLookBookView: View {
                                 cardTitle: codi.coordinateName,
                                 iconType: viewModel.isEditing ? .checkmark : .heart,
                                 isSelected: viewModel.isEditing
-                                ? viewModel.selectedCodiIds.contains(codi.id)
+                                ? viewModel.selectedCodiId == codi.id
                                 : viewModel.likedCodiIds.contains(Int(codi.id))
                             ) {
                                 if viewModel.isEditing {
