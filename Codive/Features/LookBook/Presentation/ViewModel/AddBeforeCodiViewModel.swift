@@ -44,11 +44,17 @@ final class AddBeforeCodiViewModel: ObservableObject {
         
         Task {
             do {
-                let list = try await beforeCodiUseCase.fetchBeforeCoordinateDailyList()
-                self.beforeCoordinateDailyList = list
+                let result = try await beforeCodiUseCase.fetchPastCoordinates(
+                    lastCoordinateId: nil,
+                    size: 20,
+                    direction: .DESC
+                )
+
+                self.beforeCoordinateDailyList = result.content
             } catch {
                 handleError(error)
             }
+
             isLoading = false
         }
     }
