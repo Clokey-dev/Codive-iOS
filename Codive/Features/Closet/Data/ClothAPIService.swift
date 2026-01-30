@@ -98,8 +98,8 @@ extension ClothAPIService {
         }
 
         let requestBody = Components.Schemas.ClothImagesUploadRequest(payloads: payloads.map { $0.payload })
-        let input = Operations.Cloth_getClothUploadPresignedUrl.Input(body: .json(requestBody))
-        let response = try await client.Cloth_getClothUploadPresignedUrl(input)
+        let input = Operations.ClothAi_getClothUploadPresignedUrl.Input(body: .json(requestBody))
+        let response = try await client.ClothAi_getClothUploadPresignedUrl(input)
 
         switch response {
         case .ok(let okResponse):

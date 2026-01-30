@@ -86,7 +86,7 @@ extension SearchAPIService {
 extension SearchAPIService {
     /// 유저 검색
     func fetchSearchMembers(keyword: String, page: Int64, size: Int32) async throws -> SearchUserResponseDTO {
-        let input = Operations.Search_searchUserByClokeyIdAndNickname.Input(
+        let input = Operations.Search_searchUserByNickname.Input(
             query: .init(
                 keyword: keyword,
                 page: page,
@@ -94,7 +94,7 @@ extension SearchAPIService {
             )
         )
         
-        let response = try await client.Search_searchUserByClokeyIdAndNickname(input)
+        let response = try await client.Search_searchUserByNickname(input)
         
         switch response {
         case .ok(let okResponse):
@@ -117,7 +117,6 @@ extension SearchAPIService {
             throw SearchAPIError.serverError(statusCode: code, message: "유저 검색 실패")
         }
     }
-    
     
     /// 기록 검색
     func fetchSearchHistories(

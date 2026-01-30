@@ -16,7 +16,7 @@
       "location" : "https://github.com/Clokey-dev/CodiveAPI",
       "state" : {
         "branch" : "main",
-        "revision" : "dfde09be34ac830a9efc93efd52296ff61c7fda2"
+        "revision" : "7c2b9056be470366810b6db812ce4f46ea409b5b"
       }
     },
     {
@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/kakao/kakao-ios-sdk",
       "state" : {
-        "revision" : "1a2b530921ab9d1f4385ced84109b7a86d42cff8",
-        "version" : "2.27.1"
+        "revision" : "5978979157a5a0521c9c56fd0156aec794caa21c",
+        "version" : "2.27.2"
       }
     },
     {
@@ -51,8 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ReactiveX/RxSwift.git",
       "state" : {
-        "revision" : "b529ef9b7fa3ba2b38d299df23fc2165f21abbb9",
-        "version" : "6.10.0"
+        "revision" : "5734ad2b6d7d4c0656df3d09ca4ce54fa3c09913",
+        "version" : "6.10.1"
       }
     },
     {
