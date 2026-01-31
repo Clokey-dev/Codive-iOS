@@ -13,17 +13,20 @@ final class SettingViewModel: ObservableObject {
     private let navigationRouter: NavigationRouter
     private let getPrefsUC: GetNotificationPrefsUseCase
     private let updatePrefsUC: UpdateNotificationPrefsUseCase
+    let profileViewModel: ProfileViewModel
 
     init(
         appRouter: AppRouter,
         navigationRouter: NavigationRouter,
         getPrefsUC: GetNotificationPrefsUseCase,
-        updatePrefsUC: UpdateNotificationPrefsUseCase
+        updatePrefsUC: UpdateNotificationPrefsUseCase,
+        profileViewModel: ProfileViewModel
     ) {
         self.appRouter = appRouter
         self.navigationRouter = navigationRouter
         self.getPrefsUC = getPrefsUC
         self.updatePrefsUC = updatePrefsUC
+        self.profileViewModel = profileViewModel
     }
 
     // 초기 로드
@@ -32,6 +35,9 @@ final class SettingViewModel: ObservableObject {
         error = nil
 
         do {
+            // 프로필 정보 로드
+            await profileViewModel.loadMyProfile()
+
             let prefs = try await getPrefsUC.fetch()
             isPushOn = prefs.pushEnabled
             isMarketingOn = prefs.marketingOptIn

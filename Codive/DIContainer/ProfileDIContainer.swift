@@ -47,11 +47,15 @@ final class ProfileDIContainer {
     }
 
     // MARK: - ViewModels
-    func makeProfileViewModel() -> ProfileViewModel {
+    private lazy var profileViewModel: ProfileViewModel = {
         return ProfileViewModel(
             navigationRouter: navigationRouter,
             fetchMyProfileUseCase: makeFetchMyProfileUseCase()
         )
+    }()
+
+    func makeProfileViewModel() -> ProfileViewModel {
+        return profileViewModel
     }
 
     func makeFollowListViewModel(mode: FollowListMode, memberId: Int) -> FollowListViewModel {

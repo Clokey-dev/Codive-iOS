@@ -14,17 +14,19 @@ final class SettingDIContainer {
     // MARK: - Dependencies
     private let appRouter: AppRouter
     private let navigationRouter: NavigationRouter
+    private let profileDIContainer: ProfileDIContainer
 
     // ViewFactory
     lazy var settingViewFactory = SettingViewFactory(settingDIContainer: self)
-    
+
     // Data / Repository
     private let repository: SettingRepository
 
     // MARK: - Init
-    init(appRouter: AppRouter, navigationRouter: NavigationRouter) {
+    init(appRouter: AppRouter, navigationRouter: NavigationRouter, profileDIContainer: ProfileDIContainer) {
         self.appRouter = appRouter
         self.navigationRouter = navigationRouter
+        self.profileDIContainer = profileDIContainer
 
         let dataSource = SettingsDataSource()
         let repo = SettingsRepositoryImpl(dataSource: dataSource)
@@ -66,7 +68,8 @@ final class SettingDIContainer {
             appRouter: appRouter,
             navigationRouter: navigationRouter,
             getPrefsUC: makeGetNotificationPrefsUseCase(),
-            updatePrefsUC: makeUpdateNotificationPrefsUseCase()
+            updatePrefsUC: makeUpdateNotificationPrefsUseCase(),
+            profileViewModel: profileDIContainer.makeProfileViewModel()
         )
     }
 

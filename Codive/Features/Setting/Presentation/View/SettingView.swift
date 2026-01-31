@@ -10,9 +10,11 @@ import SwiftUI
 struct SettingView: View {
 
     @ObservedObject private var vm: SettingViewModel
+    @ObservedObject private var profileViewModel: ProfileViewModel
 
     init(viewModel: SettingViewModel) {
         self.vm = viewModel
+        self.profileViewModel = viewModel.profileViewModel
     }
 
     var body: some View {
@@ -54,7 +56,7 @@ struct SettingView: View {
                 Image("kakao")
                     .frame(width: 40, height: 40)
 
-                Text("email@xxxx.com")
+                Text(profileViewModel.email ?? "email@xxxx.com")
                     .font(.codive_body1_regular)
                     .foregroundStyle(Color.Codive.grayscale1)
             }

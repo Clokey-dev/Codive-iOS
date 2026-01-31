@@ -40,15 +40,28 @@ final class ProfileAPIService: ProfileAPIServiceProtocol {
         case .ok(let okResponse):
             let data = try await Data(collecting: okResponse.body.any, upTo: .max)
 
-            // API 응답을 BaseResponseMemberInfoResponse로 decode
+            // API 응답을 BaseResponseMyInfoResponse로 decode
             let apiResponse = try jsonDecoder.decode(
-                Components.Schemas.BaseResponseMemberInfoResponse.self,
+                Components.Schemas.BaseResponseMyInfoResponse.self,
                 from: data
             )
 
             guard let memberInfo = apiResponse.result else {
                 throw ProfileAPIError.invalidResponse
             }
+
+            // API 응답 로그
+            print("=== 내 정보 API 응답 ===")
+            print("memberId: \(memberInfo.memberId ?? 0)")
+            print("nickname: \(memberInfo.nickname ?? "nil")")
+            print("email: \(memberInfo.email ?? "nil")")
+            print("bio: \(memberInfo.bio ?? "nil")")
+            print("followerCount: \(memberInfo.followerCount ?? 0)")
+            print("followingCount: \(memberInfo.followingCount ?? 0)")
+            print("profileImageUrl: \(memberInfo.profileImageUrl ?? "nil")")
+            print("isPublic: \(memberInfo.isPublic ?? false)")
+            print("isMe: \(memberInfo.isMe ?? false)")
+            print("======================")
 
             guard let userId = memberInfo.memberId,
                   let nickname = memberInfo.nickname else {
@@ -62,7 +75,8 @@ final class ProfileAPIService: ProfileAPIServiceProtocol {
                 introduction: memberInfo.bio,
                 profileImageUrl: memberInfo.profileImageUrl,
                 followerCount: Int(memberInfo.followerCount ?? 0),
-                followingCount: Int(memberInfo.followingCount ?? 0)
+                followingCount: Int(memberInfo.followingCount ?? 0),
+                email: memberInfo.email
             )
 
         case .undocumented(statusCode: let code, _):

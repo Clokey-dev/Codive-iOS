@@ -17,6 +17,7 @@ class ProfileViewModel: ObservableObject {
     @Published var followerCount: Int = 0
     @Published var followingCount: Int = 0
     @Published var profileImageUrl: String?
+    @Published var email: String?
 
     // MARK: - State
     @Published var month: Date = Date()                // 현재 표시 월
@@ -48,6 +49,7 @@ class ProfileViewModel: ObservableObject {
             self.followerCount = profileInfo.followerCount
             self.followingCount = profileInfo.followingCount
             self.profileImageUrl = profileInfo.profileImageUrl
+            self.email = profileInfo.email
         } catch {
             self.errorMessage = error.localizedDescription
             print("프로필 로드 실패: \(error.localizedDescription)")
