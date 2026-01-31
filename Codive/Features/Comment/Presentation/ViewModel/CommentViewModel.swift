@@ -98,12 +98,11 @@ final class CommentViewModel: ObservableObject {
 
         Task {
             do {
-                _ = try await postCommentUseCase.execute(feedId: feedId, content: content)
+                let newComment = try await postCommentUseCase.execute(feedId: feedId, content: content)
                 self.currentCommentText = ""
-                // 댓글 작성 후 목록 다시 로드 (실제 사용자 정보 반영)
-                self.reloadComments()
+                // 새 댓글을 맨 위에 추가 (전체 리로드 대신)
+                self.comments.insert(newComment, at: 0)
             } catch {
-                // TODO: 에러 처리
                 print("Error posting comment: \(error)")
             }
         }
@@ -121,17 +120,22 @@ final class CommentViewModel: ObservableObject {
         currentReplyText = ""
     }
 
-    func fetchReplies(for commentId: Int, page: Int = 0) {
+    func fetchReplies(for commentId: Int) {
         guard !isReplyLoading else { return }
         isReplyLoading = true
 
         Task {
             do {
-                let result = try await fetchRepliesUseCase.execute(commentId: commentId, page: page)
+                let result = try await fetchRepliesUseCase.execute(commentId: commentId, page: 0)
 
-                // commentId와 일치하는 댓글을 찾아 대댓글을 업데이트
+                // commentId와 일치하는 댓글을 찾아 대댓글을 업데이트 (최대 10개)
                 if let index = self.comments.firstIndex(where: { $0.id == commentId }) {
-                    self.comments[index].replies = result.replies
+                    var updatedComments = self.comments
+                    let loadedReplies = Array(result.replies.prefix(10))
+                    updatedComments[index].replies = loadedReplies
+                    updatedComments[index].replyPage = 0
+                    updatedComments[index].hasMoreReplies = result.replies.count > 10
+                    self.comments = updatedComments
                 }
             } catch {
                 print("Error fetching replies: \(error)")
@@ -140,19 +144,23 @@ final class CommentViewModel: ObservableObject {
         }
     }
 
-    func reloadReplies(for commentId: Int) {
+    func fetchAllReplies(for commentId: Int) {
+        guard !isReplyLoading else { return }
         isReplyLoading = true
 
         Task {
             do {
                 let result = try await fetchRepliesUseCase.execute(commentId: commentId, page: 0)
 
-                // commentId와 일치하는 댓글을 찾아 대댓글을 업데이트
+                // commentId와 일치하는 댓글을 찾아 모든 대댓글을 업데이트
                 if let index = self.comments.firstIndex(where: { $0.id == commentId }) {
-                    self.comments[index].replies = result.replies
+                    var updatedComments = self.comments
+                    updatedComments[index].replies = result.replies
+                    updatedComments[index].hasMoreReplies = false
+                    self.comments = updatedComments
                 }
             } catch {
-                print("Error reloading replies: \(error)")
+                print("Error fetching all replies: \(error)")
             }
             self.isReplyLoading = false
         }
@@ -164,14 +172,22 @@ final class CommentViewModel: ObservableObject {
 
         Task {
             do {
-                let newReply = try await postReplyUseCase.execute(feedId: feedId, commentId: commentId, content: content)
+                _ = try await postReplyUseCase.execute(feedId: feedId, commentId: commentId, content: content)
 
                 self.currentReplyText = ""
                 self.replyingToCommentId = nil
 
-                // 대댓글 작성 후 해당 댓글의 replies 배열에 추가
+                // 대댓글 작성 후 최신 대댓글을 다시 조회
+                let result = try await fetchRepliesUseCase.execute(commentId: commentId, page: 0)
+
                 if let index = self.comments.firstIndex(where: { $0.id == commentId }) {
-                    self.comments[index].replies?.append(newReply)
+                    var updatedComments = self.comments
+                    let loadedReplies = Array(result.replies.prefix(10))
+                    updatedComments[index].replies = loadedReplies
+                    updatedComments[index].replyPage = 0
+                    updatedComments[index].hasMoreReplies = result.replies.count > 10
+                    updatedComments[index].replyCount = result.replies.count
+                    self.comments = updatedComments
                 }
             } catch {
                 print("Error posting reply: \(error)")
