@@ -111,29 +111,25 @@ struct CalendarMonthView: View {
                 let dateString = formatDate(item.date)
                 let imageUrl = monthlyHistories[dateString]
 
-                VStack(spacing: 2) {
-                    // 이미지 표시 (있는 경우)
-                    if let urlString = imageUrl, let url = URL(string: urlString) {
-                        AsyncImage(url: url) { phase in
-                            switch phase {
-                            case .success(let image):
-                                image
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: dayCellWidth, height: 40)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                            case .empty, .failure:
-                                Rectangle()
-                                    .fill(Color.Codive.grayscale7)
-                                    .frame(width: dayCellWidth, height: 40)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                            @unknown default:
-                                EmptyView()
-                            }
+                // 이미지 배경 (전체 셀을 덮음)
+                if let urlString = imageUrl, let url = URL(string: urlString) {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .scaledToFill()
+                                .clipped()
+                        case .empty, .failure:
+                            EmptyView()
+                        @unknown default:
+                            EmptyView()
                         }
                     }
+                }
 
-                    // 날짜 숫자
+                // 날짜 숫자 - 가운데 (이미지가 없을 때만 보임)
+                if imageUrl == nil {
                     Text("\(item.dayNumber)")
                         .font(.codive_body2_regular)
                         .foregroundStyle(isSelected ? Color.white : (isWeekend ? Color.Codive.grayscale3 : Color.Codive.grayscale1))
@@ -148,6 +144,7 @@ struct CalendarMonthView: View {
             }
         }
         .frame(width: dayCellWidth, height: dayCellHeight)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
         .contentShape(Rectangle())
         .onTapGesture {
             if !item.isPlaceholder {
