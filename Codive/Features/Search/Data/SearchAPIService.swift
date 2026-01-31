@@ -45,7 +45,7 @@ final class SearchAPIService: SearchAPIServiceProtocol {
     // MARK: - Search Users
 
     func searchUsers(keyword: String, page: Int64, size: Int32) async throws -> SearchUserResult {
-        let input = Operations.Search_searchUserByClokeyIdAndNickname.Input(
+        let input = Operations.Search_searchUserByNickname.Input(
             query: .init(
                 keyword: keyword,
                 page: page,
@@ -53,7 +53,7 @@ final class SearchAPIService: SearchAPIServiceProtocol {
             )
         )
 
-        let response = try await client.Search_searchUserByClokeyIdAndNickname(input)
+        let response = try await client.Search_searchUserByNickname(input)
 
         switch response {
         case .ok(let okResponse):
