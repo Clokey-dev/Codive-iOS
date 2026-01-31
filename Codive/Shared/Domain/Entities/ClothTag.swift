@@ -14,6 +14,7 @@ struct ClothTag: Identifiable, Equatable, Hashable {
     let clothId: Int
     let brand: String
     let name: String
+    let imageUrl: String?
     var locationX: CGFloat
     var locationY: CGFloat
 

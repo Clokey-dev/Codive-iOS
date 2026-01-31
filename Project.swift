@@ -107,7 +107,18 @@ let project = Project(
                         "storykompassauth",
                         "kakaolink",
                         "kakaotalk-5.9.7"
-                    ]
+                    ],
+
+                    // App Transport Security - HTTP 도메인 예외 추가
+                    "NSAppTransportSecurity": [
+                        "NSExceptionDomains": [
+                            "prod.clokey.store": [
+                                "NSIncludesSubdomains": true,
+                                "NSTemporaryExceptionAllowsInsecureHTTPLoads": true
+                            ]
+                        ]
+                    ],
+
                 ]
             ),
             sources: [

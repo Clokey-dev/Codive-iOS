@@ -46,62 +46,69 @@ final class SearchResultViewModel: ObservableObject {
         $currentSort
             .removeDuplicates()
             .sink { [weak self] newSort in
-                self?.applySorting(newSort: newSort)
+                Task {
+                    await self?.loadPosts()
+                }
             }
             .store(in: &cancellables)
-    }
-
-    private func applySorting(newSort: String) {
-        switch newSort {
-        case "인기순":
-            self.posts = self.allPosts.sorted { $0.likes > $1.likes }
-        case "최신순":
-            self.posts = self.allPosts.sorted { $0.date > $1.date }
-        case "전체":
-            self.posts = self.allPosts
-        default:
-            break
-        }
-        print("정렬 적용 완료: \(newSort), 결과 \(self.posts.count)개")
     }
     
     // MARK: - Public Methods
 
     func loadInitialData() {
-        loadPosts()
-        loadUsers()
+        Task {
+            await loadPosts()
+            await loadUsers()
+        }
     }
-    
-    func loadPosts() {
-        self.allPosts = useCase.fetchPosts(query: self.initialQuery)
-        self.posts = self.allPosts
-        self.applySorting(newSort: self.currentSort)
+
+    func loadPosts() async {
+        do {
+            let sort = currentSort == "전체" ? nil : currentSort
+            self.posts = try await useCase.fetchPosts(query: self.initialQuery, sort: sort)
+        } catch {
+            print("게시물 로딩 실패: \(error.localizedDescription)")
+        }
     }
-    
-    func loadUsers() {
-        self.allUsers = useCase.fetchUsers(query: self.initialQuery)
-        self.users = self.allUsers
-        print("유저 로딩 완료: \(self.users.count)명")
+
+    func loadUsers() async {
+        do {
+            self.allUsers = try await useCase.fetchUsers(query: self.initialQuery)
+            self.users = self.allUsers
+            print("유저 로딩 완료: \(self.users.count)명")
+        } catch {
+            print("유저 로딩 실패: \(error.localizedDescription)")
+        }
     }
-    
+
     func executeNewSearch(query: String) {
         let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmedQuery.isEmpty {
             print("검색어를 입력해 주세요.")
             return
         }
-        
+
         self.initialQuery = trimmedQuery
         self.currentSort = "전체"
 
-        loadPosts()
-        loadUsers()
-        
-        print("현재 페이지에서 검색 결과 갱신: \(trimmedQuery)")
+        Task {
+            await loadPosts()
+            await loadUsers()
+            print("현재 페이지에서 검색 결과 갱신: \(trimmedQuery)")
+        }
     }
     
     // MARK: - Navigation
+
     func handleBackTap() {
         navigationRouter.navigateBack()
+    }
+
+    func navigateToUserProfile(userId: Int) {
+        navigationRouter.navigate(to: .otherProfile(userId: userId))
+    }
+
+    func navigateToFeedDetail(feedId: Int) {
+        navigationRouter.navigate(to: .feedDetail(feedId: feedId))
     }
 }

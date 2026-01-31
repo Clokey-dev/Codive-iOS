@@ -28,8 +28,9 @@ final class FeedDetailViewModel: ObservableObject {
 
     private let feedId: Int
     private let fetchFeedDetailUseCase: FetchFeedDetailUseCase
-    private let fetchLikersUseCase: FetchFeedLikersUseCase 
-    private let feedRepository: FeedRepository
+    private let fetchLikersUseCase: FetchFeedLikersUseCase
+    private let toggleLikeUseCase: ToggleLikeUseCase
+    private let fetchClothTagsUseCase: FetchClothTagsUseCase
     private let navigationRouter: NavigationRouter
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -43,13 +44,15 @@ final class FeedDetailViewModel: ObservableObject {
         feedId: Int,
         fetchFeedDetailUseCase: FetchFeedDetailUseCase,
         fetchLikersUseCase: FetchFeedLikersUseCase,
-        feedRepository: FeedRepository,
+        toggleLikeUseCase: ToggleLikeUseCase,
+        fetchClothTagsUseCase: FetchClothTagsUseCase,
         navigationRouter: NavigationRouter
     ) {
         self.feedId = feedId
         self.fetchFeedDetailUseCase = fetchFeedDetailUseCase
         self.fetchLikersUseCase = fetchLikersUseCase
-        self.feedRepository = feedRepository
+        self.toggleLikeUseCase = toggleLikeUseCase
+        self.fetchClothTagsUseCase = fetchClothTagsUseCase
         self.navigationRouter = navigationRouter
     }
 
@@ -67,11 +70,11 @@ final class FeedDetailViewModel: ObservableObject {
             // 데이터 가공
             self.feed = fetchedFeed
             self.imageUrls = fetchedFeed.images.map { $0.imageUrl }
-            self.displayableTags = mapToDisplayableTags(from: fetchedFeed.images)
             self.formattedDate = format(date: fetchedFeed.createdAt)
+            self.displayableStyles = fetchedFeed.styleNames ?? []
 
-            // TODO: styleIds를 실제 스타일 이름으로 변환하는 로직 구현 필요
-            self.displayableStyles = [] // 현재는 임시로 빈 배열 할당
+            // 각 이미지의 태그를 API로 가져오기
+            self.displayableTags = await loadTagsForImages(images: fetchedFeed.images)
 
         } catch {
             errorMessage = TextLiteral.Feed.loadDetailFailed
@@ -86,20 +89,34 @@ final class FeedDetailViewModel: ObservableObject {
     }
     
     // MARK: - Data Transformation
-    
-    private func mapToDisplayableTags(from images: [FeedImage]) -> [[ClothTag]] {
-        images.map { image in
-            image.tags.map { tag in
-                // TODO: API 연동 시 clothId로 실제 옷 정보(brand, name) 조회하여 사용
-                ClothTag(
-                    id: tag.id,
-                    clothId: tag.clothId,
-                    brand: TextLiteral.Feed.defaultBrand,
-                    name: TextLiteral.Feed.defaultProductName + " \(tag.clothId)",
-                    locationX: CGFloat(tag.locationX),
-                    locationY: CGFloat(tag.locationY)
-                )
+
+    private func loadTagsForImages(images: [FeedImage]) async -> [[ClothTag]] {
+        await withTaskGroup(of: (Int, [ClothTag]).self) { group in
+            // 각 이미지의 태그를 병렬로 가져오기
+            for (index, image) in images.enumerated() {
+                group.addTask { [weak self] in
+                    guard let self = self,
+                          let imageId = image.imageId else {
+                        return (index, [])
+                    }
+
+                    do {
+                        let clothTags = try await self.fetchClothTagsUseCase.execute(historyImageId: imageId)
+                        return (index, clothTags)
+                    } catch {
+                        print("Failed to load tags for image \(imageId): \(error)")
+                        return (index, [])
+                    }
+                }
             }
+
+            // 결과를 순서대로 정렬
+            var result: [(Int, [ClothTag])] = []
+            for await value in group {
+                result.append(value)
+            }
+            result.sort { $0.0 < $1.0 }
+            return result.map { $0.1 }
         }
     }
     
@@ -129,6 +146,7 @@ final class FeedDetailViewModel: ObservableObject {
             images: currentFeed.images,
             situationId: currentFeed.situationId,
             styleIds: currentFeed.styleIds,
+            styleNames: currentFeed.styleNames,
             hashtags: currentFeed.hashtags,
             createdAt: currentFeed.createdAt,
             likeCount: newLikeCount,
@@ -138,7 +156,7 @@ final class FeedDetailViewModel: ObservableObject {
 
         // 서버 요청
         do {
-            try await feedRepository.toggleLike(feedId: currentFeed.id)
+            try await toggleLikeUseCase.execute(feedId: currentFeed.id)
         } catch {
             // 실패 시 롤백
             feed = originalFeed

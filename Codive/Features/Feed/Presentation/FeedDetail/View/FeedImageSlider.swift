@@ -48,7 +48,26 @@ struct FeedImageSlider: View {
                     .frame(width: geometry.size.width, height: geometry.size.height)
                 }
             }
-            
+
+            // 페이지 인디케이터 (우측 상단)
+            if imageUrls.count > 1 {
+                VStack {
+                    HStack {
+                        Spacer()
+                        Text("\(currentIndex + 1)/\(imageUrls.count)")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color.black.opacity(0.5))
+                            .clipShape(Capsule())
+                    }
+                    Spacer()
+                }
+                .padding(.trailing, 20)
+                .padding(.top, 20)
+            }
+
             Button(action: {
                 withAnimation {
                     onTagButtonTap()
@@ -81,7 +100,7 @@ struct FeedImageSlider: View {
             "https://via.placeholder.com/300x400/0000FF"
         ],
         tags: [
-            [ClothTag(id: UUID(), clothId: 1, brand: "Typeservice", name: "Layered Henry Neck", locationX: 0.3, locationY: 0.4)],
+            [ClothTag(id: UUID(), clothId: 1, brand: "Typeservice", name: "Layered Henry Neck", imageUrl: nil, locationX: 0.3, locationY: 0.4)],
             []
         ],
         currentIndex: .constant(0),

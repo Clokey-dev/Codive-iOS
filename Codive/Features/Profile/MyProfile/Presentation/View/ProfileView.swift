@@ -10,11 +10,11 @@ import SwiftUI
 // MARK: - View
 struct ProfileView: View {
     @ObservedObject private var navigationRouter: NavigationRouter
-    @StateObject private var viewModel: ProfileViewModel
+    @ObservedObject private var viewModel: ProfileViewModel
 
-    init(navigationRouter: NavigationRouter) {
-        self.navigationRouter = navigationRouter
-        self._viewModel = StateObject(wrappedValue: ProfileViewModel(navigationRouter: navigationRouter))
+    init(viewModel: ProfileViewModel, navigationRouter: NavigationRouter) {
+        self._viewModel = ObservedObject(wrappedValue: viewModel)
+        self._navigationRouter = ObservedObject(wrappedValue: navigationRouter)
     }
 
     var body: some View {
@@ -24,7 +24,7 @@ struct ProfileView: View {
 
                 profileSection
                     .padding(.top, 32)
-                
+
                 Divider()
                     .padding(.top, 24)
                     .foregroundStyle(Color.Codive.grayscale7)
@@ -39,6 +39,9 @@ struct ProfileView: View {
             }
         }
         .background(Color.white)
+        .task {
+            await viewModel.loadMyProfile()
+        }
     }
 
     // MARK: - Top Bar
@@ -71,11 +74,36 @@ struct ProfileView: View {
     // MARK: - Profile
     private var profileSection: some View {
         VStack {
-            Image("CustomProfile")
-                .resizable()
-                .scaledToFill()
-                .frame(width: 80, height: 80)
-                .clipShape(Circle())
+            if let profileImageUrl = viewModel.profileImageUrl, let url = URL(string: profileImageUrl) {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 80, height: 80)
+                            .clipShape(Circle())
+                    case .empty, .failure:
+                        Image("Profile")
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 80, height: 80)
+                            .clipShape(Circle())
+                    @unknown default:
+                        Image("Profile")
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 80, height: 80)
+                            .clipShape(Circle())
+                    }
+                }
+            } else {
+                Image("Profile")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 80, height: 80)
+                    .clipShape(Circle())
+            }
 
             Text(viewModel.displayName)
                 .font(.codive_title2)
@@ -187,5 +215,5 @@ struct ProfileView: View {
 }
 
 #Preview {
-    ProfileView(navigationRouter: NavigationRouter())
+    EmptyView()
 }

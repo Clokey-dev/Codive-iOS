@@ -18,8 +18,7 @@ struct SettingView: View {
     var body: some View {
         VStack(spacing: 0) {
             CustomNavigationBar(title: TextLiteral.Setting.title) {
-                // 뒤로가기 액션
-                print("뒤로가기")
+                vm.navigateBack()
             }
 
             ScrollView {
@@ -33,6 +32,7 @@ struct SettingView: View {
                 .padding(.top, 24)
             }
         }
+        .navigationBarHidden(true)
         .task {
             await vm.load()
         }
@@ -171,16 +171,16 @@ private struct SettingRow: View {
     let text: String
 
     var body: some View {
-        HStack {
+        HStack(spacing: 12) {
             Text(text)
                 .font(.codive_body1_regular)
                 .foregroundStyle(Color.Codive.grayscale1)
 
             Spacer()
 
-            Image("backSmall")
-                .frame(width: 6, height: 12)
-                .foregroundStyle(Color.Codive.main1)
+            Image(systemName: "chevron.right")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(Color.Codive.grayscale3)
         }
     }
 }

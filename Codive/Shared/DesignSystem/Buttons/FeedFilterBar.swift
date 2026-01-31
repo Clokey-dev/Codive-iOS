@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct FeedFilterBar: View {
-    
+
     // MARK: - Properties
     @Binding var isFollowingSelected: Bool
     let categories: [String]
-    @Binding var selectedCategory: String
+    @Binding var selectedCategory: Set<String>
     var onFilterTap: () -> Void
     
     // MARK: - Body
@@ -25,16 +25,16 @@ struct FeedFilterBar: View {
                     
                     // 스타일 카테고리 버튼
                     ForEach(categories, id: \.self) { category in
-                        let isSelected = selectedCategory == category
-                        
+                        let isSelected = selectedCategory.contains(category)
+
                         FilterSelectionButton(
                             title: category,
                             isSelected: isSelected
                         ) {
-                            if selectedCategory == category {
-                                selectedCategory = "" // Deselect
+                            if selectedCategory.contains(category) {
+                                selectedCategory.remove(category)
                             } else {
-                                selectedCategory = category
+                                selectedCategory.insert(category)
                             }
                         }
                     }
@@ -134,13 +134,13 @@ private struct FilterSelectionButton: View {
         FeedFilterBar(
             isFollowingSelected: .constant(true),
             categories: ["미니멀", "캐주얼", "스트릿", "빈티지"],
-            selectedCategory: .constant("")
+            selectedCategory: .constant([])
         ) {}
-        
+
         FeedFilterBar(
             isFollowingSelected: .constant(false),
             categories: ["미니멀", "캐주얼", "스트릿", "빈티지"],
-            selectedCategory: .constant("미니멀")
+            selectedCategory: .constant(["미니멀", "캐주얼"])
         ) {}
     }
 }

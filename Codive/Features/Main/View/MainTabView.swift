@@ -22,6 +22,8 @@ struct MainTabView: View {
     private let notificationDIContainer: NotificationDIContainer
     private let commentDIContainer: CommentDIContainer
     private let lookBookDIContainer: LookBookDIContainer
+    private let settingDIContainer: SettingDIContainer
+    private let profileDIContainer: ProfileDIContainer
 
     // MARK: - Initializer
     init(appDIContainer: AppDIContainer) {
@@ -34,6 +36,8 @@ struct MainTabView: View {
         self.notificationDIContainer = appDIContainer.makeNotificationDIContainer()
         self.commentDIContainer = appDIContainer.makeCommentDIContainer()
         self.lookBookDIContainer = appDIContainer.makeLookBookDIContainer()
+        self.settingDIContainer = appDIContainer.makeSettingDIContainer()
+        self.profileDIContainer = appDIContainer.makeProfileDIContainer()
 
         self._navigationRouter = ObservedObject(wrappedValue: appDIContainer.navigationRouter)
         let viewModel = MainTabViewModel(navigationRouter: appDIContainer.navigationRouter)
@@ -72,7 +76,7 @@ struct MainTabView: View {
                             case .feed:
                                 FeedView(viewModel: feedDIContainer.makeFeedViewModel())
                             case .profile:
-                                ProfileView(navigationRouter: navigationRouter)
+                                profileDIContainer.makeProfileView()
                             }
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -150,8 +154,8 @@ struct MainTabView: View {
             }
         }
 
-        // 기본 규칙: Add 탭에서만 상단바 숨김
-        return viewModel.selectedTab != .add
+        // 기본 규칙: Add, Profile 탭에서만 상단바 숨김
+        return viewModel.selectedTab != .add && viewModel.selectedTab != .profile
     }
 
     /// 하단 탭 바를 표시할지 여부
@@ -178,6 +182,8 @@ struct MainTabView: View {
             notificationDIContainer.makeNotificationView()
         case .feedDetail(let feedId):
             feedDIContainer.makeFeedDetailView(feedId: feedId)
+        case .otherProfile:
+            feedDIContainer.feedViewFactory.makeView(for: destination)
         case .comment(let feedId):
             commentDIContainer.makeCommentView(feedId: feedId)
         case .editCategory:
@@ -187,9 +193,11 @@ struct MainTabView: View {
         case .favoriteCodiList(let showHeart):
             FavoriteCodiView(showHeart: showHeart, navigationRouter: navigationRouter)
         case .settings:
-            ProfileSettingView(navigationRouter: navigationRouter)
-        case .followList(let mode):
-            FollowListView(mode: mode, navigationRouter: navigationRouter)
+            settingDIContainer.makeSettingView()
+        case .profileSetting:
+            profileDIContainer.makeProfileSettingView()
+        case .followList(let mode, let memberId):
+            profileDIContainer.makeFollowListView(mode: mode, memberId: memberId)
         case .myCloset:
             closetDIContainer.makeMyClosetView()
         case .clothDetail, .clothEdit:

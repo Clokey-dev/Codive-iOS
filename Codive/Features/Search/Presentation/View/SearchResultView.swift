@@ -49,12 +49,17 @@ struct SearchResultView: View {
                 if selectedSegment == .account {
                     VStack(spacing: 0) {
                         ForEach(viewModel.users, id: \.userId) { user in
-                            CustomUserRow(
-                                user: user,
-                                buttonStyle: .none
-                            ) {
-                                // 버튼 동작
+                            Button {
+                                viewModel.navigateToUserProfile(userId: Int(user.userId))
+                            } label: {
+                                CustomUserRow(
+                                    user: user,
+                                    buttonStyle: .none
+                                ) {
+                                    // 버튼 동작
+                                }
                             }
+                            .padding(.vertical, 6)
                         }
                     }
                     .padding(.top, 18)

@@ -9,6 +9,6 @@ protocol SearchRepository {
     func fetchUserName() -> SearchEntity
     func fetchRecentSearchTags() -> [SearchTagEntity]
     func fetchRecommendedNews() -> [NewsEntity]
-    func fetchPosts(query: String) -> [PostEntity]
-    func fetchUsers(query: String) -> [SimpleUser]
+    func fetchPosts(query: String, sort: String?) async throws -> [PostEntity]
+    func fetchUsers(query: String) async throws -> [SimpleUser]
 }
