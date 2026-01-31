@@ -11,6 +11,7 @@ struct SettingView: View {
 
     @ObservedObject private var vm: SettingViewModel
     @ObservedObject private var profileViewModel: ProfileViewModel
+    @State private var showLogoutAlert = false
 
     init(viewModel: SettingViewModel) {
         self.vm = viewModel
@@ -159,8 +160,22 @@ struct SettingView: View {
             SettingRow(text: TextLiteral.Setting.inquiry)
                 .padding(.bottom, 12)
 
-            SettingRow(text: TextLiteral.Setting.logout)
+            Button(action: {
+                showLogoutAlert = true
+            }) {
+                SettingRow(text: TextLiteral.Setting.logout)
+            }
                 .padding(.bottom, 12)
+                .alert("로그아웃", isPresented: $showLogoutAlert) {
+                    Button("취소", role: .cancel) { }
+                    Button("로그아웃", role: .destructive) {
+                        Task {
+                            await vm.logout()
+                        }
+                    }
+                } message: {
+                    Text("정말 로그아웃하시겠습니까?")
+                }
 
             SettingRow(text: TextLiteral.Setting.withdraw)
         }

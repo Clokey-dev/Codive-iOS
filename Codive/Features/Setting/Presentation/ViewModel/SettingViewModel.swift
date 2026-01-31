@@ -13,6 +13,7 @@ final class SettingViewModel: ObservableObject {
     private let navigationRouter: NavigationRouter
     private let getPrefsUC: GetNotificationPrefsUseCase
     private let updatePrefsUC: UpdateNotificationPrefsUseCase
+    private let authRepository: AuthRepository
     let profileViewModel: ProfileViewModel
 
     init(
@@ -20,12 +21,14 @@ final class SettingViewModel: ObservableObject {
         navigationRouter: NavigationRouter,
         getPrefsUC: GetNotificationPrefsUseCase,
         updatePrefsUC: UpdateNotificationPrefsUseCase,
+        authRepository: AuthRepository,
         profileViewModel: ProfileViewModel
     ) {
         self.appRouter = appRouter
         self.navigationRouter = navigationRouter
         self.getPrefsUC = getPrefsUC
         self.updatePrefsUC = updatePrefsUC
+        self.authRepository = authRepository
         self.profileViewModel = profileViewModel
     }
 
@@ -76,5 +79,15 @@ final class SettingViewModel: ObservableObject {
     // MARK: - Navigation
     func navigateBack() {
         navigationRouter.navigateBack()
+    }
+
+    // MARK: - Logout
+    func logout() async {
+        // Domain/Data 레이어: 토큰 삭제 및 소셜 로그아웃
+        await authRepository.logout()
+
+        // Presentation 레이어: AppRouter가 모든 네비게이션 관리
+        // (Router가 navigationRouter를 소유하고 navigateToRoot + 상태 변경 수행)
+        appRouter.logout()
     }
 }
