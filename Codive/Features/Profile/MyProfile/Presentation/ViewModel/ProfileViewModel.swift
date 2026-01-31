@@ -35,17 +35,17 @@ class ProfileViewModel: ObservableObject {
     // MARK: - Dependencies
     private let navigationRouter: NavigationRouter
     private let fetchMyProfileUseCase: FetchMyProfileUseCase
-    private let historyAPIService: HistoryAPIServiceProtocol
+    private let fetchMonthlyHistoryUseCase: FetchMonthlyHistoryUseCase
 
     // MARK: - Initializer
     init(
         navigationRouter: NavigationRouter,
         fetchMyProfileUseCase: FetchMyProfileUseCase,
-        historyAPIService: HistoryAPIServiceProtocol = HistoryAPIService()
+        fetchMonthlyHistoryUseCase: FetchMonthlyHistoryUseCase
     ) {
         self.navigationRouter = navigationRouter
         self.fetchMyProfileUseCase = fetchMyProfileUseCase
-        self.historyAPIService = historyAPIService
+        self.fetchMonthlyHistoryUseCase = fetchMonthlyHistoryUseCase
     }
     
     // MARK: - Loading
@@ -82,7 +82,7 @@ class ProfileViewModel: ObservableObject {
         let monthValue = Int32(calendar.component(.month, from: month))
 
         do {
-            let items = try await historyAPIService.fetchMonthlyHistory(
+            let items = try await fetchMonthlyHistoryUseCase.execute(
                 memberId: Int64(userId),
                 year: year,
                 month: monthValue

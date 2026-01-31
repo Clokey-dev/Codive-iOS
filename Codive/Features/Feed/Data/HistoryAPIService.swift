@@ -15,7 +15,7 @@ protocol HistoryAPIServiceProtocol {
     func createHistory(request: HistoryCreateAPIRequest) async throws -> Int64
     func fetchHistoryDetail(historyId: Int64) async throws -> HistoryDetailDTO
     func fetchClothTags(historyImageId: Int64) async throws -> [ClothTagDTO]
-    func fetchMonthlyHistory(memberId: Int64, year: Int32, month: Int32) async throws -> [MonthlyHistoryItem]
+    func fetchMonthlyHistory(memberId: Int64, year: Int32, month: Int32) async throws -> [MonthlyHistoryItemDTO]
 }
 
 // MARK: - History Detail DTO
@@ -229,7 +229,7 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
 
     // MARK: - Fetch Monthly History
 
-    func fetchMonthlyHistory(memberId: Int64, year: Int32, month: Int32) async throws -> [MonthlyHistoryItem] {
+    func fetchMonthlyHistory(memberId: Int64, year: Int32, month: Int32) async throws -> [MonthlyHistoryItemDTO] {
         let input = Operations.History_getMonthlyHistory.Input(
             path: .init(memberId: memberId),
             query: .init(year: year, month: month)
@@ -250,15 +250,10 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
             }
 
             return payloads.compactMap { payload in
-                guard let historyId = payload.historyId,
-                      let imageUrl = payload.firstImageUrl,
-                      let date = payload.historyDate else {
-                    return nil
-                }
-                return MonthlyHistoryItem(
-                    historyId: historyId,
-                    firstImageUrl: imageUrl,
-                    historyDate: date
+                MonthlyHistoryItemDTO(
+                    historyId: payload.historyId,
+                    firstImageUrl: payload.firstImageUrl,
+                    historyDate: payload.historyDate
                 )
             }
 
