@@ -206,7 +206,8 @@ struct CodiClothView: View {
         self.isEmptyState = isEmptyState
         self.onIndexChanged = onIndexChanged
         
-        let initialIndex = isEmptyState ? 1 : max(0, items.count / 2)
+//        let initialIndex = isEmptyState ? 1 : max(0, items.count / 2)
+        let initialIndex = isEmptyState ? 1 : 0
         _currentIndex = State(initialValue: initialIndex)
     }
     
