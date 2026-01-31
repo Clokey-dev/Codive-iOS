@@ -26,6 +26,7 @@ struct HistoryDetailDTO {
     let images: [HistoryImageDTO]
     let likeCount: Int64
     let commentCount: Int64
+    let isLiked: Bool
     let historyDate: String?
     let situationId: Int64?
     let situationName: String?
@@ -165,6 +166,7 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
                 } ?? [],
                 likeCount: result.likeCount ?? 0,
                 commentCount: result.commentCount ?? 0,
+                isLiked: result.isMine ?? false,
                 historyDate: result.historyDate,
                 situationId: result.situationId,
                 situationName: result.situationName,
