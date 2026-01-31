@@ -245,10 +245,12 @@ struct CommentRow: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                Button(action: {}, label: {
-                    Image("more")
-                        .font(.system(size: 12))
-                })
+                if comment.isMine {
+                    Button(action: {}, label: {
+                        Image("more")
+                            .font(.system(size: 12))
+                    })
+                }
             }
             .padding(.leading, isReply ? 40 : 0)
 
