@@ -40,6 +40,7 @@ struct CodiDetailView: View {
         .background(Color.white)
         .onAppear {
             viewModel.fetchCoordinatePreview()
+            viewModel.fetchCoordinateDetail()
         }
         .alert(TextLiteral.LookBook.codiDelete, isPresented: $viewModel.showDeleteAlert) {
             deleteAlertButtons
@@ -72,9 +73,9 @@ private extension CodiDetailView {
     /// 코디 이미지 및 배경 캔버스 영역
     func codiDisplayArea(width: CGFloat) -> some View {
         let boardSize = max(width - 40, 0)
-        
+
         return ZStack(alignment: .bottomLeading) {
-            // 배경 프레임
+
             RoundedRectangle(cornerRadius: 15)
                 .fill(Color.gray.opacity(0.1))
                 .frame(width: boardSize, height: boardSize)
@@ -83,15 +84,28 @@ private extension CodiDetailView {
                         .stroke(Color.gray.opacity(0.4), lineWidth: 1)
                 }
                 .padding(.horizontal, 20)
-            
-            // 코디 메인 이미지
-            if let detail = viewModel.coordinatePreview {
-                RemoteFillImage(urlString: detail.imageUrl)
-                    .frame(width: width - 80, height: width - 80)
-                    .position(x: width / 2, y: boardSize / 2)
+
+            GeometryReader { geo in
+                ZStack {
+                    if let detail = viewModel.coordinatePreview {
+                        RemoteFillImage(urlString: detail.imageUrl)
+                            .frame(
+                                width: geo.size.width,
+                                height: geo.size.height
+                            )
+                    }
+
+                    /// 🔥 태그 레이어
+                    if viewModel.showClothSelector {
+                        tagOverlayLayer(
+                            imageSize: geo.size
+                        )
+                    }
+                }
             }
-            
-            // 태그 정보 토글 버튼
+            .frame(width: boardSize, height: boardSize)
+            .position(x: width / 2, y: boardSize / 2)
+
             tagToggleButton
         }
     }
@@ -119,6 +133,45 @@ private extension CodiDetailView {
         if let detail = viewModel.coordinatePreview {
             CodiInfoSection(name: detail.coordinateName, memo: detail.coordinateMemo)
         }
+    }
+    
+    @ViewBuilder
+    func tagOverlayLayer(imageSize: CGSize) -> some View {
+
+        // ✅ 선택된 옷만
+        if let detail = viewModel.selectedDetail {
+            tagView(
+                detail: detail,
+                imageSize: imageSize
+            )
+        }
+
+        // ❗️모든 태그 띄우고 싶으면 ↓
+        /*
+        ForEach(viewModel.coordinateDetails, id: \.coordinateClothId) { detail in
+            tagView(detail: detail, imageSize: imageSize)
+        }
+        */
+    }
+    
+    func tagView(
+        detail: CoordinateDetailEntity,
+        imageSize: CGSize
+    ) -> some View {
+
+        CustomTagView(
+            type: .basic(
+                title: detail.brand,
+                content: detail.name
+            )
+        )
+//        .scaleEffect(detail.ratio)
+//        .rotationEffect(.degrees(detail.degree))
+        .position(
+            x: imageSize.width * detail.locationX,
+            y: imageSize.height * detail.locationY
+        )
+        .zIndex(Double(detail.order))
     }
 }
 

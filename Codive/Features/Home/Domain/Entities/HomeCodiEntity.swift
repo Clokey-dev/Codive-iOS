@@ -14,7 +14,7 @@ struct TodayCoordinateEntity {
 
 // MARK: - Codi Item
 struct CodiItemEntity: Identifiable {
-    let id: Int
+    let id: Int64
     let imageName: String
     let clothName: String
     let brandName: String

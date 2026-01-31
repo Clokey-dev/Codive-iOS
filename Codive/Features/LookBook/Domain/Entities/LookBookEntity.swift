@@ -94,7 +94,7 @@ struct SelectedCodiData: Hashable {
 }
 
 struct CodiItem: Identifiable {
-    let id: Int
+    let id: Int64
     let imageName: String
     let brand: String
     let name: String

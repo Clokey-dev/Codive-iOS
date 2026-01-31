@@ -148,6 +148,30 @@ final class LookBookDataSource: LookBookDataSourceProtocol {
             size: size,
             direction: direction
         )
+        // 🔥 MOCK DATA (서버 연동 전)
+//        return LookBookCoordinateResponseDTO(
+//            content: [
+//                LookBookCoordinateListResponseItem(
+//                    coordinateId: 1,
+//                    coordinateName: "로맨틱 시사회 룩",
+//                    coordinateLiked: true,
+//                    imageUrl: "https://image.msscdn.net/images/style/detail/37395/detail_37395_1_500.jpg"
+//                ),
+//                LookBookCoordinateListResponseItem(
+//                    coordinateId: 2,
+//                    coordinateName: "따뜻한 카페 데이트",
+//                    coordinateLiked: false,
+//                    imageUrl: "https://image.msscdn.net/images/style/detail/37390/detail_37390_1_500.jpg"
+//                ),
+//                LookBookCoordinateListResponseItem(
+//                    coordinateId: 13,
+//                    coordinateName: "캐주얼 출근 룩",
+//                    coordinateLiked: false,
+//                    imageUrl: "https://image.msscdn.net/images/style/detail/37410/detail_37410_1_500.jpg"
+//                )
+//            ],
+//            isLast: true
+//            )
     }
     
     /// 과거 일일 코디 조회
@@ -174,6 +198,41 @@ final class LookBookDataSource: LookBookDataSourceProtocol {
     ) async throws -> [CoordinateDetailResponseDTO] {
         return try await apiService.fetchCoordinateDetail(coordinateId: coordinateId)
     }
+    
+//    func fetchCoordinateDetail(
+//        coordinateId: Int64
+//    ) async throws -> [CoordinateDetailResponseDTO] {
+//
+//        // 🔥 서버 없을 때
+//        return [
+//            CoordinateDetailResponseDTO(
+//                coordinateClothId: 1,
+//                locationX: 0.3,
+//                locationY: 0.4,
+//                ratio: 1.0,
+//                degree: 0,
+//                order: 0,
+//                imageUrl: "https://pngimg.com/uploads/jacket/jacket_PNG8055.png",
+//                brand: "아디다스",
+//                name: "트랙탑",
+//                category: "TOP",
+//                parentCategory: "OUTER"
+//            ),
+//            CoordinateDetailResponseDTO(
+//                coordinateClothId: 2,
+//                locationX: 0.5,
+//                locationY: 0.7,
+//                ratio: 1.0,
+//                degree: 0,
+//                order: 1,
+//                imageUrl: "https://pngimg.com/uploads/jeans/jeans_PNG5777.png",
+//                brand: "리바이스",
+//                name: "데님 팬츠",
+//                category: "BOTTOM",
+//                parentCategory: "PANTS"
+//            )
+//        ]
+//    }
     
     /// 오늘의 코디 옷 정보 조회
     func fetchTodayCoordinateClothes() async throws -> [GetTodayCoordinateClothResponseDTO] {

@@ -11,8 +11,9 @@ import SwiftUI
 final class CodiDetailViewModel: ObservableObject {
     
     // MARK: - Properties (State: Data)
-
+    
     @Published var coordinatePreview: CoordinatePreviewEntity?
+    @Published var coordinateDetails: [CoordinateDetailEntity] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     
@@ -38,13 +39,20 @@ final class CodiDetailViewModel: ObservableObject {
     
     /// 상세 데이터로부터 화면에 표시할 개별 의류 아이템 리스트를 생성합니다.
     var clothItems: [CodiItem] {
-        guard let detail = coordinatePreview else { return [] }
-        // TODO: 실제 API 응답 구조에 맞게 브랜드 및 이름 매핑 로직 확인 필요
-        return [
-            CodiItem(id: 1, imageName: detail.imageUrl, brand: "Brand", name: "Top"),
-            CodiItem(id: 2, imageName: detail.imageUrl, brand: "Brand", name: "Bottom"),
-            CodiItem(id: 3, imageName: detail.imageUrl, brand: "Brand", name: "Shoes")
-        ]
+        coordinateDetails.map {
+            CodiItem(
+                id: $0.coordinateClothId,
+                imageName: $0.imageUrl,
+                brand: $0.brand,
+                name: $0.name
+            )
+        }
+    }
+    
+    var selectedDetail: CoordinateDetailEntity? {
+        guard let index = selectedIndex,
+              index < coordinateDetails.count else { return nil }
+        return coordinateDetails[index]
     }
     
     // MARK: - Initializer
@@ -89,6 +97,20 @@ extension CodiDetailViewModel {
 // MARK: - UI Logic & Selection
 
 extension CodiDetailViewModel {
+    
+    /// 코디 디테일 조회
+    func fetchCoordinateDetail() {
+        Task {
+            do {
+                let details = try await codiUseCase.fetchCoordinateDetail(
+                    coordinateId: coordinateId
+                )
+                self.coordinateDetails = details
+            } catch {
+                handleError(error)
+            }
+        }
+    }
     
     /// 의류 선택기(셀렉터) 표시 여부를 토글합니다.
     func toggleClothSelector() {
