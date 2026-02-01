@@ -23,6 +23,19 @@ final class AddCodiDetailViewModel: ObservableObject {
     private let productUseCase: ProductUseCase
     private let lookbookId: Int
     
+    var codiPayloads: [Payloads] {
+        return images.enumerated().map { (index, entity) in
+            Payloads(
+                clothId: Int64(entity.id),
+                locationX: Double(entity.position.x),
+                locationY: Double(entity.position.y),
+                ratio: Double(entity.scale),
+                degree: Double(entity.rotation),
+                order: Int32(index+1) // 배열의 순서가 곧 레이어 순서(order)가 됩니다.
+            )
+        }
+    }
+    
     init(navigationRouter: NavigationRouter, productUseCase: ProductUseCase, lookbookId: Int) {
         self.navigationRouter = navigationRouter
         self.productUseCase = productUseCase
@@ -108,5 +121,37 @@ final class AddCodiDetailViewModel: ObservableObject {
     }
     
     func handleBackTap() { navigationRouter.navigateBack() }
-    func handleComplete() { navigationRouter.navigateBack() }
+
+    func handleComplete() {
+        let finalData = codiPayloads // [Payloads] 배열 가져오기
+        
+        print("--- 🔽 Codi Payloads 상세 정보 (총 \(finalData.count)개) ---")
+        
+        if finalData.isEmpty {
+            print("선택된 아이템이 없습니다.")
+        } else {
+            // 방법 1: dump 사용 (객체 구조 전체를 상세히 출력)
+            dump(finalData)
+            
+            // 방법 2: 가독성 있게 직접 출력하고 싶은 경우
+            /*
+            for (index, payload) in finalData.enumerated() {
+                print("""
+                [순서: \(index)]
+                - clothId: \(payload.clothId)
+                - 위치: (\(payload.locationX), \(payload.locationY))
+                - 배율(ratio): \(payload.ratio)
+                - 각도(degree): \(payload.degree)
+                - 레이어 순서(order): \(payload.order)
+                ------------------------------------------
+                """)
+            }
+            */
+        }
+        
+        print("--- 🔼 출력 완료 ---")
+
+        // 실제 완료 처리 (API 호출 등)
+        // navigationRouter.navigateBack()
+    }
 }
