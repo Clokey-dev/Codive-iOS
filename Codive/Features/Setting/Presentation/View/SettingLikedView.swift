@@ -60,7 +60,7 @@ struct SettingLikedView: View {
                                 .frame(width: itemWidth, height: itemHeight)
                                 .clipped()
                                 .onTapGesture {
-                                    // 게시글 상세로 이동
+                                    vm.navigateToFeedDetail(feedId: Int(item.id))
                                 }
                             }
                         }
