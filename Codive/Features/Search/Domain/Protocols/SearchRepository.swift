@@ -12,8 +12,8 @@ protocol SearchRepository {
     func fetchUserName() -> SearchEntity
     func fetchRecentSearchTags() -> [SearchTagEntity]
     func fetchRecommendedNews() -> [NewsEntity]
-    func fetchPosts(query: String) -> [PostEntity]
-    func fetchUsers(query: String) -> [SimpleUser]
+//    func fetchPosts(query: String) -> [PostEntity]
+//    func fetchUsers(query: String) -> [SimpleUser]
     
     /// 검색 탭 기록 추천
     func fetchSearchRecommendation() async throws -> [SearchRecommendationEntity]
@@ -40,6 +40,8 @@ protocol SearchRepository {
     
     /// 전체 기록 검색 엔진 동기화(개발용)
     func fetchSearchHistorySyncAll() async throws
+    
+    /// 디벨롭꺼
     func fetchPosts(query: String, sort: String?) async throws -> [PostEntity]
     func fetchUsers(query: String) async throws -> [SimpleUser]
 }

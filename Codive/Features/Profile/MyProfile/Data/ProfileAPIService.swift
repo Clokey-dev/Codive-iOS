@@ -118,7 +118,7 @@ final class ProfileAPIService: ProfileAPIServiceProtocol {
             bio: bio,
             visibility: visibility,
             profileImageUrl: currentImageUrl ?? "",
-            profileBackImageUrl: ""
+//            profileBackImageUrl: ""
         )
 
         let response = try await client.Member_updateProfile(
@@ -164,7 +164,7 @@ final class ProfileAPIService: ProfileAPIServiceProtocol {
         let uploadPayload = Components.Schemas.ClothImagesUploadRequestPayload(fileExtension: .JPEG, md5Hashes: md5Hash)
         let requestBody = Components.Schemas.ClothImagesUploadRequest(payloads: [uploadPayload])
 
-        let response = try await client.Cloth_getClothUploadPresignedUrl(
+        let response = try await client.ClothAi_getClothUploadPresignedUrl(
             .init(body: .json(requestBody))
         )
 
