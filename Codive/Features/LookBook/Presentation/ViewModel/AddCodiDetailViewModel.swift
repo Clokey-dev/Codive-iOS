@@ -17,6 +17,7 @@ final class AddCodiDetailViewModel: ObservableObject {
     @Published var images: [DraggableImageEntity] = []
     @Published var currentlyDraggedID: Int?
     @Published var selectedImageID: Int?
+    @Published var capturedImageString: String? = nil
     var boardSize: CGFloat = 300
     
     private let navigationRouter: NavigationRouter
@@ -120,38 +121,43 @@ final class AddCodiDetailViewModel: ObservableObject {
         selectedImageID = id
     }
     
+    // MARK: - View Capture Logic
+    func captureBoard(view: some View) {
+        let renderer = ImageRenderer(content: view)
+        renderer.scale = UIScreen.main.scale
+        
+        // 렌더링 시점에 이미지가 준비되었는지 확인
+        if let uiImage = renderer.uiImage {
+            // MARK: - JPG 타입으로 변환 (압축률 0.8)
+            // pngData() 대신 jpegData()를 사용하여 JPG 포맷 데이터를 추출합니다.
+            if let jpgData = uiImage.jpegData(compressionQuality: 0.8) {
+                let base64String = jpgData.base64EncodedString()
+                self.capturedImageString = base64String
+                
+                print("--- 📸 JPG 캡처 완료 ---")
+                // 디코딩 사이트에서 확인 시 앞에 붙여야 할 헤더 정보
+                print("data:image/jpeg;base64,\(base64String.prefix(20))...")
+            }
+        }
+    }
+    
     func handleBackTap() { navigationRouter.navigateBack() }
 
     func handleComplete() {
-        let finalData = codiPayloads // [Payloads] 배열 가져오기
+        let finalData = codiPayloads
         
-        print("--- 🔽 Codi Payloads 상세 정보 (총 \(finalData.count)개) ---")
+        print("--- 🔽 Codi Payloads 상세 정보 ---")
+        dump(finalData)
         
-        if finalData.isEmpty {
-            print("선택된 아이템이 없습니다.")
-        } else {
-            // 방법 1: dump 사용 (객체 구조 전체를 상세히 출력)
-            dump(finalData)
-            
-            // 방법 2: 가독성 있게 직접 출력하고 싶은 경우
-            /*
-            for (index, payload) in finalData.enumerated() {
-                print("""
-                [순서: \(index)]
-                - clothId: \(payload.clothId)
-                - 위치: (\(payload.locationX), \(payload.locationY))
-                - 배율(ratio): \(payload.ratio)
-                - 각도(degree): \(payload.degree)
-                - 레이어 순서(order): \(payload.order)
-                ------------------------------------------
-                """)
-            }
-            */
+        // MARK: 이미지 문자열 출력 부분
+        print("\n--- 📸 캡처된 이미지 Base64 문자열 ---")
+        if let imageString = capturedImageString {
+            // 웹 사이트에서 바로 이미지로 보려면 아래 형식을 복사해서 붙여넣어보세요.
+            let webFormat = "data:image/jpeg;base64,\(imageString)"
+            print("\n--- 🌐 웹 디코더용 전체 문자열 ---")
+            print(webFormat)
         }
         
-        print("--- 🔼 출력 완료 ---")
-
-        // 실제 완료 처리 (API 호출 등)
         // navigationRouter.navigateBack()
     }
 }

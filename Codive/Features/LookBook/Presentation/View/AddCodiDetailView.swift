@@ -16,6 +16,23 @@ struct AddCodiDetailView: View {
     
     private let collapsedHeight: CGFloat = 250
     
+    // 캡처할 대상 뷰를 별도로 정의
+    private var codiBoardView: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 15)
+                .fill(Color(UIColor.systemGray6))
+            
+            DraggableImageView(
+                items: $viewModel.images,
+                onActivate: { id in
+                    viewModel.bringImageToFront(id: id)
+                }
+            )
+        }
+        .frame(width: viewModel.boardSize, height: viewModel.boardSize)
+        .clipped()
+    }
+    
     // MARK: - Initializer
     
     init(viewModel: AddCodiDetailViewModel) {
@@ -35,7 +52,17 @@ struct AddCodiDetailView: View {
                 rightButton: .text(
                     title: TextLiteral.Common.complete,
                     isEnabled: !viewModel.selectedProductIds.isEmpty,
-                    action: viewModel.handleComplete
+                    action: {
+                        // 버튼 클릭 시 비동기 Task 시작
+                        Task {
+                            // 0.2초 대기 (이미지가 렌더링될 시간 확보)
+                            try? await Task.sleep(nanoseconds: 200_000_000)
+                            
+                            // 캡처 및 완료 처리
+                            await viewModel.captureBoard(view: codiBoardView)
+                            viewModel.handleComplete()
+                        }
+                    }
                 )
             )
             .padding(.horizontal, 15)
@@ -86,28 +113,9 @@ struct AddCodiDetailView: View {
 //                        .padding(.horizontal, 20)
                         
                         // MARK: Codi Board (Draggable Area)
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 15)
-                                .fill(Color(UIColor.systemGray6))
-                                .frame(width: boardSize, height: boardSize)
-                                .overlay(
-                                    Text(TextLiteral.LookBook.selectItem)
-                                        .foregroundColor(.gray)
-                                        .opacity(viewModel.images.isEmpty ? 1 : 0)
-                                )
-                            
-                            // 이미지가 그려지는 영역
-                            DraggableImageView(
-                                items: $viewModel.images,
-                                onActivate: { id in
-                                    viewModel.bringImageToFront(id: id)
-                                }
-                            )
-                        }
-                        .frame(width: boardSize, height: boardSize) // 보드 크기로 프레임 고정
-                        .clipped() // 중요: 프레임 밖으로 나가는 이미지를 가림
-                        .cornerRadius(15) // 배경색과 곡률을 맞추기 위해 추가
-                        .padding(.horizontal, 20)
+                        codiBoardView
+                            .cornerRadius(15)
+                            .padding(.horizontal, 20)
                         
                         Spacer()
                     }

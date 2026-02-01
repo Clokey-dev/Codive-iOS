@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct DraggableImageView<T: DraggableImageProtocol>: View {
     @Binding var items: [T]
@@ -21,17 +22,18 @@ struct DraggableImageView<T: DraggableImageProtocol>: View {
                     rotation: $item.rotation,
                     onActivate: { onActivate(item.id) }
                 ) {
-                    // 외부에서 이미지 렌더링 방식을 결정할 수도 있지만,
-                    // 기본적으로 프로토콜의 imageUrl을 사용합니다.
-                    AsyncImage(url: URL(string: item.imageUrl)) { phase in
-                        if let image = phase.image {
-                            image.resizable().scaledToFit()
-                        } else {
-                            Color.gray.opacity(0.2)
-                                .overlay(ProgressView())
+                    // 순서 중요: KFImage 바로 뒤에 Kingfisher 전용 메서드를 배치합니다.
+                    KFImage(URL(string: item.imageUrl))
+                        .placeholder { // 로딩 중 보여줄 뷰
+                            ProgressView()
+                                .frame(width: 180, height: 180)
                         }
-                    }
-                    .frame(width: 180, height: 180)
+                        .onFailure { error in // 로드 실패 시 로직
+                            print("이미지 로드 실패: \(error.localizedDescription)")
+                        }
+                        .resizable() // 여기서부터는 일반 SwiftUI View로 변환됨
+                        .scaledToFit()
+                        .frame(width: 180, height: 180)
                 }
             }
         }

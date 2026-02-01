@@ -13,6 +13,7 @@ import PackageDescription
             "KakaoSDKAuth": .framework,
             "KakaoSDKCommon": .framework,
             "Alamofire": .framework,
+            "Kingfisher": .framework,
         ]
     )
 #endif
@@ -23,6 +24,7 @@ let package = Package(
         // 카카오 SDK
         .package(url: "https://github.com/kakao/kakao-ios-sdk", from: "2.22.5"),
         .package(url: "https://github.com/Moya/Moya.git", from: "15.0.0"),
-        .package(url: "https://github.com/Clokey-dev/CodiveAPI", branch: "main")
+        .package(url: "https://github.com/Clokey-dev/CodiveAPI", branch: "main"),
+        .package(url: "https://github.com/onevcat/Kingfisher.git", from: "8.0.0")
     ]
 )
