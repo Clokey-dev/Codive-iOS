@@ -12,68 +12,6 @@ import CryptoKit
 
 // MARK: - HomeCategoryAPIService Protocol
 
-protocol LookBookAPIServiceProtocol {
-    /// 룩북 전체 조회
-    func fetchLookBookList(
-        lastLookBookId: Int64?,
-        size: Int32,
-        direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
-    ) async throws -> LookBookListResponseDTO
-    
-    /// 개별 룩북 내 코디 조회
-    func fetchLookBookCoordinateList(
-        lookBookId: Int64,
-        lastCoordinateId: Int64?,
-        size: Int32,
-        direction: Operations.LookBook_getCoordinates.Input.Query.directionPayload
-    ) async throws -> LookBookCoordinateResponseDTO
-    
-    /// 과거 일일 코디 조회
-    func fetchPastCoordinates(
-        lastCoordinateId: Int64?,
-        size: Int32,
-        direction: Operations.Coordinate_getDailyCoordinates.Input.Query.directionPayload
-    ) async throws -> PastDailyCoordinateResponseDTO
-    
-    /// 코디 preview 조회
-    func fetchCoordinatePreview(coordinateId: Int64) async throws -> CoordinatePreviewResponseDTO
-    
-    /// 코디 detail 조회
-    func fetchCoordinateDetail(
-        coordinateId: Int64
-    ) async throws -> [CoordinateDetailResponseDTO]
-    
-    /// 오늘의 코디 옷 정보 조회
-    func fetchTodayCoordinateClothes() async throws -> [GetTodayCoordinateClothResponseDTO]
-    
-    /// 옷 리스트 조회
-    func fetchClothes(lastClothId: Int64?, size: Int32, categoryId: Int64?, seasons: [Season]) async throws -> ClothListResult
-    
-    /// 룩북 생성
-    func createLookBook(request: CreateLookBookAPIRequestDTO) async throws -> CreateLookBookResponseDTO
-    
-    /// 코디 수동 생성
-    func createManualCoordinate(request: CreateManualCoordinateAPIRequestDTO) async throws -> CreateManualCoordinateAPIResponseDTO
-    
-    /// 룩북 삭제
-    func deleteLookBook(lookBookId: Int64) async throws
-    
-    /// 룩북 수정
-    func updateLookBook(lookBookId: Int64, request: UpdateLookBookAPIRequestDTO) async throws
-    
-    /// 코디 삭제
-    func deleteCoordinate(coordinateId: Int64) async throws
-    
-    /// 코디 좋아요 토글
-    func patchCoordinateLike(coordinateId: Int64) async throws
-    
-    /// 코디 수정
-    func patchUpdateCoordinates(coordinateId: Int64, request: EditCoordinateRequestDTO) async throws
-    
-    /// 이전 일일 코디로 자동 생성
-    func createAutoDailyCoordinate(request: CreateAutoDailyCoordinateAPIRequestDTO) async throws -> CreateAutoDailyCoordinateAPIResponseDTO
-}
-
 final class LookBookAPIService: LookBookAPIServiceProtocol {
 
     private let client: Client
@@ -522,6 +460,39 @@ extension LookBookAPIService {
 }
 
 extension LookBookAPIService {
+    func getPresignedUrls(for images: [Data]) async throws -> [PresignedUrlInfo] {
+        let payloads = images.map { imageData in
+            let md5Hash = calculateMD5(from: imageData)
+            return (
+                payload: Components.Schemas.ClothImagesUploadRequestPayload(fileExtension: .JPEG, md5Hashes: md5Hash),
+                md5Hash: md5Hash
+            )
+        }
+
+        let requestBody = Components.Schemas.ClothImagesUploadRequest(payloads: payloads.map { $0.payload })
+        let input = Operations.ClothAi_getClothUploadPresignedUrl.Input(body: .json(requestBody))
+        let response = try await client.ClothAi_getClothUploadPresignedUrl(input)
+
+        switch response {
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseClothImagesPresignedUrlResponse.self, from: data)
+
+            guard let urls = decoded.result?.urls, urls.count == images.count else {
+                throw ClothAPIError.presignedUrlMismatch
+            }
+
+            return zip(urls, payloads).map { url, payloadInfo in
+                PresignedUrlInfo(presignedUrl: url, finalUrl: extractFinalUrl(from: url), md5Hash: payloadInfo.md5Hash)
+            }
+
+        case .undocumented(statusCode: let code, _):
+            throw LookBookAPIError.serverError(statusCode: code, message: "Presigned URL 발급 실패")
+        }
+    }
+}
+
+extension LookBookAPIService {
     private func formatDate(_ date: Date?) -> String {
         guard let date else { return "" }
         
@@ -550,6 +521,20 @@ extension LookBookAPIService {
         case .winter: return .WINTER
         }
     }
+    
+    func calculateMD5(from data: Data) -> String {
+        let digest = Insecure.MD5.hash(data: data)
+        return Data(digest).base64EncodedString()
+    }
+
+    func extractFinalUrl(from presignedUrl: String) -> String {
+        guard let url = URL(string: presignedUrl),
+              var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+            return presignedUrl
+        }
+        components.query = nil
+        return components.string ?? presignedUrl
+    }
 }
 
 // MARK: - ClothAPIError
@@ -558,6 +543,7 @@ enum LookBookAPIError: LocalizedError {
     case presignedUrlMismatch
     case invalidUrl
     case invalidResponse
+    case invalidImageData
     case s3UploadFailed(statusCode: Int)
     case noClothIdsReturned
     case serverError(statusCode: Int, message: String)
@@ -576,6 +562,8 @@ enum LookBookAPIError: LocalizedError {
             return "서버에서 생성된 옷 ID를 반환하지 않았습니다."
         case .serverError(let statusCode, let message):
             return "서버 오류 (\(statusCode)): \(message)"
+        case .invalidImageData:
+                return "이미지 데이터가 올바르지 않습니다."
         }
     }
 }

@@ -6,6 +6,7 @@
 //
 
 import CodiveAPI
+import Foundation
 
 final class LookBookRepositoryImpl: LookBookRepository {
     // MARK: - Properties
@@ -146,6 +147,10 @@ final class LookBookRepositoryImpl: LookBookRepository {
         let dto = try await datasource.createAutoDailyCoordinate(request: request)
         return dto.toEntity()
     }
+    
+    func uploadCodiImage(jpgData: Data) async throws -> String {
+            return try await datasource.uploadCodiImage(jpgData: jpgData)
+        }
 }
 
 extension LookBookRepositoryImpl {

@@ -60,7 +60,7 @@ struct AddCodiDetailView: View {
                             
                             // 캡처 및 완료 처리
                             await viewModel.captureBoard(view: codiBoardView)
-                            viewModel.handleComplete()
+                            await viewModel.handleComplete()
                         }
                     }
                 )

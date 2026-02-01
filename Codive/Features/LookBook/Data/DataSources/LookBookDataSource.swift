@@ -305,6 +305,56 @@ final class LookBookDataSource: LookBookDataSourceProtocol {
     }
 }
 
+// MARK: - LookBookDataSource.swift에 추가
+
+extension LookBookDataSource {
+    /// 코디 이미지를 S3에 업로드하고 최종 URL을 반환
+    func uploadCodiImage(jpgData: Data) async throws -> String {
+        // 1. Presigned URL 발급 (기존 함수 활용)
+        let presignedUrlInfos = try await apiService.getPresignedUrls(for: [jpgData])
+        
+        guard let urlInfo = presignedUrlInfos.first else {
+            throw LookBookAPIError.invalidUrl
+        }
+        
+        // 2. S3에 실제 이미지 업로드
+        try await uploadImageToS3(
+            presignedUrl: urlInfo.presignedUrl,
+            imageData: jpgData,
+            md5Hash: urlInfo.md5Hash
+        )
+        
+        // 3. 최종 접근 가능한 URL 반환
+        return urlInfo.finalUrl
+    }
+    
+    /// S3에 이미지를 PUT 방식으로 업로드
+    private func uploadImageToS3(
+        presignedUrl: String,
+        imageData: Data,
+        md5Hash: String
+    ) async throws {
+        guard let url = URL(string: presignedUrl) else {
+            throw LookBookAPIError.invalidUrl
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type")
+        request.setValue(md5Hash, forHTTPHeaderField: "Content-MD5")
+        request.httpBody = imageData
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            throw LookBookAPIError.invalidUrl
+        }
+        
+        print("✅ S3 이미지 업로드 성공")
+    }
+}
+
 extension LookBookDataSource {
     
     // MARK: - Example Fetch APIs

@@ -6,6 +6,7 @@
 //
 
 import CodiveAPI
+import Foundation
 
 final class CodiUseCase {
 

@@ -1,55 +1,57 @@
 //
-//  LookBookRepository.swift
+//  LookBookAPIServiceProtocol.swift
 //  Codive
 //
-//  Created by 한금준 on 11/22/25.
+//  Created by 한금준 on 2/1/26.
 //
 
-import CodiveAPI
 import Foundation
+import CodiveAPI
+import OpenAPIRuntime
+import CryptoKit
 
-protocol LookBookRepository {
-    // 룩북 조회
+protocol LookBookAPIServiceProtocol {
+    /// 룩북 전체 조회
     func fetchLookBookList(
         lastLookBookId: Int64?,
         size: Int32,
         direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
-    ) async throws -> (content: [LookBookEntity], isLast: Bool)
+    ) async throws -> LookBookListResponseDTO
     
-    // 특정 룩북의 코디 목록 조회
+    /// 개별 룩북 내 코디 조회
     func fetchLookBookCoordinateList(
         lookBookId: Int64,
         lastCoordinateId: Int64?,
         size: Int32,
         direction: Operations.LookBook_getCoordinates.Input.Query.directionPayload
-    ) async throws -> (content: [SpecificLookBookCodiEntity], isLast: Bool)
+    ) async throws -> LookBookCoordinateResponseDTO
     
     /// 과거 일일 코디 조회
     func fetchPastCoordinates(
         lastCoordinateId: Int64?,
         size: Int32,
         direction: Operations.Coordinate_getDailyCoordinates.Input.Query.directionPayload
-    ) async throws -> (content: [BeforeCoordinateDailyEntity], isLast: Bool)
+    ) async throws -> PastDailyCoordinateResponseDTO
     
     /// 코디 preview 조회
-    func fetchCoordinatePreview(coordinateId: Int64) async throws -> CoordinatePreviewEntity
+    func fetchCoordinatePreview(coordinateId: Int64) async throws -> CoordinatePreviewResponseDTO
     
     /// 코디 detail 조회
     func fetchCoordinateDetail(
         coordinateId: Int64
-    ) async throws -> [CoordinateDetailEntity]
+    ) async throws -> [CoordinateDetailResponseDTO]
     
     /// 오늘의 코디 옷 정보 조회
-    func fetchTodayCoordinateClothes() async throws -> [TodayCoordinateClothEntity]
+    func fetchTodayCoordinateClothes() async throws -> [GetTodayCoordinateClothResponseDTO]
     
     /// 옷 리스트 조회
-    func fetchClothItems(category: String?) async throws -> [ProductItem]
+    func fetchClothes(lastClothId: Int64?, size: Int32, categoryId: Int64?, seasons: [Season]) async throws -> ClothListResult
     
     /// 룩북 생성
     func createLookBook(request: CreateLookBookAPIRequestDTO) async throws -> CreateLookBookResponseDTO
     
     /// 코디 수동 생성
-    func createManualCoordinate(request: CreateManualCoordinateAPIRequestDTO) async throws -> ManualCoordinateEntity
+    func createManualCoordinate(request: CreateManualCoordinateAPIRequestDTO) async throws -> CreateManualCoordinateAPIResponseDTO
     
     /// 룩북 삭제
     func deleteLookBook(lookBookId: Int64) async throws
@@ -67,20 +69,8 @@ protocol LookBookRepository {
     func patchUpdateCoordinates(coordinateId: Int64, request: EditCoordinateRequestDTO) async throws
     
     /// 이전 일일 코디로 자동 생성
-    func createAutoDailyCoordinate(request: CreateAutoDailyCoordinateAPIRequestDTO) async throws -> AutoDailyCoordinateEntity
+    func createAutoDailyCoordinate(request: CreateAutoDailyCoordinateAPIRequestDTO) async throws -> CreateAutoDailyCoordinateAPIResponseDTO
     
-    /// 하단은 삭제해야할 기존 코드
-    
-    // 과거 일일 코디 조회
-    func fetchBeforeCoordinateDaily() async throws -> [BeforeCoordinateDailyEntity]
-    
-    // 코디 좋아요
-    func toggleCodiLike(_ request: CodiLikeEntity, isLiked: Bool) async throws
-    // 코디 삭제
-    func deleteCodis(_ codis: [DeleteCodiEntity], lookbookId: Int) async throws
-    
-    // 코디 프리뷰 조회
-    func fetchCoordinatePreview(coordinateId: Int) async throws -> CoordinatePreviewEntity
-    
-    func uploadCodiImage(jpgData: Data) async throws -> String
+    /// 이미지 url 생성
+    func getPresignedUrls(for images: [Data]) async throws -> [PresignedUrlInfo]
 }
