@@ -4,12 +4,14 @@
 //
 
 import Foundation
+import CodiveAPI
 
-/// 네트워크 붙기 전까지 사용할 인메모리 스텁
 final class SettingsDataSource {
 
+    // MARK: - Properties
+    private let apiClient: Client
+
     // MARK: - In-memory stores
-    private var likedRecordsStore: [LikedRecord] = []
     private var myCommentsStore: [MyComment] = []
     private var blockedUsersStore: [BlockedUser] = []
     private var notificationPrefsStore: NotificationPrefs = .init(
@@ -24,21 +26,9 @@ final class SettingsDataSource {
               body: "작성한 게시물/댓글은 정책에 따라 익명화되거나 삭제될 수 있습니다.")
     ]
 
-    // MARK: - Init (샘플 데이터)
-    init() {
-        likedRecordsStore = (1...25).compactMap { i in
-            let urlString = "https://picsum.photos/id/\(i % 100)/200/200"
-            guard let url = URL(string: urlString) else {
-                assertionFailure("Stub URL invalid: \(urlString)")
-                return nil        // 잘못된 건 그냥 버림 (더미 데이터니까)
-            }
-
-            return LikedRecord(
-                postId: PostID(i),
-                thumbnailURL: url,
-                likedAt: Date().addingTimeInterval(TimeInterval(-i * 1_800))
-            )
-        }
+    // MARK: - Init
+    init(apiClient: Client = CodiveAPIProvider.createClient()) {
+        self.apiClient = apiClient
 
         // 내가 남긴 댓글 
         myCommentsStore = (1...17).map { i in
@@ -68,11 +58,71 @@ final class SettingsDataSource {
 
     // MARK: - Liked Records
     func fetchLikedRecords(page: Int, pageSize: Int) async throws -> [LikedRecord] {
-        guard page > 0, pageSize > 0 else { return [] }
-        let start = (page - 1) * pageSize
-        let end = min(start + pageSize, likedRecordsStore.count)
-        guard start < end else { return [] }
-        return Array(likedRecordsStore[start..<end])
+        let lastLikeId: Int64? = page > 1 ? Int64((page - 1) * pageSize) : nil
+        let jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
+
+        let response = try await apiClient.Like_getLikedHistories(
+            query: .init(lastLikeId: lastLikeId, size: Int32(pageSize))
+        )
+
+        switch response {
+        case .ok(let okResponse):
+            let httpBody = try okResponse.body.any
+            let data = try await Data(collecting: httpBody, upTo: .max)
+
+            struct APIResponse: Decodable {
+                let isSuccess: Bool
+                let code: String
+                let message: String
+                let timeStamp: String
+                let result: Result
+
+                struct Result: Decodable {
+                    let content: [LikedHistoryDTO]
+                    let isLast: Bool
+                }
+            }
+
+            struct LikedHistoryDTO: Decodable {
+                let id: Int64
+                let imageUrl: String
+                let historyDate: String
+                let lastLikeId: Int64?
+            }
+
+            let apiResponse = try jsonDecoder.decode(APIResponse.self, from: data)
+
+            guard apiResponse.isSuccess else {
+                throw NSError(domain: "API Error", code: -1, userInfo: [NSLocalizedDescriptionKey: apiResponse.message])
+            }
+
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd"
+            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+
+            return apiResponse.result.content.map { dto in
+                let url = URL(string: dto.imageUrl) ?? URL(fileURLWithPath: "")
+                let historyDate = dateFormatter.date(from: dto.historyDate) ?? Date()
+
+                return LikedRecord(
+                    id: dto.id,
+                    thumbnailURL: url,
+                    historyDate: historyDate,
+                    lastLikeId: dto.lastLikeId ?? 0
+                )
+            }
+
+        default:
+            if case .undocumented(let statusCode, let payload) = response {
+                if let body = payload.body {
+                    let data = try await Data(collecting: body, upTo: .max)
+                    if let responseBody = String(data: data, encoding: .utf8) {
+                        print("fetchLikedRecords error response [\(statusCode)]: \(responseBody)")
+                    }
+                }
+            }
+            throw NSError(domain: "SettingDataSource", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to fetch liked records"])
+        }
     }
 
     // MARK: - My Comments

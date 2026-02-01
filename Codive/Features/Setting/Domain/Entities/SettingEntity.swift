@@ -16,15 +16,17 @@ public struct SimpleUser: Hashable, Sendable {
 
 // 좋아요한 기록
 public struct LikedRecord: Hashable, Sendable, Identifiable {
-    public let postId: PostID
+    public let id: Int64
     public let thumbnailURL: URL
-    public let likedAt: Date
-    public init(postId: PostID, thumbnailURL: URL, likedAt: Date) {
-        self.postId = postId
+    public let historyDate: Date
+    public let lastLikeId: Int64
+
+    public init(id: Int64, thumbnailURL: URL, historyDate: Date, lastLikeId: Int64) {
+        self.id = id
         self.thumbnailURL = thumbnailURL
-        self.likedAt = likedAt
+        self.historyDate = historyDate
+        self.lastLikeId = lastLikeId
     }
-    public var id: PostID { postId }
 }
 
 // 내가 남긴 댓글

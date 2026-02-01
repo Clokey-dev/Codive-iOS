@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import CodiveAPI
 
 @MainActor
 final class SettingDIContainer {
@@ -16,6 +17,7 @@ final class SettingDIContainer {
     private let navigationRouter: NavigationRouter
     private let profileDIContainer: ProfileDIContainer
     private let authDIContainer: AuthDIContainer
+    private let apiClient: Client
 
     // ViewFactory
     lazy var settingViewFactory = SettingViewFactory(settingDIContainer: self)
@@ -24,13 +26,22 @@ final class SettingDIContainer {
     private let repository: SettingRepository
 
     // MARK: - Init
-    init(appRouter: AppRouter, navigationRouter: NavigationRouter, profileDIContainer: ProfileDIContainer, authDIContainer: AuthDIContainer) {
+    init(
+        appRouter: AppRouter,
+        navigationRouter: NavigationRouter,
+        profileDIContainer: ProfileDIContainer,
+        authDIContainer: AuthDIContainer,
+        apiClient: Client = CodiveAPIProvider.createClient(
+            middlewares: [CodiveAuthMiddleware(provider: KeychainTokenProvider())]
+        )
+    ) {
         self.appRouter = appRouter
         self.navigationRouter = navigationRouter
         self.profileDIContainer = profileDIContainer
         self.authDIContainer = authDIContainer
+        self.apiClient = apiClient
 
-        let dataSource = SettingsDataSource()
+        let dataSource = SettingsDataSource(apiClient: apiClient)
         let repo = SettingsRepositoryImpl(dataSource: dataSource)
         self.repository = repo
     }
