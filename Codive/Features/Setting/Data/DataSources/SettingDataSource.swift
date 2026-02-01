@@ -12,7 +12,6 @@ final class SettingsDataSource {
     private let apiClient: Client
 
     // MARK: - In-memory stores
-    private var blockedUsersStore: [BlockedUser] = []
     private var notificationPrefsStore: NotificationPrefs = .init(
         pushEnabled: true,
         marketingOptIn: false
@@ -28,14 +27,6 @@ final class SettingsDataSource {
     // MARK: - Init
     init(apiClient: Client = CodiveAPIProvider.createClient()) {
         self.apiClient = apiClient
-
-        // 차단한 계정
-        let u1 = SimpleUser(userId: UserID(101), nickname: "차단유저A", handle: "user_a", avatarURL: nil)
-        let u2 = SimpleUser(userId: UserID(202), nickname: "차단유저B", handle: "user_b", avatarURL: nil)
-        blockedUsersStore = [
-            BlockedUser(user: u1, blockedAt: Date().addingTimeInterval(-86_400)),
-            BlockedUser(user: u2, blockedAt: Date().addingTimeInterval(-172_800))
-        ]
     }
 
     // MARK: - Liked Records
@@ -135,12 +126,64 @@ final class SettingsDataSource {
 
     // MARK: - Blocked Users
     func fetchBlockedUsers() async throws -> [BlockedUser] {
-        blockedUsersStore
+        let jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
+
+        let response = try await apiClient.Member_getBlockedMembers(
+            query: .init(size: 500)
+        )
+
+        switch response {
+        case .ok(let okResponse):
+            let httpBody = try okResponse.body.any
+            let data = try await Data(collecting: httpBody, upTo: .max)
+
+            let apiResponse = try jsonDecoder.decode(BlockedMembersAPIResponse.self, from: data)
+
+            guard apiResponse.isSuccess else {
+                throw SettingError.apiError(message: apiResponse.message)
+            }
+
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd"
+            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+
+            return apiResponse.result.content.map { dto in
+                SettingDTOMapper.mapBlockedMemberDTOToBlockedUser(dto, with: dateFormatter)
+            }
+
+        default:
+            if case .undocumented(let statusCode, let payload) = response {
+                if let body = payload.body {
+                    let data = try await Data(collecting: body, upTo: .max)
+                    if let responseBody = String(data: data, encoding: .utf8) {
+                        print("fetchBlockedUsers error response [\(statusCode)]: \(responseBody)")
+                    }
+                }
+            }
+            throw SettingError.networkError
+        }
     }
 
     func unblock(userId: UserID) async throws {
-        if let idx = blockedUsersStore.firstIndex(where: { $0.id == userId }) {
-            blockedUsersStore.remove(at: idx)
+        // API 호출로 차단 해제
+        let response = try await apiClient.Member_toggleBlockStatus(
+            path: .init(memberId: Int64(userId))
+        )
+
+        switch response {
+        case .ok:
+            // 성공
+            return
+        default:
+            if case .undocumented(let statusCode, let payload) = response {
+                if let body = payload.body {
+                    let data = try await Data(collecting: body, upTo: .max)
+                    if let responseBody = String(data: data, encoding: .utf8) {
+                        print("unblock error response [\(statusCode)]: \(responseBody)")
+                    }
+                }
+            }
+            throw SettingError.networkError
         }
     }
 

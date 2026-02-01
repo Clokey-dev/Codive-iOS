@@ -24,7 +24,7 @@ struct SettingBlockedView: View {
             ProgressView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if let error = vm.error, vm.items.isEmpty {
-            VStack(spacing: 12) {
+            VStack {
                 Text(TextLiteral.Setting.loadFailed)
                     .font(.codive_title2)
                 Text(error.localizedDescription)
@@ -36,8 +36,8 @@ struct SettingBlockedView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if vm.items.isEmpty {
-            VStack(spacing: 16) {
-                Image(systemName: "exclamationmark.triangle")
+            VStack {
+                Image("orangeWarning")
                     .font(.system(size: 40))
                     .foregroundStyle(Color.Codive.main2)
                 Text(TextLiteral.Setting.blockedUsersEmpty)
@@ -49,11 +49,12 @@ struct SettingBlockedView: View {
                 CustomUserRow(
                     user: bu.user,
                     buttonTitle: TextLiteral.Setting.unblock,
-                    buttonStyle: .secondary 
+                    buttonStyle: .secondary
                 ) {
                     Task { await vm.tapUnblock(userId: bu.id) }
                 }
-                .padding(.vertical, 4)
+                .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets())
             }
             .listStyle(.plain)
         }

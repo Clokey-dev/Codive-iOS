@@ -57,4 +57,18 @@ struct SettingDTOMapper {
             lastLikeId: dto.lastLikeId ?? 0
         )
     }
+
+    // MARK: - Blocked Users
+    static func mapBlockedMemberDTOToBlockedUser(_ dto: BlockedMemberDTO, with dateFormatter: DateFormatter) -> BlockedUser {
+        let avatarURL = dto.profileImageUrl.flatMap { URL(string: $0) }
+        let author = SimpleUser(
+            userId: UserID(Int(dto.userId)),
+            nickname: dto.nickname,
+            handle: "",
+            avatarURL: avatarURL
+        )
+        let blockedDate = dateFormatter.date(from: dto.blockedAt) ?? Date()
+
+        return BlockedUser(user: author, blockedAt: blockedDate)
+    }
 }
