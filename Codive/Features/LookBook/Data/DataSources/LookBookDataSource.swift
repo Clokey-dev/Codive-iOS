@@ -314,7 +314,7 @@ extension LookBookDataSource {
         let presignedUrlInfos = try await apiService.getPresignedUrls(for: [jpgData])
         
         guard let urlInfo = presignedUrlInfos.first else {
-            throw LookBookAPIError.invalidUrl
+            throw LookBookAPIError.uploadFailed(message: "Presigned URL 발급 실패")
         }
         
         // 2. S3에 실제 이미지 업로드
@@ -348,7 +348,7 @@ extension LookBookDataSource {
         
         guard let httpResponse = response as? HTTPURLResponse,
               (200...299).contains(httpResponse.statusCode) else {
-            throw LookBookAPIError.invalidUrl
+            throw LookBookAPIError.uploadFailed(message: "S3 업로드 실패 (Status: \((response as? HTTPURLResponse)?.statusCode ?? -1))")
         }
         
         print("✅ S3 이미지 업로드 성공")

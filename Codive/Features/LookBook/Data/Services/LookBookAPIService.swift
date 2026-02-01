@@ -544,6 +544,7 @@ enum LookBookAPIError: LocalizedError {
     case invalidUrl
     case invalidResponse
     case invalidImageData
+    case uploadFailed(message: String)
     case s3UploadFailed(statusCode: Int)
     case noClothIdsReturned
     case serverError(statusCode: Int, message: String)
@@ -564,6 +565,8 @@ enum LookBookAPIError: LocalizedError {
             return "서버 오류 (\(statusCode)): \(message)"
         case .invalidImageData:
                 return "이미지 데이터가 올바르지 않습니다."
+        case .uploadFailed(let message):
+                    return "업로드 실패: \(message)"
         }
     }
 }

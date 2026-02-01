@@ -89,30 +89,6 @@ struct AddCodiDetailView: View {
                         .padding(.top, 10)
                         
                         // MARK: Codi Board (Draggable Area)
-                        
-//                        ZStack {
-//                            RoundedRectangle(cornerRadius: 15)
-//                                .fill(Color(UIColor.systemGray6))
-//                                .frame(width: boardSize, height: boardSize)
-//                                .overlay(
-//                                    Text(TextLiteral.LookBook.selectItem)
-//                                        .foregroundColor(.gray)
-//                                        .opacity(viewModel.images.isEmpty ? 1 : 0)
-//                                )
-//                            
-//                            // MARK: DraggableImageContainerView 사용
-//                            
-//                            DraggableImageView(
-//                                items: $viewModel.images,
-//                                onActivate: { id in
-//                                    viewModel.bringImageToFront(id: id)
-//                                }
-//                            )
-//                        }
-//                        .frame(width: boardSize, height: boardSize)
-//                        .padding(.horizontal, 20)
-                        
-                        // MARK: Codi Board (Draggable Area)
                         codiBoardView
                             .cornerRadius(15)
                             .padding(.horizontal, 20)

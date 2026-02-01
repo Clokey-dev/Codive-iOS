@@ -38,9 +38,9 @@ final class AddCodiViewModel: ObservableObject {
     
     // MARK: - Computed Properties
     var isButtonEnabled: Bool {
-            let hasImage = capturedImage != nil || (selectedImageURL != nil && !selectedImageURL!.isEmpty)
-            return !codiName.isEmpty && hasImage
-        }
+        let hasImage = capturedImage != nil || (selectedImageURL != nil && !selectedImageURL!.isEmpty)
+        return !codiName.isEmpty && hasImage
+    }
     
     // MARK: - Initializer
     init(navigationRouter: NavigationRouter, codiUseCase: CodiUseCase, coordinateId: Int64) {
@@ -55,39 +55,23 @@ final class AddCodiViewModel: ObservableObject {
 
 // MARK: - Setup Subscription
 private extension AddCodiViewModel {
-//    func setupDataSubscription() {
-//        cancellables.removeAll()
-//
-//        AddCodiDetailViewModel.codiDataUpdated
-//            .receive(on: DispatchQueue.main)
-//            .sink { [weak self] data in
-//                self?.receivedPayloads = data.payloads
-//                self?.capturedImageBase64 = data.imageString // Base64 원본 저장
-//                
-//                if let imageData = Data(base64Encoded: data.imageString),
-//                   let uiImage = UIImage(data: imageData) {
-//                    self?.capturedImage = uiImage
-//                }
-//            }
-//            .store(in: &cancellables)
-//    }
     func setupDataSubscription() {
-            cancellables.removeAll()
-
-            AddCodiDetailViewModel.codiDataUpdated
-                .receive(on: DispatchQueue.main)
-                .sink { [weak self] data in
-                    self?.receivedPayloads = data.payloads
-                    
-                    // ✅ 수정: imageString이 이제 URL이므로 selectedImageURL에 저장
-                    self?.selectedImageURL = data.imageString
-                    
-                    print("--- 📥 AddCodiView 데이터 수신 완료 ---")
-                    print("📍 받은 이미지 URL: \(data.imageString)")
-                    print("📍 Payloads 개수: \(data.payloads.count)")
-                }
-                .store(in: &cancellables)
-        }
+        cancellables.removeAll()
+        
+        AddCodiDetailViewModel.codiDataUpdated
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] data in
+                self?.receivedPayloads = data.payloads
+                
+                // ✅ 수정: imageString이 이제 URL이므로 selectedImageURL에 저장
+                self?.selectedImageURL = data.imageString
+                
+                print("--- 📥 AddCodiView 데이터 수신 완료 ---")
+                print("📍 받은 이미지 URL: \(data.imageString)")
+                print("📍 Payloads 개수: \(data.payloads.count)")
+            }
+            .store(in: &cancellables)
+    }
 }
 
 // MARK: - User Actions
@@ -100,121 +84,25 @@ extension AddCodiViewModel {
         isShowingBottomSheet = true
     }
     
-//    func handleCompleteTap() {
-//        isShowingSuccessView = true
-//        // TODO: 실제 서버 저장 로직 (receivedPayloads, capturedImage 등 활용)
-//        
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
-//            self?.isShowingSuccessView = false
-//            self?.navigationRouter.navigateBack()
-//        }
-//    }
-    /// 서버에 코디 생성을 요청합니다.
-//    func handleCompleteTap() {
-//        guard isButtonEnabled, let imageString = capturedImageBase64 else { return }
-//        
-//        // 1. DTO 생성
-//        let requestDTO = CreateManualCoordinateAPIRequestDTO(
-//            coordinateImageUrl: imageString, // 캡처된 이미지 문자열
-//            name: codiName,                  // 입력한 코디 이름
-//            memo: memo,                      // 입력한 메모
-//            lookBookId: Int64(coordinateId), // 룩북 ID
-//            payloads: receivedPayloads       // 옷 배치 정보
-//        )
-//        
-//        // 2. UseCase를 통한 서버 통신 실행
-//        Task {
-//            do {
-//                _ = try await codiUseCase.createManualCoordinate(request: requestDTO)
-//                
-//                // 성공 시 UI 처리
-//                self.successMessage = "코디가 성공적으로 등록되었습니다."
-//                self.isShowingSuccessView = true
-//                
-//                try? await Task.sleep(nanoseconds: 1_500_000_000)
-//                self.isShowingSuccessView = false
-//                self.navigationRouter.navigateBack()
-//                
-//            } catch {
-//                print("DEBUG: 코디 생성 실패 - \(error.localizedDescription)")
-//                // 필요 시 에러 알럿 처리
-//            }
-//        }
-//    }
-    // AddCodiViewModel.swift 내 수정
-
-//    func handleCompleteTap() {
-//        guard isButtonEnabled, let imageString = capturedImageBase64 else {
-//            print("⚠️ [DEBUG] 전송 중단: 필수 데이터(이미지 또는 코디명) 누락")
-//            return
-//        }
-//        
-//        // 1. DTO 생성
-//        let requestDTO = CreateManualCoordinateAPIRequestDTO(
-//            coordinateImageUrl: imageString,
-//            name: codiName,
-//            memo: memo,
-//            lookBookId: Int64(coordinateId),
-//            payloads: receivedPayloads
-//        )
-//        
-//        // 2. [상세 로그 추가] 서버로 보내기 전 데이터 검증
-//        print("\n--- 🚀 [DEBUG] 서버 전송 요청 데이터 분석 시작 ---")
-//        print("📍 LookBook ID: \(requestDTO.lookBookId)")
-//        print("📍 Codi Name: \(requestDTO.name) (길이: \(requestDTO.name.count))")
-//        print("📍 Memo: \(requestDTO.memo)")
-//        print("📍 Image Base64 Prefix: \(requestDTO.coordinateImageUrl.prefix(50))...")
-//        print("📍 Payloads 개수: \(requestDTO.payloads.count)")
-//        
-//        // Payloads 배열의 각 요소 상세 출력
-//        for (index, payload) in requestDTO.payloads.enumerated() {
-//            print("""
-//            [Payload #\(index + 1)]
-//            - clothId: \(payload.clothId)
-//            - location (X, Y): (\(payload.locationX), \(payload.locationY))
-//            - ratio: \(payload.ratio)
-//            - degree: \(payload.degree)
-//            - order: \(payload.order)
-//            """)
-//        }
-//        print("--- 🚀 [DEBUG] 데이터 분석 종료 ---\n")
-//        
-//        Task {
-//            do {
-//                _ = try await codiUseCase.createManualCoordinate(request: requestDTO)
-//                // ... 성공 로직
-//            } catch {
-//                // 에러 발생 시 더 자세한 정보 출력
-//                print("❌ [DEBUG] 최종 생성 실패 - 에러 타입: \(type(of: error))")
-//                print("❌ [DEBUG] 상세 에러 메시지: \(error.localizedDescription)")
-//                if let apiError = error as? LookBookAPIError {
-//                    print("❌ [DEBUG] API 특정 에러: \(apiError)") // 서버 응답 바디가 담길 수 있음
-//                }
-//            }
-//        }
-//    }
     func handleCompleteTap() {
-        // ✅ 수정: selectedImageURL 사용 (이제 실제 URL이 들어있음)
         guard isButtonEnabled, let imageURL = selectedImageURL else {
             print("⚠️ [DEBUG] 전송 중단: 필수 데이터(이미지 또는 코디명) 누락")
             return
         }
         
-        // 1. DTO 생성
         let requestDTO = CreateManualCoordinateAPIRequestDTO(
-            coordinateImageUrl: imageURL, // ✅ 실제 URL 전달
+            coordinateImageUrl: imageURL,
             name: codiName,
             memo: memo,
             lookBookId: Int64(coordinateId),
             payloads: receivedPayloads
         )
         
-        // 2. [상세 로그 추가] 서버로 보내기 전 데이터 검증
         print("\n--- 🚀 [DEBUG] 서버 전송 요청 데이터 분석 시작 ---")
         print("📍 LookBook ID: \(requestDTO.lookBookId)")
         print("📍 Codi Name: \(requestDTO.name) (길이: \(requestDTO.name.count))")
         print("📍 Memo: \(requestDTO.memo)")
-        print("📍 Image URL: \(requestDTO.coordinateImageUrl)") // ✅ 수정
+        print("📍 Image URL: \(requestDTO.coordinateImageUrl)")
         print("📍 Payloads 개수: \(requestDTO.payloads.count)")
         
         // Payloads 배열의 각 요소 상세 출력
@@ -241,7 +129,6 @@ extension AddCodiViewModel {
                 try? await Task.sleep(nanoseconds: 1_500_000_000)
                 self.isShowingSuccessView = false
                 self.navigationRouter.navigateBack()
-                
             } catch {
                 // 에러 발생 시 더 자세한 정보 출력
                 print("❌ [DEBUG] 최종 생성 실패 - 에러 타입: \(type(of: error))")
