@@ -33,6 +33,16 @@ final class AuthAPIService: AuthAPIServiceProtocol {
             middlewares: [CodiveAuthMiddleware(provider: tokenProvider)]
         )
         self.jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
+        
+        /// 액세스 토큰 확인 하기
+#if DEBUG
+do {
+    let token = try KeychainManager.shared.getAccessToken()
+    print("🔑 Current Access Token:", token)
+} catch {
+    print("❌ Access Token 없음:", error.localizedDescription)
+}
+#endif
     }
 
     func checkAuthStatus() async throws -> RegisterStatus {

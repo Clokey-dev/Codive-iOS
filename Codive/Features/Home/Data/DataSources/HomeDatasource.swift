@@ -13,7 +13,7 @@ protocol HomeDatasourceProtocol {
     /// 계절에 따른 카테고리별 옷 리스트
     func fetchRecommendCategoryCloth(
         lastClothId: Int64?,
-        size: Int,
+        size: Int32,
         categoryId: Int64,
         season: Set<Season>
     ) async throws -> HomeCategoryResponseDTO
@@ -140,13 +140,13 @@ final class HomeDatasource: HomeDatasourceProtocol {
     /// 날씨에 따른 카테고리별 옷 리스트 - API 연결
     func fetchRecommendCategoryCloth(
         lastClothId: Int64?,
-        size: Int,
+        size: Int32,
         categoryId: Int64,
         season seasons: Set<Season>
     ) async throws -> HomeCategoryResponseDTO {
         return try await apiService.fetchRecommendCategoryCloth(
             lastClothId: lastClothId,
-            size: Int32(size),
+            size: size,
             categoryId: categoryId,
             season: Array(seasons)
         )

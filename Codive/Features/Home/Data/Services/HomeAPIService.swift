@@ -56,6 +56,12 @@ extension HomeAPIService {
         switch response {
         case .ok(let okResponse):
             let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+            
+            // 🔍 여기!!
+            print("📦 Raw JSON Response:")
+            print(String(data: data, encoding: .utf8) ?? "❌ JSON 변환 실패")
+
+            
             let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseClothRecommendListResponse.self, from: data)
             
             let content: [HomeCategoryResponseItem] = decoded.result?.content?.map { item -> HomeCategoryResponseItem in

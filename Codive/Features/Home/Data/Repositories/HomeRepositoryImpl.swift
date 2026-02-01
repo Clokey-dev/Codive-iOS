@@ -31,7 +31,7 @@ final class HomeRepositoryImpl: HomeRepository {
     /// 계절에 따른 카테고리별 옷 리스트 api 연결
     func fetchRecommendCategoryClothList(
         lastClothId: Int64?,
-        size: Int,
+        size: Int32,
         categoryId: Int64,
         season: Set<Season>
     ) async throws -> (content: [HomeClothEntity], isLast: Bool) {
