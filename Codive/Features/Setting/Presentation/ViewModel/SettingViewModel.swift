@@ -81,6 +81,27 @@ final class SettingViewModel: ObservableObject {
         navigationRouter.navigateBack()
     }
 
+    func navigateToLikedRecords() {
+        navigationRouter.navigate(to: .settingLikedRecords)
+    }
+
+    func navigateToMyComments() {
+        navigationRouter.navigate(to: .settingMyComments)
+    }
+
+    func navigateToBlockedUsers() {
+        navigationRouter.navigate(to: .settingBlockedUsers)
+    }
+
+    func navigateToInquiry() {
+        // TODO: 문의하기 화면으로 이동
+        // 아직 구현되지 않은 화면입니다.
+    }
+
+    func navigateToWithdraw() {
+        navigationRouter.navigate(to: .settingWithdraw)
+    }
+
     // MARK: - Logout
     func logout() async {
         // Domain/Data 레이어: 토큰 삭제 및 소셜 로그아웃

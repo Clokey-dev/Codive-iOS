@@ -76,13 +76,31 @@ struct SettingView: View {
                 .background(Color.Codive.grayscale1)
                 .padding(.bottom, 16)
 
-            SettingRow(text: TextLiteral.Setting.likedRecords)
-                .padding(.bottom, 12)
+            Button(action: {
+                vm.navigateToLikedRecords()
+            }) {
+                SettingRow(text: TextLiteral.Setting.likedRecords)
+            }
+            .buttonStyle(.plain)
+            .contentShape(Rectangle())
+            .padding(.bottom, 12)
 
-            SettingRow(text: TextLiteral.Setting.myComments)
-                .padding(.bottom, 12)
+            Button(action: {
+                vm.navigateToMyComments()
+            }) {
+                SettingRow(text: TextLiteral.Setting.myComments)
+            }
+            .buttonStyle(.plain)
+            .contentShape(Rectangle())
+            .padding(.bottom, 12)
 
-            SettingRow(text: TextLiteral.Setting.blockedUsers)
+            Button(action: {
+                vm.navigateToBlockedUsers()
+            }) {
+                SettingRow(text: TextLiteral.Setting.blockedUsers)
+            }
+            .buttonStyle(.plain)
+            .contentShape(Rectangle())
         }
     }
 
@@ -157,27 +175,41 @@ struct SettingView: View {
             }
             .padding(.bottom, 12)
 
-            SettingRow(text: TextLiteral.Setting.inquiry)
-                .padding(.bottom, 12)
+            Button(action: {
+                vm.navigateToInquiry()
+            }) {
+                SettingRow(text: TextLiteral.Setting.inquiry)
+            }
+            .buttonStyle(.plain)
+            .contentShape(Rectangle())
+            .padding(.bottom, 12)
 
             Button(action: {
                 showLogoutAlert = true
             }) {
                 SettingRow(text: TextLiteral.Setting.logout)
             }
-                .padding(.bottom, 12)
-                .alert("로그아웃", isPresented: $showLogoutAlert) {
-                    Button("취소", role: .cancel) { }
-                    Button("로그아웃", role: .destructive) {
-                        Task {
-                            await vm.logout()
-                        }
+            .buttonStyle(.plain)
+            .contentShape(Rectangle())
+            .padding(.bottom, 12)
+            .alert("로그아웃", isPresented: $showLogoutAlert) {
+                Button("취소", role: .cancel) { }
+                Button("로그아웃", role: .destructive) {
+                    Task {
+                        await vm.logout()
                     }
-                } message: {
-                    Text("정말 로그아웃하시겠습니까?")
                 }
+            } message: {
+                Text("정말 로그아웃하시겠습니까?")
+            }
 
-            SettingRow(text: TextLiteral.Setting.withdraw)
+            Button(action: {
+                vm.navigateToWithdraw()
+            }) {
+                SettingRow(text: TextLiteral.Setting.withdraw)
+            }
+            .buttonStyle(.plain)
+            .contentShape(Rectangle())
         }
     }
 }

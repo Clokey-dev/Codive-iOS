@@ -98,6 +98,10 @@ final class SettingDIContainer {
         )
     }
 
+    func makeWithdrawViewModel() -> WithdrawViewModel {
+        WithdrawViewModel(navigationRouter: navigationRouter)
+    }
+
     // MARK: - Views
     func makeSettingView() -> SettingView {
         SettingView(viewModel: self.makeSettingViewModel())
@@ -113,5 +117,9 @@ final class SettingDIContainer {
 
     func makeSettingBlockedView() -> SettingBlockedView {
         SettingBlockedView(vm: self.makeBlockedUsersViewModel())
+    }
+
+    func makeWithdrawView() -> WithdrawView {
+        WithdrawView(vm: makeWithdrawViewModel())
     }
 }

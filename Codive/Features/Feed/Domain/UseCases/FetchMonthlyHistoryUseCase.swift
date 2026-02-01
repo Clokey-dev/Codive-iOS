@@ -2,7 +2,7 @@
 //  FetchMonthlyHistoryUseCase.swift
 //  Codive
 //
-//  Created by Claude Code on 1/31/26.
+//  Created by 황상환 on 1/31/26.
 //
 
 import Foundation
