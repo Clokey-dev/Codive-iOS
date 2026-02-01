@@ -12,10 +12,10 @@ final class AddCodiDetailViewModel: ObservableObject {
     
     // MARK: - Properties (State: Product & Filter)
     
-    @Published var products: [ProductItem] = []
     @Published var searchText: String = ""
     @Published var selectedCategory: String = "전체"
     @Published var selectedProductIds: Set<Int> = []
+    @Published var clothItems: [ProductItem] = []
     
     // MARK: - Properties (State: Board & Images)
     
@@ -32,18 +32,6 @@ final class AddCodiDetailViewModel: ObservableObject {
     
     // MARK: - Computed Properties
     
-    /// 검색어 및 카테고리에 의해 필터링된 상품 목록
-    var filteredProducts: [ProductItem] {
-        products.filter { product in
-            let matchCategory = (selectedCategory == "전체") // TODO: 카테고리 필터 로직 구체화 필요
-            let matchSearch = searchText.isEmpty ||
-                (product.name?.contains(searchText) ?? false) ||
-                (product.brand?.contains(searchText) ?? false)
-            
-            return matchCategory && matchSearch
-        }
-    }
-    
     // MARK: - Initializer
     
     init(
@@ -56,17 +44,18 @@ final class AddCodiDetailViewModel: ObservableObject {
         self.lookbookId = lookbookId
         
         // 초기 상품 목록 로드
-        Task { await fetchProducts() }
+        Task { await fetchClothItems() }
     }
     
     // MARK: - API / Data Fetching
-    
+
     /// 서버로부터 선택 가능한 상품 목록을 가져옵니다.
-    func fetchProducts() async {
+    func fetchClothItems() async {
         do {
-            self.products = try await productUseCase.fetchProductList()
+            clothItems = try await productUseCase.execute(category: selectedCategory)
         } catch {
-            handleError(error)
+            print("Failed to fetch cloth items: \(error)")
+            clothItems = []
         }
     }
 }

@@ -12,6 +12,9 @@ struct AddCodiDetailView: View {
     // MARK: - State Object
     
     @StateObject private var viewModel: AddCodiDetailViewModel
+    @State private var isExpanded: Bool = false
+    
+    private let collapsedHeight: CGFloat = 250
     
     // MARK: - Initializer
     
@@ -80,43 +83,8 @@ struct AddCodiDetailView: View {
                         Spacer()
                     }
                     
-                    // MARK: Bottom Sheet (Product Selector)
-                    
-                    VStack(spacing: 0) {
-                        
-                        // MARK: Drag Indicator
-                        
-                        Capsule()
-                            .fill(Color.gray.opacity(0.3))
-                            .frame(width: 40, height: 4)
-                            .padding(.top, 8)
-                            .padding(.bottom, 12)
-                        
-                        // MARK: Product List
-                        
-                        CustomProductBottomSheet(
-                            searchText: $viewModel.searchText,
-                            selectedCategory: $viewModel.selectedCategory,
-                            selectedProducts: $viewModel.selectedProductIds,
-                            products: viewModel.filteredProducts
-                        ) { product in
-                            viewModel.toggleProductSelection(product)
-                        }
-                    }
-                    .frame(height: geometry.size.height * 0.42)
-                    .background(Color.white)
-                    .clipShape(
-                        RoundedCorner(
-                            radius: 20,
-                            corners: [.topLeft, .topRight]
-                        )
-                    )
-                    .shadow(
-                        color: Color.black.opacity(0.1),
-                        radius: 10,
-                        x: 0,
-                        y: -5
-                    )
+                    bottomSheet(geometry: geometry)
+                        .ignoresSafeArea(.all, edges: .bottom)
                 }
                 .onAppear {
                     viewModel.boardSize = boardSize
@@ -125,5 +93,56 @@ struct AddCodiDetailView: View {
         }
         .navigationBarHidden(true)
         .background(Color.white.ignoresSafeArea())
+    }
+}
+
+// MARK: - View Components
+private extension AddCodiDetailView {
+    
+    @ViewBuilder
+    func bottomSheet(geometry: GeometryProxy) -> some View {
+        VStack(spacing: 0) {
+            // Handle Bar
+            RoundedRectangle(cornerRadius: 2.5)
+                .fill(Color.Codive.grayscale5)
+                .frame(width: 40, height: 5)
+                .padding(.top, 12)
+                .padding(.bottom, 20)
+                .onTapGesture {
+                    withAnimation(.spring()) {
+                        isExpanded.toggle()
+                    }
+                }
+            
+            CustomProductBottomSheet(
+                searchText: $viewModel.searchText,
+                selectedCategory: $viewModel.selectedCategory,
+                selectedProducts: $viewModel.selectedProductIds,
+                products: viewModel.clothItems
+            ) { product in
+                viewModel.toggleProductSelection(product)
+            }
+        }
+        .frame(
+            width: geometry.size.width,
+            height: isExpanded ? geometry.size.height * 0.7 : collapsedHeight
+        )
+        .background(Color.white)
+        .customCornerRadius(20, corners: [.topLeft, .topRight])
+        .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: -5)
+        .gesture(
+            DragGesture()
+                .onEnded { value in
+                    let dragDistance = value.translation.height
+                    
+                    withAnimation(.spring()) {
+                        if dragDistance < -50 {
+                            isExpanded = true
+                        } else if dragDistance > 50 {
+                            isExpanded = false
+                        }
+                    }
+                }
+        )
     }
 }

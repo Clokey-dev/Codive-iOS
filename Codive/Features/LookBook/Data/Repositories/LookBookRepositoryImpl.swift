@@ -95,6 +95,11 @@ final class LookBookRepositoryImpl: LookBookRepository {
         return dtoList.map { $0.toEntity() }
     }
     
+    /// 옷 리스트 조회
+    func fetchClothItems(category: String?) async throws -> [ProductItem] {
+        return try await datasource.fetchClothItems(category: category)
+    }
+    
     /// 룩북 생성
     func createLookBook(request: CreateLookBookAPIRequestDTO) async throws -> CreateLookBookResponseDTO {
         return try await datasource.createLookBook(request: request)
@@ -163,7 +168,7 @@ extension LookBookRepositoryImpl {
     // MARK: - Product
     
     /// 코디 구성에 사용되는 상품 목록 조회
-    func fetchProductList() async throws -> [ProductItem] {
-        return try await datasource.fetchProductList()
-    }
+//    func fetchProductList() async throws -> [ProductItem] {
+//        return try await datasource.fetchProductList()
+//    }
 }

@@ -41,6 +41,9 @@ protocol LookBookRepository {
     /// 오늘의 코디 옷 정보 조회
     func fetchTodayCoordinateClothes() async throws -> [TodayCoordinateClothEntity]
     
+    /// 옷 리스트 조회
+    func fetchClothItems(category: String?) async throws -> [ProductItem]
+    
     /// 룩북 생성
     func createLookBook(request: CreateLookBookAPIRequestDTO) async throws -> CreateLookBookResponseDTO
     
@@ -77,5 +80,4 @@ protocol LookBookRepository {
     
     // 코디 프리뷰 조회
     func fetchCoordinatePreview(coordinateId: Int) async throws -> CoordinatePreviewEntity
-    func fetchProductList() async throws -> [ProductItem]
 }

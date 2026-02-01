@@ -46,6 +46,9 @@ protocol LookBookAPIServiceProtocol {
     /// 오늘의 코디 옷 정보 조회
     func fetchTodayCoordinateClothes() async throws -> [GetTodayCoordinateClothResponseDTO]
     
+    /// 옷 리스트 조회
+    func fetchClothes(lastClothId: Int64?, size: Int32, categoryId: Int64?, seasons: [Season]) async throws -> ClothListResult
+    
     /// 룩북 생성
     func createLookBook(request: CreateLookBookAPIRequestDTO) async throws -> CreateLookBookResponseDTO
     
@@ -289,6 +292,31 @@ extension LookBookAPIService {
             throw LookBookAPIError.serverError(statusCode: code, message: "오늘의 코디 옷 정보 조회 실패")
         }
     }
+    
+    func fetchClothes(lastClothId: Int64?, size: Int32, categoryId: Int64?, seasons: [Season]) async throws -> ClothListResult {
+        let seasonsParam = seasons.isEmpty ? nil : seasons.map { mapSeasonToQueryParam($0) }
+
+        let input = Operations.Cloth_getClothes.Input(
+            query: .init(lastClothId: lastClothId, size: size, direction: .DESC, categoryId: categoryId, seasons: seasonsParam)
+        )
+
+        let response = try await client.Cloth_getClothes(input)
+
+        switch response {
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseClothListResponse.self, from: data)
+
+            let clothes: [ClothListItem] = decoded.result?.content?.map { item -> ClothListItem in
+                return ClothListItem(clothId: item.clothId ?? 0, imageUrl: item.ImageUrl ?? "", brand: item.brand, name: item.name)
+            } ?? []
+
+            return ClothListResult(clothes: clothes, isLast: decoded.result?.isLast ?? true)
+
+        case .undocumented(statusCode: let code, _):
+            throw LookBookAPIError.serverError(statusCode: code, message: "옷 목록 조회 실패")
+        }
+    }
 }
 
 extension LookBookAPIService {
@@ -484,6 +512,24 @@ extension LookBookAPIService {
             .withFractionalSeconds
         ]
         return formatter.string(from: date)
+    }
+    
+    func mapSeasonToCreatePayload(_ season: Season) -> Components.Schemas.ClothCreateRequest.seasonsPayloadPayload {
+        switch season {
+        case .spring: return .SPRING
+        case .summer: return .SUMMER
+        case .fall: return .FALL
+        case .winter: return .WINTER
+        }
+    }
+    
+    func mapSeasonToQueryParam(_ season: Season) -> Operations.Cloth_getClothes.Input.Query.seasonsPayloadPayload {
+        switch season {
+        case .spring: return .SPRING
+        case .summer: return .SUMMER
+        case .fall: return .FALL
+        case .winter: return .WINTER
+        }
     }
 }
 

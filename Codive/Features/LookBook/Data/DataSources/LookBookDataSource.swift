@@ -42,6 +42,9 @@ protocol LookBookDataSourceProtocol {
     /// 오늘의 코디 옷 정보 조회
     func fetchTodayCoordinateClothes() async throws -> [GetTodayCoordinateClothResponseDTO]
     
+    /// 옷 리스트 조회
+    func fetchClothItems(category: String?) async throws -> [ProductItem]
+    
     /// 룩북 생성
     func createLookBook(request: CreateLookBookAPIRequestDTO) async throws -> CreateLookBookResponseDTO
     
@@ -105,15 +108,15 @@ final class LookBookDataSource: LookBookDataSourceProtocol {
     
     // MARK: - Dummy Product List
     
-    /// 코디 구성 아이템 선택 화면에서 사용하는 상품 더미 데이터
-    private var dummyProducts: [ProductItem] = [
-        ProductItem(id: 1, imageName: "https://pngimg.com/uploads/jacket/jacket_PNG8055.png", isTodayCloth: true, brand: "아디다스", name: "트랙탑"),
-        ProductItem(id: 2, imageName: "https://pngimg.com/uploads/hoodie/hoodie_PNG27.png", isTodayCloth: false, brand: "나이키", name: "후드티"),
-        ProductItem(id: 3, imageName: "https://pngimg.com/uploads/jeans/jeans_PNG5777.png", isTodayCloth: false, brand: "리바이스", name: "데님 팬츠"),
-        ProductItem(id: 4, imageName: "https://pngimg.com/uploads/jacket/jacket_PNG8066.png", isTodayCloth: false, brand: "노스페이스", name: "패딩"),
-        ProductItem(id: 5, imageName: "https://pngimg.com/uploads/running_shoes/running_shoes_PNG5823.png", isTodayCloth: true, brand: "뉴발란스", name: "990v6"),
-        ProductItem(id: 6, imageName: "https://pngimg.com/uploads/cap/cap_PNG5687.png", isTodayCloth: false, brand: "뉴에라", name: "볼캡")
-    ]
+//    /// 코디 구성 아이템 선택 화면에서 사용하는 상품 더미 데이터
+//    private var dummyProducts: [ProductItem] = [
+//        ProductItem(id: 1, imageName: "https://pngimg.com/uploads/jacket/jacket_PNG8055.png", isTodayCloth: true, brand: "아디다스", name: "트랙탑"),
+//        ProductItem(id: 2, imageName: "https://pngimg.com/uploads/hoodie/hoodie_PNG27.png", isTodayCloth: false, brand: "나이키", name: "후드티"),
+//        ProductItem(id: 3, imageName: "https://pngimg.com/uploads/jeans/jeans_PNG5777.png", isTodayCloth: false, brand: "리바이스", name: "데님 팬츠"),
+//        ProductItem(id: 4, imageName: "https://pngimg.com/uploads/jacket/jacket_PNG8066.png", isTodayCloth: false, brand: "노스페이스", name: "패딩"),
+//        ProductItem(id: 5, imageName: "https://pngimg.com/uploads/running_shoes/running_shoes_PNG5823.png", isTodayCloth: true, brand: "뉴발란스", name: "990v6"),
+//        ProductItem(id: 6, imageName: "https://pngimg.com/uploads/cap/cap_PNG5687.png", isTodayCloth: false, brand: "뉴에라", name: "볼캡")
+//    ]
     
     // MARK: - Initializer
     init(
@@ -239,6 +242,26 @@ final class LookBookDataSource: LookBookDataSourceProtocol {
         return try await apiService.fetchTodayCoordinateClothes()
     }
     
+    /// 옷 리스트 조회
+    func fetchClothItems(category: String?) async throws -> [ProductItem] {
+        // 전체 옷 목록 조회 (페이지네이션 없이 전체)
+        let result = try await apiService.fetchClothes(
+            lastClothId: nil,
+            size: 100,
+            categoryId: nil,
+            seasons: []
+        )
+        
+        return result.clothes.map { item in
+            ProductItem(
+                id: Int(item.clothId),
+                imageUrl: item.imageUrl,
+                brand: item.brand,
+                name: item.name
+            )
+        }
+    }
+    
     /// 룩북 생성
     func createLookBook(
         request: CreateLookBookAPIRequestDTO
@@ -332,11 +355,5 @@ extension LookBookDataSource {
             coordinateName: "로맨틱 시사회 룩",
             coordinateMemo: "1주년 기념 코디"
         )
-    }
-    
-    /// 상품 목록 조회
-    func fetchProductList() async throws -> [ProductItem] {
-        try await Task.sleep(nanoseconds: 300_000_000)
-        return dummyProducts
     }
 }

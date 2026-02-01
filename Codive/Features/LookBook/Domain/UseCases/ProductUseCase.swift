@@ -15,8 +15,8 @@ final class ProductUseCase {
         self.repository = repository
     }
 
-    // MARK: - Product
-    func fetchProductList() async throws -> [ProductItem] {
-        try await repository.fetchProductList()
+    // MARK: - Methods
+    func execute(category: String? = nil) async throws -> [ProductItem] {
+        return try await repository.fetchClothItems(category: category)
     }
 }
