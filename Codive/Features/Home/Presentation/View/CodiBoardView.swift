@@ -82,7 +82,7 @@ private extension CodiBoardView {
             boardBackground(size: size)
             
             // DraggableImageContainerView 사용
-            DraggableImageView()
+//            DraggableImageView(viewModel: viewModel)
         }
         .frame(width: size, height: size)
         .padding(.horizontal, 20)

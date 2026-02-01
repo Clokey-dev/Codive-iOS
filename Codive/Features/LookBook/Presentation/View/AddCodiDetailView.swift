@@ -63,6 +63,29 @@ struct AddCodiDetailView: View {
                         
                         // MARK: Codi Board (Draggable Area)
                         
+//                        ZStack {
+//                            RoundedRectangle(cornerRadius: 15)
+//                                .fill(Color(UIColor.systemGray6))
+//                                .frame(width: boardSize, height: boardSize)
+//                                .overlay(
+//                                    Text(TextLiteral.LookBook.selectItem)
+//                                        .foregroundColor(.gray)
+//                                        .opacity(viewModel.images.isEmpty ? 1 : 0)
+//                                )
+//                            
+//                            // MARK: DraggableImageContainerView 사용
+//                            
+//                            DraggableImageView(
+//                                items: $viewModel.images,
+//                                onActivate: { id in
+//                                    viewModel.bringImageToFront(id: id)
+//                                }
+//                            )
+//                        }
+//                        .frame(width: boardSize, height: boardSize)
+//                        .padding(.horizontal, 20)
+                        
+                        // MARK: Codi Board (Draggable Area)
                         ZStack {
                             RoundedRectangle(cornerRadius: 15)
                                 .fill(Color(UIColor.systemGray6))
@@ -73,11 +96,17 @@ struct AddCodiDetailView: View {
                                         .opacity(viewModel.images.isEmpty ? 1 : 0)
                                 )
                             
-                            // MARK: DraggableImageContainerView 사용
-                            
-                            DraggableImageView()
+                            // 이미지가 그려지는 영역
+                            DraggableImageView(
+                                items: $viewModel.images,
+                                onActivate: { id in
+                                    viewModel.bringImageToFront(id: id)
+                                }
+                            )
                         }
-                        .frame(width: boardSize, height: boardSize)
+                        .frame(width: boardSize, height: boardSize) // 보드 크기로 프레임 고정
+                        .clipped() // 중요: 프레임 밖으로 나가는 이미지를 가림
+                        .cornerRadius(15) // 배경색과 곡률을 맞추기 위해 추가
                         .padding(.horizontal, 20)
                         
                         Spacer()

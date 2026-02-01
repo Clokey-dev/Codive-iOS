@@ -128,7 +128,7 @@ private extension AddCodiView {
                 }
                 .frame(width: 80, height: 80)
                 .scaleEffect(item.scale)
-                .rotationEffect(.degrees(item.rotationAngle))
+                .rotationEffect(.degrees(item.rotation))
                 .position(x: item.position.x, y: item.position.y)
             }
             

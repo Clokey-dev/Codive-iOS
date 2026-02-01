@@ -7,130 +7,74 @@
 
 import SwiftUI
 
-// MARK: - Zoom + Rotate + Drag 가능한 공용 View
 struct ZoomRotateDragView<Content: View>: View {
-
-    let id: UUID
-    @Binding var activeID: UUID?
+    let id: Int
+    @Binding var position: CGPoint
+    @Binding var scale: CGFloat
+    @Binding var rotation: Double
+    
     let onActivate: () -> Void
     let content: Content
 
-    // Scale
-    @State private var scale: CGFloat = 1.0
-    @GestureState private var magnification: CGFloat = 1.0
-
-    // Rotation
-    @State private var angle: Angle = .zero
-
-    // Position
-    @State private var offset: CGSize = .zero
-    @GestureState private var dragOffset: CGSize = .zero
+    @GestureState private var gestureOffset: CGSize = .zero
+    @GestureState private var gestureScale: CGFloat = 1.0
+    @GestureState private var gestureRotation: Angle = .zero
     
-    private let minimumSize: CGFloat = 150
-    private let baseSize: CGFloat = 300
-
-    private var minScale: CGFloat {
-        minimumSize / baseSize
-    }
+    // MARK: - 제약 조건 설정
+    private let minScale: CGFloat = 0.4  // 최소 크기 (40%)
+    private let maxScale: CGFloat = 4.0  // 최대 크기 (400%)
 
     init(
-        id: UUID,
-        activeID: Binding<UUID?>,
+        id: Int,
+        position: Binding<CGPoint>,
+        scale: Binding<CGFloat>,
+        rotation: Binding<Double>,
         onActivate: @escaping () -> Void,
         @ViewBuilder content: () -> Content
     ) {
         self.id = id
-        self._activeID = activeID
+        self._position = position
+        self._scale = scale
+        self._rotation = rotation
         self.onActivate = onActivate
         self.content = content()
     }
 
     var body: some View {
         content
-            .scaleEffect(scale * magnification)
-            .rotationEffect(angle)
-            .offset(
-                x: offset.width + dragOffset.width,
-                y: offset.height + dragOffset.height
-            )
+            // 화면에 보이는 배율도 제한 범위 내에서만 움직이도록 시각적 보정
+            .scaleEffect(clampedScale(scale * gestureScale))
+            .rotationEffect(Angle(degrees: rotation) + gestureRotation)
+            .offset(x: position.x + gestureOffset.width, y: position.y + gestureOffset.height)
             .highPriorityGesture(
-                (activeID == nil || activeID == id)
-                ? combinedGesture
-                : nil
+                SimultaneousGesture(
+                    DragGesture()
+                        .updating($gestureOffset) { v, s, _ in
+                            s = v.translation
+                            onActivate()
+                        }
+                        .onEnded { v in
+                            position.x += v.translation.width
+                            position.y += v.translation.height
+                        },
+                    MagnificationGesture()
+                        .updating($gestureScale) { v, s, _ in s = v }
+                        .onEnded { v in
+                            // 제스처 종료 시 최종 scale 값을 제한 범위 내로 고정
+                            let newScale = scale * v
+                            scale = min(max(newScale, minScale), maxScale)
+                        }
+                )
             )
-    }
-
-    // MARK: - Gesture
-    private var combinedGesture: some Gesture {
-        SimultaneousGesture(
-            SimultaneousGesture(
-                // Pinch
-                magnificationGesture,
-
-                // Rotation
+            .simultaneousGesture(
                 RotationGesture()
-                    .onChanged { value in
-                        activate()
-                        angle = value
-                    }
-                    .onEnded { _ in
-                        activeID = nil
-                    }
-            ),
-
-            // Drag
-            DragGesture()
-                .updating($dragOffset) { value, state, _ in
-                    state = value.translation
-                    activate()
-                }
-                .onEnded { value in
-                    offset.width += value.translation.width
-                    offset.height += value.translation.height
-                    activeID = nil
-                }
-        )
-    }
-
-    // MARK: - Magnification (iOS 16 & 17 compatible)
-    private var magnificationGesture: some Gesture {
-        if #available(iOS 17.0, *) {
-            return AnyGesture(
-                MagnifyGesture()
-                    .updating($magnification) { value, state, _ in
-                        state = value.magnification
-                    }
-                    .onChanged { _ in
-                        activate()
-                    }
-                    .onEnded { value in
-                        let newScale = scale * value.magnification
-                        scale = max(newScale, minScale)
-                        activeID = nil
-                    }
+                    .updating($gestureRotation) { v, s, _ in s = v }
+                    .onEnded { v in rotation += v.degrees }
             )
-        } else {
-            return AnyGesture(
-                MagnificationGesture()
-                    .updating($magnification) { value, state, _ in
-                        state = value
-                    }
-                    .onChanged { _ in
-                        activate()
-                    }
-                    .onEnded { value in
-                        let newScale = scale * value
-                        scale = max(newScale, minScale)
-                        activeID = nil
-                    }
-            )
-        }
     }
-
-    private func activate() {
-        if activeID != id {
-            activeID = id
-            onActivate()
-        }
+    
+    // 시각적으로 이미지가 너무 작아져서 사라지는 것을 방지하는 보조 함수
+    private func clampedScale(_ current: CGFloat) -> CGFloat {
+        return min(max(current, minScale * 0.8), maxScale * 1.2)
     }
 }

@@ -55,11 +55,28 @@ struct CodiCoordinatePayloadDTO: Codable {
 }
 
 // MARK: - Draggable Image
-struct DraggableImageEntity: Identifiable, Hashable {
+//struct DraggableImageEntity: Identifiable, Hashable {
+//    let id: Int
+//    let name: String
+//    var position: CGPoint
+//    var scale: CGFloat
+//    var rotationAngle: Double
+////    let imageURL: String? = nil
+//}
+protocol DraggableImageProtocol: Identifiable {
+    var id: Int { get }
+    var imageUrl: String { get }
+    var position: CGPoint { get set }
+    var scale: CGFloat { get set }
+    var rotation: Double { get set }
+}
+
+// 실제 프로젝트에서 사용하는 데이터 모델
+struct DraggableImageEntity: DraggableImageProtocol, Equatable, Hashable {
     let id: Int
     let name: String
+    var imageUrl: String { name }
     var position: CGPoint
     var scale: CGFloat
-    var rotationAngle: Double
-    let imageURL: String? = nil
+    var rotation: Double
 }

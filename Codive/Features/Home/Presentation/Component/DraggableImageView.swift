@@ -7,78 +7,33 @@
 
 import SwiftUI
 
-struct EditableImage: Identifiable {
-    let id: UUID = UUID()
-    let url: URL
-}
-
-// MARK: - ContentView
-struct DraggableImageView: View {
-
-    @State private var activeImageID: UUID?
-
-    @State private var images: [EditableImage] = [
-        EditableImage(url: URL(string: "https://picsum.photos/300")!),
-        EditableImage(url: URL(string: "https://picsum.photos/250")!),
-        EditableImage(url: URL(string: "https://picsum.photos/280")!)
-    ]
+struct DraggableImageView<T: DraggableImageProtocol>: View {
+    @Binding var items: [T]
+    let onActivate: (Int) -> Void
 
     var body: some View {
-        GeometryReader { geometry in
-            let size = geometry.size.width - 16
-
-            ZStack {
-                ForEach(images) { image in
-                    ZoomRotateDragView(
-                        id: image.id,
-                        activeID: $activeImageID,
-                        onActivate: {
-                            bringToFront(id: image.id)
-                        },
-                        content: {
-                            AsyncImage(url: image.url) { phase in
-                                switch phase {
-                                case .empty:
-                                    ProgressView()
-                                        .frame(width: 180, height: 180)
-
-                                case .success(let img):
-                                    img
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 180, height: 180)
-
-                                case .failure:
-                                    Image(systemName: "xmark.circle")
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 180, height: 180)
-
-                                @unknown default:
-                                    EmptyView()
-                                }
-                            }
+        ZStack {
+            ForEach($items) { $item in
+                ZoomRotateDragView(
+                    id: item.id,
+                    position: $item.position,
+                    scale: $item.scale,
+                    rotation: $item.rotation,
+                    onActivate: { onActivate(item.id) }
+                ) {
+                    // 외부에서 이미지 렌더링 방식을 결정할 수도 있지만,
+                    // 기본적으로 프로토콜의 imageUrl을 사용합니다.
+                    AsyncImage(url: URL(string: item.imageUrl)) { phase in
+                        if let image = phase.image {
+                            image.resizable().scaledToFit()
+                        } else {
+                            Color.gray.opacity(0.2)
+                                .overlay(ProgressView())
                         }
-                    )
+                    }
+                    .frame(width: 180, height: 180)
                 }
             }
-            .frame(width: size, height: size)
-            .background(
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Color(.systemGray6))
-            )
-            .clipShape(
-                RoundedRectangle(cornerRadius: 20)
-            )
-            .padding(.horizontal, 16)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
-    }
-
-    // MARK: - Layer Control
-    private func bringToFront(id: UUID) {
-        guard let index = images.firstIndex(where: { $0.id == id }) else { return }
-        let selected = images.remove(at: index)
-        images.append(selected)
     }
 }

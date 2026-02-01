@@ -53,25 +53,25 @@ final class CodiBoardViewModel: ObservableObject {
     
     /// 구성된 코디를 서버에 저장하고 홈 화면의 완료 팝업을 띄움
     func handleConfirmCodi() {
-        Task {
-            do {
-                // 1. 서버에 데이터 전송
-                try await codiBoardUseCase.saveCodiItems(images)
-                
-                // 2. 저장 성공 후 UI 처리 (MainActor에서 실행됨)
-                let imageURL = images.first?.imageURL
-                navigationRouter.navigateBack()
-                
-                // 홈 화면으로 돌아가는 애니메이션 시간을 고려하여 지연 실행
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-                    self?.homeViewModel?.showCompletionPopup(imageURL: imageURL)
-                }
-                
-                self.isConfirmed = true
-            } catch {
-                handleError(error)
-            }
-        }
+//        Task {
+//            do {
+//                // 1. 서버에 데이터 전송
+//                try await codiBoardUseCase.saveCodiItems(images)
+//                
+//                // 2. 저장 성공 후 UI 처리 (MainActor에서 실행됨)
+//                let imageURL = images.first?.imageURL
+//                navigationRouter.navigateBack()
+//                
+//                // 홈 화면으로 돌아가는 애니메이션 시간을 고려하여 지연 실행
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+//                    self?.homeViewModel?.showCompletionPopup(imageURL: imageURL)
+//                }
+//                
+//                self.isConfirmed = true
+//            } catch {
+//                handleError(error)
+//            }
+//        }
     }
     
     /// 에러 발생 시 처리 로직
@@ -106,7 +106,7 @@ final class CodiBoardViewModel: ObservableObject {
     /// 이미지의 회전 각도(Rotation)를 업데이트
     func updateImageRotation(id: Int, newRotation: Double) {
         if let index = images.firstIndex(where: { $0.id == id }) {
-            images[index].rotationAngle = newRotation
+            images[index].rotation = newRotation
         }
     }
     
