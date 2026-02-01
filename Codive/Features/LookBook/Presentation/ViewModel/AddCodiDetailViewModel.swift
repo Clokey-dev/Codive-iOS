@@ -6,9 +6,14 @@
 //
 
 import SwiftUI
+import Combine
 
 @MainActor
 final class AddCodiDetailViewModel: ObservableObject {
+    
+    // 외부에서 구독할 수 있도록 static 전역 스트림을 생성합니다.
+    static let codiDataUpdated = PassthroughSubject<CodiTransferData, Never>()
+    
     @Published var searchText: String = ""
     @Published var selectedCategory: String = "전체"
     @Published var selectedProductIds: Set<Int> = []
@@ -43,7 +48,7 @@ final class AddCodiDetailViewModel: ObservableObject {
         self.lookbookId = lookbookId
         Task { await fetchClothItems() }
     }
-
+    
     func fetchClothItems() async {
         do {
             clothItems = try await productUseCase.execute(category: selectedCategory)
@@ -51,7 +56,7 @@ final class AddCodiDetailViewModel: ObservableObject {
             clothItems = []
         }
     }
-
+    
     func toggleProductSelection(_ product: ProductItem) {
         if selectedProductIds.contains(product.id) {
             selectedProductIds.remove(product.id)
@@ -70,7 +75,7 @@ final class AddCodiDetailViewModel: ObservableObject {
             images.append(newImage)
         }
     }
-
+    
     private func addImage(from product: ProductItem) {
         let centerX = boardSize / 2
         let centerY = boardSize / 2
@@ -86,31 +91,31 @@ final class AddCodiDetailViewModel: ObservableObject {
         )
         images.append(newImage)
     }
-
+    
     private func removeImage(productId: Int) {
         images.removeAll { $0.id == productId }
         if selectedImageID == productId { selectedImageID = nil }
     }
-
+    
     // 제스처 결과 반영 메서드들
     func bringImageToFront(id: Int) {
         guard let index = images.firstIndex(where: { $0.id == id }) else { return }
         let tappedImage = images.remove(at: index)
         images.append(tappedImage)
     }
-
+    
     func updateImagePosition(id: Int, newPosition: CGPoint) {
         if let index = images.firstIndex(where: { $0.id == id }) {
             images[index].position = newPosition
         }
     }
-
+    
     func updateImageScale(id: Int, newScale: CGFloat) {
         if let index = images.firstIndex(where: { $0.id == id }) {
             images[index].scale = newScale
         }
     }
-
+    
     func updateImageRotation(id: Int, newRotation: Double) {
         if let index = images.firstIndex(where: { $0.id == id }) {
             images[index].rotation = newRotation
@@ -142,22 +147,24 @@ final class AddCodiDetailViewModel: ObservableObject {
     }
     
     func handleBackTap() { navigationRouter.navigateBack() }
-
+    
     func handleComplete() {
-        let finalData = codiPayloads
-        
-        print("--- 🔽 Codi Payloads 상세 정보 ---")
-        dump(finalData)
-        
-        // MARK: 이미지 문자열 출력 부분
-        print("\n--- 📸 캡처된 이미지 Base64 문자열 ---")
-        if let imageString = capturedImageString {
-            // 웹 사이트에서 바로 이미지로 보려면 아래 형식을 복사해서 붙여넣어보세요.
-            let webFormat = "data:image/jpeg;base64,\(imageString)"
-            print("\n--- 🌐 웹 디코더용 전체 문자열 ---")
-            print(webFormat)
+        guard let imageString = capturedImageString else {
+            print("캡처된 이미지가 없어 전송을 취소합니다.")
+            return
         }
         
-        // navigationRouter.navigateBack()
+        let finalData = codiPayloads
+        
+        // 1. 데이터를 하나로 묶음
+        let dataToTransfer = CodiTransferData(payloads: finalData, imageString: imageString)
+        
+        // 2. Combine 스트림을 통해 데이터 발사!
+        Self.codiDataUpdated.send(dataToTransfer)
+        
+        print("--- 🚀 AddCodiView로 데이터 전송 완료 ---")
+        
+        // 3. 이전 화면으로 이동
+        navigationRouter.navigateBack()
     }
 }

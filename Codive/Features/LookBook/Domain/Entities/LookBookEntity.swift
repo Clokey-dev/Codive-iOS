@@ -121,3 +121,8 @@ struct SelectedCodi: Hashable {
         self.combinedItems = combinedItems
     }
 }
+
+struct CodiTransferData {
+    let payloads: [Payloads]
+    let imageString: String
+}
