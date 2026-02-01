@@ -172,7 +172,7 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
                 situationId: result.situationId,
                 situationName: result.situationName,
                 content: result.content,
-                hashtags: result.hashtags?.compactMap { $0 as? String },
+                hashtags: result.hashtags?.compactMap { $0 },
                 styles: result.styles?.compactMap { style in
                     guard let styleId = style.styleId, let styleName = style.styleName else { return nil }
                     return HistoryStyleDTO(styleId: styleId, styleName: styleName)

@@ -45,7 +45,7 @@ final class SearchResultViewModel: ObservableObject {
     private func setupBindings() {
         $currentSort
             .removeDuplicates()
-            .sink { [weak self] newSort in
+            .sink { [weak self] _ in
                 Task {
                     await self?.loadPosts()
                 }

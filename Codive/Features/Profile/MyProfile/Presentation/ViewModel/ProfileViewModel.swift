@@ -90,10 +90,8 @@ class ProfileViewModel: ObservableObject {
 
             // 같은 날짜에 여러 기록이 있으면 첫 번째만 사용
             var historyMap: [String: String] = [:]
-            for item in items {
-                if historyMap[item.historyDate] == nil {
-                    historyMap[item.historyDate] = item.firstImageUrl
-                }
+            for item in items where historyMap[item.historyDate] == nil {
+                historyMap[item.historyDate] = item.firstImageUrl
             }
 
             self.monthlyHistories = historyMap

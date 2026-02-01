@@ -78,27 +78,27 @@ struct SettingView: View {
 
             Button(action: {
                 vm.navigateToLikedRecords()
-            }) {
+            }, label: {
                 SettingRow(text: TextLiteral.Setting.likedRecords)
-            }
+            })
             .buttonStyle(.plain)
             .contentShape(Rectangle())
             .padding(.bottom, 12)
 
             Button(action: {
                 vm.navigateToMyComments()
-            }) {
+            }, label: {
                 SettingRow(text: TextLiteral.Setting.myComments)
-            }
+            })
             .buttonStyle(.plain)
             .contentShape(Rectangle())
             .padding(.bottom, 12)
 
             Button(action: {
                 vm.navigateToBlockedUsers()
-            }) {
+            }, label: {
                 SettingRow(text: TextLiteral.Setting.blockedUsers)
-            }
+            })
             .buttonStyle(.plain)
             .contentShape(Rectangle())
         }
@@ -177,18 +177,18 @@ struct SettingView: View {
 
             Button(action: {
                 vm.navigateToInquiry()
-            }) {
+            }, label: {
                 SettingRow(text: TextLiteral.Setting.inquiry)
-            }
+            })
             .buttonStyle(.plain)
             .contentShape(Rectangle())
             .padding(.bottom, 12)
 
             Button(action: {
                 showLogoutAlert = true
-            }) {
+            }, label: {
                 SettingRow(text: TextLiteral.Setting.logout)
-            }
+            })
             .buttonStyle(.plain)
             .contentShape(Rectangle())
             .padding(.bottom, 12)
@@ -205,9 +205,9 @@ struct SettingView: View {
 
             Button(action: {
                 vm.navigateToWithdraw()
-            }) {
+            }, label: {
                 SettingRow(text: TextLiteral.Setting.withdraw)
-            }
+            })
             .buttonStyle(.plain)
             .contentShape(Rectangle())
         }

@@ -38,7 +38,7 @@ final class TokenService: TokenServiceProtocol {
 
     /// 키체인에 유효한 토큰이 있는지 확인
     func hasValidTokens() -> Bool {
-        guard let _ = getAccessToken(), let _ = getRefreshToken() else {
+        guard getAccessToken() != nil, getRefreshToken() != nil else {
             return false
         }
         return true

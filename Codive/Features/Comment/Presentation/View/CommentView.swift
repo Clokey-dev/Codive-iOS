@@ -273,11 +273,11 @@ struct CommentRow: View {
                         let remainingCount = (comment.replyCount ?? 0) - replies.count
                         Button(action: {
                             onFetchAllRepliesTap(comment.id)
-                        }) {
+                        }, label: {
                             Text("\(remainingCount)개 더보기")
                                 .font(.codive_body2_regular)
                                 .foregroundStyle(Color.Codive.grayscale4)
-                        }
+                        })
                         .padding(.top, 8)
                     }
                 }

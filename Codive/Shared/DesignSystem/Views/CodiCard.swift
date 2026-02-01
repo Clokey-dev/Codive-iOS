@@ -27,7 +27,7 @@ struct CodiCard: View {
     var iconPadding: CGFloat = 12
     var iconSize: CGFloat = 20
 
-    var onCardTap: (() -> Void)? = nil
+    var onCardTap: (() -> Void)?
 
     init(
         imageURL: URL?,

@@ -65,8 +65,8 @@ final class SocialAuthService: NSObject, SocialAuthServiceProtocol {
                     return
                 }
 
-                let accessToken = queryItems.first(where: { $0.name == "accessToken" })?.value
-                let refreshToken = queryItems.first(where: { $0.name == "refreshToken" })?.value
+                let accessToken = queryItems.first { $0.name == "accessToken" }?.value
+                let refreshToken = queryItems.first { $0.name == "refreshToken" }?.value
 
                 guard let accessToken = accessToken,
                       let refreshToken = refreshToken else {
