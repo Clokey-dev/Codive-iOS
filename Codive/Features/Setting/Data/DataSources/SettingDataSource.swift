@@ -12,7 +12,6 @@ final class SettingsDataSource {
     private let apiClient: Client
 
     // MARK: - In-memory stores
-    private var myCommentsStore: [MyComment] = []
     private var blockedUsersStore: [BlockedUser] = []
     private var notificationPrefsStore: NotificationPrefs = .init(
         pushEnabled: true,
@@ -29,23 +28,6 @@ final class SettingsDataSource {
     // MARK: - Init
     init(apiClient: Client = CodiveAPIProvider.createClient()) {
         self.apiClient = apiClient
-
-        // 내가 남긴 댓글 
-        myCommentsStore = (1...17).map { i in
-            let author = SimpleUser(
-                userId: UserID(300 + i),
-                nickname: "닉네임\(i)",
-                handle: "user_\(i)",
-                avatarURL: nil
-            )
-            return MyComment(
-                commentId: CommentID(i),
-                postId: PostID(10 + i),
-                author: author,
-                contentPreview: "내 댓글 내용 \(i)",
-                createdAt: Date().addingTimeInterval(TimeInterval(-i * 3_600))
-            )
-        }
 
         // 차단한 계정
         let u1 = SimpleUser(userId: UserID(101), nickname: "차단유저A", handle: "user_a", avatarURL: nil)
@@ -127,11 +109,101 @@ final class SettingsDataSource {
 
     // MARK: - My Comments
     func fetchMyComments(page: Int, pageSize: Int) async throws -> [MyComment] {
-        guard page > 0, pageSize > 0 else { return [] }
-        let start = (page - 1) * pageSize
-        let end = min(start + pageSize, myCommentsStore.count)
-        guard start < end else { return [] }
-        return Array(myCommentsStore[start..<end])
+        let lastHistoryId: Int64? = page > 1 ? Int64((page - 1) * pageSize) : nil
+        let jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
+
+        let response = try await apiClient.Comment_getMyComments(
+            query: .init(lastHistoryId: lastHistoryId, size: Int32(pageSize))
+        )
+
+        switch response {
+        case .ok(let okResponse):
+            let httpBody = try okResponse.body.any
+            let data = try await Data(collecting: httpBody, upTo: .max)
+
+            struct APIResponse: Decodable {
+                let isSuccess: Bool
+                let code: String
+                let message: String
+                let timeStamp: String
+                let result: Result
+
+                struct Result: Decodable {
+                    let content: [HistoryDTO]
+                    let isLast: Bool
+                }
+            }
+
+            struct HistoryDTO: Decodable {
+                let historyId: Int64
+                let imageUrl: String
+                let nickname: String
+                let historyDate: String
+                let content: String
+                let payloads: [CommentPayloadDTO]
+
+                struct CommentPayloadDTO: Decodable {
+                    let commentId: Int64
+                    let content: String
+                }
+            }
+
+            let apiResponse = try jsonDecoder.decode(APIResponse.self, from: data)
+
+            guard apiResponse.isSuccess else {
+                throw NSError(domain: "API Error", code: -1, userInfo: [NSLocalizedDescriptionKey: apiResponse.message])
+            }
+
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd"
+            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+
+            return apiResponse.result.content.map { historyDTO in
+                let author = SimpleUser(
+                    userId: UserID(historyDTO.historyId),
+                    nickname: historyDTO.nickname,
+                    handle: "",
+                    avatarURL: nil
+                )
+
+                let historyDate = dateFormatter.date(from: historyDTO.historyDate) ?? Date()
+
+                // payloads를 replies로 변환
+                let replies = historyDTO.payloads.map { payload in
+                    CommentReply(
+                        replyId: CommentID(payload.commentId),
+                        author: SimpleUser(
+                            userId: UserID(payload.commentId),
+                            nickname: "",
+                            handle: "",
+                            avatarURL: nil
+                        ),
+                        content: payload.content,
+                        createdAt: historyDate
+                    )
+                }
+
+                return MyComment(
+                    commentId: CommentID(historyDTO.historyId),
+                    postId: PostID(historyDTO.historyId),
+                    author: author,
+                    contentPreview: historyDTO.content,
+                    createdAt: historyDate,
+                    replies: replies
+                )
+            }
+
+        default:
+            if case .undocumented(let statusCode, let payload) = response {
+                if let body = payload.body {
+                    let data = try await Data(collecting: body, upTo: .max)
+                    if let responseBody = String(data: data, encoding: .utf8) {
+                        print("fetchMyComments error response [\(statusCode)]: \(responseBody)")
+                    }
+                }
+            }
+            throw NSError(domain: "SettingDataSource", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to fetch my comments"])
+        }
     }
 
     // MARK: - Blocked Users
