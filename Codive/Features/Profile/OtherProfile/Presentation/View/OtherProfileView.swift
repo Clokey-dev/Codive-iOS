@@ -10,11 +10,11 @@ import SwiftUI
 // MARK: - View
 struct OtherProfileView: View {
     @ObservedObject private var navigationRouter: NavigationRouter
-    @StateObject private var viewModel: OtherProfileViewModel
+    @ObservedObject private var viewModel: OtherProfileViewModel
 
-    init(navigationRouter: NavigationRouter) {
-        self.navigationRouter = navigationRouter
-        self._viewModel = StateObject(wrappedValue: OtherProfileViewModel(navigationRouter: navigationRouter))
+    init(viewModel: OtherProfileViewModel, navigationRouter: NavigationRouter) {
+        self._viewModel = ObservedObject(wrappedValue: viewModel)
+        self._navigationRouter = ObservedObject(wrappedValue: navigationRouter)
     }
 
     var body: some View {
@@ -87,7 +87,7 @@ struct OtherProfileView: View {
     // MARK: - Profile
     private var profileSection: some View {
         VStack {
-            Image("CustomProfile")
+            Image("Profile")
                 .resizable()
                 .scaledToFill()
                 .frame(width: 80, height: 80)
@@ -218,5 +218,5 @@ struct OtherProfileView: View {
 }
 
 #Preview {
-    OtherProfileView(navigationRouter: NavigationRouter())
+    EmptyView()
 }

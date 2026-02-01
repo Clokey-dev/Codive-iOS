@@ -12,7 +12,9 @@ final class FeedDIContainer {
 
     // MARK: - Properties
     let navigationRouter: NavigationRouter
-    lazy var feedViewFactory = FeedViewFactory(feedDIContainer: self)
+    lazy var feedViewFactory = FeedViewFactory(feedDIContainer: self, navigationRouter: navigationRouter)
+    lazy var commentDIContainer = CommentDIContainer(navigationRouter: navigationRouter)
+    lazy var profileDIContainer = ProfileDIContainer(navigationRouter: navigationRouter)
 
     // MARK: - Initializer
     init(navigationRouter: NavigationRouter) {
@@ -26,7 +28,7 @@ final class FeedDIContainer {
     }()
 
     private lazy var feedDataSource: FeedDataSource = {
-        return MockFeedDataSource()
+        return DefaultFeedDataSource()
     }()
 
     // MARK: - Repositories
@@ -36,7 +38,10 @@ final class FeedDIContainer {
     }()
 
     private lazy var feedRepository: FeedRepository = {
-        return FeedRepositoryImpl(dataSource: feedDataSource)
+        return FeedRepositoryImpl(
+            dataSource: feedDataSource,
+            historyAPIService: HistoryAPIService()
+        )
     }()
 
     // MARK: - UseCases
@@ -57,13 +62,21 @@ final class FeedDIContainer {
         return DefaultFetchFeedLikersUseCase(feedRepository: feedRepository)
     }
 
+    func makeToggleLikeUseCase() -> ToggleLikeUseCase {
+        return DefaultToggleLikeUseCase(feedRepository: feedRepository)
+    }
+
+    func makeFetchClothTagsUseCase() -> FetchClothTagsUseCase {
+        return DefaultFetchClothTagsUseCase(feedRepository: feedRepository)
+    }
+
     // MARK: - ViewModels
 
     func makeFeedViewModel() -> FeedViewModel {
         return FeedViewModel(
             navigationRouter: navigationRouter,
             fetchFeedsUseCase: makeFetchFeedsUseCase(),
-            feedRepository: feedRepository
+            toggleLikeUseCase: makeToggleLikeUseCase()
         )
     }
 
@@ -72,7 +85,8 @@ final class FeedDIContainer {
             feedId: feedId,
             fetchFeedDetailUseCase: makeFetchFeedDetailUseCase(),
             fetchLikersUseCase: makeFetchFeedLikersUseCase(),
-            feedRepository: feedRepository,
+            toggleLikeUseCase: makeToggleLikeUseCase(),
+            fetchClothTagsUseCase: makeFetchClothTagsUseCase(),
             navigationRouter: navigationRouter
         )
     }
@@ -82,7 +96,8 @@ final class FeedDIContainer {
     func makeFeedDetailView(feedId: Int) -> FeedDetailView {
         return FeedDetailView(
             viewModel: makeFeedDetailViewModel(feedId: feedId),
-            navigationRouter: navigationRouter
+            navigationRouter: navigationRouter,
+            commentDIContainer: commentDIContainer
         )
     }
 }
@@ -95,13 +110,16 @@ extension FeedDIContainer {
         repository: FeedRepository,
         navigationRouter: NavigationRouter
     ) -> FeedDetailViewModel {
-        let useCase = DefaultFetchFeedDetailUseCase(repository: repository)
-        let likersUseCase = DefaultFetchFeedLikersUseCase(feedRepository: repository) 
+        let detailUseCase = DefaultFetchFeedDetailUseCase(repository: repository)
+        let likersUseCase = DefaultFetchFeedLikersUseCase(feedRepository: repository)
+        let toggleLikeUseCase = DefaultToggleLikeUseCase(feedRepository: repository)
+        let clothTagsUseCase = DefaultFetchClothTagsUseCase(feedRepository: repository)
         return FeedDetailViewModel(
             feedId: feedId,
-            fetchFeedDetailUseCase: useCase,
+            fetchFeedDetailUseCase: detailUseCase,
             fetchLikersUseCase: likersUseCase,
-            feedRepository: repository,
+            toggleLikeUseCase: toggleLikeUseCase,
+            fetchClothTagsUseCase: clothTagsUseCase,
             navigationRouter: navigationRouter
         )
     }

@@ -49,4 +49,14 @@ enum SituationConstants {
     static func getFirstId(from names: Set<String>) -> Int64? {
         names.compactMap { find(byName: $0)?.id }.first
     }
+
+    /// 이름 배열로 ID 배열 변환
+    static func getIds(from names: [String]) -> [Int64] {
+        names.compactMap { find(byName: $0)?.id }
+    }
+
+    /// 이름 Set으로 ID 배열 변환
+    static func getIds(from names: Set<String>) -> [Int64] {
+        getIds(from: Array(names))
+    }
 }

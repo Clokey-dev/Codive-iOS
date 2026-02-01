@@ -18,7 +18,39 @@ struct FeedContentSection: View {
     let onLikeTap: () -> Void
     let onCommentTap: () -> Void
     let onLikesCountTap: () -> Void
-    
+
+    // content에서 해시태그 부분만 주황색으로 표시
+    private var attributedContent: AttributedString {
+        var attributed = AttributedString(content)
+
+        // 해시태그 패턴 찾기 (#로 시작하는 단어)
+        let pattern = "#[가-힣a-zA-Z0-9_]+"
+        guard let regex = try? NSRegularExpression(pattern: pattern) else {
+            attributed.foregroundColor = Color.Codive.grayscale1
+            return attributed
+        }
+
+        let nsString = content as NSString
+        let matches = regex.matches(in: content, range: NSRange(location: 0, length: nsString.length))
+
+        // 기본 색상 설정
+        attributed.foregroundColor = Color.Codive.grayscale1
+
+        // 각 해시태그 부분만 주황색으로
+        for match in matches {
+            if let range = Range(match.range, in: content) {
+                let start = AttributedString.Index(range.lowerBound, within: attributed)
+                let end = AttributedString.Index(range.upperBound, within: attributed)
+
+                if let start = start, let end = end {
+                    attributed[start..<end].foregroundColor = Color.Codive.point1
+                }
+            }
+        }
+
+        return attributed
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             
@@ -59,20 +91,12 @@ struct FeedContentSection: View {
             .padding(.top, 16)
             .padding(.bottom, 12)
             
-            // Caption
-            Text(content)
-                .font(.codive_body2_regular)
-                .foregroundStyle(Color.Codive.grayscale1)
-                .padding(.horizontal, 20)
-                .padding(.bottom, 12)
-            
-            // Hashtags
-            if !hashtags.isEmpty {
-                Text(hashtags.map { "#\($0)" }.joined(separator: " "))
+            // Caption with colored hashtags
+            if !content.isEmpty {
+                Text(attributedContent)
                     .font(.codive_body2_regular)
-                    .foregroundStyle(Color.Codive.point1)
                     .padding(.horizontal, 20)
-                    .padding(.bottom, 8)
+                    .padding(.bottom, 12)
             }
             
             // Date
@@ -95,8 +119,8 @@ struct FeedContentSection: View {
                     Text(style)
                         .font(.codive_body2_medium)
                         .foregroundStyle(Color.Codive.grayscale1)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
+                        .padding(.horizontal, 9)
+                        .padding(.vertical, 7)
                         .background(Color.white)
                         .overlay(
                             RoundedRectangle(cornerRadius: 100)

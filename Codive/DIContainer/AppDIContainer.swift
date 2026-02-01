@@ -66,4 +66,8 @@ final class AppDIContainer {
     func makeCommentDIContainer() -> CommentDIContainer {
         return CommentDIContainer(navigationRouter: navigationRouter)
     }
+
+    func makeProfileDIContainer() -> ProfileDIContainer {
+        return ProfileDIContainer(navigationRouter: navigationRouter)
+    }
 }

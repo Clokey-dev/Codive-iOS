@@ -7,14 +7,15 @@
 
 import SwiftUI
 import Combine
+import PhotosUI
 
 struct ProfileSettingView: View {
     @ObservedObject private var navigationRouter: NavigationRouter
-    @StateObject private var viewModel: ProfileSettingViewModel
+    @ObservedObject private var viewModel: ProfileSettingViewModel
 
-    init(navigationRouter: NavigationRouter) {
-        self.navigationRouter = navigationRouter
-        self._viewModel = StateObject(wrappedValue: ProfileSettingViewModel(navigationRouter: navigationRouter))
+    init(viewModel: ProfileSettingViewModel, navigationRouter: NavigationRouter) {
+        self._viewModel = ObservedObject(wrappedValue: viewModel)
+        self._navigationRouter = ObservedObject(wrappedValue: navigationRouter)
     }
 
     enum Field: Hashable {
@@ -25,53 +26,85 @@ struct ProfileSettingView: View {
     @FocusState private var focus: Field?
 
     var body: some View {
-        VStack(spacing: 0) {
-            CustomNavigationBar(
-                title: "프로필 설정",
-                onBack: { navigationRouter.navigateBack() },
-                rightButton: .none
-            )
+        ZStack {
+            VStack(spacing: 0) {
+                CustomNavigationBar(
+                    title: "프로필 설정",
+                    onBack: { navigationRouter.navigateBack() },
+                    rightButton: .none
+                )
 
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 0) {
-                    profileImageSection
-                        .padding(.top, 32)
+                if viewModel.isLoadingProfile {
+                    VStack {
+                        ProgressView()
+                            .tint(.black)
+                        Text("프로필 정보 로딩 중...")
+                            .font(.codive_body3_medium)
+                            .foregroundStyle(Color.Codive.grayscale4)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 0) {
+                            if let errorMessage = viewModel.errorMessage {
+                                Text(errorMessage)
+                                    .font(.codive_body3_medium)
+                                    .foregroundStyle(Color.Codive.point1)
+                                    .padding(.horizontal, 20)
+                                    .padding(.vertical, 12)
+                                    .background(Color.Codive.point4)
+                                    .cornerRadius(8)
+                                    .padding(.top, 16)
+                            }
 
-                    formSection
-                        .padding(.top, 56)
+                            profileImageSection
+                                .padding(.top, 32)
 
-                    completeButton
-                        .padding(.top, 120)
+                            formSection
+                                .padding(.top, 56)
+
+                            Spacer(minLength: 120)
+                        }
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        UIApplication.shared.hideKeyboard()
+                    }
+                    .opacity(viewModel.isLoading ? 0.5 : 1)
+                    .disabled(viewModel.isLoading)
                 }
             }
+            .background(Color.white)
+
+            VStack {
+                Spacer()
+                completeButton
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 20)
+                    .background(Color.white)
+            }
+            .ignoresSafeArea(edges: .bottom)
+            .padding(.bottom, 10)
         }
-        .background(Color.white)
         .navigationBarHidden(true)
+        .onAppear {
+            Task {
+                await viewModel.loadCurrentProfile()
+            }
+        }
     }
 
     private var profileImageSection: some View {
         ZStack(alignment: .bottomTrailing) {
-            Group {
-                if let pickedProfileImage = viewModel.pickedProfileImage {
-                    pickedProfileImage
-                        .resizable()
-                        .scaledToFill()
-                } else {
-                    Circle()
-                        .fill(Color.Codive.grayscale6)
-                        .overlay {
-                            Image("settingProfile")
-                                .resizable()
-                                .scaledToFit()
-                        }
-                }
-            }
-            .frame(width: 100, height: 100)
-            .clipShape(Circle())
+            profileImageContent
+                .frame(width: 100, height: 100)
+                .clipShape(Circle())
 
-            Button {
-                viewModel.onProfileImageTapped()
-            } label: {
+            PhotosPicker(
+                selection: $viewModel.selectedPhotoPickerItem,
+                matching: .images,
+                photoLibrary: .shared()
+            ) {
                 Circle()
                     .fill(Color.Codive.grayscale1)
                     .frame(width: 28, height: 28)
@@ -82,6 +115,11 @@ struct ProfileSettingView: View {
             }
             .buttonStyle(.plain)
             .offset(x: 6, y: 6)
+            .onChange(of: viewModel.selectedPhotoPickerItem) { newValue in
+                Task {
+                    await viewModel.handlePhotoSelection(newValue)
+                }
+            }
         }
         .frame(maxWidth: .infinity)
     }
@@ -142,6 +180,46 @@ struct ProfileSettingView: View {
         .padding(.horizontal, 20)
     }
 
+    private var profileImageContent: some View {
+        if let pickedProfileImage = viewModel.pickedProfileImage {
+            // 사용자가 방금 선택한 이미지
+            return AnyView(
+                pickedProfileImage
+                    .resizable()
+                    .scaledToFill()
+            )
+        } else if let imageUrl = viewModel.currentProfileImageUrl, !imageUrl.isEmpty {
+            // 저장된 프로필 이미지 URL
+            return AnyView(
+                AsyncImage(url: URL(string: imageUrl)) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                    case .empty:
+                        ProgressView()
+                    case .failure:
+                        Image("Profile")
+                            .resizable()
+                            .scaledToFill()
+                    @unknown default:
+                        Image("Profile")
+                            .resizable()
+                            .scaledToFill()
+                    }
+                }
+            )
+        } else {
+            // 기본 이미지 (프로필 이미지가 없을 때)
+            return AnyView(
+                Image("Profile")
+                    .resizable()
+                    .scaledToFill()
+            )
+        }
+    }
+
     private var privacySection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 6) {
@@ -183,16 +261,15 @@ struct ProfileSettingView: View {
 
     private var completeButton: some View {
         CustomButton(
-            text: "설정 완료",
+            text: viewModel.isLoading ? "저장 중..." : "설정 완료",
             widthType: .fixed,
-            isEnabled: viewModel.canComplete
+            isEnabled: viewModel.canComplete && !viewModel.isLoading
         ) {
             viewModel.onCompleteTapped()
         }
-        .padding(.horizontal, 20)
     }
 }
 
 #Preview {
-    ProfileSettingView(navigationRouter: NavigationRouter())
+    EmptyView()
 }

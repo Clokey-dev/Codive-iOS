@@ -99,7 +99,7 @@ struct RemoteTaggableImageView: View {
     RemoteTaggableImageView(
         imageUrl: "https://via.placeholder.com/300x400",
         tags: .constant([
-            ClothTag(id: UUID(), clothId: 1, brand: "Nike", name: "Shirt", locationX: 0.5, locationY: 0.3)
+            ClothTag(id: UUID(), clothId: 1, brand: "Nike", name: "Shirt", imageUrl: nil, locationX: 0.5, locationY: 0.3)
         ]),
         selectedTagId: nil
     ) { tagId in

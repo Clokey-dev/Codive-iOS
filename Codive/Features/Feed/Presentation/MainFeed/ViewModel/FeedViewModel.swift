@@ -35,9 +35,9 @@ final class FeedViewModel: ObservableObject {
 
     private let navigationRouter: NavigationRouter
     private let fetchFeedsUseCase: FetchFeedsUseCase
-    private let feedRepository: FeedRepository
-    private var currentPage: Int = 1
+    private let toggleLikeUseCase: ToggleLikeUseCase
     private let pageSize: Int = 20
+    private var nextCursor: String?
     private var hasMorePages: Bool = true
 
     // MARK: - Initialization
@@ -45,11 +45,11 @@ final class FeedViewModel: ObservableObject {
     init(
         navigationRouter: NavigationRouter,
         fetchFeedsUseCase: FetchFeedsUseCase,
-        feedRepository: FeedRepository
+        toggleLikeUseCase: ToggleLikeUseCase
     ) {
         self.navigationRouter = navigationRouter
         self.fetchFeedsUseCase = fetchFeedsUseCase
-        self.feedRepository = feedRepository
+        self.toggleLikeUseCase = toggleLikeUseCase
     }
 
     // MARK: - Public Methods
@@ -66,19 +66,20 @@ final class FeedViewModel: ObservableObject {
 
         isLoading = true
         errorMessage = nil
+        nextCursor = nil
 
         do {
-            let newFeeds = try await fetchFeedsUseCase.execute(
-                page: 1,
+            let result = try await fetchFeedsUseCase.execute(
+                cursor: nil,
                 limit: pageSize,
                 styleIds: selectedStyleIds,
                 situationIds: selectedSituationIds,
                 followingOnly: followingOnly
             )
 
-            feeds = newFeeds
-            currentPage = 1
-            hasMorePages = newFeeds.count == pageSize
+            feeds = result.feeds
+            nextCursor = result.nextCursor
+            hasMorePages = result.hasNext
         } catch {
             errorMessage = "Feed를 불러오는데 실패했습니다: \(error.localizedDescription)"
             feeds = []
@@ -95,18 +96,17 @@ final class FeedViewModel: ObservableObject {
         isLoading = true
 
         do {
-            let nextPage = currentPage + 1
-            let newFeeds = try await fetchFeedsUseCase.execute(
-                page: nextPage,
+            let result = try await fetchFeedsUseCase.execute(
+                cursor: nextCursor,
                 limit: pageSize,
                 styleIds: selectedStyleIds,
                 situationIds: selectedSituationIds,
                 followingOnly: followingOnly
             )
 
-            feeds.append(contentsOf: newFeeds)
-            currentPage = nextPage
-            hasMorePages = newFeeds.count == pageSize
+            feeds.append(contentsOf: result.feeds)
+            nextCursor = result.nextCursor
+            hasMorePages = result.hasNext
         } catch {
             errorMessage = "더 많은 Feed를 불러오는데 실패했습니다: \(error.localizedDescription)"
         }
@@ -157,6 +157,7 @@ final class FeedViewModel: ObservableObject {
             images: originalFeed.images,
             situationId: originalFeed.situationId,
             styleIds: originalFeed.styleIds,
+            styleNames: originalFeed.styleNames,
             hashtags: originalFeed.hashtags,
             createdAt: originalFeed.createdAt,
             likeCount: newLikeCount,
@@ -166,7 +167,7 @@ final class FeedViewModel: ObservableObject {
 
         // 서버에 요청
         do {
-            try await feedRepository.toggleLike(feedId: feedId)
+            try await toggleLikeUseCase.execute(feedId: feedId)
         } catch {
             // 에러 시 롤백
             feeds[index] = originalFeed

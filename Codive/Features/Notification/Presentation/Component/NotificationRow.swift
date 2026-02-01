@@ -58,10 +58,9 @@ struct NotificationRow: View {
     }
     
     private var defaultImage: some View {
-        Image(systemName: "person.circle.fill")
+        Image("Profile")
             .resizable()
             .aspectRatio(contentMode: .fill)
-            .foregroundStyle(Color.gray.opacity(0.3))
             .frame(width: profileImageSize, height: profileImageSize)
             .clipShape(Circle())
     }

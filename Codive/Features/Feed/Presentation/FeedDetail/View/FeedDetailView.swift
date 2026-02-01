@@ -12,6 +12,7 @@ struct FeedDetailView: View {
     // MARK: - Properties
     @StateObject var viewModel: FeedDetailViewModel
     @ObservedObject var navigationRouter: NavigationRouter
+    let commentDIContainer: CommentDIContainer
 
     // UI State
     @State private var currentImageIndex: Int = 0
@@ -21,10 +22,12 @@ struct FeedDetailView: View {
     // MARK: - Initializer
     init(
         viewModel: FeedDetailViewModel,
-        navigationRouter: NavigationRouter
+        navigationRouter: NavigationRouter,
+        commentDIContainer: CommentDIContainer
     ) {
         _viewModel = StateObject(wrappedValue: viewModel)
         _navigationRouter = ObservedObject(wrappedValue: navigationRouter)
+        self.commentDIContainer = commentDIContainer
     }
 
     // MARK: - Body
@@ -133,6 +136,25 @@ struct FeedDetailView: View {
             FeedLikesListView(viewModel: viewModel)
                 .presentationDetents([.medium, .large])
         })
+        .sheet(isPresented: Binding(
+            get: { navigationRouter.sheetDestination != nil && isCommentSheet(navigationRouter.sheetDestination) },
+            set: { if !$0 { navigationRouter.dismissSheet() } }
+        ), content: {
+            if case .comment(let feedId) = navigationRouter.sheetDestination {
+                commentDIContainer.commentViewFactory.makeView(for: .comment(feedId: feedId))
+                    .presentationDetents([.fraction(0.7), .large])
+            }
+        })
+    }
+
+    // MARK: - Helper Methods
+
+    private func isCommentSheet(_ destination: AppDestination?) -> Bool {
+        guard let destination = destination else { return false }
+        if case .comment = destination {
+            return true
+        }
+        return false
     }
 }
 
@@ -149,6 +171,7 @@ struct FeedDetailView: View {
 
     FeedDetailView(
         viewModel: viewModel,
-        navigationRouter: navigationRouter
+        navigationRouter: navigationRouter,
+        commentDIContainer: CommentDIContainer(navigationRouter: navigationRouter)
     )
 }

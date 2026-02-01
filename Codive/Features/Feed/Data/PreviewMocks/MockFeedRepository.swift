@@ -51,8 +51,14 @@ final class MockFeedRepository: FeedRepository {
         }
     }
 
-    func fetchFeeds(page: Int, limit: Int, styleIds: [Int]?, situationIds: [Int]?, followingOnly: Bool) async throws -> [Feed] {
-        return []
+    func fetchFeeds(
+        cursor: String?,
+        limit: Int,
+        styleIds: [Int]?,
+        situationIds: [Int]?,
+        followingOnly: Bool
+    ) async throws -> FeedPageResult {
+        return FeedPageResult(feeds: [], nextCursor: nil, hasNext: false)
     }
 
     func fetchFeedDetail(feedId: Int) async throws -> Feed {
@@ -70,6 +76,30 @@ final class MockFeedRepository: FeedRepository {
             .init(id: "2", nickname: "코디장인", profileImageUrl: nil),
             .init(id: "3", nickname: "스타일헌터", profileImageUrl: nil),
             .init(id: "4", nickname: "옷잘알", profileImageUrl: nil)
+        ]
+    }
+
+    func fetchClothTags(historyImageId: Int64) async throws -> [ClothTag] {
+        print("Fetching cloth tags for historyImageId: \(historyImageId)")
+        return [
+            ClothTag(
+                id: UUID(),
+                clothId: 101,
+                brand: "Zara",
+                name: "Black T-Shirt",
+                imageUrl: "https://via.placeholder.com/100x100",
+                locationX: 0.5,
+                locationY: 0.4
+            ),
+            ClothTag(
+                id: UUID(),
+                clothId: 102,
+                brand: "Uniqlo",
+                name: "Blue Jeans",
+                imageUrl: "https://via.placeholder.com/100x100",
+                locationX: 0.5,
+                locationY: 0.7
+            )
         ]
     }
 }

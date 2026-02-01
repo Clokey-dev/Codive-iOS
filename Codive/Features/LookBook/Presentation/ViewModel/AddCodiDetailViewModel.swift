@@ -104,7 +104,7 @@ private extension AddCodiDetailViewModel {
         
         let newImage = DraggableImageEntity(
             id: product.id,
-            name: product.imageName,
+            name: product.imageUrl ?? product.imageName ?? "",
             position: CGPoint(
                 x: centerX + randomOffsetX,
                 y: centerY + randomOffsetY

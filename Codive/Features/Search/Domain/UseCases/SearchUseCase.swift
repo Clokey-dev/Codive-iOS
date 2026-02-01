@@ -76,11 +76,11 @@ extension SearchUseCase {
         return repository.fetchRecommendedNews()
     }
     
-    func fetchPosts(query: String) -> [PostEntity] {
-        return repository.fetchPosts(query: query)
+    func fetchPosts(query: String, sort: String?) async throws -> [PostEntity] {
+        return try await repository.fetchPosts(query: query, sort: sort)
     }
-    
-    func fetchUsers(query: String) -> [SimpleUser] {
-        return repository.fetchUsers(query: query)
+
+    func fetchUsers(query: String) async throws -> [SimpleUser] {
+        return try await repository.fetchUsers(query: query)
     }
 }

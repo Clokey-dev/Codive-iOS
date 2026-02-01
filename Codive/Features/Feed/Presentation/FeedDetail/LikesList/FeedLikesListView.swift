@@ -20,14 +20,6 @@ struct FeedLikesListView: View {
                     .font(.codive_title2)
                     .foregroundStyle(Color.Codive.grayscale1)
                 Spacer()
-                Button(action: {
-                    dismiss()
-                }, label: {
-                    Image(systemName: "xmark")
-                        .resizable()
-                        .frame(width: 16, height: 16)
-                        .foregroundStyle(Color.Codive.grayscale1)
-                })
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 16)
@@ -48,7 +40,7 @@ struct FeedLikesListView: View {
                                 user: SimpleUser(
                                     userId: Int(user.id) ?? 0,
                                     nickname: user.nickname,
-                                    handle: user.id,
+                                    handle: "",
                                     avatarURL: URL(string: user.profileImageUrl ?? "")
                                 ),
                                 buttonTitle: (user.isFollowing ?? false) ? TextLiteral.LikesList.following : TextLiteral.LikesList.follow,

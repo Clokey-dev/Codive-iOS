@@ -12,10 +12,8 @@ struct PostCard: View {
     let postImageUrl: String?
     let profileImageUrl: String?
     let nickname: String
-    
+
     // MARK: - Constants (디자인 값)
-    private let cardWidth: CGFloat = 162
-    private let cardHeight: CGFloat = 216
     private let cornerRadius: CGFloat = 12
     private let profileImageSize: CGFloat = 28
     private let nicknameFont = Font.codive_body2_medium
@@ -39,16 +37,11 @@ struct PostCard: View {
                         ProgressView()
                     }
                 }
-                .frame(width: cardWidth, height: cardHeight)
                 .clipped()
-                .cornerRadius(cornerRadius)
             } else {
                 Rectangle()
                     .fill(Color.gray.opacity(0.3))
                     .overlay(Image(systemName: "photo").foregroundStyle(Color.gray))
-                    .frame(width: cardWidth, height: cardHeight)
-                    .clipped()
-                    .cornerRadius(cornerRadius)
             }
             HStack(spacing: 4) {
                 if let urlString = profileImageUrl, let url = URL(string: urlString) {
@@ -58,10 +51,9 @@ struct PostCard: View {
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
                         } else if phase.error != nil {
-                            Image(systemName: "person.circle.fill")
+                            Image("Profile")
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
-                                .foregroundStyle(Color.gray.opacity(0.3))
                         } else {
                             ProgressView()
                         }
@@ -69,10 +61,9 @@ struct PostCard: View {
                     .frame(width: profileImageSize, height: profileImageSize)
                     .clipShape(Circle())
                 } else {
-                    Image(systemName: "person.circle.fill")
+                    Image("Profile")
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .foregroundStyle(Color.gray.opacity(0.3))
                         .frame(width: profileImageSize, height: profileImageSize)
                         .clipShape(Circle())
                 }
@@ -85,7 +76,8 @@ struct PostCard: View {
             .padding(.leading, overlayLeft)
             .padding(.bottom, overlayBottom)
         }
-        .frame(width: cardWidth, height: cardHeight)
+        .aspectRatio(3/4, contentMode: .fit)
+        .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
     }
 }
 

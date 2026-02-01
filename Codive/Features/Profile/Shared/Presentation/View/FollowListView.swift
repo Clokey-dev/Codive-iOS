@@ -9,11 +9,11 @@ import SwiftUI
 
 struct FollowListView: View {
     @ObservedObject private var navigationRouter: NavigationRouter
-    @StateObject private var viewModel: FollowListViewModel
+    @ObservedObject private var viewModel: FollowListViewModel
 
-    init(mode: FollowListMode, navigationRouter: NavigationRouter) {
-        self.navigationRouter = navigationRouter
-        _viewModel = StateObject(wrappedValue: FollowListViewModel(mode: mode))
+    init(viewModel: FollowListViewModel, navigationRouter: NavigationRouter) {
+        self._viewModel = ObservedObject(wrappedValue: viewModel)
+        self._navigationRouter = ObservedObject(wrappedValue: navigationRouter)
     }
 
     var body: some View {
@@ -44,5 +44,8 @@ struct FollowListView: View {
         }
         .background(Color.white)
         .navigationBarBackButtonHidden(true)
+        .task {
+            await viewModel.load()
+        }
     }
 }

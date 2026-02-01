@@ -26,6 +26,7 @@ struct LinkedProductListView: View {
                         }
                     }, label: {
                         ProductThumbnailItem(
+                            tag: tag,
                             isSelected: selectedTagId == tag.id
                         )
                     })
@@ -39,19 +40,41 @@ struct LinkedProductListView: View {
 
 // MARK: - Item View
 private struct ProductThumbnailItem: View {
+    let tag: ClothTag
     let isSelected: Bool
-    
+
     var body: some View {
         RoundedRectangle(cornerRadius: 8)
             .fill(Color.gray.opacity(0.1))
             .frame(width: 60, height: 60)
             .overlay(
-                Image(systemName: "tshirt")
-                    .foregroundStyle(Color.gray)
+                Group {
+                    if let imageUrl = tag.imageUrl {
+                        AsyncImage(url: URL(string: imageUrl)) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                            case .failure:
+                                Image(systemName: "tshirt")
+                                    .foregroundStyle(Color.gray)
+                            case .empty:
+                                ProgressView()
+                            @unknown default:
+                                EmptyView()
+                            }
+                        }
+                    } else {
+                        Image(systemName: "tshirt")
+                            .foregroundStyle(Color.gray)
+                    }
+                }
             )
+            .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(isSelected ? Color.black : Color.clear, lineWidth: 1)
+                    .stroke(isSelected ? Color.black : Color.clear, lineWidth: 2)
             )
             .padding(.bottom, 2)
     }
@@ -61,8 +84,8 @@ private struct ProductThumbnailItem: View {
 #Preview {
     LinkedProductListView(
         tags: [
-            ClothTag(id: UUID(), clothId: 1, brand: "Nike", name: "Shirt", locationX: 0, locationY: 0),
-            ClothTag(id: UUID(), clothId: 2, brand: "Adidas", name: "Pants", locationX: 0, locationY: 0)
+            ClothTag(id: UUID(), clothId: 1, brand: "Nike", name: "Shirt", imageUrl: nil, locationX: 0, locationY: 0),
+            ClothTag(id: UUID(), clothId: 2, brand: "Adidas", name: "Pants", imageUrl: nil, locationX: 0, locationY: 0)
         ],
         selectedTagId: .constant(nil)
     )

@@ -40,4 +40,6 @@ protocol SearchRepository {
     
     /// 전체 기록 검색 엔진 동기화(개발용)
     func fetchSearchHistorySyncAll() async throws
+    func fetchPosts(query: String, sort: String?) async throws -> [PostEntity]
+    func fetchUsers(query: String) async throws -> [SimpleUser]
 }

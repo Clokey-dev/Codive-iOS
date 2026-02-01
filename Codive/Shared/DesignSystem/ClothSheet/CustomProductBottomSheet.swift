@@ -55,7 +55,7 @@ struct CustomProductBottomSheet: View {
                 LazyVGrid(columns: columns, spacing: 10) {
                     ForEach(products.sorted { $0.isTodayCloth && !$1.isTodayCloth }) { product in
                         CustomProductCard(
-                            imageName: product.imageName,
+                            imageName: product.imageUrl ?? product.imageName ?? "",
                             isTodayCloth: product.isTodayCloth,
                             isSelected: selectedProducts.contains(product.id)
                         ) {

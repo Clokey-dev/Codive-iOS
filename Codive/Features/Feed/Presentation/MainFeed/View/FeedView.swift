@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Foundation
 
 struct FeedView: View {
 
@@ -15,7 +16,7 @@ struct FeedView: View {
     // MARK: Filter States
     // Top Bar States
     @State private var isFollowingSelected: Bool = false
-    @State private var selectedCategory: String = ""
+    @State private var selectedCategory: Set<String> = []
 
     // Bottom Sheet States
     @State private var isShowingFilterSheet: Bool = false
@@ -32,18 +33,31 @@ struct FeedView: View {
     ]
     
     private let styleCategories = [
-        TextLiteral.Add.styleCasual, TextLiteral.Add.styleLoving, TextLiteral.Add.styleMinimal,
-        TextLiteral.Add.styleVintage, TextLiteral.Add.styleSporty, TextLiteral.Add.styleStreet,
-        TextLiteral.Add.styleChic, TextLiteral.Add.styleOffice, TextLiteral.Add.styleClassic,
+        TextLiteral.Add.styleLoving, TextLiteral.Add.styleMinimal, TextLiteral.Add.styleVintage,
+        TextLiteral.Add.styleSporty, TextLiteral.Add.styleStreet, TextLiteral.Add.styleChic,
+        TextLiteral.Add.styleOffice, TextLiteral.Add.styleCasual, TextLiteral.Add.styleClassic,
         TextLiteral.Add.styleHighteen
     ]
-    
+
+    // 선택된 카테고리를 앞으로, 나머지를 뒤로 정렬
+    private var sortedCategories: [String] {
+        let selected = Array(selectedCategory).sorted { a, b in
+            guard let indexA = styleCategories.firstIndex(of: a),
+                  let indexB = styleCategories.firstIndex(of: b) else {
+                return false
+            }
+            return indexA < indexB
+        }
+        let notSelected = styleCategories.filter { !selectedCategory.contains($0) }
+        return selected + notSelected
+    }
+
     // MARK: - Body
     var body: some View {
         VStack {
             FeedFilterBar(
                 isFollowingSelected: $isFollowingSelected,
-                categories: styleCategories,
+                categories: sortedCategories,
                 selectedCategory: $selectedCategory
             ) {
                 isShowingFilterSheet = true
@@ -56,7 +70,8 @@ struct FeedView: View {
             Task { await viewModel.applyFilters() }
         }
         .onChange(of: selectedCategory) { _ in
-            viewModel.selectedStyleIds = nil
+            let styleIds = StyleConstants.getIds(from: selectedCategory).map { Int($0) }
+            viewModel.selectedStyleIds = styleIds.isEmpty ? nil : styleIds
             viewModel.selectedSituationIds = nil
             Task { await viewModel.applyFilters() }
         }
@@ -69,6 +84,12 @@ struct FeedView: View {
                 selectedSheetSituations.removeAll()
             } onApply: {
                 isShowingFilterSheet = false
+                // Update top category with selected styles from sheet
+                selectedCategory = selectedSheetStyles
+                let styleIds = StyleConstants.getIds(from: selectedSheetStyles).map { Int($0) }
+                let situationIds = SituationConstants.getIds(from: selectedSheetSituations).map { Int($0) }
+                viewModel.selectedStyleIds = styleIds.isEmpty ? nil : styleIds
+                viewModel.selectedSituationIds = situationIds.isEmpty ? nil : situationIds
                 Task { await viewModel.applyFilters() }
             }
             .presentationDetents([.height(500)])
@@ -97,7 +118,7 @@ struct FeedView: View {
                 } else {
                     FeedEmptyView(type: .noFeeds) {
                         viewModel.clearFiltersAndReload()
-                        selectedCategory = ""
+                        selectedCategory.removeAll()
                     }
                 }
             } else if let errorMessage = viewModel.errorMessage {
@@ -133,7 +154,7 @@ private struct FeedCellView: View {
         } label: {
             CustomFeedCard(
                 imageUrl: feed.images.first?.imageUrl ?? "",
-                profileImageUrl: feed.author.profileImageUrl ?? "sample_profile",
+                profileImageUrl: feed.author.profileImageUrl ?? "",
                 nickname: feed.author.nickname,
                 isLiked: Binding(
                     get: { feed.isLiked ?? false },

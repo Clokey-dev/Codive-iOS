@@ -18,14 +18,26 @@ struct CustomFeedCard: View {
     // MARK: - Body
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            
+
             // 메인 배경 이미지
             Rectangle()
                 .fill(Color.gray)
                 .overlay(
-                    Image(imageUrl)
-                        .resizable()
-                        .scaledToFill()
+                    AsyncImage(url: URL(string: imageUrl)) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .scaledToFill()
+                        case .failure:
+                            Image(systemName: "photo")
+                                .foregroundColor(.gray)
+                        case .empty:
+                            ProgressView()
+                        @unknown default:
+                            EmptyView()
+                        }
+                    }
                 )
                 .overlay(
                     LinearGradient(
@@ -34,7 +46,7 @@ struct CustomFeedCard: View {
                         endPoint: .bottom
                     )
                 )
-            
+
             // 좋아요 버튼 (우측 상단)
             VStack {
                 HStack {
@@ -52,23 +64,33 @@ struct CustomFeedCard: View {
             }
             .padding(15)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            
+
             // 프로필 정보
-            HStack {
+            HStack(spacing: 8) {
                 // 프로필 이미지
-                Image(profileImageUrl)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 28, height: 28)
-                    .clipShape(Circle())
-                    .overlay(
-                        Circle()
-                    )
-                
+                AsyncImage(url: URL(string: profileImageUrl)) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                    case .failure, .empty:
+                        Image("Profile")
+                            .resizable()
+                            .scaledToFill()
+                    @unknown default:
+                        EmptyView()
+                    }
+                }
+                .frame(width: 28, height: 28)
+                .clipShape(Circle())
+
                 // 닉네임
                 Text(nickname)
                     .font(.codive_body2_medium)
                     .foregroundStyle(.white)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
             }
             .padding(.leading, 15)
             .padding(.bottom, 15)

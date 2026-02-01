@@ -6,18 +6,19 @@
 //
 
 import SwiftUI
+import UIKit
 
 // MARK: - RecordDetailView
 struct RecordDetailView: View {
-    
+
     // MARK: - Properties
     @StateObject private var viewModel: RecordDetailViewModel
-    
+
     // MARK: - Initializer
     init(viewModel: RecordDetailViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
-    
+
     // MARK: - Body
     var body: some View {
         GeometryReader { geometry in
@@ -25,27 +26,39 @@ struct RecordDetailView: View {
                 CustomNavigationBar(title: TextLiteral.Add.recordTitle) {
                     viewModel.dismissView()
                 }
-                
-                ScrollView {
-                    VStack(spacing: 0) {
-                        Text(TextLiteral.Add.recordDetailQuestion)
-                            .font(.codive_title1)
-                            .foregroundStyle(Color.Codive.grayscale1)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal, 20)
-                            .padding(.top, 20)
-                            .padding(.bottom, 16)
-                        
-                        photoCarouselSection(geometry: geometry)
-                        multiSelectSection()
-                        captionSection()
+
+                ScrollViewReader { scrollProxy in
+                    ScrollView {
+                        VStack(spacing: 0) {
+                            Text(TextLiteral.Add.recordDetailQuestion)
+                                .font(.codive_title1)
+                                .foregroundStyle(Color.Codive.grayscale1)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal, 20)
+                                .padding(.top, 20)
+                                .padding(.bottom, 16)
+
+                            photoCarouselSection(geometry: geometry)
+                            multiSelectSection()
+                            captionSection()
+                                .id("captionSection")
+                                .onReceive(NotificationCenter.default.publisher(for: UITextView.textDidBeginEditingNotification)) { _ in
+                                    withAnimation {
+                                        scrollProxy.scrollTo("captionSection", anchor: .bottom)
+                                    }
+                                }
+
+                            bottomButton()
+                                .padding(.vertical, 20)
+                        }
                     }
                 }
-                
-                bottomButton()
             }
             .navigationBarHidden(true)
             .background(Color.white)
+            .onTapGesture {
+                UIApplication.shared.hideKeyboard()
+            }
             .alert(TextLiteral.Add.exitAlertTitle, isPresented: $viewModel.showExitAlert) {
                 Button(TextLiteral.Add.exitAlertLeave, role: .destructive) {
                     viewModel.confirmExit()
@@ -139,7 +152,7 @@ private extension RecordDetailView {
     // TODO: 플레이스 홀더 문구 수정 필요
     @ViewBuilder
     func captionSection() -> some View {
-        VStack(alignment: .leading, spacing: 8) {            
+        VStack(alignment: .leading, spacing: 8) {
             // HashtagTextEditor
             HashtagTextEditor(
                 text: $viewModel.captionText,

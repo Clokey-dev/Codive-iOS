@@ -95,11 +95,11 @@ extension SearchRepositoryImpl {
         return datasource.fetchRecommendedNews()
     }
     
-    func fetchPosts(query: String) -> [PostEntity] {
-        return datasource.fetchPosts(query: query)
+    func fetchPosts(query: String, sort: String?) async throws -> [PostEntity] {
+        return try await datasource.fetchPosts(query: query, sort: sort)
     }
-    
-    func fetchUsers(query: String) -> [SimpleUser] {
-        return datasource.fetchUsers(query: query)
+
+    func fetchUsers(query: String) async throws -> [SimpleUser] {
+        return try await datasource.fetchUsers(query: query)
     }
 }
