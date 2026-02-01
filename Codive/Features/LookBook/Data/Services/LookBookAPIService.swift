@@ -381,8 +381,27 @@ extension LookBookAPIService {
             }
             return CreateManualCoordinateAPIResponseDTO(coordinateId: coordinateId)
 
-        case .undocumented(statusCode: let code, _):
-            throw LookBookAPIError.serverError(statusCode: code, message: "코디 수동 생성 실패")
+//        case .undocumented(statusCode: let code, _):
+//            throw LookBookAPIError.serverError(statusCode: code, message: "코디 수동 생성 실패")
+            // LookBookAPIService.swift 내 createManualCoordinate 함수 수정 추천
+            // LookBookAPIService.swift 내 createManualCoordinate 함수 수정
+
+            case .undocumented(statusCode: let code, let response):
+                // HTTPBody? 타입의 데이터를 안전하게 추출합니다.
+                if let body = response.body {
+                    Task {
+                        do {
+                            // .max 대신 실제 정수값(예: 10MB)을 넣어 크기 제한을 둡니다.
+                            let data = try await Data(collecting: body, upTo: 10 * 1024 * 1024)
+                            if let errorDetail = String(data: data, encoding: .utf8) {
+                                print("🔥 [SERVER ERROR DETAIL]: \(errorDetail)")
+                            }
+                        } catch {
+                            print("⚠️ [DEBUG] 에러 바디 파싱 실패: \(error.localizedDescription)")
+                        }
+                    }
+                }
+                throw LookBookAPIError.serverError(statusCode: code, message: "코디 수동 생성 실패")
         }
     }
     

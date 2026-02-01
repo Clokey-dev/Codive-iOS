@@ -98,16 +98,17 @@ final class LookBookDIContainer {
     
     // MARK: - Add Codi
     func makeAddCodiViewModel(
-        coordinateId: Int
+        coordinateId: Int64
     ) -> AddCodiViewModel {
         return AddCodiViewModel(
             navigationRouter: navigationRouter,
+            codiUseCase: makeCodiUseCase(),
             coordinateId: coordinateId
         )
     }
     
     func makeAddCodiView(
-        coordinateId: Int
+        coordinateId: Int64
     ) -> AddCodiView {
         return AddCodiView(
             viewModel: makeAddCodiViewModel(
@@ -117,7 +118,7 @@ final class LookBookDIContainer {
     }
     
     // MARK: - Add Codi Detail
-    func makeAddCodiDetailViewModel(lookbookId: Int) -> AddCodiDetailViewModel {
+    func makeAddCodiDetailViewModel(lookbookId: Int64) -> AddCodiDetailViewModel {
         return AddCodiDetailViewModel(
             navigationRouter: navigationRouter,
             productUseCase: makeProductUseCase(),
@@ -125,14 +126,14 @@ final class LookBookDIContainer {
         )
     }
     
-    func makeAddCodiDetailView(lookbookId: Int) -> AddCodiDetailView {
+    func makeAddCodiDetailView(lookbookId: Int64) -> AddCodiDetailView {
         return AddCodiDetailView(
             viewModel: makeAddCodiDetailViewModel(lookbookId: lookbookId)
         )
     }
     
     // MARK: - Add Before Codi
-    func makeAddBeforeCodiViewModel(coordinateId: Int) -> AddBeforeCodiViewModel {
+    func makeAddBeforeCodiViewModel(coordinateId: Int64) -> AddBeforeCodiViewModel {
         return AddBeforeCodiViewModel(
             navigationRouter: navigationRouter,
             beforeCodiUseCase: makeBeforeCodiUseCase(),
@@ -140,7 +141,7 @@ final class LookBookDIContainer {
         )
     }
     
-    func makeAddBeforeCodiView(coordinateId: Int) -> AddBeforeCodiView {
+    func makeAddBeforeCodiView(coordinateId: Int64) -> AddBeforeCodiView {
         return AddBeforeCodiView(
             viewModel: makeAddBeforeCodiViewModel(coordinateId: coordinateId)
         )

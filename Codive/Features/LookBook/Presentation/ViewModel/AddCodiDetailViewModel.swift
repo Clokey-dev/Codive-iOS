@@ -27,7 +27,7 @@ final class AddCodiDetailViewModel: ObservableObject {
     
     private let navigationRouter: NavigationRouter
     private let productUseCase: ProductUseCase
-    private let lookbookId: Int
+    private let lookbookId: Int64
     
     var codiPayloads: [Payloads] {
         return images.enumerated().map { (index, entity) in
@@ -42,7 +42,7 @@ final class AddCodiDetailViewModel: ObservableObject {
         }
     }
     
-    init(navigationRouter: NavigationRouter, productUseCase: ProductUseCase, lookbookId: Int) {
+    init(navigationRouter: NavigationRouter, productUseCase: ProductUseCase, lookbookId: Int64) {
         self.navigationRouter = navigationRouter
         self.productUseCase = productUseCase
         self.lookbookId = lookbookId

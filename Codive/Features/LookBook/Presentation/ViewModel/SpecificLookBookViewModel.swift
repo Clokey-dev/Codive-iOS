@@ -218,7 +218,7 @@ final class SpecificLookBookViewModel: ObservableObject {
     
     // 코디 추가하기 후 화면 전환
     func navigateToAddCodi() {
-        navigationRouter.navigate(to: .addCodi(coordinateId: Int(lookbookId)))
+        navigationRouter.navigate(to: .addCodi(coordinateId: lookbookId))
     }
     
     // 특정 코디 상세 뷰 전환

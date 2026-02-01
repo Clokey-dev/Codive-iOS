@@ -21,14 +21,14 @@ final class AddBeforeCodiViewModel: ObservableObject {
     
     private let navigationRouter: NavigationRouter
     private let beforeCodiUseCase: BeforeCodiUseCase
-    private let coordinateId: Int
+    private let coordinateId: Int64
     
     // MARK: - Initializer
     
     init(
         navigationRouter: NavigationRouter,
         beforeCodiUseCase: BeforeCodiUseCase,
-        coordinateId: Int
+        coordinateId: Int64
     ) {
         self.navigationRouter = navigationRouter
         self.beforeCodiUseCase = beforeCodiUseCase
