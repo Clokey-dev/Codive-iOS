@@ -110,7 +110,7 @@ final class SettingDIContainer {
     }
 
     func makeWithdrawViewModel() -> WithdrawViewModel {
-        WithdrawViewModel(navigationRouter: navigationRouter)
+        WithdrawViewModel(navigationRouter: navigationRouter, appRouter: appRouter, apiClient: apiClient)
     }
 
     // MARK: - Views
