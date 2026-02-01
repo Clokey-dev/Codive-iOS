@@ -118,6 +118,9 @@ struct SettingCommentView: View {
                         }
                         .padding(.vertical, 12)
                         .listRowSeparator(.hidden)
+                        .onTapGesture {
+                            vm.navigateToFeedDetail(historyId: Int(comment.postId))
+                        }
                     }
                 }
                 .listStyle(.plain)
