@@ -52,30 +52,23 @@ final class SettingsDataSource {
             let httpBody = try okResponse.body.any
             let data = try await Data(collecting: httpBody, upTo: .max)
 
-            struct APIResponse: Decodable {
+            struct LikedRecordsResult: Decodable {
+                let content: [LikedHistoryDTO]
+                let isLast: Bool
+            }
+
+            struct LikedRecordsAPIResponse: Decodable {
                 let isSuccess: Bool
                 let code: String
                 let message: String
                 let timeStamp: String
-                let result: Result
-
-                struct Result: Decodable {
-                    let content: [LikedHistoryDTO]
-                    let isLast: Bool
-                }
+                let result: LikedRecordsResult
             }
 
-            struct LikedHistoryDTO: Decodable {
-                let id: Int64
-                let imageUrl: String
-                let historyDate: String
-                let lastLikeId: Int64?
-            }
-
-            let apiResponse = try jsonDecoder.decode(APIResponse.self, from: data)
+            let apiResponse = try jsonDecoder.decode(LikedRecordsAPIResponse.self, from: data)
 
             guard apiResponse.isSuccess else {
-                throw NSError(domain: "API Error", code: -1, userInfo: [NSLocalizedDescriptionKey: apiResponse.message])
+                throw SettingError.apiError(message: apiResponse.message)
             }
 
             let dateFormatter = DateFormatter()
@@ -83,15 +76,7 @@ final class SettingsDataSource {
             dateFormatter.locale = Locale(identifier: "en_US_POSIX")
 
             return apiResponse.result.content.map { dto in
-                let url = URL(string: dto.imageUrl) ?? URL(fileURLWithPath: "")
-                let historyDate = dateFormatter.date(from: dto.historyDate) ?? Date()
-
-                return LikedRecord(
-                    id: dto.id,
-                    thumbnailURL: url,
-                    historyDate: historyDate,
-                    lastLikeId: dto.lastLikeId ?? 0
-                )
+                SettingDTOMapper.mapLikedHistoryDTOToLikedRecord(dto, with: dateFormatter)
             }
 
         default:
@@ -103,7 +88,7 @@ final class SettingsDataSource {
                     }
                 }
             }
-            throw NSError(domain: "SettingDataSource", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to fetch liked records"])
+            throw SettingError.networkError
         }
     }
 
@@ -121,37 +106,10 @@ final class SettingsDataSource {
             let httpBody = try okResponse.body.any
             let data = try await Data(collecting: httpBody, upTo: .max)
 
-            struct APIResponse: Decodable {
-                let isSuccess: Bool
-                let code: String
-                let message: String
-                let timeStamp: String
-                let result: Result
-
-                struct Result: Decodable {
-                    let content: [HistoryDTO]
-                    let isLast: Bool
-                }
-            }
-
-            struct HistoryDTO: Decodable {
-                let historyId: Int64
-                let imageUrl: String
-                let nickname: String
-                let historyDate: String
-                let content: String
-                let payloads: [CommentPayloadDTO]
-
-                struct CommentPayloadDTO: Decodable {
-                    let commentId: Int64
-                    let content: String
-                }
-            }
-
-            let apiResponse = try jsonDecoder.decode(APIResponse.self, from: data)
+            let apiResponse = try jsonDecoder.decode(MyCommentsAPIResponse.self, from: data)
 
             guard apiResponse.isSuccess else {
-                throw NSError(domain: "API Error", code: -1, userInfo: [NSLocalizedDescriptionKey: apiResponse.message])
+                throw SettingError.apiError(message: apiResponse.message)
             }
 
             let dateFormatter = DateFormatter()
@@ -159,38 +117,7 @@ final class SettingsDataSource {
             dateFormatter.locale = Locale(identifier: "en_US_POSIX")
 
             return apiResponse.result.content.map { historyDTO in
-                let author = SimpleUser(
-                    userId: UserID(historyDTO.historyId),
-                    nickname: historyDTO.nickname,
-                    handle: "",
-                    avatarURL: nil
-                )
-
-                let historyDate = dateFormatter.date(from: historyDTO.historyDate) ?? Date()
-
-                // payloads를 replies로 변환
-                let replies = historyDTO.payloads.map { payload in
-                    CommentReply(
-                        replyId: CommentID(payload.commentId),
-                        author: SimpleUser(
-                            userId: UserID(payload.commentId),
-                            nickname: "",
-                            handle: "",
-                            avatarURL: nil
-                        ),
-                        content: payload.content,
-                        createdAt: historyDate
-                    )
-                }
-
-                return MyComment(
-                    commentId: CommentID(historyDTO.historyId),
-                    postId: PostID(historyDTO.historyId),
-                    author: author,
-                    contentPreview: historyDTO.content,
-                    createdAt: historyDate,
-                    replies: replies
-                )
+                SettingDTOMapper.mapHistoryDTOToMyComment(historyDTO, with: dateFormatter)
             }
 
         default:
@@ -202,7 +129,7 @@ final class SettingsDataSource {
                     }
                 }
             }
-            throw NSError(domain: "SettingDataSource", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to fetch my comments"])
+            throw SettingError.networkError
         }
     }
 
