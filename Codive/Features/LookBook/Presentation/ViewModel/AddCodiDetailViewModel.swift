@@ -30,7 +30,7 @@ final class AddCodiDetailViewModel: ObservableObject {
     private let navigationRouter: NavigationRouter
     private let productUseCase: ProductUseCase
     private let lookbookId: Int64
-
+    
     var codiPayloads: [Payloads] {
         return images.enumerated().map { (index, entity) in
             // 보드 중앙이 (0,0)인 경우를 가정하여 좌상단 (0,0) 기준 비율로 변환
@@ -133,81 +133,57 @@ final class AddCodiDetailViewModel: ObservableObject {
         selectedImageID = id
     }
     
-//    func captureBoard(view: some View) async {
-//            let renderer = ImageRenderer(content: view)
-//            renderer.scale = UIScreen.main.scale
-//            
-//            guard let uiImage = renderer.uiImage,
-//                  let jpgData = uiImage.jpegData(compressionQuality: 0.8) else {
-//                print("❌ 이미지 캡처 실패")
-//                return
-//            }
-//            
-//            print("--- 📸 JPG 캡처 완료 (크기: \(jpgData.count / 1024)KB) ---")
-//            
-//            do {
-//                // UseCase를 통해 이미지 업로드
-//                let uploadedURL = try await productUseCase.execute(jpgData: jpgData)
-//                self.capturedImageString = uploadedURL
-//                
-//                print("✅ 최종 이미지 URL 저장 완료")
-//            } catch {
-//                print("❌ 이미지 업로드 실패: \(error.localizedDescription)")
-//                // TODO: 사용자에게 에러 알림 표시
-//            }
-//        }
-    // ✅ 수정: captureBoard에서 uploadCodiImageUseCase 사용
-        func captureBoard(view: some View) async {
-            let renderer = ImageRenderer(content: view)
-            renderer.scale = UIScreen.main.scale
-            
-            guard let uiImage = renderer.uiImage,
-                  let jpgData = uiImage.jpegData(compressionQuality: 0.8) else {
-                print("❌ 이미지 캡처 실패")
-                return
-            }
-            
-            print("--- 📸 JPG 캡처 완료 (크기: \(jpgData.count / 1024)KB) ---")
-            
-            do {
-                // ✅ UseCase를 통해 이미지 업로드
-                let uploadedURL = try await productUseCase.execute(jpgData: jpgData)
-                self.capturedImageString = uploadedURL
-                
-                print("✅ 최종 이미지 URL 저장 완료")
-            } catch {
-                print("❌ 이미지 업로드 실패: \(error.localizedDescription)")
-            }
+    func captureBoard(view: some View) async {
+        let renderer = ImageRenderer(content: view)
+        renderer.scale = UIScreen.main.scale
+        
+        guard let uiImage = renderer.uiImage,
+              let jpgData = uiImage.jpegData(compressionQuality: 0.8) else {
+            print("❌ 이미지 캡처 실패")
+            return
         }
+        
+        print("--- 📸 JPG 캡처 완료 (크기: \(jpgData.count / 1024)KB) ---")
+        
+        do {
+            // ✅ UseCase를 통해 이미지 업로드
+            let uploadedURL = try await productUseCase.execute(jpgData: jpgData)
+            self.capturedImageString = uploadedURL
+            
+            print("✅ 최종 이미지 URL 저장 완료")
+        } catch {
+            print("❌ 이미지 업로드 실패: \(error.localizedDescription)")
+        }
+    }
     
     private func setupEditDataSubscription() {
-            AddCodiViewModel.editCodiRequested
-                .receive(on: DispatchQueue.main)
-                .sink { [weak self] editData in
-                    self?.restoreCodiData(from: editData)
-                }
-                .store(in: &cancellables)
-        }
+        AddCodiViewModel.editCodiRequested
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] editData in
+                self?.restoreCodiData(from: editData)
+            }
+            .store(in: &cancellables)
+    }
     
     // ✅ 새로운 메서드: 코디 데이터 복원
-        private func restoreCodiData(from editData: CodiEditData) {
-            print("--- 📥 편집 데이터 수신 완료 ---")
-            print("📍 복원할 Payloads 개수: \(editData.payloads.count)")
+    private func restoreCodiData(from editData: CodiEditData) {
+        print("--- 📥 편집 데이터 수신 완료 ---")
+        print("📍 복원할 Payloads 개수: \(editData.payloads.count)")
+        
+        // 기존 이미지 URL 저장 (나중에 참고용으로 사용 가능)
+        self.capturedImageString = editData.imageURL
+        
+        // Payloads를 DraggableImageEntity로 변환
+        self.images = editData.payloads.map { payload in
+            // 정규화된 좌표(0.0~1.0)를 실제 위치로 역변환
+            let actualX = (payload.locationX * boardSize) - (boardSize / 2)
+            let actualY = (payload.locationY * boardSize) - (boardSize / 2)
             
-            // 기존 이미지 URL 저장 (나중에 참고용으로 사용 가능)
-            self.capturedImageString = editData.imageURL
+            // 해당 clothId의 이미지 URL 찾기
+            let clothItem = clothItems.first { $0.id == Int(payload.clothId) }
+            let imageName = clothItem?.imageUrl ?? clothItem?.imageName ?? ""
             
-            // Payloads를 DraggableImageEntity로 변환
-            self.images = editData.payloads.map { payload in
-                // 정규화된 좌표(0.0~1.0)를 실제 위치로 역변환
-                let actualX = (payload.locationX * boardSize) - (boardSize / 2)
-                let actualY = (payload.locationY * boardSize) - (boardSize / 2)
-                
-                // 해당 clothId의 이미지 URL 찾기
-                let clothItem = clothItems.first { $0.id == Int(payload.clothId) }
-                let imageName = clothItem?.imageUrl ?? clothItem?.imageName ?? ""
-                
-                print("""
+            print("""
                 [복원 #\(payload.order)]
                 - clothId: \(payload.clothId)
                 - 정규화 좌표: (\(payload.locationX), \(payload.locationY))
@@ -215,43 +191,43 @@ final class AddCodiDetailViewModel: ObservableObject {
                 - scale: \(payload.ratio)
                 - rotation: \(payload.degree)
                 """)
-                
-                return DraggableImageEntity(
-                    id: Int(payload.clothId),
-                    name: imageName,
-                    position: CGPoint(x: actualX, y: actualY),
-                    scale: CGFloat(payload.ratio),
-                    rotation: payload.degree
-                )
-            }
             
-            // 선택된 상품 ID도 복원
-            self.selectedProductIds = Set(editData.payloads.map { Int($0.clothId) })
-            
-            print("✅ 코디 데이터 복원 완료")
-            print("📍 복원된 이미지 개수: \(images.count)")
+            return DraggableImageEntity(
+                id: Int(payload.clothId),
+                name: imageName,
+                position: CGPoint(x: actualX, y: actualY),
+                scale: CGFloat(payload.ratio),
+                rotation: payload.degree
+            )
         }
+        
+        // 선택된 상품 ID도 복원
+        self.selectedProductIds = Set(editData.payloads.map { Int($0.clothId) })
+        
+        print("✅ 코디 데이터 복원 완료")
+        print("📍 복원된 이미지 개수: \(images.count)")
+    }
     
     func handleBackTap() { navigationRouter.navigateBack() }
     
     func handleComplete() async {
-            guard let imageURL = capturedImageString else {
-                print("⚠️ 업로드된 이미지 URL이 없어 전송을 취소합니다.")
-                return
-            }
-            
-            let finalData = codiPayloads
-            let dataToTransfer = CodiTransferData(
-                payloads: finalData,
-                imageString: imageURL // 이제 실제 https:// URL
-            )
-            
-            Self.codiDataUpdated.send(dataToTransfer)
-            
-            print("--- 🚀 AddCodiView로 데이터 전송 완료 ---")
-            print("📍 Image URL: \(imageURL)")
-            print("📍 Payloads 개수: \(finalData.count)")
-            
-            navigationRouter.navigateBack()
+        guard let imageURL = capturedImageString else {
+            print("⚠️ 업로드된 이미지 URL이 없어 전송을 취소합니다.")
+            return
         }
+        
+        let finalData = codiPayloads
+        let dataToTransfer = CodiTransferData(
+            payloads: finalData,
+            imageString: imageURL 
+        )
+        
+        Self.codiDataUpdated.send(dataToTransfer)
+        
+        print("--- 🚀 AddCodiView로 데이터 전송 완료 ---")
+        print("📍 Image URL: \(imageURL)")
+        print("📍 Payloads 개수: \(finalData.count)")
+        
+        navigationRouter.navigateBack()
+    }
 }

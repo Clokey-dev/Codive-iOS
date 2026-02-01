@@ -137,8 +137,6 @@ private extension AddCodiView {
                 .resizable()
                 .scaledToFill()
             
-//            EditCodiOverlayView()
-//                .clipShape(RoundedRectangle(cornerRadius: 12))
             EditCodiOverlayView()
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .contentShape(Rectangle()) // 전체 영역을 탭 가능하게
