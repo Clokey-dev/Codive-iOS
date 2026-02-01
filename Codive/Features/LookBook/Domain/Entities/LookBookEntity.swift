@@ -122,7 +122,19 @@ struct SelectedCodi: Hashable {
     }
 }
 
+//struct CodiTransferData {
+//    let payloads: [Payloads]
+//    let imageString: String
+//}
 struct CodiTransferData {
     let payloads: [Payloads]
     let imageString: String
+}
+
+// 편집 모드용 데이터 (새로 추가)
+struct CodiEditData {
+    let payloads: [Payloads]
+    let imageURL: String
+    let codiName: String
+    let memo: String
 }

@@ -36,6 +36,8 @@ final class AddCodiViewModel: ObservableObject {
     private let codiUseCase: CodiUseCase
     let coordinateId: Int64
     
+    static let editCodiRequested = PassthroughSubject<CodiEditData, Never>()
+    
     // MARK: - Computed Properties
     var isButtonEnabled: Bool {
         let hasImage = capturedImage != nil || (selectedImageURL != nil && !selectedImageURL!.isEmpty)
@@ -139,6 +141,30 @@ extension AddCodiViewModel {
             }
         }
     }
+    
+    func handleEditCodiTap() {
+            guard let imageURL = selectedImageURL else {
+                print("⚠️ 편집할 이미지가 없습니다.")
+                return
+            }
+            
+            let editData = CodiEditData(
+                payloads: receivedPayloads,
+                imageURL: imageURL,
+                codiName: codiName,
+                memo: memo
+            )
+            
+            print("--- 📤 편집 데이터 전송 시작 ---")
+            print("📍 Payloads 개수: \(receivedPayloads.count)")
+            print("📍 Image URL: \(imageURL)")
+            
+            // Combine으로 데이터 전송
+            Self.editCodiRequested.send(editData)
+            
+            // AddCodiDetail 화면으로 이동
+            navigationRouter.navigate(to: .addCodiDetail(lookbookId: coordinateId))
+        }
     
     func navigateToNewCodi() {
         isShowingBottomSheet = false
