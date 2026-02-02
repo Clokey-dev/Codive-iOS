@@ -89,18 +89,14 @@ private extension CodiDetailView {
                 ZStack {
                     if let detail = viewModel.coordinatePreview {
                         RemoteFillImage(urlString: detail.imageUrl)
-                            .frame(
-                                width: geo.size.width,
-                                height: geo.size.height
-                            )
+                            .frame(width: geo.size.width, height: geo.size.height)
                     }
                     
                     if viewModel.showClothSelector {
-                        tagOverlayLayer(
-                            imageSize: geo.size
-                        )
+                        tagOverlayLayer(imageSize: geo.size)
                     }
                 }
+                .clipShape(RoundedRectangle(cornerRadius: 15))
             }
             .frame(width: boardSize, height: boardSize)
             .position(x: width / 2, y: boardSize / 2)
