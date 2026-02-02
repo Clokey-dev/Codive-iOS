@@ -55,12 +55,7 @@ private extension EditCodiView {
             },
             onConfirmEditTitle: {
                 viewModel.finishNavEditing()
-            },
-            rightButton: viewModel.hasChanges ? .text(
-                title: TextLiteral.Common.complete,
-                isEnabled: viewModel.isButtonEnabled,
-                action: viewModel.handleCompleteTap
-            ) : .none
+            }
         )
         .padding(.leading, 15)
     }
