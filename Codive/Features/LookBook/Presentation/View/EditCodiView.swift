@@ -69,23 +69,50 @@ private extension EditCodiView {
     }
     
     /// 코디 이미지 미리보기 및 편집 오버레이 영역
+//    var imagePreviewArea: some View {
+//        ZStack {
+//            if let url = viewModel.selectedImageURL {
+//                AsyncImage(url: URL(string: url)) { phase in
+//                    if let image = phase.image {
+//                        image
+//                            .resizable()
+//                            .aspectRatio(contentMode: .fill)
+//                    } else {
+//                        Color.gray.opacity(0.2)
+//                    }
+//                }
+//                .frame(height: 335)
+//                .clipShape(RoundedRectangle(cornerRadius: 12))
+//                
+//                EditCodiOverlayView()
+//                    .clipShape(RoundedRectangle(cornerRadius: 12))
+//            }
+//        }
+//        .frame(height: 335)
+//    }
     var imagePreviewArea: some View {
-        ZStack {
+        Group {
             if let url = viewModel.selectedImageURL {
-                AsyncImage(url: URL(string: url)) { phase in
-                    if let image = phase.image {
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    } else {
-                        Color.gray.opacity(0.2)
+                ZStack {
+                    AsyncImage(url: URL(string: url)) { phase in
+                        if let image = phase.image {
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                        } else {
+                            Color.gray.opacity(0.2)
+                        }
                     }
-                }
-                .frame(height: 335)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                
-                EditCodiOverlayView()
+                    .frame(height: 335)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
+                    
+                    EditCodiOverlayView()
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .contentShape(Rectangle()) // 투명한 부분도 탭 가능하게
+                        .onTapGesture {
+                            viewModel.handleOverlayTap()
+                        }
+                }
             }
         }
         .frame(height: 335)

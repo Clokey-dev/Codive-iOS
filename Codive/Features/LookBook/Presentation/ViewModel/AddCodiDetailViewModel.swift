@@ -19,7 +19,18 @@ final class AddCodiDetailViewModel: ObservableObject {
     @Published var searchText: String = ""
     @Published var selectedCategory: String = "전체"
     @Published var selectedProductIds: Set<Int> = []
-    @Published var clothItems: [ProductItem] = []
+//    @Published var clothItems: [ProductItem] = []
+    @Published var clothItems: [ProductItem] = [] {
+        didSet {
+            // ✅ 상품 리스트가 로드되면 보관해둔 편집 데이터가 있는지 확인하고 복원 진행
+            if !clothItems.isEmpty, let pendingData = pendingEditData {
+                restoreCodiData(from: pendingData)
+                self.pendingEditData = nil // 복원 후 초기화
+            }
+        }
+    }
+    // 복원 대기 중인 데이터를 담을 변수
+    private var pendingEditData: CodiEditData?
     
     @Published var images: [DraggableImageEntity] = []
     @Published var currentlyDraggedID: Int?
@@ -58,6 +69,8 @@ final class AddCodiDetailViewModel: ObservableObject {
         self.navigationRouter = navigationRouter
         self.productUseCase = productUseCase
         self.lookbookId = lookbookId
+        
+        setupEditDataSubscription()
         Task { await fetchClothItems() }
     }
     
@@ -78,7 +91,7 @@ final class AddCodiDetailViewModel: ObservableObject {
             
             // 신규 이미지 추가 시 중앙 좌표 근처로 설정
             let newImage = DraggableImageEntity(
-                id: product.id,
+                id: Int64(product.id),
                 name: product.imageUrl ?? product.imageName ?? "",
                 position: .zero,
                 scale: 1.0,
@@ -95,7 +108,7 @@ final class AddCodiDetailViewModel: ObservableObject {
         let randomOffsetY = CGFloat.random(in: -30...30)
         
         let newImage = DraggableImageEntity(
-            id: product.id,
+            id: Int64(product.id),
             name: product.imageUrl ?? product.imageName ?? "",
             position: CGPoint(x: centerX + randomOffsetX, y: centerY + randomOffsetY),
             scale: 1.0,
@@ -110,7 +123,7 @@ final class AddCodiDetailViewModel: ObservableObject {
     }
     
     // 제스처 결과 반영 메서드들
-    func bringImageToFront(id: Int) {
+    func bringImageToFront(id: Int64) {
         guard let index = images.firstIndex(where: { $0.id == id }) else { return }
         let tappedImage = images.remove(at: index)
         images.append(tappedImage)
@@ -161,11 +174,27 @@ final class AddCodiDetailViewModel: ObservableObject {
         }
     }
     
+//    private func setupEditDataSubscription() {
+//        AddCodiViewModel.editCodiRequested
+//            .receive(on: DispatchQueue.main)
+//            .sink { [weak self] editData in
+//                self?.restoreCodiData(from: editData)
+//            }
+//            .store(in: &cancellables)
+//    }
     private func setupEditDataSubscription() {
         AddCodiViewModel.editCodiRequested
             .receive(on: DispatchQueue.main)
             .sink { [weak self] editData in
-                self?.restoreCodiData(from: editData)
+                // ✅ 상품 리스트가 이미 있다면 즉시 복원, 없다면 대기
+                if let self = self {
+                    if self.clothItems.isEmpty {
+                        self.pendingEditData = editData
+                        print("--- ⏳ 상품 리스트 로딩 대기 중... ---")
+                    } else {
+                        self.restoreCodiData(from: editData)
+                    }
+                }
             }
             .store(in: &cancellables)
     }
@@ -178,19 +207,32 @@ final class AddCodiDetailViewModel: ObservableObject {
         // 기존 이미지 URL 저장 (나중에 참고용으로 사용 가능)
         self.capturedImageString = editData.imageURL
         
+        // ✅ 먼저 selectedProductIds를 복원 (CustomProductBottomSheet에서 체크 표시를 위해)
+        let clothIds = editData.payloads.map { Int($0.clothId) }
+        self.selectedProductIds = Set(clothIds)
+        
+        print("📍 복원할 clothId 목록: \(clothIds)")
+        print("📍 현재 로드된 clothItems 개수: \(clothItems.count)")
+        
         // Payloads를 DraggableImageEntity로 변환
-        self.images = editData.payloads.map { payload in
+        self.images = editData.payloads.compactMap { payload in
             // 정규화된 좌표(0.0~1.0)를 실제 위치로 역변환
             let actualX = (payload.locationX * boardSize) - (boardSize / 2)
             let actualY = (payload.locationY * boardSize) - (boardSize / 2)
             
             // 해당 clothId의 이미지 URL 찾기
-            let clothItem = clothItems.first { $0.id == Int(payload.clothId) }
-            let imageName = clothItem?.imageUrl ?? clothItem?.imageName ?? ""
+            guard let clothItem = clothItems.first(where: { $0.id == Int(payload.clothId) }) else {
+                print("⚠️ clothId \(payload.clothId)에 해당하는 상품을 찾을 수 없습니다.")
+                return nil
+            }
+            
+            let imageURL = clothItem.imageUrl ?? clothItem.imageName ?? ""
             
             print("""
                 [복원 #\(payload.order)]
                 - clothId: \(payload.clothId)
+                - imageName: \(clothItem.name ?? "unknown")
+                - imageURL: \(imageURL)
                 - 정규화 좌표: (\(payload.locationX), \(payload.locationY))
                 - 실제 위치: (\(actualX), \(actualY))
                 - scale: \(payload.ratio)
@@ -198,19 +240,17 @@ final class AddCodiDetailViewModel: ObservableObject {
                 """)
             
             return DraggableImageEntity(
-                id: Int(payload.clothId),
-                name: imageName,
+                id: payload.clothId,
+                name: imageURL,
                 position: CGPoint(x: actualX, y: actualY),
                 scale: CGFloat(payload.ratio),
                 rotation: payload.degree
             )
         }
         
-        // 선택된 상품 ID도 복원
-        self.selectedProductIds = Set(editData.payloads.map { Int($0.clothId) })
-        
         print("✅ 코디 데이터 복원 완료")
         print("📍 복원된 이미지 개수: \(images.count)")
+        print("📍 선택된 상품 ID: \(selectedProductIds)")
     }
     
     func handleBackTap() { navigationRouter.navigateBack() }
@@ -224,7 +264,7 @@ final class AddCodiDetailViewModel: ObservableObject {
         let finalData = codiPayloads
         let dataToTransfer = CodiTransferData(
             payloads: finalData,
-            imageString: imageURL 
+            imageString: imageURL
         )
         
         Self.codiDataUpdated.send(dataToTransfer)

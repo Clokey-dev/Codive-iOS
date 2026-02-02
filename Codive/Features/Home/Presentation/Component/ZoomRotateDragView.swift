@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ZoomRotateDragView<Content: View>: View {
-    let id: Int
+    let id: Int64
     @Binding var position: CGPoint
     @Binding var scale: CGFloat
     @Binding var rotation: Double
@@ -25,7 +25,7 @@ struct ZoomRotateDragView<Content: View>: View {
     private let maxScale: CGFloat = 4.0  // 최대 크기 (400%)
 
     init(
-        id: Int,
+        id: Int64,
         position: Binding<CGPoint>,
         scale: Binding<CGFloat>,
         rotation: Binding<Double>,

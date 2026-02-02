@@ -80,6 +80,31 @@ extension EditCodiViewModel {
         
         navigationRouter.navigateBack()
     }
+    
+    func handleOverlayTap() {
+        guard let imageURL = selectedImageURL else {
+            print("⚠️ 편집할 이미지가 없습니다.")
+            return
+        }
+        
+        // AddCodiViewModel에서 사용하는 것과 동일한 데이터 구조 생성
+        let editData = CodiEditData(
+            payloads: self.payloads,
+            imageURL: imageURL,
+            codiName: self.codiName,
+            memo: self.memo
+        )
+        
+        print("--- 📤 EditCodi -> AddCodiDetail 데이터 전송 ---")
+        
+        // AddCodiViewModel.editCodiRequested (PassthroughSubject)를 통해 전송
+        // (AddCodiDetailViewModel이 이 스트림을 구독하고 있어야 함)
+        AddCodiViewModel.editCodiRequested.send(editData)
+        
+        // 화면 전환 (기존에 정의된 addCodiDetail 목적지 사용)
+        // lookbookId가 필요하다면 저장해둔 coordinateId 등을 전달
+        navigationRouter.navigate(to: .addCodiDetail(lookbookId: coordinateId ?? 0))
+    }
 }
 
 // MARK: - Private Helpers

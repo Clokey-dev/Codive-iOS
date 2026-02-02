@@ -10,7 +10,7 @@ import Kingfisher
 
 struct DraggableImageView<T: DraggableImageProtocol>: View {
     @Binding var items: [T]
-    let onActivate: (Int) -> Void
+    let onActivate: (Int64) -> Void
 
     var body: some View {
         ZStack {

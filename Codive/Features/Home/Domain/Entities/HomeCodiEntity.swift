@@ -64,7 +64,7 @@ struct CodiCoordinatePayloadDTO: Codable {
 ////    let imageURL: String? = nil
 //}
 protocol DraggableImageProtocol: Identifiable {
-    var id: Int { get }
+    var id: Int64 { get }
     var imageUrl: String { get }
     var position: CGPoint { get set }
     var scale: CGFloat { get set }
@@ -73,7 +73,7 @@ protocol DraggableImageProtocol: Identifiable {
 
 // 실제 프로젝트에서 사용하는 데이터 모델
 struct DraggableImageEntity: DraggableImageProtocol, Equatable, Hashable {
-    let id: Int
+    let id: Int64
     let name: String
     var imageUrl: String { name }
     var position: CGPoint
