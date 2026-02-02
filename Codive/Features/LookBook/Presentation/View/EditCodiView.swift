@@ -45,51 +45,48 @@ struct EditCodiView: View {
 private extension EditCodiView {
     
     /// 변경 사항 여부에 따른 커스텀 네비게이션 바
-    var navigationBar: some View {
-        Group {
-            if viewModel.hasChanges {
-                CustomNavigationBar(
-                    title: viewModel.codiName,
-                    onBack: { viewModel.handleBackTap() },
-                    rightButton: .text(
-                        title: TextLiteral.Common.complete,
-                        isEnabled: viewModel.isButtonEnabled,
-                        action: viewModel.handleCompleteTap
-                    )
-                )
-            } else {
-                CustomNavigationBar(
-                    title: viewModel.codiName
-                ) {
-                    viewModel.handleBackTap()
-                }
-            }
-        }
-        .padding(.leading, 15)
-    }
-    
-    /// 코디 이미지 미리보기 및 편집 오버레이 영역
-//    var imagePreviewArea: some View {
-//        ZStack {
-//            if let url = viewModel.selectedImageURL {
-//                AsyncImage(url: URL(string: url)) { phase in
-//                    if let image = phase.image {
-//                        image
-//                            .resizable()
-//                            .aspectRatio(contentMode: .fill)
-//                    } else {
-//                        Color.gray.opacity(0.2)
-//                    }
+//    var navigationBar: some View {
+//        Group {
+//            if viewModel.hasChanges {
+//                CustomNavigationBar(
+//                    title: viewModel.codiName,
+//                    onBack: { viewModel.handleBackTap() },
+//                    rightButton: .text(
+//                        title: TextLiteral.Common.complete,
+//                        isEnabled: viewModel.isButtonEnabled,
+//                        action: viewModel.handleCompleteTap
+//                    )
+//                )
+//            } else {
+//                CustomNavigationBar(
+//                    title: viewModel.codiName
+//                ) {
+//                    viewModel.handleBackTap()
 //                }
-//                .frame(height: 335)
-//                .clipShape(RoundedRectangle(cornerRadius: 12))
-//                
-//                EditCodiOverlayView()
-//                    .clipShape(RoundedRectangle(cornerRadius: 12))
 //            }
 //        }
-//        .frame(height: 335)
+//        .padding(.leading, 15)
 //    }
+    var navigationBar: some View {
+        CustomNavigationBar(
+            title: $viewModel.codiName, // String이 아닌 Binding<String> 전달
+            isEditingMode: viewModel.isNavEditingMode,
+            onBack: { viewModel.handleBackTap() },
+            onBeginEditTitle: {
+                viewModel.startNavEditing()
+            },
+            onConfirmEditTitle: {
+                viewModel.finishNavEditing()
+            },
+            rightButton: viewModel.hasChanges ? .text(
+                title: TextLiteral.Common.complete,
+                isEnabled: viewModel.isButtonEnabled,
+                action: viewModel.handleCompleteTap
+            ) : .none
+        )
+        .padding(.leading, 15)
+    }
+
     var imagePreviewArea: some View {
         Group {
             if let url = viewModel.selectedImageURL {

@@ -14,6 +14,7 @@ final class EditCodiViewModel: ObservableObject {
     
     @Published var codiName: String = ""
     @Published var memo: String = ""
+    @Published var isNavEditingMode: Bool = false
     @Published var selectedImageURL: String?
     
     private var payloads: [Payloads] = []
@@ -106,12 +107,14 @@ extension EditCodiViewModel {
     }
 }
 
-// MARK: - Private Helpers
-
-//private extension EditCodiViewModel {
-//
-//    /// (필요 시) 서버 연동 실패 등 에러 발생 시 처리 로직
-//    func handleError(_ error: Error) {
-//        print("DEBUG: 코디 수정 실패 - \(error.localizedDescription)")
-//    }
-//}
+extension EditCodiViewModel {
+    
+    func startNavEditing() {
+        isNavEditingMode = true
+    }
+    
+    /// 네비게이션 바에서 편집 완료 (Return 키 등)
+    func finishNavEditing() {
+        isNavEditingMode = false
+    }
+}
