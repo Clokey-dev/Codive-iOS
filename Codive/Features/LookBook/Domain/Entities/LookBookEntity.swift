@@ -52,6 +52,7 @@ struct CoordinateDetailEntity {
     let ratio: Double
     let degree: Double
     let order: Int32
+    let clothId: Int64
     let imageUrl: String
     let brand: String
     let name: String
@@ -98,6 +99,7 @@ struct CodiItem: Identifiable {
     let imageName: String
     let brand: String
     let name: String
+    let clothId: Int64
 }
 
 struct SelectedCodi: Hashable {

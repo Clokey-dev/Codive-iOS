@@ -32,6 +32,7 @@ struct CoordinateDetailResponseDTO {
     let ratio: Double
     let degree: Double
     let order: Int32
+    let clothId: Int64
     let imageUrl: String
     let brand: String
     let name: String
@@ -46,6 +47,7 @@ struct CoordinateDetailResponseDTO {
             ratio: ratio,
             degree: degree,
             order: order,
+            clothId: clothId,
             imageUrl: imageUrl,
             brand: brand,
             name: name,

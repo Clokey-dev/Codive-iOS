@@ -190,6 +190,7 @@ extension LookBookAPIService {
                     ratio: item.ratio ?? 1.0,
                     degree: item.degree ?? 0,
                     order: item.order ?? 0,
+                    clothId: item.clothId ?? 0,
                     imageUrl: item.imageUrl ?? "",
                     brand: item.brand ?? "",
                     name: item.name ?? "",

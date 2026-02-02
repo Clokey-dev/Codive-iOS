@@ -152,28 +152,3 @@ final class LookBookRepositoryImpl: LookBookRepository {
             return try await datasource.uploadCodiImage(jpgData: jpgData)
         }
 }
-
-extension LookBookRepositoryImpl {
-//    func fetchBeforeCoordinateDaily() async throws -> [BeforeCoordinateDailyEntity] {
-//        return try await datasource.fetchBeforeCoordinateDaily()
-//    }
-//    
-//    func toggleCodiLike(_ request: CodiLikeEntity, isLiked: Bool) async throws {
-//        try await datasource.toggleCodiLike(request, isLiked: isLiked)
-//    }
-//    
-//    func deleteCodis(_ codis: [DeleteCodiEntity], lookbookId: Int) async throws {
-//        try await datasource.deleteCodis(codis, lookbookId: lookbookId)
-//    }
-//    
-//    func fetchCoordinatePreview(coordinateId: Int) async throws -> CoordinatePreviewEntity {
-//        try await datasource.fetchCoordinatePreview(coordinateId: coordinateId)
-//    }
-    
-    // MARK: - Product
-    
-    /// 코디 구성에 사용되는 상품 목록 조회
-//    func fetchProductList() async throws -> [ProductItem] {
-//        return try await datasource.fetchProductList()
-//    }
-}

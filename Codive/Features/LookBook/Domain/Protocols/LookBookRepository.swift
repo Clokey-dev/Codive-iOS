@@ -69,18 +69,5 @@ protocol LookBookRepository {
     /// 이전 일일 코디로 자동 생성
     func createAutoDailyCoordinate(request: CreateAutoDailyCoordinateAPIRequestDTO) async throws -> AutoDailyCoordinateEntity
     
-    /// 하단은 삭제해야할 기존 코드
-    
-//    // 과거 일일 코디 조회
-//    func fetchBeforeCoordinateDaily() async throws -> [BeforeCoordinateDailyEntity]
-//    
-//    // 코디 좋아요
-//    func toggleCodiLike(_ request: CodiLikeEntity, isLiked: Bool) async throws
-//    // 코디 삭제
-//    func deleteCodis(_ codis: [DeleteCodiEntity], lookbookId: Int) async throws
-//    
-//    // 코디 프리뷰 조회
-//    func fetchCoordinatePreview(coordinateId: Int) async throws -> CoordinatePreviewEntity
-    
     func uploadCodiImage(jpgData: Data) async throws -> String
 }

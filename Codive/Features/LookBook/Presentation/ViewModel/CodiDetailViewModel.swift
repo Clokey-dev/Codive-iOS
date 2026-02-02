@@ -41,7 +41,8 @@ final class CodiDetailViewModel: ObservableObject {
                 id: $0.coordinateClothId,
                 imageName: $0.imageUrl,
                 brand: $0.brand,
-                name: $0.name
+                name: $0.name,
+                clothId: $0.clothId
             )
         }
     }
@@ -140,14 +141,10 @@ extension CodiDetailViewModel {
     func navigateToEditCodi() {
         guard let preview = coordinatePreview else { return }
         
-        print("\n--- 📤 [DEBUG] CodiDetail -> EditCodi 전송 데이터 확인 ---")
-        
         let payloads: [Payloads] = coordinateDetails.map { detail in
-
-            print("📍 매핑 중: [상품명: \(detail.name ?? "nil")] -> [전송 ID(coordinateClothId): \(detail.coordinateClothId)]")
             
             return Payloads(
-                clothId: Int64(detail.coordinateClothId),
+                clothId: detail.clothId,
                 locationX: detail.locationX,
                 locationY: detail.locationY,
                 ratio: detail.ratio,
@@ -163,8 +160,6 @@ extension CodiDetailViewModel {
             memo: preview.coordinateMemo,
             payloads: payloads
         )
-        
-        print("✅ 총 \(payloads.count)개의 페이로드 구성 완료\n")
         
         navigationRouter.navigate(
             to: .editCodi(
