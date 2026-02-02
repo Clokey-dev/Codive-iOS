@@ -6,9 +6,12 @@
 //
 
 import SwiftUI
+import Combine
 
 @MainActor
 final class EditCodiViewModel: ObservableObject {
+    
+    private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Properties (State: Editable)
     
@@ -16,6 +19,7 @@ final class EditCodiViewModel: ObservableObject {
     @Published var memo: String = ""
     @Published var isNavEditingMode: Bool = false
     @Published var selectedImageURL: String?
+    @Published var isLayoutChanged: Bool = false
     
     private var payloads: [Payloads] = []
     
@@ -34,11 +38,15 @@ final class EditCodiViewModel: ObservableObject {
     
     /// 초기값과 비교하여 텍스트 데이터에 변경이 있는지 확인합니다.
     var hasChanges: Bool {
-        return codiName != originalName || memo != originalMemo
+        // 1. 텍스트 필드 변경 확인
+        let isTextChanged = (codiName != originalName || memo != originalMemo)
+        // 2. 텍스트 혹은 레이아웃(이미지 포함) 둘 중 하나라도 변하면 true
+        return isTextChanged || isLayoutChanged
     }
     
-    /// 완료 버튼 활성화 여부 (이름이 비어있지 않고, 변경 사항이 있을 때)
+    /// 완료 버튼 활성화 여부
     var isButtonEnabled: Bool {
+        // 이름이 비어있지 않고, 어떠한 변경 사항이라도 있을 때 활성화
         return !codiName.isEmpty && hasChanges
     }
     
@@ -60,6 +68,28 @@ final class EditCodiViewModel: ObservableObject {
             self.originalMemo = data.memo
             self.payloads = data.payloads ?? []
         }
+        
+        setupCodiDataSubscription()
+    }
+}
+
+extension EditCodiViewModel {
+    /// AddCodiDetailView에서 변경되어 돌아오는 데이터를 감지합니다.
+    private func setupCodiDataSubscription() {
+        AddCodiDetailViewModel.codiDataUpdated
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] updatedData in
+                guard let self = self else { return }
+                
+                self.selectedImageURL = updatedData.imageString
+                self.payloads = updatedData.payloads
+                
+                // ✅ 이미지나 페이로드가 업데이트되었다면 변경됨으로 표시
+                self.isLayoutChanged = true
+                
+                print("--- 📥 데이터 수신 및 변경 플래그 활성화 ---")
+            }
+            .store(in: &cancellables)
     }
 }
 
