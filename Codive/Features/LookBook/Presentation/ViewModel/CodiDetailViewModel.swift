@@ -28,7 +28,7 @@ final class CodiDetailViewModel: ObservableObject {
     private let navigationRouter: NavigationRouter
     private let codiUseCase: CodiUseCase
     private let specificLookBookUseCase: SpecificLookBookUseCase
-
+    
     /// 현재 조회 중인 코디 ID
     private let coordinateId: Int64
     
@@ -74,13 +74,13 @@ extension CodiDetailViewModel {
     func fetchCoordinatePreview() {
         isLoading = true
         errorMessage = nil
-
+        
         Task {
             do {
                 self.coordinatePreview =
-                    try await codiUseCase.fetchCoordinatePreview(
-                        coordinateId: coordinateId
-                    )
+                try await codiUseCase.fetchCoordinatePreview(
+                    coordinateId: coordinateId
+                )
             } catch {
                 handleError(error)
             }
@@ -136,45 +136,14 @@ extension CodiDetailViewModel {
     func handleBackTap() {
         navigationRouter.navigateBack()
     }
-
-//    func navigateToEditCodi() {
-//        guard let preview = coordinatePreview else { return }
-//        
-//        // ✅ 상세 리스트를 서버 규격인 Payloads로 변환
-//        let payloads: [Payloads] = coordinateDetails.map { detail in
-//            Payloads(
-//                clothId: detail.coordinateClothId,
-//                locationX: detail.locationX,
-//                locationY: detail.locationY,
-//                ratio: detail.ratio,
-//                degree: detail.degree,
-//                order: detail.order
-//            )
-//        }
-//        
-//        let data = SelectedCodi(
-//            coordinateId: coordinateId,
-//            imageUrl: preview.imageUrl,
-//            name: preview.coordinateName,
-//            memo: preview.coordinateMemo,
-//            payloads: payloads
-//        )
-//        
-//        navigationRouter.navigate(
-//            to: .editCodi(
-//                selectedCodiData: data
-//            )
-//        )
-//    }
-//
+    
     func navigateToEditCodi() {
         guard let preview = coordinatePreview else { return }
         
         print("\n--- 📤 [DEBUG] CodiDetail -> EditCodi 전송 데이터 확인 ---")
         
         let payloads: [Payloads] = coordinateDetails.map { detail in
-            // ✅ 현재 매핑되는 상품의 이름과 ID 값을 로그로 출력합니다.
-            // 여기서 '9', '10'이 나오는지, '234' 같은 실제 상품 번호가 나오는지 확인이 필요합니다.
+
             print("📍 매핑 중: [상품명: \(detail.name ?? "nil")] -> [전송 ID(coordinateClothId): \(detail.coordinateClothId)]")
             
             return Payloads(

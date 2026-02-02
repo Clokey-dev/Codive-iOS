@@ -86,8 +86,7 @@ extension EditCodiViewModel {
             print("⚠️ 편집할 이미지가 없습니다.")
             return
         }
-        
-        // AddCodiViewModel에서 사용하는 것과 동일한 데이터 구조 생성
+
         let editData = CodiEditData(
             payloads: self.payloads,
             imageURL: imageURL,
@@ -98,24 +97,21 @@ extension EditCodiViewModel {
         print("--- 📤 EditCodi -> AddCodiDetail 데이터 전송 ---")
         
         self.payloads.forEach { payload in
-                print("📍 전송되는 Payload clothId: \(payload.clothId)")
-            }
+            print("📍 전송되는 Payload clothId: \(payload.clothId)")
+        }
         
-        // AddCodiViewModel.editCodiRequested (PassthroughSubject)를 통해 전송
-        // (AddCodiDetailViewModel이 이 스트림을 구독하고 있어야 함)
-//        AddCodiViewModel.editCodiRequested.send(editData)
         AddCodiViewModel.editCodiRequested.value = editData
-
+        
         navigationRouter.navigate(to: .addCodiDetail)
     }
 }
 
 // MARK: - Private Helpers
 
-private extension EditCodiViewModel {
-    
-    /// (필요 시) 서버 연동 실패 등 에러 발생 시 처리 로직
-    func handleError(_ error: Error) {
-        print("DEBUG: 코디 수정 실패 - \(error.localizedDescription)")
-    }
-}
+//private extension EditCodiViewModel {
+//
+//    /// (필요 시) 서버 연동 실패 등 에러 발생 시 처리 로직
+//    func handleError(_ error: Error) {
+//        print("DEBUG: 코디 수정 실패 - \(error.localizedDescription)")
+//    }
+//}

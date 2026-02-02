@@ -36,7 +36,7 @@ final class AddCodiViewModel: ObservableObject {
     private let codiUseCase: CodiUseCase
     let coordinateId: Int64
     
-//    static let editCodiRequested = PassthroughSubject<CodiEditData, Never>()
+    //    static let editCodiRequested = PassthroughSubject<CodiEditData, Never>()
     static let editCodiRequested = CurrentValueSubject<CodiEditData?, Never>(nil)
     
     // MARK: - Computed Properties
@@ -65,8 +65,6 @@ private extension AddCodiViewModel {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] data in
                 self?.receivedPayloads = data.payloads
-                
-                // ✅ 수정: imageString이 이제 URL이므로 selectedImageURL에 저장
                 self?.selectedImageURL = data.imageString
                 
                 print("--- 📥 AddCodiView 데이터 수신 완료 ---")
@@ -108,7 +106,6 @@ extension AddCodiViewModel {
         print("📍 Image URL: \(requestDTO.coordinateImageUrl)")
         print("📍 Payloads 개수: \(requestDTO.payloads.count)")
         
-        // Payloads 배열의 각 요소 상세 출력
         for (index, payload) in requestDTO.payloads.enumerated() {
             print("""
             [Payload #\(index + 1)]
@@ -124,8 +121,7 @@ extension AddCodiViewModel {
         Task {
             do {
                 _ = try await codiUseCase.createManualCoordinate(request: requestDTO)
-                
-                // ✅ 성공 로직 추가
+
                 self.successMessage = "코디가 성공적으로 등록되었습니다."
                 self.isShowingSuccessView = true
                 
@@ -133,7 +129,6 @@ extension AddCodiViewModel {
                 self.isShowingSuccessView = false
                 self.navigationRouter.navigateBack()
             } catch {
-                // 에러 발생 시 더 자세한 정보 출력
                 print("❌ [DEBUG] 최종 생성 실패 - 에러 타입: \(type(of: error))")
                 print("❌ [DEBUG] 상세 에러 메시지: \(error.localizedDescription)")
                 if let apiError = error as? LookBookAPIError {
@@ -144,29 +139,25 @@ extension AddCodiViewModel {
     }
     
     func handleEditCodiTap() {
-            guard let imageURL = selectedImageURL else {
-                print("⚠️ 편집할 이미지가 없습니다.")
-                return
-            }
-            
-            let editData = CodiEditData(
-                payloads: receivedPayloads,
-                imageURL: imageURL,
-                codiName: codiName,
-                memo: memo
-            )
-            
-            print("--- 📤 편집 데이터 전송 시작 ---")
-            print("📍 Payloads 개수: \(receivedPayloads.count)")
-            print("📍 Image URL: \(imageURL)")
-            
-            // Combine으로 데이터 전송
-//            Self.editCodiRequested.send(editData)
-        Self.editCodiRequested.value = editData
-            
-            // AddCodiDetail 화면으로 이동
-            navigationRouter.navigate(to: .addCodiDetail)
+        guard let imageURL = selectedImageURL else {
+            print("⚠️ 편집할 이미지가 없습니다.")
+            return
         }
+        
+        let editData = CodiEditData(
+            payloads: receivedPayloads,
+            imageURL: imageURL,
+            codiName: codiName,
+            memo: memo
+        )
+        
+        print("--- 📤 편집 데이터 전송 시작 ---")
+        print("📍 Payloads 개수: \(receivedPayloads.count)")
+        print("📍 Image URL: \(imageURL)")
+        
+        Self.editCodiRequested.value = editData
+        navigationRouter.navigate(to: .addCodiDetail)
+    }
     
     func navigateToNewCodi() {
         isShowingBottomSheet = false
