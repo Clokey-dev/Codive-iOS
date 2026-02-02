@@ -174,6 +174,7 @@ final class LookBookDIContainer {
     ) -> EditCodiViewModel {
         return EditCodiViewModel(
             navigationRouter: navigationRouter,
+            codiUseCase: makeCodiUseCase(),
             selectedCodiData: selectedCodiData
         )
     }

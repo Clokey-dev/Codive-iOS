@@ -32,6 +32,7 @@ final class EditCodiViewModel: ObservableObject {
     // MARK: - Properties (Dependencies)
     
     private let navigationRouter: NavigationRouter
+    private let codiUseCase: CodiUseCase
     private let coordinateId: Int64?
     
     // MARK: - Computed Properties
@@ -54,9 +55,11 @@ final class EditCodiViewModel: ObservableObject {
     
     init(
         navigationRouter: NavigationRouter,
+        codiUseCase: CodiUseCase, // ✅ 생성자 주입
         selectedCodiData: SelectedCodi? = nil
     ) {
         self.navigationRouter = navigationRouter
+        self.codiUseCase = codiUseCase
         self.coordinateId = selectedCodiData?.coordinateId
         
         // 전달받은 초기 데이터 설정
@@ -103,14 +106,50 @@ extension EditCodiViewModel {
     }
     
     /// 수정 사항을 반영하고 저장 로직을 실행합니다.
+//    func handleCompleteTap() {
+//        guard hasChanges else { return }
+//        
+//        // TODO: 서버 API 호출을 통한 수정 로직 반영 필요
+//        // try await codiUseCase.updateCodi(id: codiId, name: codiName, memo: memo)
+//        
+//        navigationRouter.navigateBack()
+//    }
     func handleCompleteTap() {
-        guard hasChanges else { return }
-        
-        // TODO: 서버 API 호출을 통한 수정 로직 반영 필요
-        // try await codiUseCase.updateCodi(id: codiId, name: codiName, memo: memo)
-        
-        navigationRouter.navigateBack()
-    }
+            // ID가 없거나 변경사항이 없으면 중단
+            guard let coordinateId = coordinateId, isButtonEnabled else { return }
+            
+            Task {
+                do {
+                    // 1. 요청 객체 생성 (전달받은 모든 수정 정보 포함)
+                    let request = EditCoordinateRequestDTO(
+                        coordinateImageUrl: selectedImageURL,
+                        name: codiName,
+                        memo: memo,
+                        payloads: payloads
+                    )
+                    
+                    // 2. UseCase를 통한 API 호출
+                    try await codiUseCase.patchUpdateCoordinates(
+                        coordinateId: coordinateId,
+                        request: request
+                    )
+                    
+                    print("✅ 코디 수정 완료: \(coordinateId)")
+                    
+                    // 3. 성공 시 상태 업데이트 (original 값 동기화)
+                    self.originalName = codiName
+                    self.originalMemo = memo
+                    self.isLayoutChanged = false
+                    
+                    // 4. 이전 화면으로 이동
+                    navigationRouter.navigateBack()
+                    
+                } catch {
+                    print("❌ 코디 수정 실패: \(error.localizedDescription)")
+                    // 필요 시 에러 알림 처리 로직 추가
+                }
+            }
+        }
     
     func handleOverlayTap() {
         guard let imageURL = selectedImageURL else {
