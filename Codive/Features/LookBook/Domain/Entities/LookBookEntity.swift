@@ -101,31 +101,27 @@ struct CodiItem: Identifiable {
 }
 
 struct SelectedCodi: Hashable {
-    let codiId: Int?
-    let imageURL: String?
+    let coordinateId: Int64?
+    let imageUrl: String?
     let name: String
     let memo: String
-    var combinedItems: [DraggableImageEntity]?
+    var payloads: [Payloads]?
     
     init(
-        codiId: Int?,      
-        imageURL: String?,
+        coordinateId: Int64?,
+        imageUrl: String?,
         name: String,
         memo: String,
-        combinedItems: [DraggableImageEntity]? = nil
+        payloads: [Payloads]? = nil
     ) {
-        self.codiId = codiId
-        self.imageURL = imageURL
+        self.coordinateId = coordinateId
+        self.imageUrl = imageUrl
         self.name = name
         self.memo = memo
-        self.combinedItems = combinedItems
+        self.payloads = payloads
     }
 }
 
-//struct CodiTransferData {
-//    let payloads: [Payloads]
-//    let imageString: String
-//}
 struct CodiTransferData {
     let payloads: [Payloads]
     let imageString: String

@@ -16,6 +16,8 @@ final class EditCodiViewModel: ObservableObject {
     @Published var memo: String = ""
     @Published var selectedImageURL: String?
     
+    private var payloads: [Payloads] = []
+    
     // MARK: - Properties (Internal State)
     
     /// 변경 사항 감지를 위한 초기 데이터 백업
@@ -25,8 +27,7 @@ final class EditCodiViewModel: ObservableObject {
     // MARK: - Properties (Dependencies)
     
     private let navigationRouter: NavigationRouter
-    private let lookbookId: Int
-    private let codiId: Int?
+    private let coordinateId: Int64?
     
     // MARK: - Computed Properties
     
@@ -44,20 +45,19 @@ final class EditCodiViewModel: ObservableObject {
     
     init(
         navigationRouter: NavigationRouter,
-        lookbookId: Int,
         selectedCodiData: SelectedCodi? = nil
     ) {
         self.navigationRouter = navigationRouter
-        self.lookbookId = lookbookId
-        self.codiId = selectedCodiData?.codiId
+        self.coordinateId = selectedCodiData?.coordinateId
         
         // 전달받은 초기 데이터 설정
         if let data = selectedCodiData {
-            self.selectedImageURL = data.imageURL
+            self.selectedImageURL = data.imageUrl
             self.codiName = data.name
             self.memo = data.memo
             self.originalName = data.name
             self.originalMemo = data.memo
+            self.payloads = data.payloads ?? []
         }
     }
 }

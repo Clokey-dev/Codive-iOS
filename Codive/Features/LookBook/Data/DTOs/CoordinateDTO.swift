@@ -80,7 +80,7 @@ struct EditCoordinateRequestDTO {
     let payloads: [Payloads]?
 }
 
-struct Payloads {
+struct Payloads: Hashable {
     let clothId: Int64
     let locationX: Double
     let locationY: Double
@@ -91,10 +91,10 @@ struct Payloads {
 
 /// 이전 일일 코디로 자동 생성
 struct CreateAutoDailyCoordinateAPIRequestDTO {
-    let name : String
-    let memo : String
-    let dailyCoordinateId : Int64
-    let lookBookId : Int64
+    let name: String
+    let memo: String
+    let dailyCoordinateId: Int64
+    let lookBookId: Int64
 }
 
 /// 이전 일일 코디로 자동 생성

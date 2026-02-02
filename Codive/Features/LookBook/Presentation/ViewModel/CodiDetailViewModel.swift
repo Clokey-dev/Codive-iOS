@@ -141,21 +141,32 @@ extension CodiDetailViewModel {
     func handleBackTap() {
         navigationRouter.navigateBack()
     }
-    
-    /// 코디 편집 화면으로 이동합니다. (현재 데이터 전달)
+
     func navigateToEditCodi() {
-        guard let detail = coordinatePreview else { return }
+        guard let preview = coordinatePreview else { return }
+        
+        // ✅ 상세 리스트를 서버 규격인 Payloads로 변환
+        let payloads: [Payloads] = coordinateDetails.map { detail in
+            Payloads(
+                clothId: detail.coordinateClothId,
+                locationX: detail.locationX,
+                locationY: detail.locationY,
+                ratio: detail.ratio,
+                degree: detail.degree,
+                order: detail.order
+            )
+        }
         
         let data = SelectedCodi(
-            codiId: Int(coordinateId),
-            imageURL: detail.imageUrl,
-            name: detail.coordinateName,
-            memo: detail.coordinateMemo
+            coordinateId: coordinateId,
+            imageUrl: preview.imageUrl,
+            name: preview.coordinateName,
+            memo: preview.coordinateMemo,
+            payloads: payloads
         )
         
         navigationRouter.navigate(
             to: .editCodi(
-                lookbookId: lookbookId,
                 selectedCodiData: data
             )
         )
