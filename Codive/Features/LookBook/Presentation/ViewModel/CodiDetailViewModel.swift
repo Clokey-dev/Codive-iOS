@@ -123,8 +123,16 @@ extension CodiDetailViewModel {
     }
     
     /// 리스트에서 특정 의류 아이템을 선택합니다.
+//    func selectCloth(at index: Int) {
+//        selectedIndex = index
+//    }
     func selectCloth(at index: Int) {
-        selectedIndex = index
+        // 이미 선택된 것을 다시 누르면 해제, 아니면 선택
+        if selectedIndex == index {
+            selectedIndex = nil
+        } else {
+            selectedIndex = index
+        }
     }
 }
 
