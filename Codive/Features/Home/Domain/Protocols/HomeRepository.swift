@@ -6,6 +6,7 @@
 //
 
 import CoreLocation
+import CodiveAPI
 
 protocol HomeRepository {
     // MARK: - 날씨
@@ -30,6 +31,13 @@ protocol HomeRepository {
     /// 오늘의 코디 옷 정보 조회
     func fetchTodayCoordinateClothes() async throws -> [TodayCoordinateClothEntity]
     
+    // 룩북 조회
+    func fetchLookBookList(
+        lastLookBookId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
+    ) async throws -> (content: [LookBookEntity], isLast: Bool)
+    
     /// 기존 api
     
     func createTodayDailyCodi(_ codi: TodayDailyCodi) async throws
@@ -43,7 +51,6 @@ protocol HomeRepository {
     
     func fetchCodiItems() -> [CodiItemEntity]
     func getToday() -> DateEntity
-    func fetchLookBookList() async throws -> [LookBookBottomSheetEntity]
     
     // MARK: - 카테고리 수정 관련
     

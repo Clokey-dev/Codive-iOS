@@ -73,51 +73,6 @@ protocol LookBookDataSourceProtocol {
 final class LookBookDataSource: LookBookDataSourceProtocol {
     private let apiService: LookBookAPIServiceProtocol
     
-    // MARK: - Dummy Before Codi List
-    
-    /// 이전 등록 코디 더미데이터 (완)
-    private var dummyBeforeCoordinateDaily: [BeforeCoordinateDailyEntity] = [
-        BeforeCoordinateDailyEntity(
-            coordinateId: 1,
-            imageUrl: "https://image.msscdn.net/images/style/detail/37395/detail_37395_1_500.jpg",
-            date: "2025.08.09"),
-        BeforeCoordinateDailyEntity(
-            coordinateId: 2,
-            imageUrl: "https://image.msscdn.net/images/style/detail/37390/detail_37390_1_500.jpg",
-            date: "2025.08.01")
-    ]
-    
-    // MARK: - Dummy Codi Detail
-    
-    /// 코디 상세 화면에서 사용하는 더미 데이터
-    /// 코디 ID를 key로 하여 상세 정보(상의/하의/신발/메모/날짜)를 제공한다.
-    private var codiDetails: [Int: CoordinatePreviewEntity] = [
-        11: CoordinatePreviewEntity(
-            coordinateId: 11,
-            imageUrl: "https://image.msscdn.net/images/style/detail/37395/detail_37395_1_500.jpg",
-            coordinateName: "로맨틱 시사회 룩",
-            coordinateMemo: "1주년이니까 오빠가 사준 신발 신고가야됨"
-        ),
-        12: CoordinatePreviewEntity(
-            coordinateId: 12,
-            imageUrl: "https://image.msscdn.net/images/style/detail/37390/detail_37390_1_500.jpg",
-            coordinateName: "따뜻한 카페 데이트",
-            coordinateMemo: "겨울 카페 데이트 코디"
-        )
-    ]
-    
-    // MARK: - Dummy Product List
-    
-//    /// 코디 구성 아이템 선택 화면에서 사용하는 상품 더미 데이터
-//    private var dummyProducts: [ProductItem] = [
-//        ProductItem(id: 1, imageName: "https://pngimg.com/uploads/jacket/jacket_PNG8055.png", isTodayCloth: true, brand: "아디다스", name: "트랙탑"),
-//        ProductItem(id: 2, imageName: "https://pngimg.com/uploads/hoodie/hoodie_PNG27.png", isTodayCloth: false, brand: "나이키", name: "후드티"),
-//        ProductItem(id: 3, imageName: "https://pngimg.com/uploads/jeans/jeans_PNG5777.png", isTodayCloth: false, brand: "리바이스", name: "데님 팬츠"),
-//        ProductItem(id: 4, imageName: "https://pngimg.com/uploads/jacket/jacket_PNG8066.png", isTodayCloth: false, brand: "노스페이스", name: "패딩"),
-//        ProductItem(id: 5, imageName: "https://pngimg.com/uploads/running_shoes/running_shoes_PNG5823.png", isTodayCloth: true, brand: "뉴발란스", name: "990v6"),
-//        ProductItem(id: 6, imageName: "https://pngimg.com/uploads/cap/cap_PNG5687.png", isTodayCloth: false, brand: "뉴에라", name: "볼캡")
-//    ]
-    
     // MARK: - Initializer
     init(
         apiService: LookBookAPIServiceProtocol = LookBookAPIService()
@@ -151,30 +106,6 @@ final class LookBookDataSource: LookBookDataSourceProtocol {
             size: size,
             direction: direction
         )
-        // 🔥 MOCK DATA (서버 연동 전)
-//        return LookBookCoordinateResponseDTO(
-//            content: [
-//                LookBookCoordinateListResponseItem(
-//                    coordinateId: 1,
-//                    coordinateName: "로맨틱 시사회 룩",
-//                    coordinateLiked: true,
-//                    imageUrl: "https://image.msscdn.net/images/style/detail/37395/detail_37395_1_500.jpg"
-//                ),
-//                LookBookCoordinateListResponseItem(
-//                    coordinateId: 2,
-//                    coordinateName: "따뜻한 카페 데이트",
-//                    coordinateLiked: false,
-//                    imageUrl: "https://image.msscdn.net/images/style/detail/37390/detail_37390_1_500.jpg"
-//                ),
-//                LookBookCoordinateListResponseItem(
-//                    coordinateId: 13,
-//                    coordinateName: "캐주얼 출근 룩",
-//                    coordinateLiked: false,
-//                    imageUrl: "https://image.msscdn.net/images/style/detail/37410/detail_37410_1_500.jpg"
-//                )
-//            ],
-//            isLast: true
-//            )
     }
     
     /// 과거 일일 코디 조회

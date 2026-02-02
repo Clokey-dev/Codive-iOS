@@ -5,6 +5,8 @@
 //  Created by 한금준 on 12/27/25.
 //
 
+import CodiveAPI
+
 final class AddToLookBookUseCase {
 
     private let repository: HomeRepository
@@ -13,8 +15,15 @@ final class AddToLookBookUseCase {
         self.repository = repository
     }
     
-    // 룩북 추가하기 바텀시트
-    func execute() async throws -> [LookBookBottomSheetEntity] {
-        return try await repository.fetchLookBookList()
+    func fetchLookBookList(
+        lastLookBookId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
+    ) async throws -> (content: [LookBookEntity], isLast: Bool) {
+        return try await repository.fetchLookBookList(
+            lastLookBookId: lastLookBookId,
+            size: size,
+            direction: direction
+        )
     }
 }

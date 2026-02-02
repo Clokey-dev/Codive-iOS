@@ -6,6 +6,7 @@
 //
 
 import CoreLocation
+import CodiveAPI
 
 final class HomeRepositoryImpl: HomeRepository {
     // MARK: - Properties
@@ -61,6 +62,24 @@ final class HomeRepositoryImpl: HomeRepository {
         let dtos = try await dataSource.fetchTodayCoordinateClothes()
         return dtos.map { $0.toEntity() }
     }
+    
+    // 룩북 조회
+    func fetchLookBookList(
+        lastLookBookId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
+    ) async throws -> (content: [LookBookEntity], isLast: Bool) {
+        let dto = try await dataSource.fetchLookBookList(
+            lastLookBookId: lastLookBookId,
+            size: size,
+            direction: direction
+        )
+        
+        return (
+            content: dto.content.map { $0.toEntity() },
+            isLast: dto.isLast
+        )
+    }
 }
 
 extension HomeRepositoryImpl {
@@ -86,10 +105,6 @@ extension HomeRepositoryImpl {
     
     func getToday() -> DateEntity {
         dataSource.fetchToday()
-    }
-    
-    func fetchLookBookList() async throws -> [LookBookBottomSheetEntity] {
-        return try await dataSource.fetchLookBookList()
     }
     
     // MARK: - 카테고리 수정 관련

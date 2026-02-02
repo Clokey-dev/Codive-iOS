@@ -14,7 +14,7 @@ final class HomeViewModel: ObservableObject {
     
     // MARK: - Properties (UI State)
     
-    @Published var hasCodi: Bool = false
+    @Published var hasCodi: Bool = true
     @Published var showClothSelector: Bool = false
     @Published var selectedItemID: Int?
     @Published var selectedIndex: Int? = 0
@@ -307,16 +307,29 @@ extension HomeViewModel {
 
 // MARK: - LookBook Actions
 extension HomeViewModel {
-    
     /// 내 룩북 리스트를 불러와 바텀시트를 표시
     func addLookbook() {
         Task {
             do {
-                let list = try await addToLookBookUseCase.execute()
-                self.lookBookList = list
+                let (content, _) = try await addToLookBookUseCase.fetchLookBookList(
+                    lastLookBookId: nil,
+                    size: 20,
+                    direction: .DESC
+                )
+
+                self.lookBookList = content.map { entity in
+                    LookBookBottomSheetEntity(
+                        lookbookId: entity.lookBookId,
+                        imageUrl: entity.imageUrl,
+                        title: entity.lookbookName,
+                        count: entity.count
+                    )
+                }
+                
+                // 3. 데이터 로딩 후 시트 표시
                 self.showLookBookSheet = true
             } catch {
-                print("Failed to load lookbooks: \(error)")
+                print("❌ 룩북 리스트 로드 실패: \(error.localizedDescription)")
             }
         }
     }

@@ -24,6 +24,13 @@ protocol HomeAPIServiceProtocol {
     
     /// 오늘의 코디 옷 정보 조회
     func fetchTodayCoordinateClothes() async throws -> [GetTodayCoordinateClothResponseDTO]
+    
+    /// 룩북 전체 조회
+    func fetchLookBookList(
+        lastLookBookId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
+    ) async throws -> LookBookListResponseDTO
 }
 
 final class HomeAPIService: HomeAPIServiceProtocol {
@@ -61,7 +68,6 @@ extension HomeAPIService {
             print("📦 Raw JSON Response:")
             print(String(data: data, encoding: .utf8) ?? "❌ JSON 변환 실패")
 
-            
             let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseClothRecommendListResponse.self, from: data)
             
             let content: [HomeCategoryResponseItem] = decoded.result?.content?.map { item -> HomeCategoryResponseItem in
@@ -100,6 +106,34 @@ extension HomeAPIService {
             
         case .undocumented(statusCode: let code, _):
             throw HomeAPIError.serverError(statusCode: code, message: "오늘의 코디 옷 정보 조회 실패")
+        }
+    }
+    
+    func fetchLookBookList(
+        lastLookBookId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload = .DESC
+    ) async throws -> LookBookListResponseDTO {
+        
+        let input = Operations.LookBook_getLookBooks.Input(
+            query: .init(lastLookBookId: lastLookBookId, size: size, direction: direction)
+        )
+        
+        let response = try await client.LookBook_getLookBooks(input)
+        
+        switch response {
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseLookBookListResponse.self, from: data)
+            
+            let content: [LookBookListResponseItem] = decoded.result?.content?.map { item -> LookBookListResponseItem in
+                return LookBookListResponseItem(lookBookId: item.lookBookId ?? 0, lookBookName: item.lookBookName ?? "", imageUrl: item.imageUrl ?? "", count: item.count ?? 0)
+            } ?? []
+            
+            return LookBookListResponseDTO(content: content, isLast: decoded.result?.isLast ?? true)
+            
+        case .undocumented(statusCode: let code, _):
+            throw LookBookAPIError.serverError(statusCode: code, message: "룩북 목록 조회 실패")
         }
     }
 }

@@ -8,6 +8,7 @@
 import Foundation
 import WeatherKit
 import CoreLocation
+import CodiveAPI
 
 protocol HomeDatasourceProtocol {
     /// 계절에 따른 카테고리별 옷 리스트
@@ -26,6 +27,13 @@ protocol HomeDatasourceProtocol {
     
     /// 오늘의 코디 옷 정보 조회
     func fetchTodayCoordinateClothes() async throws -> [GetTodayCoordinateClothResponseDTO]
+    
+    /// 룩북 전체 조회
+    func fetchLookBookList(
+        lastLookBookId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
+    ) async throws -> LookBookListResponseDTO
 }
 
 final class HomeDatasource: HomeDatasourceProtocol {
@@ -166,6 +174,19 @@ final class HomeDatasource: HomeDatasourceProtocol {
     func fetchTodayCoordinateClothes() async throws -> [GetTodayCoordinateClothResponseDTO] {
         return try await apiService.fetchTodayCoordinateClothes()
     }
+    
+    /// 룩북 전체 리스트 조회
+    func fetchLookBookList(
+        lastLookBookId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
+    ) async throws -> LookBookListResponseDTO {
+        return try await apiService.fetchLookBookList(
+            lastLookBookId: lastLookBookId,
+            size: size,
+            direction: direction
+        )
+    }
 }
 
 extension HomeDatasource {
@@ -283,17 +304,6 @@ extension HomeDatasource {
                 width: 100,
                 height: 100
             )
-        ]
-    }
-    
-    // 룩북에 추가 바텀시트 더미데이터
-    func fetchLookBookList() async throws -> [LookBookBottomSheetEntity] {
-        try await Task.sleep(nanoseconds: 300_000_000)
-        
-        return [
-            LookBookBottomSheetEntity(lookbookId: 1, codiId: 101, imageUrl: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800", title: "운동룩", count: 6),
-            LookBookBottomSheetEntity(lookbookId: 2, codiId: 102, imageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800", title: "출근룩", count: 12),
-            LookBookBottomSheetEntity(lookbookId: 3, codiId: 103, imageUrl: "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=800", title: "데이트룩", count: 16)
         ]
     }
 }

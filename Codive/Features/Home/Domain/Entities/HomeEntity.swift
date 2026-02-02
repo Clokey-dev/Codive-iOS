@@ -32,16 +32,15 @@ struct DateEntity {
 
 // MARK: - LookBook BottomSheet Entity
 struct LookBookBottomSheetEntity: Identifiable, Codable {
-    let lookbookId: Int
-    let codiId: Int
+    let lookbookId: Int64
     let imageUrl: String
     let title: String
-    let count: Int
+    let count: Int64
 
-    var id: Int { lookbookId }
+    var id: Int64 { lookbookId }
 
     private enum CodingKeys: String, CodingKey {
-        case lookbookId, codiId, imageUrl, title, count
+        case lookbookId, imageUrl, title, count
     }
 }
 
