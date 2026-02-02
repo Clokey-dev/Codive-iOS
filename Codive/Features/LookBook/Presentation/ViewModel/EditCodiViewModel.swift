@@ -97,13 +97,16 @@ extension EditCodiViewModel {
         
         print("--- 📤 EditCodi -> AddCodiDetail 데이터 전송 ---")
         
+        self.payloads.forEach { payload in
+                print("📍 전송되는 Payload clothId: \(payload.clothId)")
+            }
+        
         // AddCodiViewModel.editCodiRequested (PassthroughSubject)를 통해 전송
         // (AddCodiDetailViewModel이 이 스트림을 구독하고 있어야 함)
-        AddCodiViewModel.editCodiRequested.send(editData)
-        
-        // 화면 전환 (기존에 정의된 addCodiDetail 목적지 사용)
-        // lookbookId가 필요하다면 저장해둔 coordinateId 등을 전달
-        navigationRouter.navigate(to: .addCodiDetail(lookbookId: coordinateId ?? 0))
+//        AddCodiViewModel.editCodiRequested.send(editData)
+        AddCodiViewModel.editCodiRequested.value = editData
+
+        navigationRouter.navigate(to: .addCodiDetail)
     }
 }
 

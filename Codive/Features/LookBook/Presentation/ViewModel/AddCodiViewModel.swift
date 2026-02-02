@@ -36,7 +36,8 @@ final class AddCodiViewModel: ObservableObject {
     private let codiUseCase: CodiUseCase
     let coordinateId: Int64
     
-    static let editCodiRequested = PassthroughSubject<CodiEditData, Never>()
+//    static let editCodiRequested = PassthroughSubject<CodiEditData, Never>()
+    static let editCodiRequested = CurrentValueSubject<CodiEditData?, Never>(nil)
     
     // MARK: - Computed Properties
     var isButtonEnabled: Bool {
@@ -160,15 +161,16 @@ extension AddCodiViewModel {
             print("📍 Image URL: \(imageURL)")
             
             // Combine으로 데이터 전송
-            Self.editCodiRequested.send(editData)
+//            Self.editCodiRequested.send(editData)
+        Self.editCodiRequested.value = editData
             
             // AddCodiDetail 화면으로 이동
-            navigationRouter.navigate(to: .addCodiDetail(lookbookId: coordinateId))
+            navigationRouter.navigate(to: .addCodiDetail)
         }
     
     func navigateToNewCodi() {
         isShowingBottomSheet = false
-        navigationRouter.navigate(to: .addCodiDetail(lookbookId: coordinateId))
+        navigationRouter.navigate(to: .addCodiDetail)
     }
     
     func handleRecallCodi() {

@@ -33,14 +33,13 @@ final class AddCodiDetailViewModel: ObservableObject {
     private var pendingEditData: CodiEditData?
     
     @Published var images: [DraggableImageEntity] = []
-    @Published var currentlyDraggedID: Int?
-    @Published var selectedImageID: Int?
+    @Published var currentlyDraggedID: Int64?
+    @Published var selectedImageID: Int64?
     @Published var capturedImageString: String? = nil
     var boardSize: CGFloat = 300
     
     private let navigationRouter: NavigationRouter
     private let productUseCase: ProductUseCase
-    private let lookbookId: Int64
     
     // AddCodiDetailViewModel.swift
 
@@ -65,10 +64,9 @@ final class AddCodiDetailViewModel: ObservableObject {
         }
     }
     
-    init(navigationRouter: NavigationRouter, productUseCase: ProductUseCase, lookbookId: Int64) {
+    init(navigationRouter: NavigationRouter, productUseCase: ProductUseCase) {
         self.navigationRouter = navigationRouter
         self.productUseCase = productUseCase
-        self.lookbookId = lookbookId
         
         setupEditDataSubscription()
         Task { await fetchClothItems() }
@@ -82,24 +80,42 @@ final class AddCodiDetailViewModel: ObservableObject {
         }
     }
     
+//    func toggleProductSelection(_ product: ProductItem) {
+//        if selectedProductIds.contains(product.id) {
+//            selectedProductIds.remove(product.id)
+//            images.removeAll { $0.id == product.id }
+//        } else if selectedProductIds.count < 10 {
+//            selectedProductIds.insert(product.id)
+//            
+//            // 신규 이미지 추가 시 중앙 좌표 근처로 설정
+//            let newImage = DraggableImageEntity(
+//                id: Int64(product.id),
+//                name: product.imageUrl ?? product.imageName ?? "",
+//                position: .zero,
+//                scale: 1.0,
+//                rotation: 0
+//            )
+//            images.append(newImage)
+//        }
+//    }
     func toggleProductSelection(_ product: ProductItem) {
-        if selectedProductIds.contains(product.id) {
-            selectedProductIds.remove(product.id)
-            images.removeAll { $0.id == product.id }
-        } else if selectedProductIds.count < 10 {
-            selectedProductIds.insert(product.id)
-            
-            // 신규 이미지 추가 시 중앙 좌표 근처로 설정
-            let newImage = DraggableImageEntity(
-                id: Int64(product.id),
-                name: product.imageUrl ?? product.imageName ?? "",
-                position: .zero,
-                scale: 1.0,
-                rotation: 0
-            )
-            images.append(newImage)
+            if selectedProductIds.contains(product.id) {
+                selectedProductIds.remove(product.id)
+                // ✅ $0.id는 Int64이므로 product.id를 변환해서 비교
+                images.removeAll { $0.id == Int64(product.id) }
+            } else if selectedProductIds.count < 10 {
+                selectedProductIds.insert(product.id)
+                
+                let newImage = DraggableImageEntity(
+                    id: Int64(product.id), // ✅ 변환
+                    name: product.imageUrl ?? product.imageName ?? "",
+                    position: .zero,
+                    scale: 1.0,
+                    rotation: 0
+                )
+                images.append(newImage)
+            }
         }
-    }
     
     private func addImage(from product: ProductItem) {
         let centerX = boardSize / 2
@@ -117,10 +133,14 @@ final class AddCodiDetailViewModel: ObservableObject {
         images.append(newImage)
     }
     
-    private func removeImage(productId: Int) {
-        images.removeAll { $0.id == productId }
-        if selectedImageID == productId { selectedImageID = nil }
-    }
+//    private func removeImage(productId: Int) {
+//        images.removeAll { $0.id == productId }
+//        if selectedImageID == productId { selectedImageID = nil }
+//    }
+    private func removeImage(productId: Int64) {
+            images.removeAll { $0.id == productId }
+            if selectedImageID == productId { selectedImageID = nil }
+        }
     
     // 제스처 결과 반영 메서드들
     func bringImageToFront(id: Int64) {
@@ -129,27 +149,45 @@ final class AddCodiDetailViewModel: ObservableObject {
         images.append(tappedImage)
     }
     
-    func updateImagePosition(id: Int, newPosition: CGPoint) {
-        if let index = images.firstIndex(where: { $0.id == id }) {
-            images[index].position = newPosition
+//    func updateImagePosition(id: Int, newPosition: CGPoint) {
+//        if let index = images.firstIndex(where: { $0.id == id }) {
+//            images[index].position = newPosition
+//        }
+//    }
+    func updateImagePosition(id: Int64, newPosition: CGPoint) {
+            if let index = images.firstIndex(where: { $0.id == id }) {
+                images[index].position = newPosition
+            }
         }
-    }
     
-    func updateImageScale(id: Int, newScale: CGFloat) {
-        if let index = images.firstIndex(where: { $0.id == id }) {
-            images[index].scale = newScale
+//    func updateImageScale(id: Int, newScale: CGFloat) {
+//        if let index = images.firstIndex(where: { $0.id == id }) {
+//            images[index].scale = newScale
+//        }
+//    }
+    func updateImageScale(id: Int64, newScale: CGFloat) {
+            if let index = images.firstIndex(where: { $0.id == id }) {
+                images[index].scale = newScale
+            }
         }
-    }
     
-    func updateImageRotation(id: Int, newRotation: Double) {
-        if let index = images.firstIndex(where: { $0.id == id }) {
-            images[index].rotation = newRotation
+//    func updateImageRotation(id: Int, newRotation: Double) {
+//        if let index = images.firstIndex(where: { $0.id == id }) {
+//            images[index].rotation = newRotation
+//        }
+//    }
+    func updateImageRotation(id: Int64, newRotation: Double) {
+            if let index = images.firstIndex(where: { $0.id == id }) {
+                images[index].rotation = newRotation
+            }
         }
-    }
     
-    func selectImage(id: Int?) {
-        selectedImageID = id
-    }
+//    func selectImage(id: Int?) {
+//        selectedImageID = id
+//    }
+    func selectImage(id: Int64?) {
+            selectedImageID = id
+        }
     
     func captureBoard(view: some View) async {
         let renderer = ImageRenderer(content: view)
@@ -178,79 +216,152 @@ final class AddCodiDetailViewModel: ObservableObject {
 //        AddCodiViewModel.editCodiRequested
 //            .receive(on: DispatchQueue.main)
 //            .sink { [weak self] editData in
-//                self?.restoreCodiData(from: editData)
+//                // ✅ 상품 리스트가 이미 있다면 즉시 복원, 없다면 대기
+//                if let self = self {
+//                    if self.clothItems.isEmpty {
+//                        self.pendingEditData = editData
+//                        print("--- ⏳ 상품 리스트 로딩 대기 중... ---")
+//                    } else {
+//                        self.restoreCodiData(from: editData)
+//                    }
+//                }
 //            }
 //            .store(in: &cancellables)
 //    }
     private func setupEditDataSubscription() {
         AddCodiViewModel.editCodiRequested
+            .compactMap { $0 } // nil이 아닌 경우만 처리
             .receive(on: DispatchQueue.main)
             .sink { [weak self] editData in
-                // ✅ 상품 리스트가 이미 있다면 즉시 복원, 없다면 대기
-                if let self = self {
-                    if self.clothItems.isEmpty {
-                        self.pendingEditData = editData
-                        print("--- ⏳ 상품 리스트 로딩 대기 중... ---")
-                    } else {
-                        self.restoreCodiData(from: editData)
-                    }
+                guard let self = self else { return }
+                
+                // 1. 이미 상품 목록이 로드된 경우 즉시 복원
+                if !self.clothItems.isEmpty {
+                    self.restoreCodiData(from: editData)
+                } else {
+                    // 2. 아직 로드 전이면 보관해두었다가 didSet에서 실행
+                    self.pendingEditData = editData
+                    print("--- ⏳ 상품 목록 대기 중 (ID: \(editData.payloads.count)개) ---")
                 }
             }
             .store(in: &cancellables)
     }
     
     // ✅ 새로운 메서드: 코디 데이터 복원
+//    private func restoreCodiData(from editData: CodiEditData) {
+//        print("--- 📥 편집 데이터 수신 완료 ---")
+//        print("📍 복원할 Payloads 개수: \(editData.payloads.count)")
+//        
+//        // 기존 이미지 URL 저장 (나중에 참고용으로 사용 가능)
+//        self.capturedImageString = editData.imageURL
+//        
+//        // ✅ 먼저 selectedProductIds를 복원 (CustomProductBottomSheet에서 체크 표시를 위해)
+//        let clothIds = editData.payloads.map { Int($0.clothId) }
+//        self.selectedProductIds = Set(clothIds)
+//        
+//        print("📍 복원할 clothId 목록: \(clothIds)")
+//        print("📍 현재 로드된 clothItems 개수: \(clothItems.count)")
+//        
+//        // Payloads를 DraggableImageEntity로 변환
+//        self.images = editData.payloads.compactMap { payload in
+//            // 정규화된 좌표(0.0~1.0)를 실제 위치로 역변환
+//            let actualX = (payload.locationX * boardSize) - (boardSize / 2)
+//            let actualY = (payload.locationY * boardSize) - (boardSize / 2)
+//            
+//            // 해당 clothId의 이미지 URL 찾기
+//            guard let clothItem = clothItems.first(where: { $0.id == Int(payload.clothId) }) else {
+//                print("⚠️ clothId \(payload.clothId)에 해당하는 상품을 찾을 수 없습니다.")
+//                return nil
+//            }
+//            
+//            let imageURL = clothItem.imageUrl ?? clothItem.imageName ?? ""
+//            
+//            print("""
+//                [복원 #\(payload.order)]
+//                - clothId: \(payload.clothId)
+//                - imageName: \(clothItem.name ?? "unknown")
+//                - imageURL: \(imageURL)
+//                - 정규화 좌표: (\(payload.locationX), \(payload.locationY))
+//                - 실제 위치: (\(actualX), \(actualY))
+//                - scale: \(payload.ratio)
+//                - rotation: \(payload.degree)
+//                """)
+//            
+//            return DraggableImageEntity(
+//                id: payload.clothId,
+//                name: imageURL,
+//                position: CGPoint(x: actualX, y: actualY),
+//                scale: CGFloat(payload.ratio),
+//                rotation: payload.degree
+//            )
+//        }
+//        
+//        print("✅ 코디 데이터 복원 완료")
+//        print("📍 복원된 이미지 개수: \(images.count)")
+//        print("📍 선택된 상품 ID: \(selectedProductIds)")
+//    }
+//    private func restoreCodiData(from editData: CodiEditData) {
+//            // 1. 바텀시트 체크 표시를 위한 ID 셋 업데이트 (Int64 -> Int)
+//            let clothIds = editData.payloads.map { Int($0.clothId) }
+//            self.selectedProductIds = Set(clothIds)
+//            
+//            // 2. 이미지 엔티티 복원
+//            self.images = editData.payloads.compactMap { payload in
+//                let actualX = (payload.locationX * boardSize) - (boardSize / 2)
+//                let actualY = (payload.locationY * boardSize) - (boardSize / 2)
+//                
+//                // ✅ 비교 시 양쪽 타입을 Int로 맞춰서 일치 여부 확인
+////                guard let item = clothItems.first(where: { Int($0.id) == Int(payload.clothId) }) else {
+////                    return nil
+////                }
+//                guard let item = clothItems.first(where: { Int64($0.id) == payload.clothId }) else {
+//                            print("⚠️ 상품 매칭 실패: clothId \(payload.clothId)")
+//                            return nil
+//                        }
+//                
+//                return DraggableImageEntity(
+//                    id: payload.clothId, // Int64 그대로 사용
+//                    name: item.imageUrl ?? item.imageName ?? "",
+//                    position: CGPoint(x: actualX, y: actualY),
+//                    scale: CGFloat(payload.ratio),
+//                    rotation: payload.degree
+//                )
+//            }
+//        }
+    // AddCodiDetailViewModel.swift 내부 수정
+
     private func restoreCodiData(from editData: CodiEditData) {
-        print("--- 📥 편집 데이터 수신 완료 ---")
-        print("📍 복원할 Payloads 개수: \(editData.payloads.count)")
+        print("--- 📥 데이터 복원 시작 (전달된 페이로드: \(editData.payloads.count)개) ---")
         
-        // 기존 이미지 URL 저장 (나중에 참고용으로 사용 가능)
-        self.capturedImageString = editData.imageURL
-        
-        // ✅ 먼저 selectedProductIds를 복원 (CustomProductBottomSheet에서 체크 표시를 위해)
+        // 1. 체크 표시용 ID 세트 업데이트
+        // Int64 -> Int 변환 시 발생할 수 있는 잠재적 문제를 방지하기 위해 compactMap 사용
         let clothIds = editData.payloads.map { Int($0.clothId) }
         self.selectedProductIds = Set(clothIds)
         
-        print("📍 복원할 clothId 목록: \(clothIds)")
-        print("📍 현재 로드된 clothItems 개수: \(clothItems.count)")
-        
-        // Payloads를 DraggableImageEntity로 변환
+        // 2. 이미지 엔티티 복원
         self.images = editData.payloads.compactMap { payload in
-            // 정규화된 좌표(0.0~1.0)를 실제 위치로 역변환
             let actualX = (payload.locationX * boardSize) - (boardSize / 2)
             let actualY = (payload.locationY * boardSize) - (boardSize / 2)
             
-            // 해당 clothId의 이미지 URL 찾기
-            guard let clothItem = clothItems.first(where: { $0.id == Int(payload.clothId) }) else {
-                print("⚠️ clothId \(payload.clothId)에 해당하는 상품을 찾을 수 없습니다.")
+            // ✅ [수정] Int64로 타입을 확장하여 비교 (가장 안전함)
+            guard let item = clothItems.first(where: { Int64($0.id) == payload.clothId }) else {
+                print("⚠️ 복원 실패: clothId \(payload.clothId)가 현재 로드된 clothItems에 없습니다.")
+                // 만약 여기서 nil이 반환되면 캔버스에 이미지가 그려지지 않습니다.
                 return nil
             }
             
-            let imageURL = clothItem.imageUrl ?? clothItem.imageName ?? ""
-            
-            print("""
-                [복원 #\(payload.order)]
-                - clothId: \(payload.clothId)
-                - imageName: \(clothItem.name ?? "unknown")
-                - imageURL: \(imageURL)
-                - 정규화 좌표: (\(payload.locationX), \(payload.locationY))
-                - 실제 위치: (\(actualX), \(actualY))
-                - scale: \(payload.ratio)
-                - rotation: \(payload.degree)
-                """)
+            print("✅ 상품 매칭 성공: \(item.name ?? "이름없음") (ID: \(payload.clothId))")
             
             return DraggableImageEntity(
                 id: payload.clothId,
-                name: imageURL,
+                name: item.imageUrl ?? item.imageName ?? "",
                 position: CGPoint(x: actualX, y: actualY),
                 scale: CGFloat(payload.ratio),
                 rotation: payload.degree
             )
         }
         
-        print("✅ 코디 데이터 복원 완료")
-        print("📍 복원된 이미지 개수: \(images.count)")
-        print("📍 선택된 상품 ID: \(selectedProductIds)")
+        print("✅ 복원 완료: 총 \(images.count)개의 이미지가 생성됨")
     }
     
     func handleBackTap() { navigationRouter.navigateBack() }

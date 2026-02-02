@@ -31,9 +31,6 @@ final class CodiDetailViewModel: ObservableObject {
 
     /// 현재 조회 중인 코디 ID
     private let coordinateId: Int64
-
-    /// 현재 코디가 속한 룩북 ID (편집 화면 이동 시 컨텍스트 유지용)
-    private let lookbookId: Int
     
     // MARK: - Computed Properties
     
@@ -61,14 +58,12 @@ final class CodiDetailViewModel: ObservableObject {
         navigationRouter: NavigationRouter,
         codiUseCase: CodiUseCase,
         specificLookBookUseCase: SpecificLookBookUseCase,
-        coordinateId: Int64,
-        lookbookId: Int
+        coordinateId: Int64
     ) {
         self.navigationRouter = navigationRouter
         self.codiUseCase = codiUseCase
         self.specificLookBookUseCase = specificLookBookUseCase
         self.coordinateId = coordinateId
-        self.lookbookId = lookbookId
     }
 }
 
@@ -142,13 +137,48 @@ extension CodiDetailViewModel {
         navigationRouter.navigateBack()
     }
 
+//    func navigateToEditCodi() {
+//        guard let preview = coordinatePreview else { return }
+//        
+//        // ✅ 상세 리스트를 서버 규격인 Payloads로 변환
+//        let payloads: [Payloads] = coordinateDetails.map { detail in
+//            Payloads(
+//                clothId: detail.coordinateClothId,
+//                locationX: detail.locationX,
+//                locationY: detail.locationY,
+//                ratio: detail.ratio,
+//                degree: detail.degree,
+//                order: detail.order
+//            )
+//        }
+//        
+//        let data = SelectedCodi(
+//            coordinateId: coordinateId,
+//            imageUrl: preview.imageUrl,
+//            name: preview.coordinateName,
+//            memo: preview.coordinateMemo,
+//            payloads: payloads
+//        )
+//        
+//        navigationRouter.navigate(
+//            to: .editCodi(
+//                selectedCodiData: data
+//            )
+//        )
+//    }
+//
     func navigateToEditCodi() {
         guard let preview = coordinatePreview else { return }
         
-        // ✅ 상세 리스트를 서버 규격인 Payloads로 변환
+        print("\n--- 📤 [DEBUG] CodiDetail -> EditCodi 전송 데이터 확인 ---")
+        
         let payloads: [Payloads] = coordinateDetails.map { detail in
-            Payloads(
-                clothId: detail.coordinateClothId,
+            // ✅ 현재 매핑되는 상품의 이름과 ID 값을 로그로 출력합니다.
+            // 여기서 '9', '10'이 나오는지, '234' 같은 실제 상품 번호가 나오는지 확인이 필요합니다.
+            print("📍 매핑 중: [상품명: \(detail.name ?? "nil")] -> [전송 ID(coordinateClothId): \(detail.coordinateClothId)]")
+            
+            return Payloads(
+                clothId: Int64(detail.coordinateClothId),
                 locationX: detail.locationX,
                 locationY: detail.locationY,
                 ratio: detail.ratio,
@@ -164,6 +194,8 @@ extension CodiDetailViewModel {
             memo: preview.coordinateMemo,
             payloads: payloads
         )
+        
+        print("✅ 총 \(payloads.count)개의 페이로드 구성 완료\n")
         
         navigationRouter.navigate(
             to: .editCodi(

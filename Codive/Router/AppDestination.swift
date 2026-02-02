@@ -36,9 +36,9 @@ enum AppDestination: Hashable, Identifiable {
     case specificLookbook(lookbookId: Int64, name: String)
     case addCodi(coordinateId: Int64)
     case editCodi(selectedCodiData: SelectedCodi)
-    case addCodiDetail(lookbookId: Int64)
+    case addCodiDetail
     case addBeforeCodi(lookbookId: Int64)
-    case codiDetail(codiId: Int, lookbookId: Int)
+    case codiDetail(codiId: Int)
     case feedDetail(feedId: Int)
     case comment(feedId: Int)
     case favoriteCodiList(showHeart: Bool)

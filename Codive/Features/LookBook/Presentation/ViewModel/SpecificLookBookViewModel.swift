@@ -223,7 +223,7 @@ final class SpecificLookBookViewModel: ObservableObject {
     
     // 특정 코디 상세 뷰 전환
     func navigateToCodiDetail(codiId: Int) {
-        navigationRouter.navigate(to: .codiDetail(codiId: codiId, lookbookId: Int(lookbookId)))
+        navigationRouter.navigate(to: .codiDetail(codiId: codiId))
     }
     
     // 뒤로가기

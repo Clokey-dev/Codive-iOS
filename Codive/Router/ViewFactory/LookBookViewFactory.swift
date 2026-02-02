@@ -29,12 +29,12 @@ final class LookBookViewFactory {
             )
         case .addCodi(let coordinateId):
             lookBookDIContainer?.makeAddCodiView(coordinateId: coordinateId)
-        case .addCodiDetail(let lookbookId):
-            lookBookDIContainer?.makeAddCodiDetailView(lookbookId: lookbookId)
+        case .addCodiDetail:
+            lookBookDIContainer?.makeAddCodiDetailView()
         case .addBeforeCodi(let coordinateId):
             lookBookDIContainer?.makeAddBeforeCodiView(coordinateId: coordinateId)
-        case .codiDetail(let coordinateId, let lookbookId):
-            lookBookDIContainer?.makeCodiDetailView(coordinateId: Int64(coordinateId), lookbookId: lookbookId)
+        case .codiDetail(let coordinateId):
+            lookBookDIContainer?.makeCodiDetailView(coordinateId: Int64(coordinateId))
         case .editCodi(let selectedCodiData):
             lookBookDIContainer?.makeEditCodiView(
                 selectedCodiData: selectedCodiData
