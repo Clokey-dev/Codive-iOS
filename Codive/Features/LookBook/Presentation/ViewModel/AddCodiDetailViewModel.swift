@@ -31,19 +31,24 @@ final class AddCodiDetailViewModel: ObservableObject {
     private let productUseCase: ProductUseCase
     private let lookbookId: Int64
     
+    // AddCodiDetailViewModel.swift
+
     var codiPayloads: [Payloads] {
         return images.enumerated().map { (index, entity) in
-            // 보드 중앙이 (0,0)인 경우를 가정하여 좌상단 (0,0) 기준 비율로 변환
-            // 예: boardSize가 300일 때, 오프셋 -150은 0.0, 0은 0.5, 150은 1.0이 됨
+            // 보드 중앙 기준 좌표를 0.0 ~ 1.0 비율로 변환
             let normalizedX = (entity.position.x + (boardSize / 2)) / boardSize
             let normalizedY = (entity.position.y + (boardSize / 2)) / boardSize
+            
+            let rawDegree = Double(entity.rotation)
+            let normalizedDegree = rawDegree.truncatingRemainder(dividingBy: 360)
+            let positiveDegree = normalizedDegree < 0 ? normalizedDegree + 360 : normalizedDegree
             
             return Payloads(
                 clothId: Int64(entity.id),
                 locationX: Double(normalizedX),
                 locationY: Double(normalizedY),
                 ratio: Double(entity.scale),
-                degree: Double(entity.rotation),
+                degree: positiveDegree, // 정규화된 양수값 전달
                 order: Int32(index + 1)
             )
         }

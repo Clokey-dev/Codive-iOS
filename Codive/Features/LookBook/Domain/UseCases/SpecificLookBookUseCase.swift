@@ -55,18 +55,18 @@ final class SpecificLookBookUseCase {
 }
 
 extension SpecificLookBookUseCase {
-    func toggleLike(coordinateId: Int, isLiked: Bool) async throws {
-        let request = CodiLikeEntity(coordinateId: coordinateId)
-        try await repository.toggleCodiLike(request, isLiked: isLiked)
-    }
-    
-    func deleteCodis(ids: [Int], lookbookId: Int) async throws {
-        let requests = ids.map {
-            DeleteCodiEntity(coordinateId: $0)
-        }
-        try await repository.deleteCodis(
-            requests,
-            lookbookId: lookbookId
-        )
-    }
+//    func toggleLike(coordinateId: Int, isLiked: Bool) async throws {
+//        let request = CodiLikeEntity(coordinateId: coordinateId)
+//        try await repository.toggleCodiLike(request, isLiked: isLiked)
+//    }
+//    
+//    func deleteCodis(ids: [Int], lookbookId: Int) async throws {
+//        let requests = ids.map {
+//            DeleteCodiEntity(coordinateId: $0)
+//        }
+//        try await repository.deleteCodis(
+//            requests,
+//            lookbookId: lookbookId
+//        )
+//    }
 }

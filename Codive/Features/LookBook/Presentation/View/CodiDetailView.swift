@@ -73,9 +73,9 @@ private extension CodiDetailView {
     /// 코디 이미지 및 배경 캔버스 영역
     func codiDisplayArea(width: CGFloat) -> some View {
         let boardSize = max(width - 40, 0)
-
+        
         return ZStack(alignment: .bottomLeading) {
-
+            
             RoundedRectangle(cornerRadius: 15)
                 .fill(Color.gray.opacity(0.1))
                 .frame(width: boardSize, height: boardSize)
@@ -84,7 +84,7 @@ private extension CodiDetailView {
                         .stroke(Color.gray.opacity(0.4), lineWidth: 1)
                 }
                 .padding(.horizontal, 20)
-
+            
             GeometryReader { geo in
                 ZStack {
                     if let detail = viewModel.coordinatePreview {
@@ -94,8 +94,7 @@ private extension CodiDetailView {
                                 height: geo.size.height
                             )
                     }
-
-                    /// 🔥 태그 레이어
+                    
                     if viewModel.showClothSelector {
                         tagOverlayLayer(
                             imageSize: geo.size
@@ -105,7 +104,7 @@ private extension CodiDetailView {
             }
             .frame(width: boardSize, height: boardSize)
             .position(x: width / 2, y: boardSize / 2)
-
+            
             tagToggleButton
         }
     }
@@ -113,7 +112,6 @@ private extension CodiDetailView {
     /// 코디에 포함된 개별 의류 선택기
     var clothSelector: some View {
         VStack(alignment: .leading, spacing: 8) {
-//            selectedClothInfoSection
             
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
@@ -135,45 +133,6 @@ private extension CodiDetailView {
         }
     }
     
-//    @ViewBuilder
-//    func tagOverlayLayer(imageSize: CGSize) -> some View {
-//
-//        // ✅ 선택된 옷만
-//        if let detail = viewModel.selectedDetail {
-//            tagView(
-//                detail: detail,
-//                imageSize: imageSize
-//            )
-//        }
-//
-//        // ❗️모든 태그 띄우고 싶으면 ↓
-//        /*
-//        ForEach(viewModel.coordinateDetails, id: \.coordinateClothId) { detail in
-//            tagView(detail: detail, imageSize: imageSize)
-//        }
-//        */
-//    }
-//    
-//    func tagView(
-//        detail: CoordinateDetailEntity,
-//        imageSize: CGSize
-//    ) -> some View {
-//
-//        CustomTagView(
-//            type: .basic(
-//                title: detail.brand,
-//                content: detail.name
-//            )
-//        )
-////        .scaleEffect(detail.ratio)
-////        .rotationEffect(.degrees(detail.degree))
-//        .position(
-//            x: imageSize.width * detail.locationX,
-//            y: imageSize.height * detail.locationY
-//        )
-//        .zIndex(Double(detail.order))
-//    }
-    
     @ViewBuilder
     func tagOverlayLayer(imageSize: CGSize) -> some View {
         if let detail = viewModel.selectedDetail {
@@ -185,16 +144,16 @@ private extension CodiDetailView {
             .transition(.scale.combined(with: .opacity)) // 나타날 때 효과
         }
     }
-
+    
     func tagView(
         detail: CoordinateDetailEntity,
         imageSize: CGSize
     ) -> some View {
         CustomTagView(
-            type: .navigable( // 클릭 가능하게 만들거나 basic 사용
+            type: .basic(
                 title: detail.brand,
                 content: detail.name,
-                onTap: { print("\(detail.name) 클릭됨") }
+                //                onTap: { print("\(detail.name) 클릭됨") }
             )
         )
         .position(
@@ -219,67 +178,6 @@ private extension CodiDetailView {
         .padding(.bottom, 16)
     }
     
-//    /// 현재 선택된 개별 의류 상세 텍스트
-//    @ViewBuilder
-//    var selectedClothInfoSection: some View {
-//        if let selectedIndex = viewModel.selectedIndex,
-//           selectedIndex < viewModel.clothItems.count {
-//            SelectedClothInfo(entity: viewModel.clothItems[selectedIndex])
-//                .padding(.horizontal, 20)
-//        }
-//    }
-    
-    /// 셀렉터 내 개별 의류 아이템 셀
-//    func clothItemCell(at index: Int, item: CodiItem) -> some View {
-//        SelectableClothItem(
-//            entity: CodiItemEntity(
-//                id: item.id,
-//                imageName: item.imageName,
-//                clothName: "",
-//                brandName: "",
-//                description: "",
-//                x: 0, y: 0, width: 68, height: 68
-//            ),
-//            isSelected: Binding(
-//                get: { viewModel.selectedIndex == index },
-//                set: { isSelected in
-//                    viewModel.selectCloth(at: isSelected ? index : -1)
-//                }
-//            )
-//        )
-//    }
-
-//    func clothItemCell(at index: Int, item: CodiItem) -> some View {
-//        // SelectableClothItem 내부에서 Image(item.imageName) 대신
-//        // URL 기반 로딩이 필요하므로 아래와 같이 속성을 넘겨줍니다.
-//        
-//        ZStack {
-//            // 원격 이미지 로드 (기존에 정의하신 RemoteFillImage 활용 가능)
-//            AsyncImage(url: URL(string: item.imageName)) { phase in
-//                if let image = phase.image {
-//                    image.resizable()
-//                        .scaledToFill()
-//                } else {
-//                    Color.gray.opacity(0.2) // 로딩 중 배경
-//                }
-//            }
-//            .frame(width: 68, height: 68)
-//            .clipped()
-//            .cornerRadius(8)
-//            .overlay(
-//                RoundedRectangle(cornerRadius: 8)
-//                    .stroke(viewModel.selectedIndex == index ? Color.black : Color.clear, lineWidth: 2)
-//            )
-//        }
-//        .frame(width: 72, height: 72)
-//        .onTapGesture {
-//            withAnimation(.spring()) {
-//                viewModel.selectCloth(at: index)
-//            }
-//        }
-//    }
-    // CodiDetailView.swift 내 하단부 수정
-
     func clothItemCell(at index: Int, item: CodiItem) -> some View {
         ZStack {
             // ✅ URL 이미지 로딩
@@ -343,21 +241,6 @@ private struct CodiInfoSection: View {
         .padding(20)
     }
 }
-
-///// 선택된 의류 브랜드/이름 정보
-//private struct SelectedClothInfo: View {
-//    let entity: CodiItem
-//    
-//    var body: some View {
-//        VStack(alignment: .leading, spacing: 4) {
-//            Text(entity.brand).font(.caption).foregroundColor(.gray)
-//            Text(entity.name).font(.body)
-//        }
-//        .padding(12)
-//        .background(Color.gray.opacity(0.1))
-//        .cornerRadius(8)
-//    }
-//}
 
 /// 원격 이미지 로드 뷰
 private struct RemoteFillImage: View {

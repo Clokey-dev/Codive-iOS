@@ -154,21 +154,21 @@ final class LookBookRepositoryImpl: LookBookRepository {
 }
 
 extension LookBookRepositoryImpl {
-    func fetchBeforeCoordinateDaily() async throws -> [BeforeCoordinateDailyEntity] {
-        return try await datasource.fetchBeforeCoordinateDaily()
-    }
-    
-    func toggleCodiLike(_ request: CodiLikeEntity, isLiked: Bool) async throws {
-        try await datasource.toggleCodiLike(request, isLiked: isLiked)
-    }
-    
-    func deleteCodis(_ codis: [DeleteCodiEntity], lookbookId: Int) async throws {
-        try await datasource.deleteCodis(codis, lookbookId: lookbookId)
-    }
-    
-    func fetchCoordinatePreview(coordinateId: Int) async throws -> CoordinatePreviewEntity {
-        try await datasource.fetchCoordinatePreview(coordinateId: coordinateId)
-    }
+//    func fetchBeforeCoordinateDaily() async throws -> [BeforeCoordinateDailyEntity] {
+//        return try await datasource.fetchBeforeCoordinateDaily()
+//    }
+//    
+//    func toggleCodiLike(_ request: CodiLikeEntity, isLiked: Bool) async throws {
+//        try await datasource.toggleCodiLike(request, isLiked: isLiked)
+//    }
+//    
+//    func deleteCodis(_ codis: [DeleteCodiEntity], lookbookId: Int) async throws {
+//        try await datasource.deleteCodis(codis, lookbookId: lookbookId)
+//    }
+//    
+//    func fetchCoordinatePreview(coordinateId: Int) async throws -> CoordinatePreviewEntity {
+//        try await datasource.fetchCoordinatePreview(coordinateId: coordinateId)
+//    }
     
     // MARK: - Product
     

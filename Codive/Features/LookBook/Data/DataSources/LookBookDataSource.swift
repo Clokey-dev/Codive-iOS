@@ -357,53 +357,50 @@ extension LookBookDataSource {
 
 extension LookBookDataSource {
     
-    // MARK: - Example Fetch APIs
-    
-    /// 이전 코디 목록 조회(완)
-    func fetchBeforeCoordinateDaily() async throws -> [BeforeCoordinateDailyEntity] {
-        try await Task.sleep(nanoseconds: 500_000_000)
-        return dummyBeforeCoordinateDaily
-    }
-    
-    /// 코디 좋아요 (PATCH, 완)
-    func toggleCodiLike(_ request: CodiLikeEntity, isLiked: Bool) async throws {
-        try await Task.sleep(nanoseconds: 300_000_000)
-
-        print("""
-        서버에 좋아요 PATCH 요청
-        - coordinateId: \(request.coordinateId)
-        - isLiked: \(isLiked)
-        """)
-    }
-    
-    /// 코디 삭제(DELETE, 완)
-    func deleteCodis(_ requests: [DeleteCodiEntity], lookbookId: Int) async throws {
-        try await Task.sleep(nanoseconds: 500_000_000)
-
-        let ids = requests.map { $0.coordinateId }
-
-        print("서버에 코디 삭제 요청: \(ids)")
-
-//        guard var codis = lookbookDetailCodi[lookbookId] else { return }
+//    // MARK: - Example Fetch APIs
+//    
+//    /// 이전 코디 목록 조회(완)
+//    func fetchBeforeCoordinateDaily() async throws -> [BeforeCoordinateDailyEntity] {
+//        try await Task.sleep(nanoseconds: 500_000_000)
+//        return dummyBeforeCoordinateDaily
+//    }
+//    
+//    /// 코디 좋아요 (PATCH, 완)
+//    func toggleCodiLike(_ request: CodiLikeEntity, isLiked: Bool) async throws {
+//        try await Task.sleep(nanoseconds: 300_000_000)
 //
-//        codis.removeAll { ids.contains(Int($0.coordinateId)) }
-//        lookbookDetailCodi[lookbookId] = codis
-
-        print("삭제 후 남은 코디:"/*, codis.map { $0.coordinateId }*/)
-    }
-    
-    /// 코디 preview 조회(GET, 완)
-    func fetchCoordinatePreview(coordinateId: Int) async throws -> CoordinatePreviewEntity {
-        try await Task.sleep(nanoseconds: 300_000_000)
-
-        // 👉 실제 서버에서는 OpenAPI generated API 호출
-        // let response = try await api.getCoordinatePreview(id: coordinateId)
-
-        return CoordinatePreviewEntity(
-            coordinateId: coordinateId,
-            imageUrl: "https://image.msscdn.net/images/style/detail/37395/detail_37395_1_500.jpg",
-            coordinateName: "로맨틱 시사회 룩",
-            coordinateMemo: "1주년 기념 코디"
-        )
-    }
+//        print("""
+//        서버에 좋아요 PATCH 요청
+//        - coordinateId: \(request.coordinateId)
+//        - isLiked: \(isLiked)
+//        """)
+//    }
+//    
+//    /// 코디 삭제(DELETE, 완)
+//    func deleteCodis(_ requests: [DeleteCodiEntity], lookbookId: Int) async throws {
+//        try await Task.sleep(nanoseconds: 500_000_000)
+//
+//        let ids = requests.map { $0.coordinateId }
+//
+//        print("서버에 코디 삭제 요청: \(ids)")
+//
+////        guard var codis = lookbookDetailCodi[lookbookId] else { return }
+////
+////        codis.removeAll { ids.contains(Int($0.coordinateId)) }
+////        lookbookDetailCodi[lookbookId] = codis
+//
+//        print("삭제 후 남은 코디:"/*, codis.map { $0.coordinateId }*/)
+//    }
+//    
+//    /// 코디 preview 조회(GET, 완)
+//    func fetchCoordinatePreview(coordinateId: Int) async throws -> CoordinatePreviewEntity {
+//        try await Task.sleep(nanoseconds: 300_000_000)
+//
+//        return CoordinatePreviewEntity(
+//            coordinateId: coordinateId,
+//            imageUrl: "https://image.msscdn.net/images/style/detail/37395/detail_37395_1_500.jpg",
+//            coordinateName: "로맨틱 시사회 룩",
+//            coordinateMemo: "1주년 기념 코디"
+//        )
+//    }
 }
