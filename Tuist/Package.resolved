@@ -1,13 +1,13 @@
 {
-  "originHash" : "003f4af15c02bf1cca26de772279423462b20465025ec4af00cf1d13daadd66c",
+  "originHash" : "441e2374bfc3271ffb8797cb386917e1a24dafc9b31c0e275de316140c1e33e9",
   "pins" : [
     {
       "identity" : "alamofire",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Alamofire/Alamofire.git",
       "state" : {
-        "revision" : "7be73f6c2b5cd90e40798b06ebd5da8f9f79cf88",
-        "version" : "5.11.0"
+        "revision" : "3f99050e75bbc6fe71fc323adabb039756680016",
+        "version" : "5.11.1"
       }
     },
     {
@@ -16,7 +16,7 @@
       "location" : "https://github.com/Clokey-dev/CodiveAPI",
       "state" : {
         "branch" : "main",
-        "revision" : "dfde09be34ac830a9efc93efd52296ff61c7fda2"
+        "revision" : "171b3eb47b30ac0aac6bd97bc403c9602137b441"
       }
     },
     {
@@ -26,6 +26,15 @@
       "state" : {
         "revision" : "5978979157a5a0521c9c56fd0156aec794caa21c",
         "version" : "2.27.2"
+      }
+    },
+    {
+      "identity" : "kingfisher",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/onevcat/Kingfisher.git",
+      "state" : {
+        "revision" : "d30a5fad881137e2267f96a8e3fc35c58999bb94",
+        "version" : "8.6.2"
       }
     },
     {

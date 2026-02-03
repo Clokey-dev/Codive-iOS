@@ -78,19 +78,11 @@ private extension CodiBoardView {
     
     /// 이미지들을 배치하고 드래그할 수 있는 보드 영역
     func drawingBoard(size: CGFloat, imageHalfSize: CGFloat) -> some View {
-        let minBound = imageHalfSize
-        let maxBound = size - imageHalfSize
-        
         return ZStack {
             boardBackground(size: size)
             
             // DraggableImageContainerView 사용
-            DraggableImageContainerView(
-                viewModel: viewModel,
-                imageHalfSize: imageHalfSize,
-                minBound: minBound,
-                maxBound: maxBound
-            )
+//            DraggableImageView(viewModel: viewModel)
         }
         .frame(width: size, height: size)
         .padding(.horizontal, 20)

@@ -24,7 +24,7 @@ final class LookBookViewModel: ObservableObject {
     // MARK: - Published State (Editing)
     
     @Published var isEditing: Bool = false
-    @Published var selectedLookBookIds: Set<Int> = []
+    @Published var selectedLookBookId: Int64?
     
     // MARK: - Published State (Dialog / Alert)
     
@@ -49,10 +49,10 @@ final class LookBookViewModel: ObservableObject {
         
         Task {
             do {
-                let list = try await listUseCase.fetchLookBookList()
-                self.lookBookList = list
+                let result = try await listUseCase.fetchLookBookList(lastLookBookId: nil, size: 10, direction: .DESC)
+                self.lookBookList = result.content
                 
-                if list.isEmpty {
+                if result.content.isEmpty {
                     self.isShowingAddDialog = true
                 }
             } catch {
@@ -66,16 +66,16 @@ final class LookBookViewModel: ObservableObject {
     func toggleDeleteMode() {
         isEditing.toggle()
         if !isEditing {
-            selectedLookBookIds = []
+            selectedLookBookId = nil
         }
     }
     
     // MARK: - 삭제할 룩북 선택
-    func toggleSelection(id: Int) {
-        if selectedLookBookIds.contains(id) {
-            selectedLookBookIds.remove(id)
+    func toggleSelection(id: Int64) {
+        if selectedLookBookId == id {
+            selectedLookBookId = nil
         } else {
-            selectedLookBookIds.insert(id)
+            selectedLookBookId = id
         }
     }
     
@@ -86,7 +86,7 @@ final class LookBookViewModel: ObservableObject {
     
     // MARK: - alert 삭제 동작
     func handleCompleteAction() {
-        guard !selectedLookBookIds.isEmpty else {
+        guard selectedLookBookId != nil else {
             toggleDeleteMode()
             return
         }
@@ -106,27 +106,29 @@ final class LookBookViewModel: ObservableObject {
     
     // MARK: - 룩북 삭제 확정
     func confirmDelete() {
-        let idsToDelete = Array(selectedLookBookIds)
+        guard let idToDelete = selectedLookBookId else { return }
         
         isLoading = true
+        errorMessage = nil
         
         Task {
             do {
-                try await listUseCase.deleteLookBooks(ids: idsToDelete)
-
-                let updatedList = try await listUseCase.fetchLookBookList()
-                self.lookBookList = updatedList
+                try await listUseCase.deleteLookBook(lookBookId: idToDelete)
+                
+                let updatedResult = try await listUseCase.fetchLookBookList(
+                    lastLookBookId: nil,
+                    size: 10,
+                    direction: .DESC
+                )
+                self.lookBookList = updatedResult.content
                 
                 self.handleDeleteAction()
             } catch {
                 self.errorMessage = "룩북 삭제에 실패했습니다."
             }
-            
             isLoading = false
         }
     }
-    
-    // MARK: - Dialog Actions
     
     func toggleAddDialog() {
         isShowingAddDialog.toggle()
@@ -144,21 +146,26 @@ final class LookBookViewModel: ObservableObject {
     func handleAddLookBook(title: String) {
         let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedTitle.isEmpty else { return }
-
+        
         isLoading = true
-
+        errorMessage = nil
+        
+        let request = CreateLookBookAPIRequestDTO(name: trimmedTitle)
+        
         Task {
             do {
-                _ = try await listUseCase.createLookBook(title: trimmedTitle)
-
-                let updatedList = try await listUseCase.fetchLookBookList()
-                self.lookBookList = updatedList
-
+                _ = try await listUseCase.createLookBook(request: request)
+                
+                let updatedResult = try await listUseCase.fetchLookBookList(
+                    lastLookBookId: nil,
+                    size: 10,
+                    direction: .DESC
+                )
+                self.lookBookList = updatedResult.content
                 self.isShowingAddDialog = false
             } catch {
                 self.errorMessage = "룩북 생성에 실패했습니다."
             }
-
             isLoading = false
         }
     }
@@ -173,10 +180,15 @@ final class LookBookViewModel: ObservableObject {
         }
     }
     
-    func navigateToSpecificLookBook(id: Int) {
+    func navigateToSpecificLookBook(id: Int64) {
+        guard let lookBook = lookBookList.first(where: { $0.lookBookId == id }) else {
+            return
+        }
+        
         navigationRouter.navigate(
             to: .specificLookbook(
-                lookbookId: id
+                lookbookId: lookBook.lookBookId,
+                name: lookBook.lookbookName
             )
         )
     }

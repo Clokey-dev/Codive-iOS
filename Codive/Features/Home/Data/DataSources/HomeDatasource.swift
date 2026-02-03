@@ -8,18 +8,49 @@
 import Foundation
 import WeatherKit
 import CoreLocation
+import CodiveAPI
 
-final class HomeDatasource {
+protocol HomeDatasourceProtocol {
+    /// 계절에 따른 카테고리별 옷 리스트
+    func fetchRecommendCategoryCloth(
+        lastClothId: Int64?,
+        size: Int32,
+        categoryId: Int64,
+        season: Set<Season>
+    ) async throws -> HomeCategoryResponseDTO
+    
+    /// 오늘의 온도 알림
+    func postTodayTemp(request: PostTodayTemperatureAPIRequestDTO) async throws
+    
+    /// 오늘의 코디 생성
+    func createTodayCoordinate(request: CreateTodayCoordinateRequestDTO) async throws -> CreateTodayCoordinateResponseDTO
+    
+    /// 오늘의 코디 옷 정보 조회
+    func fetchTodayCoordinateClothes() async throws -> [GetTodayCoordinateClothResponseDTO]
+    
+    /// 룩북 전체 조회
+    func fetchLookBookList(
+        lastLookBookId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
+    ) async throws -> LookBookListResponseDTO
+}
+
+final class HomeDatasource: HomeDatasourceProtocol {
     
     // MARK: - Properties
     private let service = WeatherService.shared
     private let locationService: LocationService
-    
     private var cachedLocation: CLLocation?
+    private let apiService: HomeAPIServiceProtocol
     
     // MARK: - Initializer
-    init(locationService: LocationService) {
+    init(
+        locationService: LocationService,
+        apiService: HomeAPIServiceProtocol = HomeAPIService()
+    ) {
         self.locationService = locationService
+        self.apiService = apiService
     }
     
     // MARK: - 날씨 및 위치
@@ -32,7 +63,7 @@ final class HomeDatasource {
             guard let placemark = placemarks.first else {
                 return "알 수 없는 위치"
             }
-        
+            
             let province = placemark.administrativeArea ?? ""
             let city = placemark.locality ?? ""
             let district = placemark.subLocality ?? ""
@@ -66,7 +97,7 @@ final class HomeDatasource {
             return "위치 정보 오류"
         }
     }
-
+    
     // 날씨
     func fetchWeatherData(for location: CLLocation?) async throws -> WeatherData {
         
@@ -103,57 +134,62 @@ final class HomeDatasource {
         return weatherData
     }
     
-    // MARK: - 코디가 없는 경우의 Home 관련
-    
-    /// 홈화면 - 카테고리 별 옷 더미 list
-    func fetchClothItems(request: ClothListRequestDTO) async throws -> [ClothListResponseDTO] {
-
-        let categoryId = request.categoryId ?? 1
-        let mockResponse: [ClothListResponseDTO]
+    // 오늘의 날짜
+    func fetchToday() -> DateEntity {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM.dd"
         
-        switch categoryId {
-        case 1: 
-            mockResponse = [
-                ClothListResponseDTO(clothId: 101, clothImageUrl: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800"),
-                ClothListResponseDTO(clothId: 102, clothImageUrl: "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=800")
-            ]
-        case 2:
-            mockResponse = [
-                ClothListResponseDTO(clothId: 201, clothImageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800"),
-                ClothListResponseDTO(clothId: 202, clothImageUrl: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800")
-            ]
-        case 3:
-            mockResponse = [
-                ClothListResponseDTO(clothId: 201, clothImageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800"),
-                ClothListResponseDTO(clothId: 202, clothImageUrl: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800")
-            ]
-        case 4:
-            mockResponse = [
-                ClothListResponseDTO(clothId: 201, clothImageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800"),
-                ClothListResponseDTO(clothId: 202, clothImageUrl: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800")
-            ]
-        case 5:
-            mockResponse = [
-                ClothListResponseDTO(clothId: 501, clothImageUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800"),
-                ClothListResponseDTO(clothId: 502, clothImageUrl: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800")
-            ]
-        case 6:
-            mockResponse = [
-                ClothListResponseDTO(clothId: 201, clothImageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800"),
-                ClothListResponseDTO(clothId: 202, clothImageUrl: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800")
-            ]
-        case 7:
-            mockResponse = [
-                ClothListResponseDTO(clothId: 201, clothImageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800"),
-                ClothListResponseDTO(clothId: 202, clothImageUrl: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800")
-            ]
-        default:
-            mockResponse = []
-        }
-        
-        return mockResponse
+        let todayString = formatter.string(from: Date())
+        return DateEntity(formattedDate: todayString)
     }
     
+    // MARK: - 코디가 없는 경우의 Home 관련
+    
+    /// 날씨에 따른 카테고리별 옷 리스트 - API 연결
+    func fetchRecommendCategoryCloth(
+        lastClothId: Int64?,
+        size: Int32,
+        categoryId: Int64,
+        season seasons: Set<Season>
+    ) async throws -> HomeCategoryResponseDTO {
+        return try await apiService.fetchRecommendCategoryCloth(
+            lastClothId: lastClothId,
+            size: size,
+            categoryId: categoryId,
+            season: Array(seasons)
+        )
+    }
+    
+    /// 오늘의 날씨 보내기
+    func postTodayTemp(request: PostTodayTemperatureAPIRequestDTO) async throws {
+        try await apiService.postTodayTemp(request: request)
+    }
+    
+    /// 오늘의 코디 생성
+    func createTodayCoordinate(request: CreateTodayCoordinateRequestDTO) async throws -> CreateTodayCoordinateResponseDTO {
+        return try await apiService.createTodayCoordinate(request: request)
+    }
+    
+    /// 오늘의 코디 옷 정보 조회
+    func fetchTodayCoordinateClothes() async throws -> [GetTodayCoordinateClothResponseDTO] {
+        return try await apiService.fetchTodayCoordinateClothes()
+    }
+    
+    /// 룩북 전체 리스트 조회
+    func fetchLookBookList(
+        lastLookBookId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
+    ) async throws -> LookBookListResponseDTO {
+        return try await apiService.fetchLookBookList(
+            lastLookBookId: lastLookBookId,
+            size: size,
+            direction: direction
+        )
+    }
+}
+
+extension HomeDatasource {
     // 오늘의 코디 추가하기
     func createTodayDailyCodi(_ entity: TodayDailyCodi) async throws {
 
@@ -222,12 +258,12 @@ final class HomeDatasource {
     // 코디보드 옷 불러오기
     func loadInitialImages() -> [DraggableImageEntity] {
         return [
-            DraggableImageEntity(id: 1, name: "image1", position: CGPoint(x: 80, y: 80), scale: 1.0, rotationAngle: 0.0),
-            DraggableImageEntity(id: 2, name: "image2", position: CGPoint(x: 160, y: 120), scale: 1.0, rotationAngle: 0.0),
-            DraggableImageEntity(id: 3, name: "image3", position: CGPoint(x: 240, y: 160), scale: 1.0, rotationAngle: 0.0),
-            DraggableImageEntity(id: 4, name: "image4", position: CGPoint(x: 120, y: 240), scale: 1.0, rotationAngle: 0.0),
-            DraggableImageEntity(id: 5, name: "image5", position: CGPoint(x: 200, y: 280), scale: 1.0, rotationAngle: 0.0),
-            DraggableImageEntity(id: 6, name: "image6", position: CGPoint(x: 250, y: 240), scale: 1.0, rotationAngle: 0.0)
+//            DraggableImageEntity(id: 1, name: "image1", position: CGPoint(x: 80, y: 80), scale: 1.0, rotationAngle: 0.0),
+//            DraggableImageEntity(id: 2, name: "image2", position: CGPoint(x: 160, y: 120), scale: 1.0, rotationAngle: 0.0),
+//            DraggableImageEntity(id: 3, name: "image3", position: CGPoint(x: 240, y: 160), scale: 1.0, rotationAngle: 0.0),
+//            DraggableImageEntity(id: 4, name: "image4", position: CGPoint(x: 120, y: 240), scale: 1.0, rotationAngle: 0.0),
+//            DraggableImageEntity(id: 5, name: "image5", position: CGPoint(x: 200, y: 280), scale: 1.0, rotationAngle: 0.0),
+//            DraggableImageEntity(id: 6, name: "image6", position: CGPoint(x: 250, y: 240), scale: 1.0, rotationAngle: 0.0)
         ]
     }
     
@@ -268,26 +304,6 @@ final class HomeDatasource {
                 width: 100,
                 height: 100
             )
-        ]
-    }
-
-    // 오늘의 날짜
-    func fetchToday() -> DateEntity {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MM.dd"
-        
-        let todayString = formatter.string(from: Date())
-        return DateEntity(formattedDate: todayString)
-    }
-    
-    // 룩북에 추가 바텀시트 더미데이터
-    func fetchLookBookList() async throws -> [LookBookBottomSheetEntity] {
-        try await Task.sleep(nanoseconds: 300_000_000)
-        
-        return [
-            LookBookBottomSheetEntity(lookbookId: 1, codiId: 101, imageUrl: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800", title: "운동룩", count: 6),
-            LookBookBottomSheetEntity(lookbookId: 2, codiId: 102, imageUrl: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800", title: "출근룩", count: 12),
-            LookBookBottomSheetEntity(lookbookId: 3, codiId: 103, imageUrl: "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=800", title: "데이트룩", count: 16)
         ]
     }
 }

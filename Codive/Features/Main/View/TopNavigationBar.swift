@@ -12,6 +12,7 @@ struct TopNavigationBar: View {
     // MARK: - Properties
     let showSearchButton: Bool
     let showNotificationButton: Bool
+    let hasUnreadNotification: Bool
     let onSearchTap: (() -> Void)?
     let onNotificationTap: (() -> Void)?
     
@@ -19,11 +20,13 @@ struct TopNavigationBar: View {
     init(
         showSearchButton: Bool = true,
         showNotificationButton: Bool = true,
+        hasUnreadNotification: Bool = false,
         onSearchTap: (() -> Void)? = nil,
         onNotificationTap: (() -> Void)? = nil
     ) {
         self.showSearchButton = showSearchButton
         self.showNotificationButton = showNotificationButton
+        self.hasUnreadNotification = hasUnreadNotification
         self.onSearchTap = onSearchTap
         self.onNotificationTap = onNotificationTap
     }
@@ -58,7 +61,7 @@ struct TopNavigationBar: View {
                         onNotificationTap?()
                     } label: {
                         ZStack(alignment: .topTrailing) {
-                            Image("alert_off")
+                            Image(hasUnreadNotification ? "alert_on" : "alert_off")
                                 .renderingMode(.template)
                                 .resizable()
                                 .foregroundStyle(Color.Codive.grayscale1)

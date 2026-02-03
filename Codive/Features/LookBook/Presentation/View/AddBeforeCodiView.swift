@@ -80,15 +80,13 @@ private extension AddBeforeCodiView {
                     isSelected: false
                 )
                 .onTapGesture {
-                    viewModel.toggleSelection(id: lookbook.id)
+                    viewModel.toggleSelection(id: Int(lookbook.id))
                 }
             }
         }
         .padding([.horizontal, .top], 16)
     }
 }
-
-// MARK: - Subviews (Status Views)
 
 private extension AddBeforeCodiView {
     

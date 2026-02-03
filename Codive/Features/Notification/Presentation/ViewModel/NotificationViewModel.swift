@@ -28,27 +28,51 @@ final class NotificationViewModel: ObservableObject {
     
     // MARK: - Methods
     func loadData() {
-        updateNotificationLists(useCase.fetchNotifications())
-        
-        let reportStatus = useCase.fetchReportStatus()
-        self.isReported = reportStatus.isReported
-        self.reportType = reportStatus.reportType
-    }
-    
-    func markAsRead(notificationId: Int) {
         Task {
             do {
-                try await useCase.markNotificationAsRead(notificationId: notificationId)
+                let result = try await useCase.fetchNotificationList(
+                    lastNotificationId: nil,
+                    size: 20
+                )
+
+                updateNotificationLists(result.content)
+
+                let reportResult = try await useCase.fetchReportReceived()
+                self.isReported = reportResult.isReported
+                
+                if reportResult.isReported {
+                    switch reportResult.targetType {
+                    case .COMMENT:
+                        self.reportType = .COMMENT
+                    case .HISTORY:
+                        self.reportType = .HISTORY
+                    case .none:
+                        self.reportType = nil
+                    }
+                } else {
+                    self.reportType = nil
+                }
+            } catch {
+                print(error)
+            }
+        }
+    }
+    
+    func markAsRead(notificationId: Int64) {
+        Task {
+            do {
+                try await useCase.patchEachNotification(notificationId: notificationId)
                 
                 if let index = unreadNotifications.firstIndex(where: { $0.notificationId == notificationId }) {
                     var readItem = unreadNotifications.remove(at: index)
                     readItem.readStatus = .read
                     readNotifications.insert(readItem, at: 0)
                 }
+                
+                print("✅ Notification marked as read:", notificationId)
             } catch {
                 readErrorMessage = "알림 읽음 처리에 실패했어요. 잠시 후 다시 시도해 주세요."
-                print("알림 읽음 처리 실패: \(error)")
-            }
+                print("❌ Notification markAsRead failed:", error)}
         }
     }
     

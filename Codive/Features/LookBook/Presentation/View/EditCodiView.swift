@@ -40,58 +40,53 @@ struct EditCodiView: View {
     }
 }
 
-// MARK: - View Components
-
 private extension EditCodiView {
-    
-    /// 변경 사항 여부에 따른 커스텀 네비게이션 바
     var navigationBar: some View {
-        Group {
-            if viewModel.hasChanges {
-                CustomNavigationBar(
-                    title: viewModel.codiName,
-                    onBack: { viewModel.handleBackTap() },
-                    rightButton: .text(
-                        title: TextLiteral.Common.complete,
-                        isEnabled: viewModel.isButtonEnabled,
-                        action: viewModel.handleCompleteTap
-                    )
-                )
-            } else {
-                CustomNavigationBar(
-                    title: viewModel.codiName
-                ) {
-                    viewModel.handleBackTap()
-                }
+        CustomNavigationBar(
+            title: $viewModel.codiName,
+            isEditingMode: viewModel.isNavEditingMode,
+            onBack: { viewModel.handleBackTap() },
+            onBeginEditTitle: {
+                viewModel.startNavEditing()
+            },
+            onConfirmEditTitle: {
+                viewModel.finishNavEditing()
             }
-        }
+        )
         .padding(.leading, 15)
     }
     
-    /// 코디 이미지 미리보기 및 편집 오버레이 영역
     var imagePreviewArea: some View {
-        ZStack {
+        Group {
             if let url = viewModel.selectedImageURL {
-                AsyncImage(url: URL(string: url)) { phase in
-                    if let image = phase.image {
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    } else {
-                        Color.gray.opacity(0.2)
+                ZStack {
+                    AsyncImage(url: URL(string: url)) { phase in
+                        if let image = phase.image {
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                        } else {
+                            ProgressView()
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .background(Color.gray.opacity(0.1))
+                        }
                     }
-                }
-                .frame(height: 335)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                
-                EditCodiOverlayView()
+                    .frame(height: 335)
+                    .id(url)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
+                    
+                    EditCodiOverlayView()
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            viewModel.handleOverlayTap()
+                        }
+                }
             }
         }
         .frame(height: 335)
     }
     
-    /// 코디 이름 및 메모 입력 섹션
     var inputSection: some View {
         VStack(spacing: 12) {
             CustomTextField1(
@@ -109,7 +104,6 @@ private extension EditCodiView {
         }
     }
     
-    /// 하단 수정 완료 버튼
     var completeButton: some View {
         CustomButton(
             text: TextLiteral.LookBook.editCodiComplete,

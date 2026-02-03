@@ -6,181 +6,213 @@
 //
 
 import SwiftUI
+import Combine
 
 @MainActor
-final class AddCodiDetailViewModel: ObservableObject, DraggableImageViewModelProtocol {
+final class AddCodiDetailViewModel: ObservableObject {
     
-    // MARK: - Properties (State: Product & Filter)
+    static let codiDataUpdated = PassthroughSubject<CodiTransferData, Never>()
     
-    @Published var products: [ProductItem] = []
+    private var cancellables = Set<AnyCancellable>()
+    
     @Published var searchText: String = ""
     @Published var selectedCategory: String = "전체"
     @Published var selectedProductIds: Set<Int> = []
+    @Published var clothItems: [ProductItem] = [] {
+        didSet {
+            if !clothItems.isEmpty, let pendingData = pendingEditData {
+                restoreCodiData(from: pendingData)
+                self.pendingEditData = nil
+            }
+        }
+    }
     
-    // MARK: - Properties (State: Board & Images)
+    private var pendingEditData: CodiEditData?
     
     @Published var images: [DraggableImageEntity] = []
-    @Published var currentlyDraggedID: Int?
-    @Published var selectedImageID: Int? // 추가된 속성
+    @Published var currentlyDraggedID: Int64?
+    @Published var selectedImageID: Int64?
+    @Published var capturedImageString: String?
     var boardSize: CGFloat = 300
-    
-    // MARK: - Properties (Dependencies)
     
     private let navigationRouter: NavigationRouter
     private let productUseCase: ProductUseCase
-    private let lookbookId: Int
     
-    // MARK: - Computed Properties
-    
-    /// 검색어 및 카테고리에 의해 필터링된 상품 목록
-    var filteredProducts: [ProductItem] {
-        products.filter { product in
-            let matchCategory = (selectedCategory == "전체") // TODO: 카테고리 필터 로직 구체화 필요
-            let matchSearch = searchText.isEmpty ||
-                (product.name?.contains(searchText) ?? false) ||
-                (product.brand?.contains(searchText) ?? false)
+    var codiPayloads: [Payloads] {
+        return images.enumerated().map { (index, entity) in
+            let normalizedX = (entity.position.x + (boardSize / 2)) / boardSize
+            let normalizedY = (entity.position.y + (boardSize / 2)) / boardSize
             
-            return matchCategory && matchSearch
+            let rawDegree = Double(entity.rotation)
+            let normalizedDegree = rawDegree.truncatingRemainder(dividingBy: 360)
+            let positiveDegree = normalizedDegree < 0 ? normalizedDegree + 360 : normalizedDegree
+            
+            return Payloads(
+                clothId: Int64(entity.id),
+                locationX: Double(normalizedX),
+                locationY: Double(normalizedY),
+                ratio: Double(entity.scale),
+                degree: positiveDegree,
+                order: Int32(index + 1)
+            )
         }
     }
     
-    // MARK: - Initializer
-    
-    init(
-        navigationRouter: NavigationRouter,
-        productUseCase: ProductUseCase,
-        lookbookId: Int
-    ) {
+    init(navigationRouter: NavigationRouter, productUseCase: ProductUseCase) {
         self.navigationRouter = navigationRouter
         self.productUseCase = productUseCase
-        self.lookbookId = lookbookId
         
-        // 초기 상품 목록 로드
-        Task { await fetchProducts() }
+        setupEditDataSubscription()
+        Task { await fetchClothItems() }
     }
     
-    // MARK: - API / Data Fetching
-    
-    /// 서버로부터 선택 가능한 상품 목록을 가져옵니다.
-    func fetchProducts() async {
+    func fetchClothItems() async {
         do {
-            self.products = try await productUseCase.fetchProductList()
+            clothItems = try await productUseCase.execute(category: selectedCategory)
         } catch {
-            handleError(error)
+            clothItems = []
         }
     }
-}
-
-// MARK: - Product Selection Logic
-
-extension AddCodiDetailViewModel {
     
-    /// 상품 선택 상태를 토글하고 보드에 이미지를 추가/제거합니다.
     func toggleProductSelection(_ product: ProductItem) {
         if selectedProductIds.contains(product.id) {
-            // 선택 해제 시 이미지 제거
             selectedProductIds.remove(product.id)
-            removeImage(productId: product.id)
+            images.removeAll { $0.id == Int64(product.id) }
         } else if selectedProductIds.count < 10 {
-            // 최대 10개까지 선택 가능 및 이미지 추가
             selectedProductIds.insert(product.id)
-            addImage(from: product)
+            
+            let newImage = DraggableImageEntity(
+                id: Int64(product.id),
+                name: product.imageUrl ?? product.imageName ?? "",
+                position: .zero,
+                scale: 1.0,
+                rotation: 0
+            )
+            images.append(newImage)
         }
     }
-}
-
-// MARK: - Image Management (Private)
-
-private extension AddCodiDetailViewModel {
     
-    /// 보드 중앙 부근에 새로운 이미지를 추가합니다.
-    func addImage(from product: ProductItem) {
+    private func addImage(from product: ProductItem) {
         let centerX = boardSize / 2
         let centerY = boardSize / 2
-        
-        // 이미지 겹침 방지를 위한 랜덤 오프셋
         let randomOffsetX = CGFloat.random(in: -30...30)
         let randomOffsetY = CGFloat.random(in: -30...30)
         
         let newImage = DraggableImageEntity(
-            id: product.id,
+            id: Int64(product.id),
             name: product.imageUrl ?? product.imageName ?? "",
-            position: CGPoint(
-                x: centerX + randomOffsetX,
-                y: centerY + randomOffsetY
-            ),
+            position: CGPoint(x: centerX + randomOffsetX, y: centerY + randomOffsetY),
             scale: 1.0,
-            rotationAngle: 0
+            rotation: 0
         )
-        
         images.append(newImage)
     }
     
-    /// 보드에서 특정 상품의 이미지를 제거합니다.
-    func removeImage(productId: Int) {
+    private func removeImage(productId: Int64) {
         images.removeAll { $0.id == productId }
-        // 삭제된 이미지가 선택되어 있었다면 선택 해제
-        if selectedImageID == productId {
-            selectedImageID = nil
-        }
+        if selectedImageID == productId { selectedImageID = nil }
     }
     
-    /// 에러 로그 처리
-    func handleError(_ error: Error) {
-        print("DEBUG: 상품 목록 로드 실패 - \(error.localizedDescription)")
-    }
-}
-
-// MARK: - DraggableImageViewModelProtocol Implementation
-
-extension AddCodiDetailViewModel {
-    
-    /// 탭한 이미지를 레이어 최상단으로 가져옵니다.
-    func bringImageToFront(id: Int) {
+    // 제스처 결과 반영 메서드들
+    func bringImageToFront(id: Int64) {
         guard let index = images.firstIndex(where: { $0.id == id }) else { return }
         let tappedImage = images.remove(at: index)
         images.append(tappedImage)
     }
     
-    /// 이미지의 현재 좌표를 업데이트합니다.
-    func updateImagePosition(id: Int, newPosition: CGPoint) {
+    func updateImagePosition(id: Int64, newPosition: CGPoint) {
         if let index = images.firstIndex(where: { $0.id == id }) {
             images[index].position = newPosition
         }
     }
     
-    /// 이미지의 확대/축소 비율을 업데이트합니다.
-    func updateImageScale(id: Int, newScale: CGFloat) {
+    func updateImageScale(id: Int64, newScale: CGFloat) {
         if let index = images.firstIndex(where: { $0.id == id }) {
             images[index].scale = newScale
         }
     }
     
-    /// 이미지의 회전 각도를 업데이트합니다.
-    func updateImageRotation(id: Int, newRotation: Double) {
+    func updateImageRotation(id: Int64, newRotation: Double) {
         if let index = images.firstIndex(where: { $0.id == id }) {
-            images[index].rotationAngle = newRotation
+            images[index].rotation = newRotation
         }
     }
-}
-
-// MARK: - Navigation & Actions
-
-extension AddCodiDetailViewModel {
     
-    /// 이미지 선택/해제 (추가된 메서드)
-    func selectImage(id: Int?) {
+    func selectImage(id: Int64?) {
         selectedImageID = id
     }
     
-    // MARK: - Navigation & Actions
-    
-    func handleBackTap() {
-        navigationRouter.navigateBack()
+    func captureBoard(view: some View) async {
+        let renderer = ImageRenderer(content: view)
+        renderer.scale = UIScreen.main.scale
+        
+        guard let uiImage = renderer.uiImage,
+              let jpgData = uiImage.jpegData(compressionQuality: 0.8) else {
+            return
+        }
+        
+        do {
+            let uploadedURL = try await productUseCase.execute(jpgData: jpgData)
+            self.capturedImageString = uploadedURL
+        } catch {
+            print("❌ 이미지 업로드 실패: \(error.localizedDescription)")
+        }
     }
     
-    /// 구성을 완료하고 코디 추가 화면으로 이동합니다.
-    func handleComplete() {
+    private func setupEditDataSubscription() {
+        AddCodiViewModel.editCodiRequested
+            .compactMap { $0 }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] editData in
+                guard let self = self else { return }
+                
+                if !self.clothItems.isEmpty {
+                    self.restoreCodiData(from: editData)
+                } else {
+                    self.pendingEditData = editData
+                }
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func restoreCodiData(from editData: CodiEditData) {
+        let clothIds = editData.payloads.map { Int($0.clothId) }
+        self.selectedProductIds = Set(clothIds)
+        
+        self.images = editData.payloads.compactMap { payload in
+            let actualX = (payload.locationX * boardSize) - (boardSize / 2)
+            let actualY = (payload.locationY * boardSize) - (boardSize / 2)
+            
+            guard let item = clothItems.first(where: { Int64($0.id) == payload.clothId }) else {
+                return nil
+            }
+            
+            return DraggableImageEntity(
+                id: payload.clothId,
+                name: item.imageUrl ?? item.imageName ?? "",
+                position: CGPoint(x: actualX, y: actualY),
+                scale: CGFloat(payload.ratio),
+                rotation: payload.degree
+            )
+        }
+        
+    }
+    
+    func handleBackTap() { navigationRouter.navigateBack() }
+    
+    func handleComplete() async {
+        guard let imageURL = capturedImageString else {
+            return
+        }
+        
+        let finalData = codiPayloads
+        let dataToTransfer = CodiTransferData(
+            payloads: finalData,
+            imageString: imageURL
+        )
+        
+        Self.codiDataUpdated.send(dataToTransfer)
+        
         navigationRouter.navigateBack()
     }
 }

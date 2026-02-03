@@ -21,12 +21,15 @@ final class HomeDIContainer {
     
     let locationService: LocationService = SystemLocationService()
     
+    private lazy var homeAPIService: HomeAPIServiceProtocol = {
+        return HomeAPIService()
+    }()
     // HomeViewModel 싱글톤 인스턴스 저장
     private var homeViewModel: HomeViewModel?
     
     // MARK: - DataSources
     private lazy var homeDatasource: HomeDatasource = {
-        HomeDatasource(locationService: locationService)
+        HomeDatasource(locationService: locationService, apiService: homeAPIService)
     }()
     
     // MARK: - Repositories

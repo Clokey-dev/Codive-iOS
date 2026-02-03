@@ -86,9 +86,9 @@ private extension HomeHasCodiView {
                     SelectableClothItem(
                         entity: item,
                         isSelected: Binding(
-                            get: { viewModel.selectedItemID == item.id },
+                            get: { viewModel.selectedItemID ?? 0 == item.id },
                             set: { isSelected in
-                                viewModel.selectItem(isSelected ? item.id : nil)
+                                viewModel.selectItem(isSelected ? Int(item.id) : nil)
                             }
                         )
                     )

@@ -7,58 +7,36 @@
 
 import Foundation
 
-// 룩북 전체 조회 api의 responseDTO의 content
+// 룩북 조회
 struct LookBookEntity: Identifiable {
-    let lookBookId: Int
+    let lookBookId: Int64
     var lookbookName: String
     let imageUrl: String
-    let count: Int
+    let count: Int64
 
-    var id: Int { lookBookId }
+    var id: Int64 { lookBookId }
 }
 
-// 룩북 생성하기 api의 request
-struct CreateLookBookEntity {
-    let lookBookId: Int
-}
-
-// 룩북 제거하기 api의 request
-struct DeleteLookBookEntity {
-    let lookBookId: Int
-}
-
-// 개별 룩북 코디 목록 조회 api의 responseDTO의 content
+// 특정 룩북의 코디 목록 조회
 struct SpecificLookBookCodiEntity: Identifiable {
-    let coordinateId: Int
+    let coordinateId: Int64
     let coordinateName: String
-    let coordinateLiked: Bool
+    var coordinateLiked: Bool
     let imageUrl: String
 
-    var id: Int { coordinateId }
+    var id: Int64 { coordinateId }
 }
 
-// 과거 일일 코디 조회 api responseDTO의 content
+/// 과거 일일 코디 조회
 struct BeforeCoordinateDailyEntity: Identifiable {
-    let coordinateId: Int
+    let coordinateId: Int64
     let imageUrl: String
     let date: String
     
-    var id: Int { coordinateId }
+    var id: Int64 { coordinateId }
 }
 
-struct CodiLikeEntity {
-    let coordinateId: Int
-}
-
-struct DeleteCodiEntity {
-    let coordinateId: Int
-}
-
-struct EditLookBookEntity {
-    let lookBookId: Int
-    let name: String
-}
-
+/// 코디 preview 조회
 struct CoordinatePreviewEntity {
     let coordinateId: Int
     let imageUrl: String
@@ -66,7 +44,40 @@ struct CoordinatePreviewEntity {
     let coordinateMemo: String
 }
 
-//---------------------------------------------------------
+/// 코디 detail 조회
+struct CoordinateDetailEntity {
+    let coordinateClothId: Int64
+    let locationX: Double
+    let locationY: Double
+    let ratio: Double
+    let degree: Double
+    let order: Int32
+    let clothId: Int64
+    let imageUrl: String
+    let brand: String
+    let name: String
+    let category: String
+    let parentCategory: String
+}
+
+/// 오늘의 코디 옷 정보 조회
+struct TodayCoordinateClothEntity {
+    let imageUrl: String
+    let brand: String
+    let name: String
+    let category: String
+    let parentCategory: String
+}
+
+/// 코디 수동 생성
+struct ManualCoordinateEntity {
+    let coordinateId: Int64
+}
+
+/// 이전 일일 코디로 자동 생성
+struct AutoDailyCoordinateEntity {
+    let coordinateId: Int64
+}
 
 // MARK: - Supporting Types
 struct SelectedCodiData: Hashable {
@@ -76,30 +87,43 @@ struct SelectedCodiData: Hashable {
 }
 
 struct CodiItem: Identifiable {
-    let id: Int
+    let id: Int64
     let imageName: String
     let brand: String
     let name: String
+    let clothId: Int64
 }
 
 struct SelectedCodi: Hashable {
-    let codiId: Int?
-    let imageURL: String?
+    let coordinateId: Int64?
+    let imageUrl: String?
     let name: String
     let memo: String
-    var combinedItems: [DraggableImageEntity]?
+    var payloads: [Payloads]?
     
     init(
-        codiId: Int?,      
-        imageURL: String?,
+        coordinateId: Int64?,
+        imageUrl: String?,
         name: String,
         memo: String,
-        combinedItems: [DraggableImageEntity]? = nil
+        payloads: [Payloads]? = nil
     ) {
-        self.codiId = codiId
-        self.imageURL = imageURL
+        self.coordinateId = coordinateId
+        self.imageUrl = imageUrl
         self.name = name
         self.memo = memo
-        self.combinedItems = combinedItems
+        self.payloads = payloads
     }
+}
+
+struct CodiTransferData {
+    let payloads: [Payloads]
+    let imageString: String
+}
+
+struct CodiEditData {
+    let payloads: [Payloads]
+    let imageURL: String
+    let codiName: String
+    let memo: String
 }

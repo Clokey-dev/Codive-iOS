@@ -6,36 +6,32 @@
 //
 
 import SwiftUI
+import Combine
 
 @MainActor
 final class EditCodiViewModel: ObservableObject {
     
-    // MARK: - Properties (State: Editable)
+    private var cancellables = Set<AnyCancellable>()
     
     @Published var codiName: String = ""
     @Published var memo: String = ""
+    @Published var isNavEditingMode: Bool = false
     @Published var selectedImageURL: String?
+    @Published var isLayoutChanged: Bool = false
     
-    // MARK: - Properties (Internal State)
-    
-    /// 변경 사항 감지를 위한 초기 데이터 백업
+    private var payloads: [Payloads] = []
     private var originalName: String = ""
     private var originalMemo: String = ""
     
-    // MARK: - Properties (Dependencies)
-    
     private let navigationRouter: NavigationRouter
-    private let lookbookId: Int
-    private let codiId: Int?
+    private let codiUseCase: CodiUseCase
+    private let coordinateId: Int64?
     
-    // MARK: - Computed Properties
-    
-    /// 초기값과 비교하여 텍스트 데이터에 변경이 있는지 확인합니다.
     var hasChanges: Bool {
-        return codiName != originalName || memo != originalMemo
+        let isTextChanged = (codiName != originalName || memo != originalMemo)
+        return isTextChanged || isLayoutChanged
     }
     
-    /// 완료 버튼 활성화 여부 (이름이 비어있지 않고, 변경 사항이 있을 때)
     var isButtonEnabled: Bool {
         return !codiName.isEmpty && hasChanges
     }
@@ -44,50 +40,103 @@ final class EditCodiViewModel: ObservableObject {
     
     init(
         navigationRouter: NavigationRouter,
-        lookbookId: Int,
+        codiUseCase: CodiUseCase,
         selectedCodiData: SelectedCodi? = nil
     ) {
         self.navigationRouter = navigationRouter
-        self.lookbookId = lookbookId
-        self.codiId = selectedCodiData?.codiId
+        self.codiUseCase = codiUseCase
+        self.coordinateId = selectedCodiData?.coordinateId
         
-        // 전달받은 초기 데이터 설정
         if let data = selectedCodiData {
-            self.selectedImageURL = data.imageURL
+            self.selectedImageURL = data.imageUrl
             self.codiName = data.name
             self.memo = data.memo
             self.originalName = data.name
             self.originalMemo = data.memo
+            self.payloads = data.payloads ?? []
         }
+        
+        setupCodiDataSubscription()
+    }
+}
+
+extension EditCodiViewModel {
+    private func setupCodiDataSubscription() {
+        AddCodiDetailViewModel.codiDataUpdated
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] updatedData in
+                guard let self = self else { return }
+                
+                self.selectedImageURL = updatedData.imageString
+                self.payloads = updatedData.payloads
+                self.isLayoutChanged = true
+            }
+            .store(in: &cancellables)
     }
 }
 
 // MARK: - User Actions
 
 extension EditCodiViewModel {
-    
-    /// 이전 화면으로 이동합니다.
     func handleBackTap() {
         navigationRouter.navigateBack()
     }
     
-    /// 수정 사항을 반영하고 저장 로직을 실행합니다.
     func handleCompleteTap() {
-        guard hasChanges else { return }
+        guard let coordinateId = coordinateId, isButtonEnabled else { return }
         
-        // TODO: 서버 API 호출을 통한 수정 로직 반영 필요
-        // try await codiUseCase.updateCodi(id: codiId, name: codiName, memo: memo)
+        Task {
+            do {
+                let request = EditCoordinateRequestDTO(
+                    coordinateImageUrl: selectedImageURL,
+                    name: codiName,
+                    memo: memo,
+                    payloads: payloads
+                )
+                
+                try await codiUseCase.patchUpdateCoordinates(
+                    coordinateId: coordinateId,
+                    request: request
+                )
+                
+                print("✅ 코디 수정 완료: \(coordinateId)")
+                
+                self.originalName = codiName
+                self.originalMemo = memo
+                self.isLayoutChanged = false
+                
+                navigationRouter.navigateBack()
+            } catch {
+                print("❌ 코디 수정 실패: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    func handleOverlayTap() {
+        guard let imageURL = selectedImageURL else {
+            return
+        }
         
-        navigationRouter.navigateBack()
+        let editData = CodiEditData(
+            payloads: self.payloads,
+            imageURL: imageURL,
+            codiName: self.codiName,
+            memo: self.memo
+        )
+        
+        AddCodiViewModel.editCodiRequested.value = editData
+        
+        navigationRouter.navigate(to: .addCodiDetail)
     }
 }
 
-// MARK: - Private Helpers
-
-private extension EditCodiViewModel {
+extension EditCodiViewModel {
     
-    /// (필요 시) 서버 연동 실패 등 에러 발생 시 처리 로직
-    func handleError(_ error: Error) {
-        print("DEBUG: 코디 수정 실패 - \(error.localizedDescription)")
+    func startNavEditing() {
+        isNavEditingMode = true
+    }
+    
+    func finishNavEditing() {
+        isNavEditingMode = false
     }
 }

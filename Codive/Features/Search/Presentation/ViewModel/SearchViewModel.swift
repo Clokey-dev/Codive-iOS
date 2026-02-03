@@ -15,7 +15,7 @@ final class SearchViewModel: ObservableObject {
     
     @Published var username: String = ""
     @Published var recentSearchTags: [SearchTagEntity] = []
-    @Published var recommendedNews: [NewsEntity] = []
+    @Published var recommendedNews: [SearchRecommendationEntity] = []
     @Published var showingDeleteAlert: Bool = false
     
     // MARK: - Initializer
@@ -27,9 +27,35 @@ final class SearchViewModel: ObservableObject {
     // MARK: - Methods
     
     func loadData() {
-        self.username = useCase.fetchUserName().username
-        self.recentSearchTags = useCase.fetchRecentSearchTags()
-        self.recommendedNews = useCase.fetchRecommendedNews()
+        // 1. 로컬 데이터 (동기)
+        let user = useCase.fetchUserName()
+        self.username = user.username
+    }
+    
+    func recentlySearchResultList() {
+        self.recentSearchTags = recentSearchTags
+    }
+    
+    func loadSearchRecommendation() {
+        Task {
+            do {
+                let recommendations = try await useCase.fetchSearchRecommendation()
+
+                self.recommendedNews = recommendations.map {
+                    SearchRecommendationEntity(
+                        historyId: $0.historyId,
+                        memberId: $0.memberId,
+                        recommendType: $0.recommendType,
+                        title: $0.title,
+                        subTitle: $0.subTitle,
+                        imageUrl: $0.imageUrl
+                    )
+                }
+            } catch {
+                print("❌ 추천 검색 로딩 실패:", error)
+                self.recommendedNews = []
+            }
+        }
     }
     
     func executeSearch(query: String) {
@@ -50,13 +76,8 @@ final class SearchViewModel: ObservableObject {
         }
     }
     
-    func handleDeleteAll() {
-        self.showingDeleteAlert = true
-    }
-    
-    func executeDeleteAll() {
-        print("최근 검색어 전체 삭제 실행 완료")
-        self.recentSearchTags = []
+    func handleShowAll() {
+        navigationRouter.navigate(to: .recentlySearchResult)
     }
     
     func handleTagTap(tag: SearchTagEntity) {

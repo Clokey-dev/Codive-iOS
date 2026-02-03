@@ -24,11 +24,8 @@ struct SpecificLookBookView: View {
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
-                
-                // MARK: Top Navigation Bar
-                
                 CustomNavigationBar(
-                    title: $viewModel.lookbookTitle,
+                    title: $viewModel.name,
                     isEditingMode: viewModel.isEditing,
                     onBack: viewModel.handleBackTap,
                     onBeginEditTitle: viewModel.beginEditTitle,
@@ -37,7 +34,7 @@ struct SpecificLookBookView: View {
                     rightButton: viewModel.isEditing
                     ? .text(
                         title: TextLiteral.Common.delete,
-                        isEnabled: !viewModel.selectedCodiIds.isEmpty,
+                        isEnabled: viewModel.selectedCodiId != nil,
                         action: viewModel.handleCompleteAction
                     )
                     : .overflow(
@@ -50,8 +47,6 @@ struct SpecificLookBookView: View {
                 )
                 .zIndex(10)
                 .padding(.leading, 15)
-                
-                // MARK: Content Area
                 
                 ScrollView {
                     LazyVGrid(
@@ -67,13 +62,13 @@ struct SpecificLookBookView: View {
                                 cardTitle: codi.coordinateName,
                                 iconType: viewModel.isEditing ? .checkmark : .heart,
                                 isSelected: viewModel.isEditing
-                                ? viewModel.selectedCodiIds.contains(codi.id)
-                                : viewModel.likedCodiIds.contains(codi.id)
+                                ? viewModel.selectedCodiId == codi.id
+                                : viewModel.likedCodiId == codi.id
                             ) {
                                 if viewModel.isEditing {
                                     viewModel.toggleSelection(id: codi.id)
                                 } else {
-                                    viewModel.toggleLike(codyId: codi.id)
+                                    viewModel.toggleLike(coordinateId: codi.id)
                                 }
                             }
                             .contentShape(Rectangle())
@@ -81,7 +76,7 @@ struct SpecificLookBookView: View {
                                 if viewModel.isEditing {
                                     viewModel.toggleSelection(id: codi.id)
                                 } else {
-                                    viewModel.navigateToCodiDetail(codiId: codi.id)
+                                    viewModel.navigateToCodiDetail(codiId: Int(codi.id))
                                 }
                             }
                         }
@@ -95,8 +90,6 @@ struct SpecificLookBookView: View {
                     }
                 }
             }
-            
-            // MARK: Loading Overlay
             
             if viewModel.isLoading {
                 LoadingView(backgroundStyle: .white)

@@ -142,7 +142,9 @@ let project = Project(
                 .external(name: "Moya"),
                 
                 // CodiveAPI
-                .external(name: "CodiveAPI")
+                .external(name: "CodiveAPI"),
+                // 이미지 캐싱
+                .external(name: "Kingfisher")
             ],
             settings: .settings(
                 base: [

@@ -149,7 +149,8 @@ enum TextLiteral {
     enum Search {
         static let searchHint = "찾고 싶은 옷이나 브랜드를 검색해보세요"
         static let recentSearch = "최근 검색어"
-        static let deleteAll = "전체 삭제"
+        static let deleteAll = "전체삭제"
+        static let showAll = "전체보기"
         static let noTag = "최근 검색어가 없습니다."
         static let recommendedNewsTitle = "님을 위한 추천 소식"
         static let alertTitle = "최근 검색어를 모두 삭제하시겠습니까?"
@@ -161,6 +162,7 @@ enum TextLiteral {
         static let sortAll = "전체"
         static let account = "계정"
         static let hashtag = "해시태그"
+        static let recentlySearchResultTitle = "최근 검색어"
     }
     
     enum Notification {
@@ -209,6 +211,8 @@ enum TextLiteral {
         static let editCodiComplete = "수정 완료하기"
         static let exitDescription = "정말 나가시겠습니까?"
         static let noRecovery = "작성중인 내용은 복구할 수 없습니다"
+        static let alertSuccessPostCoordi = "코디가 성공적으로 등록되었습니다."
+        static let alertFailDeleteCoordi = "코디 삭제에 실패했습니다."
     }
 
     // MARK: - Setting (설정)

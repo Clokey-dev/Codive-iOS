@@ -6,88 +6,120 @@
 //
 
 import SwiftUI
+import Combine
 
 @MainActor
 final class AddCodiViewModel: ObservableObject {
     
     // MARK: - Properties (State)
-    
     @Published var codiName: String = ""
     @Published var memo: String = ""
+    
     @Published var selectedImageURL: String?
-    
-    /// 새로 조합된 아이템 리스트
+    @Published var capturedImage: UIImage?
+    @Published var capturedImageBase64: String?
     @Published var combinedItems: [DraggableImageEntity] = []
-    
-    // UI 제어 상태
+    @Published var receivedPayloads: [Payloads] = []
     @Published var isNewlyCombined: Bool = false
     @Published var isShowingBottomSheet: Bool = false
     @Published var isShowingSuccessView: Bool = false
     @Published var successMessage: String = ""
     
-    // MARK: - Properties (Dependencies)
-    
+    private var cancellables = Set<AnyCancellable>()
     private let navigationRouter: NavigationRouter
-    let coordinateId: Int
+    private let codiUseCase: CodiUseCase
+    let coordinateId: Int64
     
-    // MARK: - Computed Properties
+    static let editCodiRequested = CurrentValueSubject<CodiEditData?, Never>(nil)
     
-    /// 등록 버튼 활성화 여부 (이름이 있고, 선택된 이미지나 조합된 아이템이 있을 때)
     var isButtonEnabled: Bool {
-        let hasImage = (selectedImageURL != nil && !(selectedImageURL?.isEmpty ?? true)) || !combinedItems.isEmpty
+        let hasImage = capturedImage != nil || (selectedImageURL != nil && !selectedImageURL!.isEmpty)
         return !codiName.isEmpty && hasImage
     }
     
     // MARK: - Initializer
-    
-    init(
-        navigationRouter: NavigationRouter,
-        coordinateId: Int
-    ) {
+    init(navigationRouter: NavigationRouter, codiUseCase: CodiUseCase, coordinateId: Int64) {
         self.navigationRouter = navigationRouter
+        self.codiUseCase = codiUseCase
         self.coordinateId = coordinateId
+        
+        setupDataSubscription()
     }
 }
 
-// MARK: - User Actions
+private extension AddCodiViewModel {
+    func setupDataSubscription() {
+        cancellables.removeAll()
+        
+        AddCodiDetailViewModel.codiDataUpdated
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] data in
+                self?.receivedPayloads = data.payloads
+                self?.selectedImageURL = data.imageString
+            }
+            .store(in: &cancellables)
+    }
+}
 
 extension AddCodiViewModel {
-    
-    /// 이전 화면으로 이동합니다.
     func handleBackTap() {
         navigationRouter.navigateBack()
     }
     
-    /// 코디 업로드 버튼 탭 시 바텀시트를 표시합니다.
     func handleCodiUploadTap() {
         isShowingBottomSheet = true
     }
     
-    /// 코디 등록을 완료합니다. (성공 팝업 표시 후 화면 이동)
     func handleCompleteTap() {
-        isShowingSuccessView = true
+        guard isButtonEnabled, let imageURL = selectedImageURL else {
+            return
+        }
         
-        // TODO: 실제 서버 저장 로직 추가 필요
+        let requestDTO = CreateManualCoordinateAPIRequestDTO(
+            coordinateImageUrl: imageURL,
+            name: codiName,
+            memo: memo,
+            lookBookId: Int64(coordinateId),
+            payloads: receivedPayloads
+        )
         
-        // 성공 메시지 표시 후 1.5초 뒤 메인으로 복귀
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
-            self?.isShowingSuccessView = false
-            self?.navigationRouter.navigateBack()
+        Task {
+            do {
+                _ = try await codiUseCase.createManualCoordinate(request: requestDTO)
+                
+                self.successMessage = TextLiteral.LookBook.alertSuccessPostCoordi
+                self.isShowingSuccessView = true
+                
+                try? await Task.sleep(nanoseconds: 1_500_000_000)
+                self.isShowingSuccessView = false
+                self.navigationRouter.navigateBack()
+            } catch {
+                print("❌ 상세 에러 메시지: \(error.localizedDescription)")
+            }
         }
     }
-}
-
-// MARK: - Navigation (Bottom Sheet Actions)
-
-extension AddCodiViewModel {
     
-    /// '새로 만들기' 선택 시 코디 상세 편집 화면으로 이동합니다.
-    func navigateToNewCodi() {
-        isShowingBottomSheet = false
-        navigationRouter.navigate(to: .addCodiDetail(lookbookId: coordinateId))
+    func handleEditCodiTap() {
+        guard let imageURL = selectedImageURL else {
+            return
+        }
+        
+        let editData = CodiEditData(
+            payloads: receivedPayloads,
+            imageURL: imageURL,
+            codiName: codiName,
+            memo: memo
+        )
+        
+        Self.editCodiRequested.value = editData
+        navigationRouter.navigate(to: .addCodiDetail)
     }
     
-    /// '이전 코디 불러오기' 선택 시 기록 화면으로 이동합니다.
+    func navigateToNewCodi() {
+        isShowingBottomSheet = false
+        navigationRouter.navigate(to: .addCodiDetail)
+    }
+    
     func handleRecallCodi() {
         isShowingBottomSheet = false
         navigationRouter.navigate(to: .addBeforeCodi(lookbookId: coordinateId))

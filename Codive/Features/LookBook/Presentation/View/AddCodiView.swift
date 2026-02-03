@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct AddCodiView: View {
     
@@ -40,7 +41,6 @@ struct AddCodiView: View {
 // MARK: - View Components
 private extension AddCodiView {
     
-    /// 전체적인 메인 레이아웃
     var mainContent: some View {
         VStack(spacing: 0) {
             navigationBar
@@ -57,7 +57,6 @@ private extension AddCodiView {
         }
     }
     
-    /// 상단 네비게이션 바
     var navigationBar: some View {
         CustomNavigationBar(
             title: TextLiteral.LookBook.addCodiTitle,
@@ -66,11 +65,10 @@ private extension AddCodiView {
         .padding(.leading, 15)
     }
     
-    /// 코디 이미지 미리보기 영역 (상태에 따라 3가지 뷰 전환)
     var codiPreviewArea: some View {
         ZStack {
-            if !viewModel.combinedItems.isEmpty {
-                combinedCodiBoard
+            if let capturedImage = viewModel.capturedImage {
+                selectedImagePreview(image: capturedImage)
             } else if let imageURL = viewModel.selectedImageURL, !imageURL.isEmpty {
                 selectedImagePreview(url: imageURL)
             } else {
@@ -80,7 +78,6 @@ private extension AddCodiView {
         .frame(height: 335)
     }
     
-    /// 정보 입력 섹션 (코디 이름, 메모)
     var inputSection: some View {
         VStack(spacing: 12) {
             CustomTextField1(
@@ -98,7 +95,6 @@ private extension AddCodiView {
         }
     }
     
-    /// 하단 완료 버튼
     var completeButton: some View {
         CustomButton(
             text: TextLiteral.LookBook.addCodiCompleteButton,
@@ -111,53 +107,42 @@ private extension AddCodiView {
     }
 }
 
-// MARK: - Subviews (Preview Variations)
 private extension AddCodiView {
-    
-    /// 조합된 코디판 뷰
-    var combinedCodiBoard: some View {
+    func selectedImagePreview(image: UIImage) -> some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 15)
-                .fill(Color(UIColor.systemGray6))
-            
-            ForEach(viewModel.combinedItems) { item in
-                AsyncImage(url: URL(string: item.name)) { phase in
-                    if let image = phase.image {
-                        image.resizable().scaledToFit()
-                    }
-                }
-                .frame(width: 80, height: 80)
-                .scaleEffect(item.scale)
-                .rotationEffect(.degrees(item.rotationAngle))
-                .position(x: item.position.x, y: item.position.y)
-            }
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFill()
             
             EditCodiOverlayView()
                 .clipShape(RoundedRectangle(cornerRadius: 12))
         }
+        .frame(height: 335)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
     
-    /// 단일 선택 이미지 미리보기 뷰
     func selectedImagePreview(url: String) -> some View {
-        AsyncImage(url: URL(string: url)) { phase in
-            switch phase {
-            case .success(let image):
-                image
-                    .resizable()
-                    .scaledToFill()
-                    .frame(height: 335)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-            case .failure:
-                Image(systemName: "photo").foregroundColor(.gray)
-            case .empty:
-                ProgressView()
-            @unknown default:
-                EmptyView()
-            }
+        ZStack {
+            KFImage(URL(string: url))
+                .placeholder {
+                    Image(systemName: "photo")
+                        .foregroundStyle(.gray)
+                }
+                .onFailure { _ in }
+                .resizable()
+                .scaledToFill()
+            
+            EditCodiOverlayView()
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    viewModel.handleEditCodiTap()
+                }
         }
+        .frame(height: 335)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
     
-    /// 업로드 전 빈 상태의 플레이스홀더
     var emptyUploadPlaceholder: some View {
         RoundedRectangle(cornerRadius: 12)
             .fill(Color.gray.opacity(0.1))
@@ -172,17 +157,12 @@ private extension AddCodiView {
     }
 }
 
-// MARK: - Overlays
 private extension AddCodiView {
-    
-    /// 바텀시트 오버레이
     var bottomSheetOverlay: some View {
         ZStack {
             Color.black.opacity(0.7)
                 .edgesIgnoringSafeArea(.all)
-                .onTapGesture {
-                    viewModel.isShowingBottomSheet = false
-                }
+                .onTapGesture { viewModel.isShowingBottomSheet = false }
             
             VStack {
                 Spacer()
@@ -198,7 +178,6 @@ private extension AddCodiView {
         }
     }
     
-    /// 등록 성공 메시지 뷰
     var successOverlay: some View {
         CustomSuccessView(message: viewModel.successMessage)
             .transition(.opacity)

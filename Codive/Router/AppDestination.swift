@@ -30,14 +30,15 @@ enum AppDestination: Hashable, Identifiable {
     case codiBoard
     case search
     case searchResult(query: String)
+    case recentlySearchResult
     case notification
     case lookbook
-    case specificLookbook(lookbookId: Int)
-    case addCodi(coordinateId: Int)
-    case editCodi(lookbookId: Int, selectedCodiData: SelectedCodi)
-    case addCodiDetail(lookbookId: Int)
-    case addBeforeCodi(lookbookId: Int)
-    case codiDetail(codiId: Int, lookbookId: Int)
+    case specificLookbook(lookbookId: Int64, name: String)
+    case addCodi(coordinateId: Int64)
+    case editCodi(selectedCodiData: SelectedCodi)
+    case addCodiDetail
+    case addBeforeCodi(lookbookId: Int64)
+    case codiDetail(codiId: Int)
     case feedDetail(feedId: Int)
     case comment(feedId: Int)
     case favoriteCodiList(showHeart: Bool)
@@ -67,7 +68,7 @@ enum AppDestination: Hashable, Identifiable {
             return true
 
         // Search, Alarm Flow
-        case .search, .searchResult, .notification:
+        case .search, .searchResult, .recentlySearchResult, .notification:
             return true
             
         // LookBook

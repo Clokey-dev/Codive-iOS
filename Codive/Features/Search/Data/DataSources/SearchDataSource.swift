@@ -6,19 +6,98 @@
 //
 
 import Foundation
+import CodiveAPI
 
-final class SearchDataSource {
+protocol SearchDataSourceProtocol {
+    /// 검색 탭 기록 추천
+    func fetchSearchRecommendation() async throws -> [SearchRecommendationResponseDTO]
+    
+    /// 유저 검색
+    func fetchSearchMembers(keyword: String, page: Int64, size: Int32) async throws -> SearchUserResponseDTO
+    
+    /// 전체 유저 검색 엔진 삭제(개발용)
+    func fetchSearchMembersUnsyncAll() async throws
+    
+    /// 전체 유저 검색 엔진 동기화(개발용)
+    func fetchSearchMembersSyncAll() async throws
+    
+    /// 기록 검색
+    func fetchSearchHistories(
+        keyword: String,
+        page: Int64,
+        size: Int32,
+        sort: Operations.Search_searchHistoryByHashtagsAndCategories.Input.Query.sortPayload?
+    ) async throws -> SearchHistoryResponseDTO
+    
+    /// 전체 기록 검색 엔진 삭제(개발용)
+    func fetchSearchHistoryUnsyncAll() async throws
+    
+    /// 전체 기록 검색 엔진 동기화(개발용)
+    func fetchSearchHistorySyncAll() async throws
+}
 
-    // MARK: - Properties
-
+final class SearchDataSource: SearchDataSourceProtocol {
     private let apiService: SearchAPIServiceProtocol
-
+    
     // MARK: - Initializer
-
-    init(apiService: SearchAPIServiceProtocol = SearchAPIService()) {
+    init(
+        apiService: SearchAPIServiceProtocol = SearchAPIService()
+    ) {
         self.apiService = apiService
     }
+    
+    /// 검색 탭 기록 추천
+    func fetchSearchRecommendation() async throws -> [SearchRecommendationResponseDTO] {
+        return try await apiService.fetchSearchRecommendation()
+    }
+    
+    /// 유저 검색
+    func fetchSearchMembers(keyword: String, page: Int64, size: Int32
+    ) async throws -> SearchUserResponseDTO {
+        return try await apiService.fetchSearchMembers(
+            keyword: keyword,
+            page: page,
+            size: size
+        )
+    }
+    
+    /// 전체 유저 검색 엔진 삭제(개발용)
+    func fetchSearchMembersUnsyncAll() async throws {
+        try await apiService.fetchSearchMembersUnsyncAll()
+    }
+    
+    /// 전체 유저 검색 엔진 동기화(개발용)
+    func fetchSearchMembersSyncAll() async throws {
+        try await apiService.fetchSearchMembersSyncAll()
+    }
+    
+    /// 기록 검색
+    func fetchSearchHistories(
+        keyword: String,
+        page: Int64,
+        size: Int32,
+        sort: Operations.Search_searchHistoryByHashtagsAndCategories.Input.Query.sortPayload?
+    ) async throws -> SearchHistoryResponseDTO {
+        return try await apiService.fetchSearchHistories(
+            keyword: keyword,
+            page: page,
+            size: size,
+            sort: sort
+        )
+    }
+    
+    /// 전체 기록 검색 엔진 삭제(개발용)
+    func fetchSearchHistoryUnsyncAll() async throws {
+        try await apiService.fetchSearchHistoryUnsyncAll()
+    }
+    
+    /// 전체 기록 검색 엔진 동기화(개발용)
+    func fetchSearchHistorySyncAll() async throws {
+        try await apiService.fetchSearchHistorySyncAll()
+    }
+}
 
+extension SearchDataSource {
     // MARK: - Fetch Methods (기존)
 
     func fetchUserName() -> SearchEntity {

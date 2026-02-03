@@ -40,7 +40,10 @@ struct MainTabView: View {
         self.profileDIContainer = appDIContainer.makeProfileDIContainer()
 
         self._navigationRouter = ObservedObject(wrappedValue: appDIContainer.navigationRouter)
-        let viewModel = MainTabViewModel(navigationRouter: appDIContainer.navigationRouter)
+        let viewModel = MainTabViewModel(
+            navigationRouter: appDIContainer.navigationRouter,
+            notificationUsecase: notificationDIContainer.topNavigationNotificaionUsecase
+        )
         self._viewModel = StateObject(wrappedValue: viewModel)
         self.homeViewModel = homeDIContainer.makeHomeViewModel()
     }
@@ -57,6 +60,7 @@ struct MainTabView: View {
                             TopNavigationBar(
                                 showSearchButton: showSearchButton,
                                 showNotificationButton: showNotificationButton,
+                                hasUnreadNotification: viewModel.hasUnreadNotification,
                                 onSearchTap: viewModel.handleSearchTap,
                                 onNotificationTap: viewModel.handleNotificationTap
                             )
@@ -138,6 +142,9 @@ struct MainTabView: View {
                     .transition(.opacity)
             }
         }
+        .onAppear {
+            viewModel.loadNotificationExist()
+        }
     }
     
     // MARK: - Computed Properties
@@ -178,6 +185,8 @@ struct MainTabView: View {
             searchDIContainer.makeSearchView()
         case .searchResult(let query):
             searchDIContainer.makeSearchResultView(initialQuery: query)
+        case .recentlySearchResult:
+            searchDIContainer.makeRecentlySearchResultView()
         case .notification:
             notificationDIContainer.makeNotificationView()
         case .feedDetail(let feedId):
