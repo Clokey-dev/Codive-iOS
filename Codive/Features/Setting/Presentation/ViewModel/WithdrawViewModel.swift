@@ -5,6 +5,7 @@ final class WithdrawViewModel: ObservableObject {
 
     @Published var isLoading: Bool = false
     @Published var showConfirmAlert: Bool = false
+    @Published var showCompleteAlert: Bool = false
 
     private let navigationRouter: NavigationRouter
     private let appRouter: AppRouter
@@ -32,7 +33,7 @@ final class WithdrawViewModel: ObservableObject {
 
                 await MainActor.run {
                     isLoading = false
-                    appRouter.logout()
+                    showCompleteAlert = true
                 }
             } catch {
                 await MainActor.run {
@@ -41,6 +42,11 @@ final class WithdrawViewModel: ObservableObject {
                 }
             }
         }
+    }
+
+    func confirmWithdrawComplete() {
+        showCompleteAlert = false
+        appRouter.logout()
     }
 
     func navigateBack() {

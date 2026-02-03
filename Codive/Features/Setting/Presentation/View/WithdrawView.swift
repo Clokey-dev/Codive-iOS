@@ -68,6 +68,13 @@ struct WithdrawView: View {
         } message: {
             Text(TextLiteral.Setting.withdrawConfirmMessage)
         }
+        .alert("탈퇴 완료", isPresented: $vm.showCompleteAlert) {
+            Button("확인") {
+                vm.confirmWithdrawComplete()
+            }
+        } message: {
+            Text("탈퇴가 완료되었습니다.")
+        }
     }
 }
 

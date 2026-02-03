@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct AuthFlowView: View {
-    
+
     @StateObject var navigationRouter: NavigationRouter
     private let authViewFactory: AuthViewFactory
     private let authDIContainer: AuthDIContainer
-    
+
     init(
         authDIContainer: AuthDIContainer,
         authViewFactory: AuthViewFactory
@@ -21,7 +21,7 @@ struct AuthFlowView: View {
         self.authViewFactory = authViewFactory
         self.authDIContainer = authDIContainer
     }
-    
+
     var body: some View {
         NavigationStack(path: $navigationRouter.path) {
             authDIContainer.makeOnboardingView()
