@@ -231,5 +231,6 @@ private struct SettingRow: View {
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundStyle(Color.Codive.grayscale3)
         }
+        .contentShape(Rectangle())
     }
 }
