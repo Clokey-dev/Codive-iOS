@@ -50,7 +50,7 @@ final class ProfileAPIService: ProfileAPIServiceProtocol {
                 throw ProfileAPIError.invalidResponse
             }
 
-            // API 응답 로그
+            #if DEBUG
             print("=== 내 정보 API 응답 ===")
             print("memberId: \(memberInfo.memberId ?? 0)")
             print("nickname: \(memberInfo.nickname ?? "nil")")
@@ -62,6 +62,7 @@ final class ProfileAPIService: ProfileAPIServiceProtocol {
             print("isPublic: \(memberInfo.isPublic ?? false)")
             print("isMe: \(memberInfo.isMe ?? false)")
             print("======================")
+            #endif
 
             guard let userId = memberInfo.memberId,
                   let nickname = memberInfo.nickname else {

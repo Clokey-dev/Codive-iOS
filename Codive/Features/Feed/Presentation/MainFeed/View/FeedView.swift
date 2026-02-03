@@ -94,13 +94,6 @@ struct FeedView: View {
             }
             .presentationDetents([.height(500)])
         }
-        .onAppear {
-            Task {
-                if viewModel.feeds.isEmpty {
-                    await viewModel.loadFeeds()
-                }
-            }
-        }
         .task {
             if viewModel.feeds.isEmpty {
                 await viewModel.loadFeeds()
