@@ -63,16 +63,12 @@ struct LookBookView: View {
         .toolbarBackground(.hidden, for: .navigationBar)
     }
     
-    // MARK: - Main Layout
-    
     private var mainLayout: some View {
         VStack(spacing: 0) {
             topBar
             contentArea
         }
     }
-    
-    // MARK: - Top Navigation Bar
     
     private var topBar: some View {
         CustomNavigationBar(
@@ -81,7 +77,7 @@ struct LookBookView: View {
             rightButton: viewModel.isEditing
             ? .text(
                 title: TextLiteral.Common.delete,
-                isEnabled: !viewModel.selectedLookBookIds.isEmpty,
+                isEnabled: viewModel.selectedLookBookId != nil,
                 action: viewModel.handleCompleteAction
             )
             : .overflow(
@@ -96,8 +92,6 @@ struct LookBookView: View {
         .padding(.leading, 15)
     }
     
-    // MARK: - Content Area
-    
     private var contentArea: some View {
         Group {
             if viewModel.lookBookList.isEmpty,
@@ -109,8 +103,6 @@ struct LookBookView: View {
             }
         }
     }
-    
-    // MARK: - Add LookBook Dialog Overlay
     
     @ViewBuilder
     private var addLookBookDialogOverlay: some View {
@@ -133,9 +125,6 @@ struct LookBookView: View {
     }
 }
 
-// MARK: - SubViews
-
-/// 룩북 목록을 그리드 형태로 표시하는 View
 private struct LookBookContent: View {
     
     // MARK: - Properties
@@ -156,8 +145,6 @@ private struct LookBookContent: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
-    // MARK: - Grid Content
-    
     private var gridContent: some View {
         LazyVGrid(
             columns: Array(
@@ -167,13 +154,14 @@ private struct LookBookContent: View {
             spacing: 16
         ) {
             ForEach(viewModel.lookBookList) { lookbook in
-                LookBookCard(
-                    imageURL: lookbook.imageURL,
-                    cardTitle: lookbook.cardTitle,
-                    iconType: viewModel.isEditing ? .checkmark : .none,
-                    isSelected: viewModel.selectedLookBookIds.contains(lookbook.id)
-                )
-                .onTapGesture {
+                LookBookFolder(
+                    title: lookbook.lookbookName,
+                    count: Int(lookbook.count),
+                    imageUrl: lookbook.imageUrl,
+                    mode: viewModel.isEditing
+                    ? .check(isSelected: viewModel.selectedLookBookId == lookbook.id)
+                    : .none
+                ) {
                     if viewModel.isEditing {
                         viewModel.toggleSelection(id: lookbook.id)
                     } else {
@@ -186,7 +174,6 @@ private struct LookBookContent: View {
     }
 }
 
-/// 룩북이 하나도 없을 때 표시되는 빈 상태 View
 private struct EmptyLookBookView: View {
     
     var body: some View {

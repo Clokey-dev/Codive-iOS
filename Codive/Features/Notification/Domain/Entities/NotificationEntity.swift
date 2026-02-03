@@ -9,20 +9,20 @@ import Foundation
 
 /// 알림 유형
 enum RedirectType: String, Codable {
-    case member = "MEMBER"
-    case history = "HISTORY"
-    case weather = "WEATHER"
+    case member = "MEMBER_REDIRECT"
+    case history = "HISTORY_REDIRECT"
+    case weather = "WEATHER_REDIRECT"
 }
 
 /// 알림 읽음/읽지 않음 유형
 enum ReadStatus: String, Codable {
     case read = "READ"
-    case unread = "UNREAD"
+    case unread = "NOT_READ"
 }
 
 /// 알림 목록 조회 api
 struct NotificationEntity: Codable, Identifiable {
-    let notificationId: Int
+    let notificationId: Int64
     let notificationImageUrl: String?
     let notificationContent: String
     let redirectInfo: String
@@ -30,19 +30,19 @@ struct NotificationEntity: Codable, Identifiable {
     var readStatus: ReadStatus
     let createdAt: String
 
-    var id: Int { notificationId }
+    var id: Int64 { notificationId }
 }
 
 /// 신고 접수 유형
 enum ReportType: String, Codable {
-    case feed = "FEED"
-    case comment = "COMMENT"
+    case HISTORY = "HISTORY"
+    case COMMENT = "COMMENT"
 }
 
 /// 신고 접수 안내 api
 struct ReportEntity: Codable {
     let isReported: Bool
-    let reportType: ReportType? 
+    let reportType: ReportType?
 }
 
 /// 알림 읽음 처리 request api

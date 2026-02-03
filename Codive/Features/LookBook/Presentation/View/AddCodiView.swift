@@ -6,172 +6,163 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct AddCodiView: View {
     
-    // MARK: - State Object
-    
+    // MARK: - Properties
     @StateObject private var viewModel: AddCodiViewModel
     
     // MARK: - Initializer
-    
     init(viewModel: AddCodiViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
     
     // MARK: - Body
-    
     var body: some View {
         ZStack {
-            
-            // MARK: Main Content
-            
-            VStack(spacing: 0) {
-                
-                // MARK: Top Navigation Bar
-                
-                CustomNavigationBar(
-                    title: TextLiteral.LookBook.addCodiTitle,
-                    onBack: viewModel.handleBackTap
-                )
-                .padding(.leading, 15)
-                
-                // MARK: Scrollable Content
-                
-                ScrollView {
-                    VStack(spacing: 24) {
-                        
-                        // MARK: Codi Image Preview Area
-                        
-                        ZStack {
-                            if !viewModel.combinedItems.isEmpty {
-                                
-                                // MARK: Combined Codi Board
-                                
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 15)
-                                        .fill(Color(UIColor.systemGray6))
-                                    
-                                    ForEach(viewModel.combinedItems) { item in
-                                        AsyncImage(url: URL(string: item.name)) { phase in
-                                            if let image = phase.image {
-                                                image
-                                                    .resizable()
-                                                    .scaledToFit()
-                                            }
-                                        }
-                                        .frame(width: 80, height: 80)
-                                        .scaleEffect(item.scale)
-                                        .rotationEffect(.degrees(item.rotationAngle))
-                                        .position(x: item.position.x, y: item.position.y)
-                                    }
-                                    
-                                    EditCodiOverlayView()
-                                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                                }
-                            } else if let imageURL = viewModel.selectedImageURL, !imageURL.isEmpty {
-                                
-                                // MARK: Selected Image Preview
-                                
-                                AsyncImage(url: URL(string: imageURL)) { phase in
-                                    switch phase {
-                                    case .success(let image):
-                                        image
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(height: 335)
-                                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                                    case .failure:
-                                        Image(systemName: "photo")
-                                            .foregroundColor(.gray)
-                                    case .empty:
-                                        ProgressView()
-                                    @unknown default:
-                                        EmptyView()
-                                    }
-                                }
-                            } else {
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.gray.opacity(0.1))
-                                    .frame(height: 335)
-                                    .overlay {
-                                        CustomButton(
-                                            text: TextLiteral.LookBook.codiUpload,
-                                            widthType: .dynamic
-                                        ) {
-                                            viewModel.handleCodiUploadTap()
-                                        }
-                                    }
-                            }
-                        }
-                        .frame(height: 335)
-                        
-                        // MARK: Codi Information Input
-                        
-                        VStack(spacing: 12) {
-                            CustomTextField1(
-                                title: TextLiteral.LookBook.codiNameTitle,
-                                placeholder: TextLiteral.LookBook.hintCodiNameTitle,
-                                text: $viewModel.codiName,
-                                showRequiredMark: true
-                            )
-                            
-                            CustomTextField1(
-                                title: TextLiteral.LookBook.memoTitle,
-                                placeholder: TextLiteral.LookBook.hintMemo,
-                                text: $viewModel.memo
-                            )
-                        }
-                    }
-                    .padding(20)
-                }
-                
-                // MARK: Bottom Action Button
-                
-                CustomButton(
-                    text: TextLiteral.LookBook.addCodiCompleteButton,
-                    widthType: .fixed,
-                    isEnabled: viewModel.isButtonEnabled
-                ) {
-                    viewModel.handleCompleteTap()
-                }
-                .padding(20)
-            }
-            .disabled(viewModel.isShowingBottomSheet)
-            
-            // MARK: Bottom Sheet Overlay
+            mainContent
+                .disabled(viewModel.isShowingBottomSheet)
             
             if viewModel.isShowingBottomSheet {
                 bottomSheetOverlay
             }
             
-            // MARK: Success Overlay
-            
             if viewModel.isShowingSuccessView {
-                CustomSuccessView(message: viewModel.successMessage)
-                    .transition(.opacity)
-                    .zIndex(1000)
+                successOverlay
             }
         }
         .navigationBarHidden(true)
         .background(Color.white)
         .animation(.easeInOut(duration: 0.2), value: viewModel.isShowingSuccessView)
     }
+}
+
+// MARK: - View Components
+private extension AddCodiView {
     
-    // MARK: - Bottom Sheet Overlay View
-    
-    private var bottomSheetOverlay: some View {
-        ZStack {
+    var mainContent: some View {
+        VStack(spacing: 0) {
+            navigationBar
             
-            // MARK: Dimmed Background
-            
-            Color.black.opacity(0.5)
-                .edgesIgnoringSafeArea(.all)
-                .onTapGesture {
-                    viewModel.isShowingBottomSheet = false
+            ScrollView {
+                VStack(spacing: 24) {
+                    codiPreviewArea
+                    inputSection
                 }
+                .padding(20)
+            }
             
-            // MARK: Bottom Sheet Content
+            completeButton
+        }
+    }
+    
+    var navigationBar: some View {
+        CustomNavigationBar(
+            title: TextLiteral.LookBook.addCodiTitle,
+            onBack: viewModel.handleBackTap
+        )
+        .padding(.leading, 15)
+    }
+    
+    var codiPreviewArea: some View {
+        ZStack {
+            if let capturedImage = viewModel.capturedImage {
+                selectedImagePreview(image: capturedImage)
+            } else if let imageURL = viewModel.selectedImageURL, !imageURL.isEmpty {
+                selectedImagePreview(url: imageURL)
+            } else {
+                emptyUploadPlaceholder
+            }
+        }
+        .frame(height: 335)
+    }
+    
+    var inputSection: some View {
+        VStack(spacing: 12) {
+            CustomTextField1(
+                title: TextLiteral.LookBook.codiNameTitle,
+                placeholder: TextLiteral.LookBook.hintCodiNameTitle,
+                text: $viewModel.codiName,
+                showRequiredMark: true
+            )
+            
+            CustomTextField1(
+                title: TextLiteral.LookBook.memoTitle,
+                placeholder: TextLiteral.LookBook.hintMemo,
+                text: $viewModel.memo
+            )
+        }
+    }
+    
+    var completeButton: some View {
+        CustomButton(
+            text: TextLiteral.LookBook.addCodiCompleteButton,
+            widthType: .fixed,
+            isEnabled: viewModel.isButtonEnabled
+        ) {
+            viewModel.handleCompleteTap()
+        }
+        .padding(20)
+    }
+}
+
+private extension AddCodiView {
+    func selectedImagePreview(image: UIImage) -> some View {
+        ZStack {
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFill()
+            
+            EditCodiOverlayView()
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+        .frame(height: 335)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+    
+    func selectedImagePreview(url: String) -> some View {
+        ZStack {
+            KFImage(URL(string: url))
+                .placeholder {
+                    Image(systemName: "photo")
+                        .foregroundStyle(.gray)
+                }
+                .onFailure { _ in }
+                .resizable()
+                .scaledToFill()
+            
+            EditCodiOverlayView()
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    viewModel.handleEditCodiTap()
+                }
+        }
+        .frame(height: 335)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+    
+    var emptyUploadPlaceholder: some View {
+        RoundedRectangle(cornerRadius: 12)
+            .fill(Color.gray.opacity(0.1))
+            .overlay {
+                CustomButton(
+                    text: TextLiteral.LookBook.codiUpload,
+                    widthType: .dynamic
+                ) {
+                    viewModel.handleCodiUploadTap()
+                }
+            }
+    }
+}
+
+private extension AddCodiView {
+    var bottomSheetOverlay: some View {
+        ZStack {
+            Color.black.opacity(0.7)
+                .edgesIgnoringSafeArea(.all)
+                .onTapGesture { viewModel.isShowingBottomSheet = false }
             
             VStack {
                 Spacer()
@@ -185,5 +176,11 @@ struct AddCodiView: View {
                 )
             }
         }
+    }
+    
+    var successOverlay: some View {
+        CustomSuccessView(message: viewModel.successMessage)
+            .transition(.opacity)
+            .zIndex(1000)
     }
 }

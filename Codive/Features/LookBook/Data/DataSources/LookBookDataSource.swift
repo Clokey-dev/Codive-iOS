@@ -6,181 +6,243 @@
 //
 
 import Foundation
+import CodiveAPI
 
-final class LookBookDataSource {
+protocol LookBookDataSourceProtocol {
+    /// 룩북 전체 조회
+    func fetchLookBookList(
+        lastLookBookId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
+    ) async throws -> LookBookListResponseDTO
     
-    // MARK: - Dummy LookBook List
+    /// 개별 룩북 내 코디 조회
+    func fetchLookBookCoordinateList(
+        lookBookId: Int64,
+        lastCoordinateId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getCoordinates.Input.Query.directionPayload
+    ) async throws -> LookBookCoordinateResponseDTO
     
-    /// LookBook 메인 화면에 노출되는 룩북 카드 더미 데이터
-    /// 각 LookBook은 id, 대표 이미지, 카드 제목을 가진다.
-    private var dummyLookBooks: [LookBookEntity] = [
-        LookBookEntity(
-            id: 1,
-            imageURL: "https://images.unsplash.com/photo-1520975916090-3105956dac38?w=600&q=80",
-            cardTitle: "영화관 데이트 룩"
-        ),
-        LookBookEntity(
-            id: 2,
-            imageURL: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80",
-            cardTitle: "편안한 데일리 코디"
-        ),
-        LookBookEntity(
-            id: 3,
-            imageURL: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=600&q=80",
-            cardTitle: "스트릿 캐주얼"
-        ),
-        LookBookEntity(
-            id: 4,
-            imageURL: "https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?w=600&q=80",
-            cardTitle: "파티/모임 코디"
-        ),
-        LookBookEntity(
-            id: 5,
-            imageURL: "https://images.unsplash.com/photo-1523381294911-8d3cead13475?w=600&q=80",
-            cardTitle: "미니멀 데일리"
-        ),
-        LookBookEntity(
-            id: 6,
-            imageURL: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&q=80",
-            cardTitle: "운동/액티브웨어"
+    /// 과거 일일 코디 조회
+    func fetchPastCoordinates(
+        lastCoordinateId: Int64?,
+        size: Int32,
+        direction: Operations.Coordinate_getDailyCoordinates.Input.Query.directionPayload
+    ) async throws -> PastDailyCoordinateResponseDTO
+    
+    /// 코디 preview 조회
+    func fetchCoordinatePreview(coordinateId: Int64) async throws -> CoordinatePreviewResponseDTO
+    
+    /// 코디 detail 조회
+    func fetchCoordinateDetail(
+        coordinateId: Int64
+    ) async throws -> [CoordinateDetailResponseDTO]
+    
+    /// 오늘의 코디 옷 정보 조회
+    func fetchTodayCoordinateClothes() async throws -> [GetTodayCoordinateClothResponseDTO]
+    
+    /// 옷 리스트 조회
+    func fetchClothItems(category: String?) async throws -> [ProductItem]
+    
+    /// 룩북 생성
+    func createLookBook(request: CreateLookBookAPIRequestDTO) async throws -> CreateLookBookResponseDTO
+    
+    /// 코디 수동 생성
+    func createManualCoordinate(request: CreateManualCoordinateAPIRequestDTO) async throws -> CreateManualCoordinateAPIResponseDTO
+    
+    /// 룩북 삭제
+    func deleteLookBook(lookBookId: Int64) async throws
+    
+    /// 룩북 수정
+    func updateLookBook(lookBookId: Int64, request: UpdateLookBookAPIRequestDTO) async throws
+    
+    /// 코디 삭제
+    func deleteCoordinate(coordinateId: Int64) async throws
+    
+    /// 코디 좋아요 토글
+    func patchCoordinateLike(coordinateId: Int64) async throws
+    
+    /// 코디 수정
+    func patchUpdateCoordinates(coordinateId: Int64, request: EditCoordinateRequestDTO) async throws
+    
+    /// 이전 일일 코디로 자동 생성
+    func createAutoDailyCoordinate(request: CreateAutoDailyCoordinateAPIRequestDTO) async throws -> CreateAutoDailyCoordinateAPIResponseDTO
+}
+
+final class LookBookDataSource: LookBookDataSourceProtocol {
+    private let apiService: LookBookAPIServiceProtocol
+    
+    // MARK: - Initializer
+    init(
+        apiService: LookBookAPIServiceProtocol = LookBookAPIService()
+    ) {
+        self.apiService = apiService
+    }
+    
+    /// 룩북 전체 리스트 조회
+    func fetchLookBookList(
+        lastLookBookId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
+    ) async throws -> LookBookListResponseDTO {
+        return try await apiService.fetchLookBookList(
+            lastLookBookId: lastLookBookId,
+            size: size,
+            direction: direction
         )
-    ]
+    }
     
-    // MARK: - Dummy Codis by LookBook
-    
-    /// 룩북 ID를 key로 하는 코디 목록 더미 데이터
-    /// 특정 LookBook 상세 화면에서 사용된다.
-    private var lookbookCodis: [Int: [LookBookEntity]] = [
-        1: [ // 데이트 룩 (ID: 1)
-            LookBookEntity(id: 11, imageURL: "https://image.msscdn.net/images/style/detail/37395/detail_37395_1_500.jpg", cardTitle: "로맨틱 시사회 룩"),
-            LookBookEntity(id: 12, imageURL: "https://image.msscdn.net/images/style/detail/37390/detail_37390_1_500.jpg", cardTitle: "따뜻한 카페 데이트"),
-            LookBookEntity(id: 13, imageURL: "https://image.msscdn.net/images/style/detail/37385/detail_37385_1_500.jpg", cardTitle: "활동적인 피크닉 룩"),
-            LookBookEntity(id: 14, imageURL: "https://image.msscdn.net/images/style/detail/37380/detail_37380_1_500.jpg", cardTitle: "뮤지컬 관람 코디")
-           ],
-        2: [ // 데일리 룩 (ID: 2)
-            LookBookEntity(id: 21, imageURL: "https://image.msscdn.net/images/style/detail/37375/detail_37375_1_500.jpg", cardTitle: "캐주얼 오버핏"),
-            LookBookEntity(id: 22, imageURL: "https://image.msscdn.net/images/style/detail/37370/detail_37370_1_500.jpg", cardTitle: "편한 집앞 마실룩")
-           ]
-    ]
-    
-    // MARK: - Dummy Codi Detail
-    
-    /// 코디 상세 화면에서 사용하는 더미 데이터
-    /// 코디 ID를 key로 하여 상세 정보(상의/하의/신발/메모/날짜)를 제공한다.
-    private var codiDetails: [Int: CodiDetailEntity] = [
-        11: CodiDetailEntity(
-            id: 11,
-            imageURL: "https://image.msscdn.net/images/style/detail/37395/detail_37395_1_500.jpg",
-            topImageURL: "https://image.msscdn.net/images/goods_img/20230823/3505663/3505663_16927703370903_500.jpg",
-            bottomImageURL: "https://image.msscdn.net/images/goods_img/20230209/3067644/3067644_16759086395254_500.jpg",
-            shoeImageURL: "https://image.msscdn.net/images/goods_img/20221031/2902341/2902341_1_500.jpg",
-            name: "로맨틱 시사회 룩",
-            memo: "1주년이니까 오빠가 사준 신발 신고가야됨",
-            date: "2025.08.09"
-        ),
-        12: CodiDetailEntity(
-            id: 12,
-            imageURL: "https://image.msscdn.net/images/style/detail/37390/detail_37390_1_500.jpg",
-            topImageURL: "https://image.msscdn.net/images/goods_img/20240115/3792446/3792446_17053040307044_500.jpg",
-            bottomImageURL: "https://image.msscdn.net/images/goods_img/20230209/3067644/3067644_16759086395254_500.jpg",
-            shoeImageURL: "https://image.msscdn.net/images/goods_img/20221031/2902341/2902341_1_500.jpg",
-            name: "따뜻한 카페 데이트",
-            memo: "겨울 카페 데이트 코디",
-            date: "2025.08.01"
-        ),
-        13: CodiDetailEntity(
-            id: 13,
-            imageURL: "https://image.msscdn.net/images/style/detail/37385/detail_37385_1_500.jpg",
-            topImageURL: "https://image.msscdn.net/images/goods_img/20230823/3505663/3505663_16927703370903_500.jpg",
-            bottomImageURL: "https://image.msscdn.net/images/goods_img/20230912/3553250/3553250_16945037307524_500.jpg",
-            shoeImageURL: "https://image.msscdn.net/images/goods_img/20221031/2902341/2902341_1_500.jpg",
-            name: "활동적인 피크닉 룩",
-            memo: "야외 활동하기 좋은 스타일",
-            date: "2025.08.11"
-        ),
-        14: CodiDetailEntity(
-            id: 14,
-            imageURL: "https://image.msscdn.net/images/style/detail/37380/detail_37380_1_500.jpg",
-            topImageURL: "https://image.msscdn.net/images/goods_img/20240115/3792446/3792446_17053040307044_500.jpg",
-            bottomImageURL: "https://image.msscdn.net/images/goods_img/20230912/3553250/3553250_16945037307524_500.jpg",
-            shoeImageURL: "https://image.msscdn.net/images/goods_img/20221031/2902341/2902341_1_500.jpg",
-            name: "뮤지컬 관람 코디",
-            memo: "공연장에 입고 가기 좋은 코디",
-            date: "2025.08.14"
+    /// 개별 룩북 전체 리스트 조회
+    func fetchLookBookCoordinateList(
+        lookBookId: Int64,
+        lastCoordinateId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getCoordinates.Input.Query.directionPayload
+    ) async throws -> LookBookCoordinateResponseDTO {
+        return try await apiService.fetchLookBookCoordinateList(
+            lookBookId: lookBookId,
+            lastCoordinateId: lastCoordinateId,
+            size: size,
+            direction: direction
         )
-    ]
-    
-    // MARK: - Dummy Product List
-    
-    /// 코디 구성 아이템 선택 화면에서 사용하는 상품 더미 데이터
-    private var dummyProducts: [ProductItem] = [
-        ProductItem(id: 1, imageName: "https://pngimg.com/uploads/jacket/jacket_PNG8055.png", isTodayCloth: true, brand: "아디다스", name: "트랙탑"),
-        ProductItem(id: 2, imageName: "https://pngimg.com/uploads/hoodie/hoodie_PNG27.png", isTodayCloth: false, brand: "나이키", name: "후드티"),
-        ProductItem(id: 3, imageName: "https://pngimg.com/uploads/jeans/jeans_PNG5777.png", isTodayCloth: false, brand: "리바이스", name: "데님 팬츠"),
-        ProductItem(id: 4, imageName: "https://pngimg.com/uploads/jacket/jacket_PNG8066.png", isTodayCloth: false, brand: "노스페이스", name: "패딩"),
-        ProductItem(id: 5, imageName: "https://pngimg.com/uploads/running_shoes/running_shoes_PNG5823.png", isTodayCloth: true, brand: "뉴발란스", name: "990v6"),
-        ProductItem(id: 6, imageName: "https://pngimg.com/uploads/cap/cap_PNG5687.png", isTodayCloth: false, brand: "뉴에라", name: "볼캡")
-    ]
-    
-    // MARK: - Dummy Before Codi List
-    
-    /// 코디 추가 전 선택 화면에서 사용하는 이전 코디 목록 더미 데이터
-    private var dummyBeforeCodi: [BeforeCodiEntity] = [
-        BeforeCodiEntity(id: 1, imageURL: "https://image.msscdn.net/images/style/detail/37395/detail_37395_1_500.jpg", date: "2025.08.09", name: "로맨틱 시사회 룩", memo: "영화관 데이트하기 좋은 스타일"),
-        BeforeCodiEntity(id: 2, imageURL: "https://image.msscdn.net/images/style/detail/37390/detail_37390_1_500.jpg", date: "2025.08.01", name: "따뜻한 카페 데이트", memo: "겨울 카페 데이트 코디"),
-        BeforeCodiEntity(id: 3, imageURL: "https://image.msscdn.net/images/style/detail/37370/detail_37370_1_500.jpg", date: "2025.08.03", name: "편한 집앞 마실룩", memo: "동네 산책하기 좋은 편한 옷"),
-        BeforeCodiEntity(id: 4, imageURL: "https://image.msscdn.net/images/style/detail/37370/detail_37370_1_500.jpg", date: "2025.08.08", name: "캐주얼 데일리", memo: "평소에 입기 좋은 무난한 코디"),
-        BeforeCodiEntity(id: 5, imageURL: "https://image.msscdn.net/images/style/detail/37385/detail_37385_1_500.jpg", date: "2025.08.11", name: "활동적인 피크닉 룩", memo: "야외 활동하기 좋은 스타일"),
-        BeforeCodiEntity(id: 6, imageURL: "https://image.msscdn.net/images/style/detail/37380/detail_37380_1_500.jpg", date: "2025.08.14", name: "뮤지컬 관람 코디", memo: "공연장에 입고 가기 좋은 코디")
-    ]
-    
-    // MARK: - Fetch APIs
-    
-    /// LookBook 목록 조회
-    func fetchLookBookList() async throws -> [LookBookEntity] {
-        try await Task.sleep(nanoseconds: 500_000_000)
-        return dummyLookBooks
     }
     
-    /// 이전 코디 목록 조회
-    func fetchBeforeCodiList() async throws -> [BeforeCodiEntity] {
-        try await Task.sleep(nanoseconds: 500_000_000)
-        return dummyBeforeCodi
+    /// 과거 일일 코디 조회
+    func fetchPastCoordinates(
+        lastCoordinateId: Int64?,
+        size: Int32,
+        direction: Operations.Coordinate_getDailyCoordinates.Input.Query.directionPayload
+    ) async throws -> PastDailyCoordinateResponseDTO {
+        return try await apiService.fetchPastCoordinates(
+            lastCoordinateId: lastCoordinateId,
+            size: size,
+            direction: direction
+        )
     }
     
-    /// 특정 LookBook에 속한 코디 목록 조회
-    func fetchCodisForLookBook(id lookbookId: Int) async throws -> [LookBookEntity] {
-        try await Task.sleep(nanoseconds: 500_000_000)
-        return lookbookCodis[lookbookId] ?? []
+    /// 코디 preview 조회
+    func fetchCoordinatePreview(coordinateId: Int64) async throws -> CoordinatePreviewResponseDTO {
+        return try await apiService.fetchCoordinatePreview(coordinateId: coordinateId)
     }
     
-    /// 코디 상세 정보 조회
-    func fetchCodiDetail(codiId: Int) async throws -> CodiDetailEntity? {
-        try await Task.sleep(nanoseconds: 300_000_000)
-        return codiDetails[codiId]
+    /// 코디 detail 조회
+    func fetchCoordinateDetail(
+        coordinateId: Int64
+    ) async throws -> [CoordinateDetailResponseDTO] {
+        return try await apiService.fetchCoordinateDetail(coordinateId: coordinateId)
     }
     
-    /// 상품 목록 조회
-    func fetchProductList() async throws -> [ProductItem] {
-        try await Task.sleep(nanoseconds: 300_000_000)
-        return dummyProducts
+    /// 오늘의 코디 옷 정보 조회
+    func fetchTodayCoordinateClothes() async throws -> [GetTodayCoordinateClothResponseDTO] {
+        return try await apiService.fetchTodayCoordinateClothes()
     }
     
-    // MARK: - Mutating APIs
-    
-    /// LookBook 삭제
-    /// - Parameter ids: 삭제할 룩북 ID 배열
-    func deleteLookBooks(ids: [Int]) async throws {
-        try await Task.sleep(nanoseconds: 500_000_000)
-        print("서버에 삭제 요청: lookbookId \(ids)")
+    /// 옷 리스트 조회
+    func fetchClothItems(category: String?) async throws -> [ProductItem] {
+        // 전체 옷 목록 조회 (페이지네이션 없이 전체)
+        let result = try await apiService.fetchClothes(
+            lastClothId: nil,
+            size: 100,
+            categoryId: nil,
+            seasons: []
+        )
         
-        dummyLookBooks.removeAll { ids.contains($0.id) }
-        print("삭제 후 남은 LookBook: \(dummyLookBooks.map { $0.id })")
+        return result.clothes.map { item in
+            ProductItem(
+                id: Int(item.clothId),
+                imageUrl: item.imageUrl,
+                brand: item.brand,
+                name: item.name
+            )
+        }
     }
     
-    /// 코디 좋아요 상태 변경
-    func toggleLike(codyId: Int, isLiked: Bool) async throws {
-        try await Task.sleep(nanoseconds: 300_000_000)
-        print("서버에 좋아요 상태 전송: Codi ID \(codyId), isLiked: \(isLiked)")
+    /// 룩북 생성
+    func createLookBook(
+        request: CreateLookBookAPIRequestDTO
+    ) async throws -> CreateLookBookResponseDTO {
+        return try await apiService.createLookBook(request: request)
+    }
+    
+    /// 코디 수동 생성
+    func createManualCoordinate(request: CreateManualCoordinateAPIRequestDTO) async throws -> CreateManualCoordinateAPIResponseDTO {
+        return try await apiService.createManualCoordinate(request: request)
+    }
+    
+    /// 룩북 삭제
+    func deleteLookBook(lookBookId: Int64) async throws {
+        try await apiService.deleteLookBook(lookBookId: lookBookId)
+    }
+    
+    /// 룩북 수정
+    func updateLookBook(lookBookId: Int64, request: UpdateLookBookAPIRequestDTO) async throws {
+        try await apiService.updateLookBook(lookBookId: lookBookId, request: request)
+    }
+    
+    /// 코디 삭제
+    func deleteCoordinate(coordinateId: Int64) async throws {
+        try await apiService.deleteCoordinate(coordinateId: coordinateId)
+    }
+    
+    /// 코디 좋아요 토글
+    func patchCoordinateLike(coordinateId: Int64) async throws {
+        try await apiService.patchCoordinateLike(coordinateId: coordinateId)
+    }
+    
+    /// 코디 수정
+    func patchUpdateCoordinates(coordinateId: Int64, request: EditCoordinateRequestDTO) async throws {
+        try await apiService.patchUpdateCoordinates(coordinateId: coordinateId, request: request)
+    }
+    
+    /// 이전 일일 코디로 자동 생성
+    func createAutoDailyCoordinate(request: CreateAutoDailyCoordinateAPIRequestDTO) async throws -> CreateAutoDailyCoordinateAPIResponseDTO {
+        return try await apiService.createAutoDailyCoordinate(request: request)
+    }
+}
+
+// MARK: - LookBookDataSource.swift에 추가
+
+extension LookBookDataSource {
+    /// 코디 이미지를 S3에 업로드하고 최종 URL을 반환
+    func uploadCodiImage(jpgData: Data) async throws -> String {
+        let presignedUrlInfos = try await apiService.getPresignedUrls(for: [jpgData])
+        
+        guard let urlInfo = presignedUrlInfos.first else {
+            throw LookBookAPIError.uploadFailed(message: "Presigned URL 발급 실패")
+        }
+        
+        try await uploadImageToS3(
+            presignedUrl: urlInfo.presignedUrl,
+            imageData: jpgData,
+            md5Hash: urlInfo.md5Hash
+        )
+
+        return urlInfo.finalUrl
+    }
+ 
+    private func uploadImageToS3(
+        presignedUrl: String,
+        imageData: Data,
+        md5Hash: String
+    ) async throws {
+        guard let url = URL(string: presignedUrl) else {
+            throw LookBookAPIError.invalidUrl
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type")
+        request.setValue(md5Hash, forHTTPHeaderField: "Content-MD5")
+        request.httpBody = imageData
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            throw LookBookAPIError.uploadFailed(message: "S3 업로드 실패 (Status: \((response as? HTTPURLResponse)?.statusCode ?? -1))")
+        }
+        
+        print("✅ S3 이미지 업로드 성공")
     }
 }

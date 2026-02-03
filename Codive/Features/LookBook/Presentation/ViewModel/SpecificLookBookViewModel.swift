@@ -9,90 +9,119 @@ import SwiftUI
 
 @MainActor
 final class SpecificLookBookViewModel: ObservableObject {
-    
-    // MARK: - Dependencies
-    
     private let navigationRouter: NavigationRouter
-    private let detailUseCase: LookBookDetailUseCase
-    private let codiUseCase: CodiUseCase
-
-    let lookbookId: Int
-    let lookbookTitle: String
+    private let specificLookBookUseCase: SpecificLookBookUseCase
     
-    // MARK: - Published State (Data)
+    private let lookbookId: Int64
+    @Published var name: String
+    @Published var isEditingTitle = false
+    private var previousTitle: String = ""
     
-    @Published var lookBookList: [LookBookEntity] = []
+    @Published var specificLookBookCodiList: [SpecificLookBookCodiEntity] = []
+    @Published var likedCodiId: Int64?
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
-    
-    // MARK: - Published State (Editing)
-    
     @Published var isEditing: Bool = false
-    @Published var selectedCodiIds: Set<Int> = []
+    @Published var selectedCodiId: Int64?
     @Published var isShowingDeleteAlert: Bool = false
     
     // MARK: - Initializer
     
     init(
         navigationRouter: NavigationRouter,
-        detailUseCase: LookBookDetailUseCase,
-        codiUseCase: CodiUseCase,
-        lookbookId: Int,
-        lookbookTitle: String = ""
+        specificLookBookUseCase: SpecificLookBookUseCase,
+        lookbookId: Int64,
+        name: String
     ) {
         self.navigationRouter = navigationRouter
-        self.detailUseCase = detailUseCase
-        self.codiUseCase = codiUseCase
+        self.specificLookBookUseCase = specificLookBookUseCase
         self.lookbookId = lookbookId
-        self.lookbookTitle = lookbookTitle
+        self.name = name
     }
     
-    // MARK: - Data Fetching
-    
+    // MARK: - 특정 룩북의 코디 조회하기
     func fetchCodis() {
         isLoading = true
         errorMessage = nil
         
         Task {
             do {
-                let list = try await detailUseCase.fetchCodis(forLookbookId: lookbookId)
-                self.lookBookList = list
+                let result = try await specificLookBookUseCase.fetchLookBookCoordinateList(
+                    lookBookId: lookbookId,
+                    lastCoordinateId: nil,
+                    size: 20,
+                    direction: .DESC
+                )
+                
+                self.specificLookBookCodiList = result.content
+                
+                self.likedCodiId = result.content.first { $0.coordinateLiked }?.coordinateId
             } catch {
-                self.errorMessage = "데이터 로드에 실패했습니다: \(error.localizedDescription)"
+                self.errorMessage = "데이터 로드에 실패했습니다."
             }
+            
             isLoading = false
         }
     }
     
-    // MARK: - Editing Actions
+    // MARK: - 코디 좋아요 토글
+    func toggleLike(coordinateId: Int64) {
+        Task {
+            do {
+                try await specificLookBookUseCase.toggleCoordinateLike(
+                    coordinateId: coordinateId
+                )
+                
+                if let currentLikedId = likedCodiId,
+                   let currentIndex = specificLookBookCodiList.firstIndex(where: { $0.id == currentLikedId }) {
+                    specificLookBookCodiList[currentIndex].coordinateLiked = false
+                }
+                
+                if likedCodiId == coordinateId {
+                    likedCodiId = nil
+                } else {
+                    likedCodiId = coordinateId
+                    if let newIndex = specificLookBookCodiList.firstIndex(where: { $0.id == coordinateId }) {
+                        specificLookBookCodiList[newIndex].coordinateLiked = true
+                    }
+                }
+            } catch {
+                errorMessage = "좋아요 처리에 실패했습니다."
+            }
+        }
+    }
     
+    func toggleSelection(id: Int64) {
+        if selectedCodiId == id {
+            selectedCodiId = nil
+        } else {
+            selectedCodiId = id
+        }
+    }
+    
+    // MARK: - 토글(편집하기)
     func toggleEditingMode() {
         isEditing.toggle()
         if !isEditing {
-            selectedCodiIds = []
+            selectedCodiId = nil
         }
     }
     
-    func toggleSelection(id: Int) {
-        if selectedCodiIds.contains(id) {
-            selectedCodiIds.remove(id)
-        } else {
-            selectedCodiIds.insert(id)
-        }
-    }
-    
-    func handleDeleteAction() {
+    // MARK: - 코디 편집 모드 전환
+    func handleEditAction() {
         isEditing = true
     }
     
+    // MARK: - topBar 삭제 버튼 동작
     func handleCompleteAction() {
-        guard !selectedCodiIds.isEmpty else {
+        guard selectedCodiId != nil else {
             toggleEditingMode()
             return
         }
         isShowingDeleteAlert = true
     }
     
+    // MARK: - alert 삭제 버튼
     func beginDelete() {
         isShowingDeleteAlert = false
         isLoading = true
@@ -103,33 +132,81 @@ final class SpecificLookBookViewModel: ObservableObject {
         }
     }
     
+    // MARK: - 코디 삭제 확정
     func confirmDelete() {
-        Task {
-            fetchCodis()
-            toggleEditingMode()
+        guard let idToDelete = selectedCodiId else {
+            isLoading = false
+            isEditing = false
+            return
         }
-    }
-    
-    // MARK: - Like Action
-    
-    func toggleLike(codyId: Int, isLiked: Bool) {
+        
         Task {
             do {
-                try await codiUseCase.toggleLike(codyId: codyId, isLiked: isLiked)
+                try await specificLookBookUseCase.deleteCoordinate(coordinateId: idToDelete)
+                
+                specificLookBookCodiList.removeAll { codi in
+                    codi.id == idToDelete
+                }
+                
+                selectedCodiId = nil
+                isEditing = false
             } catch {
-                self.errorMessage = "좋아요 상태 변경에 실패했습니다: \(error.localizedDescription)"
+                errorMessage = "코디 삭제에 실패했습니다."
             }
+            
+            isLoading = false
         }
     }
     
-    // MARK: - Navigation
+    // MARK: - 룩북 이름 수정 시작
+    func beginEditTitle() {
+        previousTitle = name
+        isEditingTitle = true
+    }
+    
+    // MARK: - 룩북 이름 수정 확정
+    func confirmEditTitle() {
+        let newTitle = name.trimmingCharacters(in: .whitespaces)
+        
+        guard !newTitle.isEmpty, newTitle != previousTitle else {
+            cancelEditTitle()
+            return
+        }
+        
+        isEditingTitle = false
+        isLoading = true
+        
+        let request = UpdateLookBookAPIRequestDTO(
+            name: newTitle
+        )
+        
+        Task {
+            do {
+                try await specificLookBookUseCase.updateLookBook(
+                    lookBookId: lookbookId,
+                    request: request
+                )
+            } catch {
+                name = previousTitle
+                errorMessage = "룩북 이름 수정에 실패했습니다."
+            }
+            
+            isLoading = false
+        }
+    }
+    
+    // MARK: - 룩북 이름 수정 취소
+    func cancelEditTitle() {
+        name = previousTitle
+        isEditingTitle = false
+    }
     
     func navigateToAddCodi() {
-        navigationRouter.navigate(to: .addCodi(lookbookId: lookbookId))
+        navigationRouter.navigate(to: .addCodi(coordinateId: lookbookId))
     }
     
     func navigateToCodiDetail(codiId: Int) {
-        navigationRouter.navigate(to: .codiDetail(codiId: codiId, lookbookId: lookbookId))
+        navigationRouter.navigate(to: .codiDetail(codiId: codiId))
     }
     
     func handleBackTap() {

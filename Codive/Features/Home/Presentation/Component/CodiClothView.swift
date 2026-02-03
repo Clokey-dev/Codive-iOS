@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-// MARK: - Card (단일 슬롯)
-
 struct ClothCardView: View {
     let item: HomeClothEntity
     let width: CGFloat
@@ -28,7 +26,6 @@ struct ClothCardView: View {
                     .frame(height: 124)
                     .frame(width: 124)
                     .overlay {
-                        // 서버 URL 혹은 로컬 에셋 이름 모두 대응 가능하게 처리
                         if let url = URL(string: item.imageUrl), item.imageUrl.hasPrefix("http") {
                             AsyncImage(url: url) { phase in
                                 switch phase {
@@ -49,7 +46,6 @@ struct ClothCardView: View {
                             }
                             .clipShape(RoundedRectangle(cornerRadius: 15))
                         } else {
-                            // 로컬 에셋 이름으로 처리
                             Image(item.imageUrl)
                                 .resizable()
                                 .scaledToFit()
@@ -62,8 +58,6 @@ struct ClothCardView: View {
     }
 }
 
-// MARK: - Carousel
-
 struct CodiClothCarouselView: View {
     let items: [HomeClothEntity]
     @Binding var currentIndex: Int
@@ -71,8 +65,7 @@ struct CodiClothCarouselView: View {
     let activeScale: CGFloat
     let inactiveScale: CGFloat
     let isEmptyState: Bool
-    
-    // 빈 상태에서 사용하는 3개의 카드 구성
+
     @ViewBuilder
     private func emptyStateCard(at index: Int, width: CGFloat) -> some View {
         let border = RoundedRectangle(cornerRadius: 15)
@@ -83,7 +76,6 @@ struct CodiClothCarouselView: View {
         
         switch index {
         case 1:
-            // 가운데 카드: 텍스트 + 플러스 아이콘
             ZStack {
                 RoundedRectangle(cornerRadius: 15)
                     .fill(Color.white)
@@ -110,7 +102,6 @@ struct CodiClothCarouselView: View {
             .frame(width: width)
             
         default:
-            // 양옆 카드: 투명 배경 + 점선 테두리만
             ZStack {
                 RoundedRectangle(cornerRadius: 15)
                     .fill(Color.clear)
@@ -154,7 +145,6 @@ struct CodiClothCarouselView: View {
                     .gesture(
                         DragGesture()
                             .onEnded { value in
-                                // 빈 상태에서는 드래그/스크롤 동작 X
                                 if isEmptyState { return }
                                 
                                 let offset = value.translation.width
@@ -197,32 +187,27 @@ struct CodiClothCarouselView: View {
     }
 }
 
-// MARK: - Entry View
-
 struct CodiClothView: View {
     let title: String
     let items: [HomeClothEntity]
     let isEmptyState: Bool
-    // 추가: 인덱스가 변경되었을 때 실행될 클로저
     var onIndexChanged: ((Int) -> Void)?
     
-    private let spacing: CGFloat = 10
-    private let activeScale: CGFloat = 1.0
-    private let inactiveScale: CGFloat = 0.9
+    // Carousel 설정
+    let spacing: CGFloat = 12
+    let activeScale: CGFloat = 1.0
+    let inactiveScale: CGFloat = 0.85
     
     @State private var currentIndex: Int
     
-    init(title: String,
-         items: [HomeClothEntity] = [],
-         isEmptyState: Bool,
-         onIndexChanged: ((Int) -> Void)? = nil) { // 초기화 수정
-        
+    init(title: String, items: [HomeClothEntity], isEmptyState: Bool, onIndexChanged: ((Int) -> Void)? = nil) {
         self.title = title
         self.items = items
         self.isEmptyState = isEmptyState
         self.onIndexChanged = onIndexChanged
         
-        let initialIndex = isEmptyState ? 1 : max(0, items.count / 2)
+//        let initialIndex = isEmptyState ? 1 : max(0, items.count / 2)
+        let initialIndex = isEmptyState ? 1 : 0
         _currentIndex = State(initialValue: initialIndex)
     }
     
@@ -237,11 +222,11 @@ struct CodiClothView: View {
                     inactiveScale: inactiveScale,
                     isEmptyState: isEmptyState
                 )
-                // 인덱스가 바뀔 때마다 외부로 알려줌
                 .onChange(of: currentIndex) { newValue in
                     onIndexChanged?(newValue)
                 }
                 
+                // 카테고리 태그
                 Text(title)
                     .font(.caption.bold())
                     .foregroundStyle(.white)
@@ -255,10 +240,14 @@ struct CodiClothView: View {
                     .padding(.vertical, 10)
             }
             
+            // 이동 핸들 아이콘
             Image("move")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 11)
+                .padding(.trailing, 12)
+                .contentShape(Rectangle()) // 터치 영역 확장
         }
+        .background(Color.white)
     }
 }

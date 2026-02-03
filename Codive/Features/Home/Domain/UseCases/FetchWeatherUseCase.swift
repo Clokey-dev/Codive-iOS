@@ -18,4 +18,8 @@ final class FetchWeatherUseCase {
     func execute(for location: CLLocation?) async throws -> WeatherData {
         return try await repository.fetchWeatherData(for: location)
     }
+    
+    func postTodayTemp(request: PostTodayTemperatureAPIRequestDTO) async throws {
+        try await repository.postTodayTemp(request: request)
+    }
 }

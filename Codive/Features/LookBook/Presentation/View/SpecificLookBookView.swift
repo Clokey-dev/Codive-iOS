@@ -1,5 +1,5 @@
 //
-//  SpecificLookBook.swift
+//  SpecificLookBookView.swift
 //  Codive
 //
 //  Created by 한금준 on 11/27/25.
@@ -7,12 +7,11 @@
 
 import SwiftUI
 
-struct SpecificLookBook: View {
+struct SpecificLookBookView: View {
     
     // MARK: - State Object & Local State
     
     @StateObject private var viewModel: SpecificLookBookViewModel
-    @State private var likedCodyIds: Set<Int> = []
     
     // MARK: - Initializer
     
@@ -25,30 +24,29 @@ struct SpecificLookBook: View {
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
-                
-                // MARK: Top Navigation Bar
-                
                 CustomNavigationBar(
-                    title: "데이트 룩",
+                    title: $viewModel.name,
+                    isEditingMode: viewModel.isEditing,
                     onBack: viewModel.handleBackTap,
+                    onBeginEditTitle: viewModel.beginEditTitle,
+                    onConfirmEditTitle: viewModel.confirmEditTitle,
+                    onCancelEditTitle: viewModel.cancelEditTitle,
                     rightButton: viewModel.isEditing
                     ? .text(
                         title: TextLiteral.Common.delete,
-                        isEnabled: !viewModel.selectedCodiIds.isEmpty,
+                        isEnabled: viewModel.selectedCodiId != nil,
                         action: viewModel.handleCompleteAction
                     )
                     : .overflow(
                         menuType: .feed,
                         menuActions: [
                             { viewModel.navigateToAddCodi() },
-                            { viewModel.handleDeleteAction() }
+                            { viewModel.handleEditAction() }
                         ]
                     )
                 )
                 .zIndex(10)
                 .padding(.leading, 15)
-                
-                // MARK: Content Area
                 
                 ScrollView {
                     LazyVGrid(
@@ -58,27 +56,27 @@ struct SpecificLookBook: View {
                         ),
                         spacing: 16
                     ) {
-                        ForEach(viewModel.lookBookList) { lookbook in
+                        ForEach(viewModel.specificLookBookCodiList) { codi in
                             LookBookCard(
-                                imageURL: lookbook.imageURL,
-                                cardTitle: lookbook.cardTitle,
+                                imageURL: codi.imageUrl,
+                                cardTitle: codi.coordinateName,
                                 iconType: viewModel.isEditing ? .checkmark : .heart,
                                 isSelected: viewModel.isEditing
-                                ? viewModel.selectedCodiIds.contains(lookbook.id)
-                                : likedCodyIds.contains(lookbook.id)
+                                ? viewModel.selectedCodiId == codi.id
+                                : viewModel.likedCodiId == codi.id
                             ) {
                                 if viewModel.isEditing {
-                                    viewModel.toggleSelection(id: lookbook.id)
+                                    viewModel.toggleSelection(id: codi.id)
                                 } else {
-                                    handleLikeTap(codyId: lookbook.id)
+                                    viewModel.toggleLike(coordinateId: codi.id)
                                 }
                             }
                             .contentShape(Rectangle())
                             .onTapGesture {
                                 if viewModel.isEditing {
-                                    viewModel.toggleSelection(id: lookbook.id)
+                                    viewModel.toggleSelection(id: codi.id)
                                 } else {
-                                    viewModel.navigateToCodiDetail(codiId: lookbook.id)
+                                    viewModel.navigateToCodiDetail(codiId: Int(codi.id))
                                 }
                             }
                         }
@@ -87,13 +85,11 @@ struct SpecificLookBook: View {
                     .padding(.top, 16)
                 }
                 .onAppear {
-                    if viewModel.lookBookList.isEmpty {
+                    if viewModel.specificLookBookCodiList.isEmpty {
                         viewModel.fetchCodis()
                     }
                 }
             }
-            
-            // MARK: Loading Overlay
             
             if viewModel.isLoading {
                 LoadingView(backgroundStyle: .white)
@@ -112,17 +108,5 @@ struct SpecificLookBook: View {
         } message: {
             Text(TextLiteral.LookBook.alertDeleteSubTitle)
         }
-    }
-    
-    // MARK: - Like Handling Logic
-    
-    private func handleLikeTap(codyId: Int) {
-        let isCurrentlyLiked = likedCodyIds.contains(codyId)
-        if isCurrentlyLiked {
-            likedCodyIds.remove(codyId)
-        } else {
-            likedCodyIds.insert(codyId)
-        }
-        viewModel.toggleLike(codyId: codyId, isLiked: !isCurrentlyLiked)
     }
 }

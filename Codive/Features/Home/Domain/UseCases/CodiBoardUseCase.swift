@@ -28,7 +28,7 @@ final class CodiBoardUseCase {
                 locationX: Double(image.position.x),
                 locationY: Double(image.position.y),
                 ratio: Double(image.scale),
-                degree: Double(image.rotationAngle),
+                degree: Double(image.rotation),
                 order: index
             )
         }

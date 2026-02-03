@@ -10,79 +10,71 @@ import SwiftUI
 @MainActor
 final class AddBeforeCodiViewModel: ObservableObject {
     
-    // MARK: - Dependencies
+    // MARK: - Properties (State)
     
-    let navigationRouter: NavigationRouter
-    private let beforeCodiUseCase: BeforeCodiUseCase
-    let lookbookId: Int
-    
-    // MARK: - Published State (UI State)
-    
-    @Published var lookBookList: [BeforeCodiEntity] = []
+    @Published var beforeCoordinateDailyList: [BeforeCoordinateDailyEntity] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     @Published var selectedLookBookIds: Set<Int> = []
+    
+    // MARK: - Properties (Dependencies)
+    
+    private let navigationRouter: NavigationRouter
+    private let beforeCodiUseCase: BeforeCodiUseCase
+    private let coordinateId: Int64
     
     // MARK: - Initializer
     
     init(
         navigationRouter: NavigationRouter,
         beforeCodiUseCase: BeforeCodiUseCase,
-        lookbookId: Int
+        coordinateId: Int64
     ) {
         self.navigationRouter = navigationRouter
         self.beforeCodiUseCase = beforeCodiUseCase
-        self.lookbookId = lookbookId
+        self.coordinateId = coordinateId
     }
     
-    // MARK: - Data Fetching
-    
-    func fetchLookBooks() {
+    func fetchBeforeCoordinateDailyList() {
         isLoading = true
         errorMessage = nil
         
         Task {
             do {
-                let list = try await beforeCodiUseCase.fetchBeforeCodiList()
-                self.lookBookList = list
+                let result = try await beforeCodiUseCase.fetchPastCoordinates(
+                    lastCoordinateId: nil,
+                    size: 20,
+                    direction: .DESC
+                )
+
+                self.beforeCoordinateDailyList = result.content
             } catch {
-                self.errorMessage = "데이터 로드에 실패했습니다: \(error.localizedDescription)"
+                handleError(error)
             }
+
             isLoading = false
         }
     }
-    
-    // MARK: - Selection Logic
-    
+
     func toggleSelection(id: Int) {
-        if let selectedCodi = lookBookList.first(where: { $0.id == id }) {
-            navigateToAddCodiWithData(codi: selectedCodi)
-        }
+        guard let selectedCodi = beforeCoordinateDailyList.first(where: { $0.id == id }) else { return }
+        navigateToAddCodiWithData(codi: selectedCodi)
     }
-    
-    // MARK: - Navigation
     
     func handleBackTap() {
         navigationRouter.navigateBack()
     }
     
-    func navigateToAddCodiWithData(codi: BeforeCodiEntity) {
-        let selectedData = SelectedCodi(
-            codiId: codi.id,
-            imageURL: codi.imageURL,
-            name: codi.name,
-            memo: codi.memo
-        )
-        
-        navigationRouter.navigate(
-            to: .addCodi(
-                lookbookId: lookbookId,
-                selectedCodiData: selectedData
-            )
-        )
+    private func navigateToAddCodiWithData(codi: BeforeCoordinateDailyEntity) {
+        navigationRouter.navigateBack()
     }
-    
-    func navigateToSpecificLookBook(id: Int) {
-        navigationRouter.navigate(to: .specificLookbook(lookbookId: id))
+}
+
+// MARK: - Private Helpers
+
+private extension AddBeforeCodiViewModel {
+    func handleError(_ error: Error) {
+        print("DEBUG: 이전 코디 목록 로드 실패 - \(error.localizedDescription)")
+        self.errorMessage = "데이터 로드에 실패했습니다. 다시 시도해주세요."
     }
 }

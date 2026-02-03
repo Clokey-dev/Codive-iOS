@@ -22,21 +22,21 @@ final class LookBookViewFactory {
         switch destination {
         case .lookbook:
             lookBookDIContainer?.makeLookBookView()
-        case .specificLookbook(let lookbookId):
+        case .specificLookbook(let lookbookId, let name):
             lookBookDIContainer?.makeSpecificLookBookView(
-                lookbookId: lookbookId
-            )
-        case .addCodi(let lookbookId, let selectedCodiData):
-            lookBookDIContainer?.makeAddCodiView(lookbookId: lookbookId, selectedCodiData: selectedCodiData)
-        case .addCodiDetail(let lookbookId):
-            lookBookDIContainer?.makeAddCodiDetailView(lookbookId: lookbookId)
-        case .addBeforeCodi(let lookbookId):
-            lookBookDIContainer?.makeAddBeforeCodiView(lookbookId: lookbookId)
-        case .codiDetail(let codiId, let lookbookId):
-            lookBookDIContainer?.makeCodiDetailView(codiId: codiId, lookbookId: lookbookId)
-        case .editCodi(let lookbookId, let selectedCodiData):
-            lookBookDIContainer?.makeEditCodiView(
                 lookbookId: lookbookId,
+                name: name
+            )
+        case .addCodi(let coordinateId):
+            lookBookDIContainer?.makeAddCodiView(coordinateId: coordinateId)
+        case .addCodiDetail:
+            lookBookDIContainer?.makeAddCodiDetailView()
+        case .addBeforeCodi(let coordinateId):
+            lookBookDIContainer?.makeAddBeforeCodiView(coordinateId: coordinateId)
+        case .codiDetail(let coordinateId):
+            lookBookDIContainer?.makeCodiDetailView(coordinateId: Int64(coordinateId))
+        case .editCodi(let selectedCodiData):
+            lookBookDIContainer?.makeEditCodiView(
                 selectedCodiData: selectedCodiData
             )
         default:

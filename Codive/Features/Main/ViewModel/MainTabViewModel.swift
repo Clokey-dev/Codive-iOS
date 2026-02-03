@@ -10,10 +10,18 @@ import Foundation
 @MainActor
 final class MainTabViewModel: ObservableObject {
     @Published var selectedTab: TabBarType = .home
+    @Published var hasUnreadNotification: Bool = false
+    
     private let navigationRouter: NavigationRouter
     
-    init(navigationRouter: NavigationRouter) {
+    private let notificationUsecase: TopNavigationNotificaionUsecase
+    
+    init(
+        navigationRouter: NavigationRouter,
+        notificationUsecase: TopNavigationNotificaionUsecase
+    ) {
         self.navigationRouter = navigationRouter
+        self.notificationUsecase = notificationUsecase
     }
     
     // MARK: - Actions
@@ -27,5 +35,19 @@ final class MainTabViewModel: ObservableObject {
         // 알림 버튼 탭 처리
         // TODO: 알림 화면으로 이동하거나 알림 로직 처리
         navigationRouter.navigate(to: .notification)
+    }
+    
+    func loadNotificationExist() {
+        Task {
+            do {
+                let response = try await notificationUsecase.fetchNotificationExist()
+                self.hasUnreadNotification = response.existsUnreadNotification
+
+                print("🔔 unread notification:", response.existsUnreadNotification)
+            } catch {
+                print("❌ fetchNotificationExist failed:", error)
+                self.hasUnreadNotification = false
+            }
+        }
     }
 }

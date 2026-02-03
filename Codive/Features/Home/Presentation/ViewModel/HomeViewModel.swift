@@ -14,7 +14,7 @@ final class HomeViewModel: ObservableObject {
     
     // MARK: - Properties (UI State)
     
-    @Published var hasCodi: Bool = false
+    @Published var hasCodi: Bool = true
     @Published var showClothSelector: Bool = false
     @Published var selectedItemID: Int?
     @Published var selectedIndex: Int? = 0
@@ -113,39 +113,48 @@ extension HomeViewModel {
 
 // MARK: - API & Async Methods
 extension HomeViewModel {
-    
-    /// 날씨 정보를 서버에서 가져옴
     func loadWeather(for location: CLLocation?) async {
         do {
-            weatherData = try await fetchWeatherUseCase.execute(for: location)
+            let weather = try await fetchWeatherUseCase.execute(for: location)
+            self.weatherData = weather
+    
+            let temperature = weather.currentTemp
+            let request = PostTodayTemperatureAPIRequestDTO(
+                temperature: Double(temperature)
+            )
+            try await fetchWeatherUseCase.postTodayTemp(request: request)
         } catch {
             weatherErrorMessage = TextLiteral.Home.failWeather
+            print("Weather load or post failed:", error)
         }
     }
 
-    /// API를 통해 활성 카테고리의 의류 아이템 리스트를 비동기로 가져옴
-    func loadActiveCategoriesWithAPI() async {
+    /// 카테고리별 계절에 맞는 옷 조회
+    func loadRecommendCategoryClothList() async {
         let allCategories = categoryUseCase.loadCategories()
         let filteredCategories = allCategories.filter { $0.itemCount > 0 }
         self.activeCategories = filteredCategories
-        
-        var allClothItems: [HomeClothEntity] = []
-        
+
+        var resultMap: [Int: [HomeClothEntity]] = [:]
+
         for category in filteredCategories {
+            print("📦 category title:", category.title)
+            print("📦 category.id:", category.id)
             do {
-                let items = try await categoryUseCase.loadClothItems(
+                let result = try await categoryUseCase.loadClothItems(
                     lastClothId: nil,
-                    size: 20,
+                    size: 10,
                     categoryId: Int64(category.id),
-                    season: nil
+                    season: [.spring]
                 )
-                allClothItems.append(contentsOf: items)
+                resultMap[category.id] = result.content
             } catch {
                 print("Failed to load items for category \(category.id): \(error)")
+                resultMap[category.id] = []
             }
         }
-        
-        clothItemsByCategory = Dictionary(grouping: allClothItems) { $0.categoryId }
+
+        self.clothItemsByCategory = resultMap
     }
 }
 
@@ -241,35 +250,50 @@ extension HomeViewModel {
     
     /// 팝업에서 '기록하기' 버튼을 눌러 오늘 완성한 코디를 서버에 전송
     func handlePopupRecord() {
-        let containerSize: CGFloat = 260
-        let payloads = selectedCodiClothes.enumerated().map { index, cloth in
-            let position = CodiLayoutCalculator.position(
-                index: index,
-                totalCount: selectedCodiClothes.count,
-                containerSize: containerSize
-            )
-            return CodiPayload(
-                clothId: cloth.id,
-                locationX: position.x,
-                locationY: position.y,
-                ratio: 1.0,
-                degree: 0,
-                order: index
-            )
-        }
-
-        let todayCodi = TodayDailyCodi(
-            coordinateImageUrl: completedCodiImageURL ?? "",
-            payloads: payloads
-        )
-
         Task {
             do {
-                try await todayCodiUseCase.recordTodayCodi(todayCodi)
+                // 1️⃣ CodiCompositeView 캡처
+                let image = captureCompletedCodiImage()
+
+                // 2️⃣ UIImage → Base64 String
+                guard let coordinateImageUrl = image.toBase64String() else {
+                    throw NSError(domain: "Base64EncodingFail", code: 0)
+                }
+
+                self.completedCodiImageURL = coordinateImageUrl
+
+                // 3️⃣ 좌표 payload 생성
+                let containerSize: CGFloat = 260
+                let payloads = selectedCodiClothes.enumerated().map { index, cloth in
+                    let position = CodiLayoutCalculator.position(
+                        index: index,
+                        totalCount: selectedCodiClothes.count,
+                        containerSize: containerSize
+                    )
+
+                    return Payloads(
+                        clothId: cloth.clothId,
+                        locationX: position.x,
+                        locationY: position.y,
+                        ratio: 1.0,
+                        degree: 0,
+                        order: Int32(index)
+                    )
+                }
+
+                // 4️⃣ 오늘의 코디 생성 (String 그대로 전달)
+                let request = CreateTodayCoordinateRequestDTO(
+                    coordinateImageUrl: coordinateImageUrl,
+                    payloads: payloads
+                )
+
+                let result = try await todayCodiUseCase.createTodayCoordinate(request: request)
+                print("✅ 오늘 코디 생성 완료:", result.coordinateId)
+
                 showCompletePopUp = false
                 hasCodi = true
             } catch {
-                print("Failed to record today's codi: \(error)")
+                print("❌ 코디 기록 실패:", error)
             }
         }
     }
@@ -283,16 +307,29 @@ extension HomeViewModel {
 
 // MARK: - LookBook Actions
 extension HomeViewModel {
-    
     /// 내 룩북 리스트를 불러와 바텀시트를 표시
     func addLookbook() {
         Task {
             do {
-                let list = try await addToLookBookUseCase.execute()
-                self.lookBookList = list
+                let (content, _) = try await addToLookBookUseCase.fetchLookBookList(
+                    lastLookBookId: nil,
+                    size: 20,
+                    direction: .DESC
+                )
+
+                self.lookBookList = content.map { entity in
+                    LookBookBottomSheetEntity(
+                        lookbookId: entity.lookBookId,
+                        imageUrl: entity.imageUrl,
+                        title: entity.lookbookName,
+                        count: entity.count
+                    )
+                }
+                
+                // 3. 데이터 로딩 후 시트 표시
                 self.showLookBookSheet = true
             } catch {
-                print("Failed to load lookbooks: \(error)")
+                print("❌ 룩북 리스트 로드 실패: \(error.localizedDescription)")
             }
         }
     }
@@ -300,5 +337,41 @@ extension HomeViewModel {
     /// 바텀시트에서 특정 룩북을 선택
     func selectLookBook(_ entity: LookBookBottomSheetEntity) {
         showLookBookSheet = false
+    }
+}
+
+extension HomeViewModel {
+    
+    /// 카테고리 순서 변경
+    func moveCategory(from source: IndexSet, to destination: Int) {
+        activeCategories.move(fromOffsets: source, toOffset: destination)
+        
+        // 순서 변경을 로컬에 저장하려면 categoryUseCase를 통해 저장
+        // categoryUseCase.saveCategoryOrder(activeCategories)
+    }
+    
+    /// 이미지 캡처
+    private func captureCompletedCodiImage() -> UIImage {
+        let view = CodiCompositeView(clothes: selectedCodiClothes)
+            .frame(width: 260, height: 260)
+
+        let controller = UIHostingController(rootView: view)
+        let uiView = controller.view!
+        uiView.bounds = CGRect(origin: .zero, size: CGSize(width: 260, height: 260))
+        uiView.backgroundColor = .clear
+
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 260, height: 260))
+        return renderer.image { _ in
+            uiView.drawHierarchy(in: uiView.bounds, afterScreenUpdates: true)
+        }
+    }
+}
+
+extension UIImage {
+    func toBase64String() -> String? {
+        guard let data = self.jpegData(compressionQuality: 0.9) else {
+            return nil
+        }
+        return data.base64EncodedString()
     }
 }

@@ -5,20 +5,30 @@
 //  Created by 한금준 on 12/23/25.
 //
 
-final class BeforeCodiUseCase {
+import CodiveAPI
 
+final class BeforeCodiUseCase {
+    
     // MARK: - Dependency
     private let repository: LookBookRepository
-
+    
     // MARK: - Initializer
     init(repository: LookBookRepository) {
         self.repository = repository
     }
-
+    
     // MARK: - Before Codi
-
-    /// 이전에 저장된 코디 목록 조회
-    func fetchBeforeCodiList() async throws -> [BeforeCodiEntity] {
-        try await repository.fetchBeforeCodi()
+    
+    /// 과거 일일 코디 조회
+    func fetchPastCoordinates(
+        lastCoordinateId: Int64?,
+        size: Int32,
+        direction: Operations.Coordinate_getDailyCoordinates.Input.Query.directionPayload
+    ) async throws -> (content: [BeforeCoordinateDailyEntity], isLast: Bool) {
+        try await repository.fetchPastCoordinates(
+            lastCoordinateId: lastCoordinateId,
+            size: size,
+            direction: direction
+        )
     }
 }

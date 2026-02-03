@@ -5,6 +5,8 @@
 //  Created by 한금준 on 12/23/25.
 //
 
+import Foundation
+
 final class ProductUseCase {
 
     // MARK: - Dependency
@@ -15,10 +17,18 @@ final class ProductUseCase {
         self.repository = repository
     }
 
-    // MARK: - Product
-
-    /// 코디 구성에 사용되는 상품 목록 조회
-    func fetchProductList() async throws -> [ProductItem] {
-        try await repository.fetchProductList()
+    // MARK: - Methods
+    func execute(category: String? = nil) async throws -> [ProductItem] {
+        return try await repository.fetchClothItems(category: category)
+    }
+    
+    func execute(jpgData: Data) async throws -> String {
+        guard !jpgData.isEmpty else {
+            throw LookBookAPIError.invalidImageData
+        }
+        
+        let uploadedURL = try await repository.uploadCodiImage(jpgData: jpgData)
+        
+        return uploadedURL
     }
 }

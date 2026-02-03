@@ -6,69 +6,62 @@
 //
 
 import SwiftUI
+import Combine
 
 @MainActor
 final class AddCodiViewModel: ObservableObject {
     
-    // MARK: - Dependencies
-    
-    private let navigationRouter: NavigationRouter
-    let lookbookId: Int
-    
-    // MARK: - Published State (Codi Info)
-    
+    // MARK: - Properties (State)
     @Published var codiName: String = ""
     @Published var memo: String = ""
+    
     @Published var selectedImageURL: String?
-    
-    // MARK: - Published State (UI Control)
-    
+    @Published var capturedImage: UIImage?
+    @Published var capturedImageBase64: String?
+    @Published var combinedItems: [DraggableImageEntity] = []
+    @Published var receivedPayloads: [Payloads] = []
     @Published var isNewlyCombined: Bool = false
     @Published var isShowingBottomSheet: Bool = false
     @Published var isShowingSuccessView: Bool = false
     @Published var successMessage: String = ""
     
-    // MARK: - Published State (Combined Items)
+    private var cancellables = Set<AnyCancellable>()
+    private let navigationRouter: NavigationRouter
+    private let codiUseCase: CodiUseCase
+    let coordinateId: Int64
     
-    @Published var combinedItems: [DraggableImageEntity] = []
-    
-    // MARK: - Initializer
-    
-    init(
-        navigationRouter: NavigationRouter,
-        lookbookId: Int,
-        selectedCodiData: SelectedCodi? = nil
-    ) {
-        self.navigationRouter = navigationRouter
-        self.lookbookId = lookbookId
-        
-        if let data = selectedCodiData {
-            self.selectedImageURL = data.imageURL
-            self.codiName = data.name
-            self.memo = data.memo
-            self.combinedItems = data.combinedItems ?? []
-            self.isNewlyCombined = true
-            
-            if !self.combinedItems.isEmpty {
-                self.successMessage = "옷코디를 완성했어요!"
-            } else {
-                self.successMessage = "코디를 추가했어요!"
-            }
-        }
-    }
-    
-    // MARK: - Computed Properties
+    static let editCodiRequested = CurrentValueSubject<CodiEditData?, Never>(nil)
     
     var isButtonEnabled: Bool {
-        let hasImage =
-        (selectedImageURL != nil && !(selectedImageURL?.isEmpty ?? true)) ||
-        !combinedItems.isEmpty
-        
+        let hasImage = capturedImage != nil || (selectedImageURL != nil && !selectedImageURL!.isEmpty)
         return !codiName.isEmpty && hasImage
     }
     
-    // MARK: - User Actions
-    
+    // MARK: - Initializer
+    init(navigationRouter: NavigationRouter, codiUseCase: CodiUseCase, coordinateId: Int64) {
+        self.navigationRouter = navigationRouter
+        self.codiUseCase = codiUseCase
+        self.coordinateId = coordinateId
+        
+        setupDataSubscription()
+    }
+}
+
+private extension AddCodiViewModel {
+    func setupDataSubscription() {
+        cancellables.removeAll()
+        
+        AddCodiDetailViewModel.codiDataUpdated
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] data in
+                self?.receivedPayloads = data.payloads
+                self?.selectedImageURL = data.imageString
+            }
+            .store(in: &cancellables)
+    }
+}
+
+extension AddCodiViewModel {
     func handleBackTap() {
         navigationRouter.navigateBack()
     }
@@ -78,23 +71,57 @@ final class AddCodiViewModel: ObservableObject {
     }
     
     func handleCompleteTap() {
-        isShowingSuccessView = true
+        guard isButtonEnabled, let imageURL = selectedImageURL else {
+            return
+        }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            self.isShowingSuccessView = false
-            self.navigationRouter.navigateBack()
+        let requestDTO = CreateManualCoordinateAPIRequestDTO(
+            coordinateImageUrl: imageURL,
+            name: codiName,
+            memo: memo,
+            lookBookId: Int64(coordinateId),
+            payloads: receivedPayloads
+        )
+        
+        Task {
+            do {
+                _ = try await codiUseCase.createManualCoordinate(request: requestDTO)
+                
+                self.successMessage = TextLiteral.LookBook.alertSuccessPostCoordi
+                self.isShowingSuccessView = true
+                
+                try? await Task.sleep(nanoseconds: 1_500_000_000)
+                self.isShowingSuccessView = false
+                self.navigationRouter.navigateBack()
+            } catch {
+                print("❌ 상세 에러 메시지: \(error.localizedDescription)")
+            }
         }
     }
     
-    // MARK: - Navigation (Bottom Sheet Actions)
+    func handleEditCodiTap() {
+        guard let imageURL = selectedImageURL else {
+            return
+        }
+        
+        let editData = CodiEditData(
+            payloads: receivedPayloads,
+            imageURL: imageURL,
+            codiName: codiName,
+            memo: memo
+        )
+        
+        Self.editCodiRequested.value = editData
+        navigationRouter.navigate(to: .addCodiDetail)
+    }
     
     func navigateToNewCodi() {
         isShowingBottomSheet = false
-        navigationRouter.navigate(to: .addCodiDetail(lookbookId: lookbookId))
+        navigationRouter.navigate(to: .addCodiDetail)
     }
     
     func handleRecallCodi() {
         isShowingBottomSheet = false
-        navigationRouter.navigate(to: .addBeforeCodi(lookbookId: lookbookId))
+        navigationRouter.navigate(to: .addBeforeCodi(lookbookId: coordinateId))
     }
 }

@@ -11,47 +11,94 @@ import SwiftUI
 enum NavigationBarRightButton {
     case none
     case text(title: String, isEnabled: Bool, action: () -> Void)
-//    case icon(systemName: String, isEnabled: Bool, action: () -> Void)
-//    case menu(systemName: String, isEnabled: Bool, action: () -> Void)
     case overflow(menuType: MenuType, menuActions: [() -> Void])
     case icon(imageName: String, isSystemIcon: Bool = true, isEnabled: Bool, action: () -> Void)
     case menu(imageName: String, isSystemIcon: Bool = true, isEnabled: Bool, action: () -> Void)
 }
 
 struct CustomNavigationBar: View {
-    var title: String
+    @Binding var title: String
+    var isEditingMode: Bool = false
     var onBack: () -> Void
+    var onBeginEditTitle: (() -> Void)?
+    var onConfirmEditTitle: (() -> Void)?
+    var onCancelEditTitle: (() -> Void)?
     var rightButton: NavigationBarRightButton = .none
     
+    init(
+        title: Binding<String>,
+        isEditingMode: Bool = false,
+        onBack: @escaping () -> Void,
+        onBeginEditTitle: (() -> Void)? = nil,
+        onConfirmEditTitle: (() -> Void)? = nil,
+        onCancelEditTitle: (() -> Void)? = nil,
+        rightButton: NavigationBarRightButton = .none
+    ) {
+        self._title = title
+        self.isEditingMode = isEditingMode
+        self.onBack = onBack
+        self.onBeginEditTitle = onBeginEditTitle
+        self.onConfirmEditTitle = onConfirmEditTitle
+        self.onCancelEditTitle = onCancelEditTitle
+        self.rightButton = rightButton
+    }
+
+    init(title: String, onBack: @escaping () -> Void, rightButton: NavigationBarRightButton = .none) {
+        self._title = .constant(title)
+        self.isEditingMode = false
+        self.onBack = onBack
+        self.rightButton = rightButton
+    }
+    
     var body: some View {
-        HStack(spacing: 0) {
-            // 왼쪽 뒤로가기 버튼
-            Button(action: onBack) {
-                Image(systemName: "chevron.backward")
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundStyle(Color.Codive.grayscale3)
-            }
-            .frame(width: 44, height: 44)
-            
-            Spacer()
-            
-            // 가운데 타이틀
-            Text(title)
-                .font(Font.codive_title1)
-                .foregroundStyle(Color.Codive.grayscale1)
-            
-            Spacer()
-            
-            // 오른쪽 버튼
-            Group {
-                if case .overflow = rightButton {
-                    rightButtonView
-                        .padding(.trailing, 10)
-                } else {
-                    rightButtonView
-                        .frame(width: 44, height: 44)
-                        .padding(.trailing, 10)
+        ZStack {
+            if isEditingMode {
+                VStack(spacing: 4) {
+                    TextField("", text: $title) {
+                        onConfirmEditTitle?()
+                    }
+                    .font(Font.codive_title1)
+                    .foregroundStyle(Color.Codive.grayscale1)
+                    .multilineTextAlignment(.center)
+
+                    Rectangle()
+                        .frame(height: 1)
+                        .foregroundStyle(Color.Codive.grayscale4)
+                        .padding(.horizontal, 20)
                 }
+                .padding(.horizontal, 60) // 버튼 영역 침범 방지
+            } else {
+                Text(title)
+                    .font(Font.codive_title1)
+                    .foregroundStyle(Color.Codive.grayscale1)
+                    .onTapGesture {
+                        onBeginEditTitle?()
+                    }
+                    .padding(.horizontal, 60)
+            }
+            
+            HStack {
+                Button(action: onBack) {
+                    Image(systemName: "chevron.backward")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundStyle(Color.Codive.grayscale3)
+                }
+                .frame(width: 44, height: 44)
+
+                Spacer()
+                
+                Group {
+                    if case .text = rightButton {
+                        rightButtonView
+                            .padding(.horizontal, 10)
+                    } else if case .overflow = rightButton {
+                        rightButtonView
+                    } else {
+                        rightButtonView
+                            .frame(width: 44, height: 44)
+                    }
+                }
+                .padding(.trailing, 10)
             }
         }
         .frame(height: 56)

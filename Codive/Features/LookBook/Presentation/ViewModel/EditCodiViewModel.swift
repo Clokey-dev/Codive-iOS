@@ -6,66 +6,137 @@
 //
 
 import SwiftUI
+import Combine
 
 @MainActor
 final class EditCodiViewModel: ObservableObject {
     
-    // MARK: - Dependencies
-    
-    private let navigationRouter: NavigationRouter
-    let lookbookId: Int
-    let codiId: Int?
-    
-    // MARK: - Original Data (Change Detection)
-    
-    private var originalName: String = ""
-    private var originalMemo: String = ""
-    
-    // MARK: - Published State (Editable Fields)
+    private var cancellables = Set<AnyCancellable>()
     
     @Published var codiName: String = ""
     @Published var memo: String = ""
+    @Published var isNavEditingMode: Bool = false
     @Published var selectedImageURL: String?
+    @Published var isLayoutChanged: Bool = false
     
-    // MARK: - Computed Properties
+    private var payloads: [Payloads] = []
+    private var originalName: String = ""
+    private var originalMemo: String = ""
+    
+    private let navigationRouter: NavigationRouter
+    private let codiUseCase: CodiUseCase
+    private let coordinateId: Int64?
     
     var hasChanges: Bool {
-        return codiName != originalName || memo != originalMemo
+        let isTextChanged = (codiName != originalName || memo != originalMemo)
+        return isTextChanged || isLayoutChanged
     }
     
     var isButtonEnabled: Bool {
-        !codiName.isEmpty && hasChanges
+        return !codiName.isEmpty && hasChanges
     }
     
     // MARK: - Initializer
     
     init(
         navigationRouter: NavigationRouter,
-        lookbookId: Int,
+        codiUseCase: CodiUseCase,
         selectedCodiData: SelectedCodi? = nil
     ) {
         self.navigationRouter = navigationRouter
-        self.lookbookId = lookbookId
-        self.codiId = selectedCodiData?.codiId
+        self.codiUseCase = codiUseCase
+        self.coordinateId = selectedCodiData?.coordinateId
         
         if let data = selectedCodiData {
-            self.selectedImageURL = data.imageURL
+            self.selectedImageURL = data.imageUrl
             self.codiName = data.name
             self.memo = data.memo
             self.originalName = data.name
             self.originalMemo = data.memo
+            self.payloads = data.payloads ?? []
         }
+        
+        setupCodiDataSubscription()
     }
-    
-    // MARK: - User Actions
-    
-    /// 상단 백 버튼 탭 처리
+}
+
+extension EditCodiViewModel {
+    private func setupCodiDataSubscription() {
+        AddCodiDetailViewModel.codiDataUpdated
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] updatedData in
+                guard let self = self else { return }
+                
+                self.selectedImageURL = updatedData.imageString
+                self.payloads = updatedData.payloads
+                self.isLayoutChanged = true
+            }
+            .store(in: &cancellables)
+    }
+}
+
+// MARK: - User Actions
+
+extension EditCodiViewModel {
     func handleBackTap() {
         navigationRouter.navigateBack()
     }
     
     func handleCompleteTap() {
-        guard hasChanges else { return }
-        navigationRouter.navigateBack()
+        guard let coordinateId = coordinateId, isButtonEnabled else { return }
+        
+        Task {
+            do {
+                let request = EditCoordinateRequestDTO(
+                    coordinateImageUrl: selectedImageURL,
+                    name: codiName,
+                    memo: memo,
+                    payloads: payloads
+                )
+                
+                try await codiUseCase.patchUpdateCoordinates(
+                    coordinateId: coordinateId,
+                    request: request
+                )
+                
+                print("✅ 코디 수정 완료: \(coordinateId)")
+                
+                self.originalName = codiName
+                self.originalMemo = memo
+                self.isLayoutChanged = false
+                
+                navigationRouter.navigateBack()
+            } catch {
+                print("❌ 코디 수정 실패: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    func handleOverlayTap() {
+        guard let imageURL = selectedImageURL else {
+            return
+        }
+        
+        let editData = CodiEditData(
+            payloads: self.payloads,
+            imageURL: imageURL,
+            codiName: self.codiName,
+            memo: self.memo
+        )
+        
+        AddCodiViewModel.editCodiRequested.value = editData
+        
+        navigationRouter.navigate(to: .addCodiDetail)
+    }
+}
+
+extension EditCodiViewModel {
+    
+    func startNavEditing() {
+        isNavEditingMode = true
+    }
+    
+    func finishNavEditing() {
+        isNavEditingMode = false
     }
 }

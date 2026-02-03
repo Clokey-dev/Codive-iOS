@@ -17,20 +17,19 @@ final class CategoryUseCase {
         return repository.fetchCategories()
     }
     
+    /// 카테고리별 계절에 맞는 옷 조회
     func loadClothItems(
-        lastClothId: Int64? = nil,
-        size: Int = 20,
-        categoryId: Int64? = nil,
-        season: String? = nil
-    ) async throws -> [HomeClothEntity] {
-        let request = ClothListRequestDTO(
+        lastClothId: Int64?,
+        size: Int32 = 10,
+        categoryId: Int64,
+        season: Set<Season>
+    ) async throws -> (content: [HomeClothEntity], isLast: Bool) {
+        return try await repository.fetchRecommendCategoryClothList(
             lastClothId: lastClothId,
             size: size,
             categoryId: categoryId,
             season: season
         )
-        
-        return try await repository.fetchClothItems(request: request)
     }
 
     func updateCategories(_ categories: [CategoryEntity]) {

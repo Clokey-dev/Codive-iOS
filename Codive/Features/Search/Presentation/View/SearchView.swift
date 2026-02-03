@@ -45,10 +45,10 @@ struct SearchView: View {
                         
                         Button(
                             action: {
-                                viewModel.handleDeleteAll()
+                                viewModel.handleShowAll()
                             },
                             label: {
-                                Text(TextLiteral.Search.deleteAll)
+                                Text(TextLiteral.Search.showAll)
                                     .font(Font.codive_body3_medium)
                                     .foregroundStyle(Color.Codive.grayscale3)
                             }
@@ -65,22 +65,39 @@ struct SearchView: View {
                         }
                         .padding(.top, 8)
                     } else {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 10) {
-                                ForEach(viewModel.recentSearchTags) { tag in
-                                    Button {
-                                        self.searchText = tag.text
-                                        viewModel.handleTagTap(tag: tag)
-                                    } label: {
-                                        SearchTagView(text: tag.text) {
-                                            viewModel.deleteTag(tag: tag)
-                                        }
-                                        .padding(.vertical, 2)
-                                        .padding(.horizontal, 2)
-                                    }
-                                    .buttonStyle(PlainButtonStyle())
-                                }
-                            }
+                        VStack {
+                            RecentlySearchResultRow(
+                                type: .hashTag(title: "드뮤어룩"),
+                                onDelete: { print("해시태그 삭제 클릭") }
+                            )
+                            
+                            RecentlySearchResultRow(
+                                type: .member(
+                                    imageUrl: "https://example.com/profile.jpg",
+                                    title: "피크닉좋아",
+                                    subtitle: "hamster12"
+                                ),
+                                onDelete: { print("Delete clicked") }
+                            )
+                            
+                            RecentlySearchResultRow(
+                                type: .hashTag(title: "드뮤어룩"),
+                                onDelete: { print("해시태그 삭제 클릭") }
+                            )
+                            
+                            RecentlySearchResultRow(
+                                type: .member(
+                                    imageUrl: "https://example.com/profile.jpg",
+                                    title: "피크닉좋아",
+                                    subtitle: "hamster12"
+                                ),
+                                onDelete: { print("Delete clicked") }
+                            )
+                            
+                            RecentlySearchResultRow(
+                                type: .hashTag(title: "드뮤어룩"),
+                                onDelete: { print("해시태그 삭제 클릭") }
+                            )
                         }
                         .padding(.top, 8)
                     }
@@ -102,7 +119,8 @@ struct SearchView: View {
                             ForEach(viewModel.recommendedNews) { news in
                                 NewsCard(
                                     imageUrl: news.imageUrl,
-                                    title: news.title
+                                    title: news.title,
+                                    subTitle: news.subTitle
                                 )
                             }
                         }
@@ -127,18 +145,8 @@ struct SearchView: View {
         // MARK: - Data Loading Trigger
         .onAppear {
             viewModel.loadData()
-        }
-        // MARK: - Alert
-        .alert(
-            TextLiteral.Search.alertTitle,
-            isPresented: $viewModel.showingDeleteAlert
-        ) {
-            Button(TextLiteral.Search.alertDelete, role: .destructive) {
-                viewModel.executeDeleteAll()
-            }
-            Button(TextLiteral.Search.alertCancel, role: .cancel) {}
-        } message: {
-            Text(TextLiteral.Search.noRestore)
+            viewModel.recentlySearchResultList()
+            viewModel.loadSearchRecommendation()
         }
     }
 }

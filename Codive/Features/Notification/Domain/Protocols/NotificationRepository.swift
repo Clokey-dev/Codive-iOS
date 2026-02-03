@@ -6,7 +6,9 @@
 //
 
 protocol NotificationRepository {
-    func fetchNotifications() -> [NotificationEntity]
-    func fetchReportStatus() -> ReportEntity
-    func markNotificationAsRead(request: NotificationReadRequestEntity) async throws
+    func patchEachNotification(notificationId: Int64) async throws
+    func patchAllNotification() async throws
+    func fetchNotificationList(lastNotificationId: Int64?, size: Int32) async throws -> (content: [NotificationEntity], isLast: Bool)
+    func fetchNotificationExist() async throws -> NotificationExistAPIResponseDTO
+    func fetchReportReceived() async throws -> ReportReceivedAPIResponseDTO
 }

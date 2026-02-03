@@ -58,6 +58,7 @@ struct MyLookbookSectionView: View {
                 if lookbooks.count < 4 {
                     AddLookbookButton {
                         print("룩북 만들기 클릭")
+                        
                     }
                 }
                 
