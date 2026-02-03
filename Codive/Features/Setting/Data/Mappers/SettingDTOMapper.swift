@@ -30,7 +30,7 @@ struct SettingDTOMapper {
                     handle: "",
                     avatarURL: nil
                 ),
-                content: payload.content,
+                content: payload.content ?? "",
                 createdAt: historyDate
             )
         }
@@ -39,7 +39,7 @@ struct SettingDTOMapper {
             commentId: CommentID(dto.historyId),
             postId: PostID(dto.historyId),
             author: author,
-            contentPreview: dto.content,
+            contentPreview: dto.content ?? "",
             createdAt: historyDate,
             replies: replies
         )

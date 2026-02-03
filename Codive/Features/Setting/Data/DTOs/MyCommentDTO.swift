@@ -25,11 +25,11 @@ struct HistoryDTO: Decodable {
     let imageUrl: String
     let nickname: String
     let historyDate: String
-    let content: String
+    let content: String?
     let payloads: [CommentPayloadDTO]
 
     struct CommentPayloadDTO: Decodable {
         let commentId: Int64
-        let content: String
+        let content: String?
     }
 }
