@@ -19,7 +19,7 @@ struct AppRootView: View {
     
     init(appDIContainer: AppDIContainer) {
         self._appRouter = StateObject(wrappedValue: appDIContainer.appRouter)
-        self.authDIContainer = appDIContainer.makeAuthDIContainer()
+        self.authDIContainer = appDIContainer.authDIContainer
         self.appDIContainer = appDIContainer
         self._authRepository = State(wrappedValue: self.authDIContainer.authRepository)
     }
