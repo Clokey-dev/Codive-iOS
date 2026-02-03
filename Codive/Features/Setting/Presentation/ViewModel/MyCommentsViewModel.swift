@@ -48,4 +48,9 @@ final class MyCommentsViewModel: ObservableObject {
     func navigateToFeedDetail(historyId: Int) {
         navigationRouter.navigate(to: .feedDetail(feedId: historyId))
     }
+
+    @MainActor
+    func navigateToFeedTab() {
+        navigationRouter.switchTabAndNavigate(to: .feed)
+    }
 }

@@ -36,7 +36,7 @@ struct SettingCommentView: View {
                     message: TextLiteral.Setting.myCommentsEmptyMessage,
                     actionTitle: TextLiteral.Setting.goToFeed
                 ) {
-                    // 라우팅
+                    vm.navigateToFeedTab()
                 }
             } else {
                 // 4) 정상 리스트

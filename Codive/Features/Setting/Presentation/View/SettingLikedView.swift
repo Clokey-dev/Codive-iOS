@@ -29,7 +29,7 @@ struct SettingLikedView: View {
                         message: TextLiteral.Setting.likedRecordsEmptyMessage,
                         actionTitle: TextLiteral.Setting.goToFeed
                     ) {
-                        /* 라우팅 */
+                        vm.navigateToFeedTab()
                     }
                 } else {
                     let itemWidth = geometry.size.width / 3
