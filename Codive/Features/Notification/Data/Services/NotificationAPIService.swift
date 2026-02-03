@@ -88,25 +88,25 @@ extension NotificationAPIService {
         switch response {
         case .ok(let okResponse):
             let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            
+
             let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseNotificationListResponse.self, from: data)
-            
-            let content: [NotificationListResponseItem] = decoded.result?.content?.map { item -> NotificationListResponseItem in
-                return NotificationListResponseItem(
+
+            let content: [NotificationListResponseItem] = decoded.result?.content?.map { item in
+                NotificationListResponseItem(
                     notificationId: item.notificationId ?? 0,
                     notificationImageUrl: item.notificationImageUrl ?? "",
                     notificationContent: item.notificationContent ?? "",
-                    redirectInfo: item.redirectInfo ?? "",
-                    redirectType: item.redirectType?.rawValue ?? "",
-                    readStatus: item.readStatus?.rawValue ?? "",
+                    redirectInfo: item.action?.redirectInfo ?? "",
+                    redirectType: item.action?.redirectType?.rawValue ?? "NONE",
+                    readStatus: item.readStatus?.rawValue ?? "NOT_READ",
                     createdAt: formatDate(item.createdAt)
                 )
             } ?? []
-            
+
             return NotificationListResponseDTO(content: content, isLast: decoded.result?.isLast ?? true)
-            
+
         case .undocumented(statusCode: let code, _):
-            throw NotificationAPIError.serverError(statusCode: code, message: "개별 룩북 코디 목록 조회 실패")
+            throw NotificationAPIError.serverError(statusCode: code, message: "알림 목록 조회 실패")
         }
     }
     
