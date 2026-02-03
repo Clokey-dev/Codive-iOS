@@ -167,7 +167,7 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
                 } ?? [],
                 likeCount: result.likeCount ?? 0,
                 commentCount: result.commentCount ?? 0,
-                isLiked: result.isMine ?? false,
+                isLiked: result.liked ?? false,
                 historyDate: result.historyDate,
                 situationId: result.situationId,
                 situationName: result.situationName,
