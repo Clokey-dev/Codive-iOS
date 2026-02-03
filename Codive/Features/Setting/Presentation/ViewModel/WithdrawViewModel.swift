@@ -1,5 +1,4 @@
 import Foundation
-import CodiveAPI
 
 @MainActor
 final class WithdrawViewModel: ObservableObject {
@@ -9,12 +8,16 @@ final class WithdrawViewModel: ObservableObject {
 
     private let navigationRouter: NavigationRouter
     private let appRouter: AppRouter
-    private let apiClient: Client
+    private let withdrawUC: WithdrawAccountUseCase
 
-    init(navigationRouter: NavigationRouter, appRouter: AppRouter, apiClient: Client = CodiveAPIProvider.createClient(middlewares: [CodiveAuthMiddleware(provider: KeychainTokenProvider())])) {
+    init(
+        navigationRouter: NavigationRouter,
+        appRouter: AppRouter,
+        withdrawUC: WithdrawAccountUseCase
+    ) {
         self.navigationRouter = navigationRouter
         self.appRouter = appRouter
-        self.apiClient = apiClient
+        self.withdrawUC = withdrawUC
     }
 
     func onWithdrawTapped() {
@@ -25,19 +28,11 @@ final class WithdrawViewModel: ObservableObject {
         isLoading = true
         Task {
             do {
-                let response = try await apiClient.Auth_withdrawMember()
+                try await withdrawUC.execute()
 
-                switch response {
-                case .ok:
-                    // 탈퇴 성공 - 로그인 화면으로 이동
-                    await MainActor.run {
-                        isLoading = false
-                        appRouter.logout()
-                    }
-                default:
-                    await MainActor.run {
-                        isLoading = false
-                    }
+                await MainActor.run {
+                    isLoading = false
+                    appRouter.logout()
                 }
             } catch {
                 await MainActor.run {

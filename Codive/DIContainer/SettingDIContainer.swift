@@ -75,6 +75,10 @@ final class SettingDIContainer {
         GetWithdrawNoticesUseCase(repository: repository)
     }
 
+    func makeWithdrawAccountUseCase() -> WithdrawAccountUseCase {
+        WithdrawAccountUseCase(repository: repository)
+    }
+
     // MARK: - ViewModels
     func makeSettingViewModel() -> SettingViewModel {
         SettingViewModel(
@@ -110,7 +114,11 @@ final class SettingDIContainer {
     }
 
     func makeWithdrawViewModel() -> WithdrawViewModel {
-        WithdrawViewModel(navigationRouter: navigationRouter, appRouter: appRouter, apiClient: apiClient)
+        WithdrawViewModel(
+            navigationRouter: navigationRouter,
+            appRouter: appRouter,
+            withdrawUC: makeWithdrawAccountUseCase()
+        )
     }
 
     // MARK: - Views
