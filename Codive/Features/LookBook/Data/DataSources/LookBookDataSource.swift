@@ -206,25 +206,21 @@ final class LookBookDataSource: LookBookDataSourceProtocol {
 extension LookBookDataSource {
     /// 코디 이미지를 S3에 업로드하고 최종 URL을 반환
     func uploadCodiImage(jpgData: Data) async throws -> String {
-        // 1. Presigned URL 발급 (기존 함수 활용)
         let presignedUrlInfos = try await apiService.getPresignedUrls(for: [jpgData])
         
         guard let urlInfo = presignedUrlInfos.first else {
             throw LookBookAPIError.uploadFailed(message: "Presigned URL 발급 실패")
         }
         
-        // 2. S3에 실제 이미지 업로드
         try await uploadImageToS3(
             presignedUrl: urlInfo.presignedUrl,
             imageData: jpgData,
             md5Hash: urlInfo.md5Hash
         )
-        
-        // 3. 최종 접근 가능한 URL 반환
+
         return urlInfo.finalUrl
     }
-    
-    /// S3에 이미지를 PUT 방식으로 업로드
+ 
     private func uploadImageToS3(
         presignedUrl: String,
         imageData: Data,

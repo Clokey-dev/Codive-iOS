@@ -5,8 +5,8 @@
 //  Created by 한금준 on 11/22/25.
 //
 
-import CodiveAPI
 import Foundation
+import CodiveAPI
 
 protocol LookBookRepository {
     // 룩북 조회

@@ -79,14 +79,6 @@ struct AutoDailyCoordinateEntity {
     let coordinateId: Int64
 }
 
-struct CodiLikeEntity {
-    var coordinateId: Int
-}
-
-struct DeleteCodiEntity {
-    let coordinateId: Int
-}
-
 // MARK: - Supporting Types
 struct SelectedCodiData: Hashable {
     let imageURL: String
@@ -129,7 +121,6 @@ struct CodiTransferData {
     let imageString: String
 }
 
-// 편집 모드용 데이터 (새로 추가)
 struct CodiEditData {
     let payloads: [Payloads]
     let imageURL: String

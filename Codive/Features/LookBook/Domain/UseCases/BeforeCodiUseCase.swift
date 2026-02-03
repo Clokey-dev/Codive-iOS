@@ -8,17 +8,17 @@
 import CodiveAPI
 
 final class BeforeCodiUseCase {
-
+    
     // MARK: - Dependency
     private let repository: LookBookRepository
-
+    
     // MARK: - Initializer
     init(repository: LookBookRepository) {
         self.repository = repository
     }
-
+    
     // MARK: - Before Codi
-
+    
     /// 과거 일일 코디 조회
     func fetchPastCoordinates(
         lastCoordinateId: Int64?,

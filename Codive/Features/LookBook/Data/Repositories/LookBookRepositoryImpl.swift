@@ -5,8 +5,8 @@
 //  Created by 한금준 on 11/22/25.
 //
 
-import CodiveAPI
 import Foundation
+import CodiveAPI
 
 final class LookBookRepositoryImpl: LookBookRepository {
     // MARK: - Properties
@@ -82,11 +82,11 @@ final class LookBookRepositoryImpl: LookBookRepository {
     func fetchCoordinateDetail(
         coordinateId: Int64
     ) async throws -> [CoordinateDetailEntity] {
-
+        
         let dtoList = try await datasource.fetchCoordinateDetail(
             coordinateId: coordinateId
         )
-
+        
         return dtoList.map { $0.toEntity() }
     }
     
@@ -110,7 +110,7 @@ final class LookBookRepositoryImpl: LookBookRepository {
     func createManualCoordinate(
         request: CreateManualCoordinateAPIRequestDTO
     ) async throws -> ManualCoordinateEntity {
-
+        
         let dto = try await datasource.createManualCoordinate(request: request)
         return dto.toEntity()
     }
@@ -149,6 +149,6 @@ final class LookBookRepositoryImpl: LookBookRepository {
     }
     
     func uploadCodiImage(jpgData: Data) async throws -> String {
-            return try await datasource.uploadCodiImage(jpgData: jpgData)
-        }
+        return try await datasource.uploadCodiImage(jpgData: jpgData)
+    }
 }

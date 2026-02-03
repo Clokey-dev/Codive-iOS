@@ -24,9 +24,6 @@ struct SpecificLookBookView: View {
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
-                
-                // MARK: Top Navigation Bar
-                
                 CustomNavigationBar(
                     title: $viewModel.name,
                     isEditingMode: viewModel.isEditing,
@@ -50,8 +47,6 @@ struct SpecificLookBookView: View {
                 )
                 .zIndex(10)
                 .padding(.leading, 15)
-                
-                // MARK: Content Area
                 
                 ScrollView {
                     LazyVGrid(
@@ -95,8 +90,6 @@ struct SpecificLookBookView: View {
                     }
                 }
             }
-            
-            // MARK: Loading Overlay
             
             if viewModel.isLoading {
                 LoadingView(backgroundStyle: .white)

@@ -107,14 +107,14 @@ final class LookBookViewModel: ObservableObject {
     // MARK: - 룩북 삭제 확정
     func confirmDelete() {
         guard let idToDelete = selectedLookBookId else { return }
-
+        
         isLoading = true
         errorMessage = nil
-
+        
         Task {
             do {
                 try await listUseCase.deleteLookBook(lookBookId: idToDelete)
-
+                
                 let updatedResult = try await listUseCase.fetchLookBookList(
                     lastLookBookId: nil,
                     size: 10,
@@ -129,8 +129,6 @@ final class LookBookViewModel: ObservableObject {
             isLoading = false
         }
     }
-    
-    // MARK: - Dialog Actions
     
     func toggleAddDialog() {
         isShowingAddDialog.toggle()
@@ -148,16 +146,16 @@ final class LookBookViewModel: ObservableObject {
     func handleAddLookBook(title: String) {
         let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedTitle.isEmpty else { return }
-
+        
         isLoading = true
         errorMessage = nil
-
+        
         let request = CreateLookBookAPIRequestDTO(name: trimmedTitle)
-
+        
         Task {
             do {
                 _ = try await listUseCase.createLookBook(request: request)
-
+                
                 let updatedResult = try await listUseCase.fetchLookBookList(
                     lastLookBookId: nil,
                     size: 10,

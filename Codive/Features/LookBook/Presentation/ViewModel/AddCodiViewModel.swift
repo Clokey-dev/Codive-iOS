@@ -15,31 +15,23 @@ final class AddCodiViewModel: ObservableObject {
     @Published var codiName: String = ""
     @Published var memo: String = ""
     
-    // 초기 상태는 모두 nil/비어있음으로 설정하여 플레이스홀더가 나오게 함
-    @Published var selectedImageURL: String? = nil
-    @Published var capturedImage: UIImage? = nil
-    @Published var capturedImageBase64: String? = nil
+    @Published var selectedImageURL: String?
+    @Published var capturedImage: UIImage?
+    @Published var capturedImageBase64: String?
     @Published var combinedItems: [DraggableImageEntity] = []
-    
-    // 서버 전송용 데이터
     @Published var receivedPayloads: [Payloads] = []
-    
-    // UI 제어 상태
     @Published var isNewlyCombined: Bool = false
     @Published var isShowingBottomSheet: Bool = false
     @Published var isShowingSuccessView: Bool = false
     @Published var successMessage: String = ""
     
-    // MARK: - Dependencies
     private var cancellables = Set<AnyCancellable>()
     private let navigationRouter: NavigationRouter
     private let codiUseCase: CodiUseCase
     let coordinateId: Int64
     
-    //    static let editCodiRequested = PassthroughSubject<CodiEditData, Never>()
     static let editCodiRequested = CurrentValueSubject<CodiEditData?, Never>(nil)
     
-    // MARK: - Computed Properties
     var isButtonEnabled: Bool {
         let hasImage = capturedImage != nil || (selectedImageURL != nil && !selectedImageURL!.isEmpty)
         return !codiName.isEmpty && hasImage
@@ -51,12 +43,10 @@ final class AddCodiViewModel: ObservableObject {
         self.codiUseCase = codiUseCase
         self.coordinateId = coordinateId
         
-        // 데이터 수신 구독 설정
         setupDataSubscription()
     }
 }
 
-// MARK: - Setup Subscription
 private extension AddCodiViewModel {
     func setupDataSubscription() {
         cancellables.removeAll()
@@ -66,16 +56,11 @@ private extension AddCodiViewModel {
             .sink { [weak self] data in
                 self?.receivedPayloads = data.payloads
                 self?.selectedImageURL = data.imageString
-                
-                print("--- 📥 AddCodiView 데이터 수신 완료 ---")
-                print("📍 받은 이미지 URL: \(data.imageString)")
-                print("📍 Payloads 개수: \(data.payloads.count)")
             }
             .store(in: &cancellables)
     }
 }
 
-// MARK: - User Actions
 extension AddCodiViewModel {
     func handleBackTap() {
         navigationRouter.navigateBack()
@@ -87,7 +72,6 @@ extension AddCodiViewModel {
     
     func handleCompleteTap() {
         guard isButtonEnabled, let imageURL = selectedImageURL else {
-            print("⚠️ [DEBUG] 전송 중단: 필수 데이터(이미지 또는 코디명) 누락")
             return
         }
         
@@ -99,48 +83,24 @@ extension AddCodiViewModel {
             payloads: receivedPayloads
         )
         
-        print("\n--- 🚀 [DEBUG] 서버 전송 요청 데이터 분석 시작 ---")
-        print("📍 LookBook ID: \(requestDTO.lookBookId)")
-        print("📍 Codi Name: \(requestDTO.name) (길이: \(requestDTO.name.count))")
-        print("📍 Memo: \(requestDTO.memo)")
-        print("📍 Image URL: \(requestDTO.coordinateImageUrl)")
-        print("📍 Payloads 개수: \(requestDTO.payloads.count)")
-        
-        for (index, payload) in requestDTO.payloads.enumerated() {
-            print("""
-            [Payload #\(index + 1)]
-            - clothId: \(payload.clothId)
-            - location (X, Y): (\(payload.locationX), \(payload.locationY))
-            - ratio: \(payload.ratio)
-            - degree: \(payload.degree)
-            - order: \(payload.order)
-            """)
-        }
-        print("--- 🚀 [DEBUG] 데이터 분석 종료 ---\n")
-        
         Task {
             do {
                 _ = try await codiUseCase.createManualCoordinate(request: requestDTO)
-
-                self.successMessage = "코디가 성공적으로 등록되었습니다."
+                
+                self.successMessage = TextLiteral.LookBook.alertSuccessPostCoordi
                 self.isShowingSuccessView = true
                 
                 try? await Task.sleep(nanoseconds: 1_500_000_000)
                 self.isShowingSuccessView = false
                 self.navigationRouter.navigateBack()
             } catch {
-                print("❌ [DEBUG] 최종 생성 실패 - 에러 타입: \(type(of: error))")
-                print("❌ [DEBUG] 상세 에러 메시지: \(error.localizedDescription)")
-                if let apiError = error as? LookBookAPIError {
-                    print("❌ [DEBUG] API 특정 에러: \(apiError)")
-                }
+                print("❌ 상세 에러 메시지: \(error.localizedDescription)")
             }
         }
     }
     
     func handleEditCodiTap() {
         guard let imageURL = selectedImageURL else {
-            print("⚠️ 편집할 이미지가 없습니다.")
             return
         }
         
@@ -150,10 +110,6 @@ extension AddCodiViewModel {
             codiName: codiName,
             memo: memo
         )
-        
-        print("--- 📤 편집 데이터 전송 시작 ---")
-        print("📍 Payloads 개수: \(receivedPayloads.count)")
-        print("📍 Image URL: \(imageURL)")
         
         Self.editCodiRequested.value = editData
         navigationRouter.navigate(to: .addCodiDetail)

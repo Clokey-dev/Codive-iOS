@@ -40,14 +40,10 @@ struct EditCodiView: View {
     }
 }
 
-// MARK: - View Components
-
 private extension EditCodiView {
-    
-    /// 변경 사항 여부에 따른 커스텀 네비게이션 바
     var navigationBar: some View {
         CustomNavigationBar(
-            title: $viewModel.codiName, // String이 아닌 Binding<String> 전달
+            title: $viewModel.codiName,
             isEditingMode: viewModel.isNavEditingMode,
             onBack: { viewModel.handleBackTap() },
             onBeginEditTitle: {
@@ -59,7 +55,7 @@ private extension EditCodiView {
         )
         .padding(.leading, 15)
     }
-
+    
     var imagePreviewArea: some View {
         Group {
             if let url = viewModel.selectedImageURL {
@@ -76,12 +72,12 @@ private extension EditCodiView {
                         }
                     }
                     .frame(height: 335)
-                    .id(url) // URL이 바뀔 때 뷰를 강제로 새로 그리도록 명시적 ID 부여 가능
+                    .id(url)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     
                     EditCodiOverlayView()
                         .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .contentShape(Rectangle()) // 투명한 부분도 탭 가능하게
+                        .contentShape(Rectangle())
                         .onTapGesture {
                             viewModel.handleOverlayTap()
                         }
@@ -91,7 +87,6 @@ private extension EditCodiView {
         .frame(height: 335)
     }
     
-    /// 코디 이름 및 메모 입력 섹션
     var inputSection: some View {
         VStack(spacing: 12) {
             CustomTextField1(
@@ -109,7 +104,6 @@ private extension EditCodiView {
         }
     }
     
-    /// 하단 수정 완료 버튼
     var completeButton: some View {
         CustomButton(
             text: TextLiteral.LookBook.editCodiComplete,

@@ -23,16 +23,11 @@ final class ProductUseCase {
     }
     
     func execute(jpgData: Data) async throws -> String {
-        print("--- 🚀 코디 이미지 업로드 시작 ---")
-        
         guard !jpgData.isEmpty else {
             throw LookBookAPIError.invalidImageData
         }
         
         let uploadedURL = try await repository.uploadCodiImage(jpgData: jpgData)
-        
-        print("✅ 코디 이미지 업로드 성공")
-        print("📍 Final URL: \(uploadedURL)")
         
         return uploadedURL
     }

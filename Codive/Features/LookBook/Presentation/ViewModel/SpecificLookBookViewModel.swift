@@ -9,26 +9,18 @@ import SwiftUI
 
 @MainActor
 final class SpecificLookBookViewModel: ObservableObject {
-    
-    // MARK: - Dependencies
-    
     private let navigationRouter: NavigationRouter
     private let specificLookBookUseCase: SpecificLookBookUseCase
-
+    
     private let lookbookId: Int64
     @Published var name: String
     @Published var isEditingTitle = false
     private var previousTitle: String = ""
     
-    // MARK: - Published State (Data)
-    
     @Published var specificLookBookCodiList: [SpecificLookBookCodiEntity] = []
     @Published var likedCodiId: Int64?
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
-    
-    // MARK: - Published State (Editing)
-    
     @Published var isEditing: Bool = false
     @Published var selectedCodiId: Int64?
     @Published var isShowingDeleteAlert: Bool = false
@@ -51,7 +43,7 @@ final class SpecificLookBookViewModel: ObservableObject {
     func fetchCodis() {
         isLoading = true
         errorMessage = nil
-
+        
         Task {
             do {
                 let result = try await specificLookBookUseCase.fetchLookBookCoordinateList(
@@ -60,18 +52,18 @@ final class SpecificLookBookViewModel: ObservableObject {
                     size: 20,
                     direction: .DESC
                 )
-
+                
                 self.specificLookBookCodiList = result.content
-
-                self.likedCodiId = result.content.first(where: { $0.coordinateLiked })?.coordinateId
+                
+                self.likedCodiId = result.content.first { $0.coordinateLiked }?.coordinateId
             } catch {
                 self.errorMessage = "데이터 로드에 실패했습니다."
             }
-
+            
             isLoading = false
         }
     }
-
+    
     // MARK: - 코디 좋아요 토글
     func toggleLike(coordinateId: Int64) {
         Task {
@@ -79,14 +71,12 @@ final class SpecificLookBookViewModel: ObservableObject {
                 try await specificLookBookUseCase.toggleCoordinateLike(
                     coordinateId: coordinateId
                 )
-
-                // 기존 좋아요 해제
+                
                 if let currentLikedId = likedCodiId,
                    let currentIndex = specificLookBookCodiList.firstIndex(where: { $0.id == currentLikedId }) {
                     specificLookBookCodiList[currentIndex].coordinateLiked = false
                 }
-
-                // 동일 코디 재탭 → 좋아요 해제
+                
                 if likedCodiId == coordinateId {
                     likedCodiId = nil
                 } else {
@@ -101,9 +91,6 @@ final class SpecificLookBookViewModel: ObservableObject {
         }
     }
     
-    // MARK: - Editing Actions
-    
-    // 토글 - 추가하기
     func toggleSelection(id: Int64) {
         if selectedCodiId == id {
             selectedCodiId = nil
@@ -152,21 +139,21 @@ final class SpecificLookBookViewModel: ObservableObject {
             isEditing = false
             return
         }
-
+        
         Task {
             do {
                 try await specificLookBookUseCase.deleteCoordinate(coordinateId: idToDelete)
-
+                
                 specificLookBookCodiList.removeAll { codi in
                     codi.id == idToDelete
                 }
-
+                
                 selectedCodiId = nil
                 isEditing = false
             } catch {
                 errorMessage = "코디 삭제에 실패했습니다."
             }
-
+            
             isLoading = false
         }
     }
@@ -188,7 +175,7 @@ final class SpecificLookBookViewModel: ObservableObject {
         
         isEditingTitle = false
         isLoading = true
-
+        
         let request = UpdateLookBookAPIRequestDTO(
             name: newTitle
         )
@@ -214,19 +201,14 @@ final class SpecificLookBookViewModel: ObservableObject {
         isEditingTitle = false
     }
     
-    // MARK: - Navigation
-    
-    // 코디 추가하기 후 화면 전환
     func navigateToAddCodi() {
         navigationRouter.navigate(to: .addCodi(coordinateId: lookbookId))
     }
     
-    // 특정 코디 상세 뷰 전환
     func navigateToCodiDetail(codiId: Int) {
         navigationRouter.navigate(to: .codiDetail(codiId: codiId))
     }
     
-    // 뒤로가기
     func handleBackTap() {
         if isEditing {
             toggleEditingMode()

@@ -211,6 +211,8 @@ enum TextLiteral {
         static let editCodiComplete = "수정 완료하기"
         static let exitDescription = "정말 나가시겠습니까?"
         static let noRecovery = "작성중인 내용은 복구할 수 없습니다"
+        static let alertSuccessPostCoordi = "코디가 성공적으로 등록되었습니다."
+        static let alertFailDeleteCoordi = "코디 삭제에 실패했습니다."
     }
 
     // MARK: - Setting (설정)

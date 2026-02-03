@@ -13,10 +13,10 @@ import CryptoKit
 // MARK: - HomeCategoryAPIService Protocol
 
 final class LookBookAPIService: LookBookAPIServiceProtocol {
-
+    
     private let client: Client
     private let jsonDecoder: JSONDecoder
-
+    
     init(tokenProvider: TokenProvider = KeychainTokenProvider()) {
         self.client = CodiveAPIProvider.createClient(
             middlewares: [CodiveAuthMiddleware(provider: tokenProvider)]
@@ -75,18 +75,18 @@ extension LookBookAPIService {
         switch response {
         case .ok(let okResponse):
             let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-
+            
             let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseCoordinateListResponse.self, from: data)
             
             let content: [LookBookCoordinateListResponseItem] =
-                decoded.result?.content?.map { item -> LookBookCoordinateListResponseItem in
-                    return LookBookCoordinateListResponseItem(
-                        coordinateId: item.coordinateId ?? 0,
-                        coordinateName: item.coordinateName ?? "",
-                        coordinateLiked: item.coordinateLiked ?? false,
-                        imageUrl: item.imageUrl ?? ""
-                    )
-                } ?? []
+            decoded.result?.content?.map { item -> LookBookCoordinateListResponseItem in
+                return LookBookCoordinateListResponseItem(
+                    coordinateId: item.coordinateId ?? 0,
+                    coordinateName: item.coordinateName ?? "",
+                    coordinateLiked: item.coordinateLiked ?? false,
+                    imageUrl: item.imageUrl ?? ""
+                )
+            } ?? []
             
             return LookBookCoordinateResponseDTO(content: content, isLast: decoded.result?.isLast ?? true)
             
@@ -113,17 +113,17 @@ extension LookBookAPIService {
         switch response {
         case .ok(let okResponse):
             let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-
+            
             let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseDailyCoordinateListResponse.self, from: data)
             
             let content: [PastDailyCoordinateListResponseItem] =
-                decoded.result?.content?.map { item -> PastDailyCoordinateListResponseItem in
-                    return PastDailyCoordinateListResponseItem(
-                        coordinateId: item.coordinateId ?? 0,
-                        imageUrl: item.imageUrl ?? "",
-                        date: formatDate(item.date)
-                    )
-                } ?? []
+            decoded.result?.content?.map { item -> PastDailyCoordinateListResponseItem in
+                return PastDailyCoordinateListResponseItem(
+                    coordinateId: item.coordinateId ?? 0,
+                    imageUrl: item.imageUrl ?? "",
+                    date: formatDate(item.date)
+                )
+            } ?? []
             
             return PastDailyCoordinateResponseDTO(content: content, isLast: decoded.result?.isLast ?? true)
             
@@ -144,13 +144,13 @@ extension LookBookAPIService {
         switch response {
         case .ok(let okResponse):
             let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-
+            
             let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseCoordinatePreviewResponse.self, from: data)
             
             guard let item = decoded.result else {
                 throw LookBookAPIError.invalidResponse
             }
-
+            
             return CoordinatePreviewResponseDTO(
                 coordinateId: item.coordinateId ?? 0,
                 imageUrl: item.imageUrl ?? "",
@@ -177,11 +177,11 @@ extension LookBookAPIService {
         switch response {
         case .ok(let okResponse):
             let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-
+            
             let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseListCoordinateDetailsListResponse.self, from: data)
             
             let items = decoded.result ?? []
-
+            
             return items.map { item in
                 CoordinateDetailResponseDTO(
                     coordinateClothId: item.coordinateClothId ?? 0,
@@ -212,11 +212,11 @@ extension LookBookAPIService {
         switch response {
         case .ok(let okResponse):
             let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-
+            
             let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseListDailyCoordinateClothResponse.self, from: data)
             
             let items = decoded.result ?? []
-
+            
             return items.map { item in
                 GetTodayCoordinateClothResponseDTO(
                     imageUrl: item.imageUrl ?? "",
@@ -234,24 +234,24 @@ extension LookBookAPIService {
     
     func fetchClothes(lastClothId: Int64?, size: Int32, categoryId: Int64?, seasons: [Season]) async throws -> ClothListResult {
         let seasonsParam = seasons.isEmpty ? nil : seasons.map { mapSeasonToQueryParam($0) }
-
+        
         let input = Operations.Cloth_getClothes.Input(
             query: .init(lastClothId: lastClothId, size: size, direction: .DESC, categoryId: categoryId, seasons: seasonsParam)
         )
-
+        
         let response = try await client.Cloth_getClothes(input)
-
+        
         switch response {
         case .ok(let okResponse):
             let data = try await Data(collecting: okResponse.body.any, upTo: .max)
             let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseClothListResponse.self, from: data)
-
+            
             let clothes: [ClothListItem] = decoded.result?.content?.map { item -> ClothListItem in
                 return ClothListItem(clothId: item.clothId ?? 0, imageUrl: item.ImageUrl ?? "", brand: item.brand, name: item.name)
             } ?? []
-
+            
             return ClothListResult(clothes: clothes, isLast: decoded.result?.isLast ?? true)
-
+            
         case .undocumented(statusCode: let code, _):
             throw LookBookAPIError.serverError(statusCode: code, message: "옷 목록 조회 실패")
         }
@@ -265,7 +265,7 @@ extension LookBookAPIService {
         )
         let input = Operations.LookBook_createLookBook.Input(body: .json(requestBody))
         let response = try await client.LookBook_createLookBook(input)
-
+        
         switch response {
         case .ok(let okResponse):
             let data = try await Data(collecting: okResponse.body.any, upTo: .max)
@@ -273,12 +273,12 @@ extension LookBookAPIService {
                 Components.Schemas.BaseResponseLookBookCreateResponse.self,
                 from: data
             )
-
+            
             guard let lookBookId = decoded.result?.lookBookId else {
                 throw LookBookAPIError.noClothIdsReturned
             }
             return CreateLookBookResponseDTO(lookBookId: lookBookId)
-
+            
         case .undocumented(statusCode: let code, _):
             throw LookBookAPIError.serverError(statusCode: code, message: "룩북 생성 실패")
         }
@@ -301,12 +301,12 @@ extension LookBookAPIService {
                 )
             }
         )
-
+        
         let input = Operations.Coordinate_createCoordinateManual.Input(
             body: .json(requestBody)
         )
         let response = try await client.Coordinate_createCoordinateManual(input)
-
+        
         switch response {
         case .ok(let okResponse):
             let data = try await Data(collecting: okResponse.body.any, upTo: .max)
@@ -314,33 +314,14 @@ extension LookBookAPIService {
                 Components.Schemas.BaseResponseCoordinateCreateResponse.self,
                 from: data
             )
-
+            
             guard let coordinateId = decoded.result?.coordinateId else {
                 throw LookBookAPIError.invalidResponse
             }
             return CreateManualCoordinateAPIResponseDTO(coordinateId: coordinateId)
-
-//        case .undocumented(statusCode: let code, _):
-//            throw LookBookAPIError.serverError(statusCode: code, message: "코디 수동 생성 실패")
-            // LookBookAPIService.swift 내 createManualCoordinate 함수 수정 추천
-            // LookBookAPIService.swift 내 createManualCoordinate 함수 수정
-
-            case .undocumented(statusCode: let code, let response):
-                // HTTPBody? 타입의 데이터를 안전하게 추출합니다.
-                if let body = response.body {
-                    Task {
-                        do {
-                            // .max 대신 실제 정수값(예: 10MB)을 넣어 크기 제한을 둡니다.
-                            let data = try await Data(collecting: body, upTo: 10 * 1024 * 1024)
-                            if let errorDetail = String(data: data, encoding: .utf8) {
-                                print("🔥 [SERVER ERROR DETAIL]: \(errorDetail)")
-                            }
-                        } catch {
-                            print("⚠️ [DEBUG] 에러 바디 파싱 실패: \(error.localizedDescription)")
-                        }
-                    }
-                }
-                throw LookBookAPIError.serverError(statusCode: code, message: "코디 수동 생성 실패")
+            
+        case .undocumented(statusCode: let code, _):
+            throw LookBookAPIError.serverError(statusCode: code, message: "코디 수동 생성 실패")
         }
     }
     
@@ -353,7 +334,7 @@ extension LookBookAPIService {
         )
         let input = Operations.Coordinate_createCoordinateAuto.Input(body: .json(requestBody))
         let response = try await client.Coordinate_createCoordinateAuto(input)
-
+        
         switch response {
         case .ok(let okResponse):
             let data = try await Data(collecting: okResponse.body.any, upTo: .max)
@@ -361,12 +342,12 @@ extension LookBookAPIService {
                 Components.Schemas.BaseResponseCoordinateCreateResponse.self,
                 from: data
             )
-
+            
             guard let coordinateId = decoded.result?.coordinateId else {
                 throw LookBookAPIError.invalidResponse
             }
             return CreateAutoDailyCoordinateAPIResponseDTO(coordinateId: coordinateId)
-
+            
         case .undocumented(statusCode: let code, _):
             throw LookBookAPIError.serverError(statusCode: code, message: "이전 일일 코디 자동 생성 실패")
         }
@@ -377,7 +358,7 @@ extension LookBookAPIService {
     func deleteLookBook(lookBookId: Int64) async throws {
         let input = Operations.LookBook_deleteLookBook.Input(path: .init(lookBookId: lookBookId))
         let response = try await client.LookBook_deleteLookBook(input)
-
+        
         switch response {
         case .ok:
             return
@@ -390,10 +371,10 @@ extension LookBookAPIService {
         let requestBody = Components.Schemas.LookBookUpdateRequest(
             name: request.name
         )
-
+        
         let input = Operations.LookBook_updateLookBook.Input(path: .init(lookBookId: lookBookId), body: .json(requestBody))
         let response = try await client.LookBook_updateLookBook(input)
-
+        
         switch response {
         case .ok:
             return
@@ -405,7 +386,7 @@ extension LookBookAPIService {
     func deleteCoordinate(coordinateId: Int64) async throws {
         let input = Operations.Coordinate_deleteCoordinate.Input(path: .init(coordinateId: coordinateId))
         let response = try await client.Coordinate_deleteCoordinate(input)
-
+        
         switch response {
         case .ok:
             return
@@ -416,10 +397,10 @@ extension LookBookAPIService {
 }
 
 extension LookBookAPIService {
-    func patchCoordinateLike(coordinateId: Int64) async throws{
+    func patchCoordinateLike(coordinateId: Int64) async throws {
         let input = Operations.Coordinate_toggleCoordinateLike.Input(path: .init(coordinateId: coordinateId))
         let response = try await client.Coordinate_toggleCoordinateLike(input)
-
+        
         switch response {
         case .ok:
             return
@@ -434,7 +415,7 @@ extension LookBookAPIService {
             name: request.name,
             memo: request.memo,
             payloads: request.payloads?.map {
-                Components.Schemas.CoordinateUpdateRequestPayload(
+                Components.Schemas.CoordinateUpdateRequestPayload (
                     clothId: $0.clothId,
                     locationX: $0.locationX,
                     locationY: $0.locationY,
@@ -450,7 +431,7 @@ extension LookBookAPIService {
             body: .json(requestBody)
         )
         let response = try await client.Coordinate_updateCoordinate(input)
-
+        
         switch response {
         case .ok:
             return
@@ -469,24 +450,24 @@ extension LookBookAPIService {
                 md5Hash: md5Hash
             )
         }
-
+        
         let requestBody = Components.Schemas.ClothImagesUploadRequest(payloads: payloads.map { $0.payload })
         let input = Operations.ClothAi_getClothUploadPresignedUrl.Input(body: .json(requestBody))
         let response = try await client.ClothAi_getClothUploadPresignedUrl(input)
-
+        
         switch response {
         case .ok(let okResponse):
             let data = try await Data(collecting: okResponse.body.any, upTo: .max)
             let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseClothImagesPresignedUrlResponse.self, from: data)
-
+            
             guard let urls = decoded.result?.urls, urls.count == images.count else {
                 throw ClothAPIError.presignedUrlMismatch
             }
-
+            
             return zip(urls, payloads).map { url, payloadInfo in
                 PresignedUrlInfo(presignedUrl: url, finalUrl: extractFinalUrl(from: url), md5Hash: payloadInfo.md5Hash)
             }
-
+            
         case .undocumented(statusCode: let code, _):
             throw LookBookAPIError.serverError(statusCode: code, message: "Presigned URL 발급 실패")
         }
@@ -527,7 +508,7 @@ extension LookBookAPIService {
         let digest = Insecure.MD5.hash(data: data)
         return Data(digest).base64EncodedString()
     }
-
+    
     func extractFinalUrl(from presignedUrl: String) -> String {
         guard let url = URL(string: presignedUrl),
               var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
@@ -549,7 +530,7 @@ enum LookBookAPIError: LocalizedError {
     case s3UploadFailed(statusCode: Int)
     case noClothIdsReturned
     case serverError(statusCode: Int, message: String)
-
+    
     var errorDescription: String? {
         switch self {
         case .presignedUrlMismatch:
@@ -565,9 +546,9 @@ enum LookBookAPIError: LocalizedError {
         case .serverError(let statusCode, let message):
             return "서버 오류 (\(statusCode)): \(message)"
         case .invalidImageData:
-                return "이미지 데이터가 올바르지 않습니다."
+            return "이미지 데이터가 올바르지 않습니다."
         case .uploadFailed(let message):
-                    return "업로드 실패: \(message)"
+            return "업로드 실패: \(message)"
         }
     }
 }

@@ -5,14 +5,14 @@
 //  Created by 한금준 on 12/23/25.
 //
 
-import CodiveAPI
 import Foundation
+import CodiveAPI
 
 final class CodiUseCase {
-
+    
     // MARK: - Dependency
     private let repository: LookBookRepository
-
+    
     // MARK: - Initializer
     init(repository: LookBookRepository) {
         self.repository = repository

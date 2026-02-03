@@ -77,23 +77,3 @@ struct LookBookDialog: View {
         .frame(width: 311, height: 202)
     }
 }
-
-struct LookBookDialog_Previews: PreviewProvider {
-    static var previews: some View {
-        ZStack {
-            Color.black.opacity(0.4).edgesIgnoringSafeArea(.all)
-            LookBookDialog(
-                title: TextLiteral.LookBook.addLookBookTitle,
-                hintText: TextLiteral.LookBook.hintAddLookBookTitle,
-                buttonText: TextLiteral.LookBook.addLookBookButtonTitle,
-                action: { input in
-                    print("사용자가 입력한 텍스트: \(input)")
-                },
-                dismissAction: {
-                    print("닫기 버튼 탭")
-                }
-            )
-        }
-        .previewLayout(.sizeThatFits)
-    }
-}

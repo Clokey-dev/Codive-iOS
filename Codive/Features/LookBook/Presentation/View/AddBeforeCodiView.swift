@@ -88,8 +88,6 @@ private extension AddBeforeCodiView {
     }
 }
 
-// MARK: - Subviews (Status Views)
-
 private extension AddBeforeCodiView {
     
     /// 로딩 중 표시되는 뷰

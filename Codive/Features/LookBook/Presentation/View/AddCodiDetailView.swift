@@ -8,26 +8,20 @@
 import SwiftUI
 
 struct AddCodiDetailView: View {
-    
-    // MARK: - State Object
-    
     @StateObject private var viewModel: AddCodiDetailViewModel
     @State private var isExpanded: Bool = false
     
     private let collapsedHeight: CGFloat = 250
-    
-    // 캡처할 대상 뷰를 별도로 정의
     private var codiBoardView: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 15)
                 .fill(Color(UIColor.systemGray6))
             
             DraggableImageView(
-                items: $viewModel.images,
-                onActivate: { id in
-                    viewModel.bringImageToFront(id: id)
-                }
-            )
+                items: $viewModel.images
+            ) { id in
+                viewModel.bringImageToFront(id: id)
+            }
         }
         .frame(width: viewModel.boardSize, height: viewModel.boardSize)
         .clipped()
@@ -43,37 +37,25 @@ struct AddCodiDetailView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            
-            // MARK: Top Navigation Bar
-            
             CustomNavigationBar(
                 title: TextLiteral.LookBook.makeNewCodi,
                 onBack: viewModel.handleBackTap,
                 rightButton: .text(
                     title: TextLiteral.Common.complete,
-                    isEnabled: !viewModel.selectedProductIds.isEmpty,
-                    action: {
-                        // 버튼 클릭 시 비동기 Task 시작
-                        Task {
-                            // 0.2초 대기 (이미지가 렌더링될 시간 확보)
-                            try? await Task.sleep(nanoseconds: 200_000_000)
-                            
-                            // 캡처 및 완료 처리
-                            await viewModel.captureBoard(view: codiBoardView)
-                            await viewModel.handleComplete()
-                        }
+                    isEnabled: !viewModel.selectedProductIds.isEmpty
+                ) {
+                    Task {
+                        try? await Task.sleep(nanoseconds: 200_000_000)
+                        await viewModel.captureBoard(view: codiBoardView)
+                        await viewModel.handleComplete()
                     }
-                )
+                }
             )
             .padding(.horizontal, 15)
-            
-            // MARK: Geometry Reader (Layout Calculation)
             
             GeometryReader { geometry in
                 let boardSize = geometry.size.width - 40
                 let imageHalfSize: CGFloat = 40
-                
-                // MARK: Main Content ZStack
                 
                 ZStack(alignment: .bottom) {
                     VStack(spacing: 20) {
@@ -88,7 +70,6 @@ struct AddCodiDetailView: View {
                         .padding(.horizontal, 20)
                         .padding(.top, 10)
                         
-                        // MARK: Codi Board (Draggable Area)
                         codiBoardView
                             .cornerRadius(15)
                             .padding(.horizontal, 20)
@@ -109,13 +90,11 @@ struct AddCodiDetailView: View {
     }
 }
 
-// MARK: - View Components
 private extension AddCodiDetailView {
     
     @ViewBuilder
     func bottomSheet(geometry: GeometryProxy) -> some View {
         VStack(spacing: 0) {
-            // Handle Bar
             RoundedRectangle(cornerRadius: 2.5)
                 .fill(Color.Codive.grayscale5)
                 .frame(width: 40, height: 5)
