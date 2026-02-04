@@ -18,9 +18,13 @@ final class ProfileDIContainer {
         self.navigationRouter = navigationRouter
     }
 
-    // MARK: - API Service
+    // MARK: - API Services
     private lazy var profileAPIService: ProfileAPIServiceProtocol = {
         return ProfileAPIService()
+    }()
+
+    private lazy var historyAPIService: HistoryAPIServiceProtocol = {
+        return HistoryAPIService()
     }()
 
     // MARK: - Data Sources
@@ -31,6 +35,10 @@ final class ProfileDIContainer {
     // MARK: - Repositories
     private lazy var profileRepository: ProfileRepository = {
         return ProfileRepositoryImpl(dataSource: profileDataSource)
+    }()
+
+    private lazy var historyRepository: HistoryRepository = {
+        return HistoryRepositoryImpl(historyAPIService: historyAPIService)
     }()
 
     // MARK: - UseCases
@@ -46,12 +54,21 @@ final class ProfileDIContainer {
         return DefaultUpdateProfileUseCase(repository: profileRepository)
     }
 
+    func makeFetchMonthlyHistoryUseCase() -> FetchMonthlyHistoryUseCase {
+        return FetchMonthlyHistoryUseCase(historyRepository: historyRepository)
+    }
+
     // MARK: - ViewModels
-    func makeProfileViewModel() -> ProfileViewModel {
+    private lazy var profileViewModel: ProfileViewModel = {
         return ProfileViewModel(
             navigationRouter: navigationRouter,
-            fetchMyProfileUseCase: makeFetchMyProfileUseCase()
+            fetchMyProfileUseCase: makeFetchMyProfileUseCase(),
+            fetchMonthlyHistoryUseCase: makeFetchMonthlyHistoryUseCase()
         )
+    }()
+
+    func makeProfileViewModel() -> ProfileViewModel {
+        return profileViewModel
     }
 
     func makeFollowListViewModel(mode: FollowListMode, memberId: Int) -> FollowListViewModel {

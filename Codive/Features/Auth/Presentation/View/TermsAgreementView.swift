@@ -133,10 +133,8 @@ struct TermsAgreementView: View {
             termsList = fetchedTerms
             
             // agreements 초기화
-            for term in fetchedTerms {
-                if agreements[term.termId] == nil {
-                    agreements[term.termId] = false
-                }
+            for term in fetchedTerms where agreements[term.termId] == nil {
+                agreements[term.termId] = false
             }
         } catch {
             errorMessage = "약관 정보를 불러오는데 실패했습니다: \(error.localizedDescription)"
@@ -187,17 +185,17 @@ struct AgreementRow: View {
     let title: String
     @Binding var isAgreed: Bool
     var isBold: Bool = false
-    var isRequired: Bool? = nil
+    var isRequired: Bool?
     var showChevron: Bool = true
 
     var body: some View {
         HStack(spacing: 12) {
             // 체크박스
-            Button(action: { isAgreed.toggle() }) {
+            Button(action: { isAgreed.toggle() }, label: {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.codive_title1)
                     .foregroundColor(isAgreed ? .Codive.point1 : .Codive.point4)
-            }
+            })
 
             // 제목 (필수/선택 강조 포함)
             HStack(spacing: 4) {
@@ -214,11 +212,11 @@ struct AgreementRow: View {
 
             // 상세 보기 버튼
             if showChevron {
-                Button(action: { /* 상세 페이지 이동 */ }) {
+                Button(action: { /* 상세 페이지 이동 */ }, label: {
                     Image(systemName: "chevron.right")
                         .font(.codive_body2_regular)
                         .foregroundColor(.Codive.grayscale4)
-                }
+                })
             }
         }
         .frame(height: 44)
@@ -226,5 +224,5 @@ struct AgreementRow: View {
 }
 
 #Preview {
-    TermsAgreementView(onComplete: {})
+    TermsAgreementView { }
 }

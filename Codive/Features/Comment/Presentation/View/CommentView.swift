@@ -40,12 +40,13 @@ struct CommentView: View {
             // MARK: - Comment List
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 24) {
-                    ForEach(viewModel.comments) { comment in
+                    ForEach(viewModel.comments, id: \.id) { comment in
                         CommentRow(
                             comment: comment,
                             replyingToCommentId: viewModel.replyingToCommentId,
                             onReplyTap: { viewModel.setReplyingTo(commentId: $0) },
-                            onFetchRepliesTap: { viewModel.fetchReplies(for: $0) }
+                            onFetchRepliesTap: { viewModel.fetchReplies(for: $0) },
+                            onFetchAllRepliesTap: { viewModel.fetchAllReplies(for: $0) }
                         )
                     }
                     if viewModel.isLoading {
@@ -164,6 +165,7 @@ struct CommentRow: View {
     let replyingToCommentId: Int?
     let onReplyTap: (Int) -> Void
     let onFetchRepliesTap: (Int) -> Void
+    let onFetchAllRepliesTap: (Int) -> Void
 
     @State private var isExpanded: Bool = false
 
@@ -215,21 +217,25 @@ struct CommentRow: View {
                     }
 
                     // MARK: 답글 더보기/숨기기 버튼
-                    if comment.hasReplies {
+                    let actualReplyCount = comment.replies?.count ?? 0
+                    // replyCount가 0이어도 replies가 있으면 actual count 우선
+                    let totalReplyCount = max(comment.replyCount ?? 0, actualReplyCount)
+
+                    if comment.hasReplies || actualReplyCount > 0 {
                         Button(action: {
                             withAnimation(.easeOut(duration: 0.2)) {
                                 isExpanded.toggle()
-                                if isExpanded && (comment.replies?.isEmpty ?? true) {
+                                if isExpanded && actualReplyCount == 0 {
                                     onFetchRepliesTap(comment.id)
                                 }
                             }
                         }, label: {
-                            if let replies = comment.replies, !replies.isEmpty {
-                                Text(isExpanded ? TextLiteral.Comment.hideReplies : TextLiteral.Comment.repliesCount(replies.count))
+                            if isExpanded {
+                                Text(TextLiteral.Comment.hideReplies)
                                     .font(.codive_body2_regular)
                                     .foregroundStyle(Color.Codive.grayscale4)
                             } else {
-                                Text(TextLiteral.Comment.repliesCount(1))
+                                Text(TextLiteral.Comment.repliesCount(totalReplyCount))
                                     .font(.codive_body2_regular)
                                     .foregroundStyle(Color.Codive.grayscale4)
                             }
@@ -239,24 +245,40 @@ struct CommentRow: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                Button(action: {}, label: {
-                    Image("more")
-                        .font(.system(size: 12))
-                })
+                if comment.isMine {
+                    Button(action: {}, label: {
+                        Image("more")
+                            .font(.system(size: 12))
+                    })
+                }
             }
             .padding(.leading, isReply ? 40 : 0)
 
             // MARK: 답글 리스트
             if isExpanded, let replies = comment.replies {
                 VStack(alignment: .leading, spacing: 20) {
-                    ForEach(replies) { reply in
+                    ForEach(Array(replies.enumerated()), id: \.offset) { _, reply in
                         CommentRow(
                             comment: reply,
                             isReply: true,
                             replyingToCommentId: replyingToCommentId,
                             onReplyTap: onReplyTap,
-                            onFetchRepliesTap: onFetchRepliesTap
+                            onFetchRepliesTap: onFetchRepliesTap,
+                            onFetchAllRepliesTap: onFetchAllRepliesTap
                         )
+                    }
+
+                    // "N개 더보기" 버튼
+                    if (replies.count) < (comment.replyCount ?? 0) {
+                        let remainingCount = (comment.replyCount ?? 0) - replies.count
+                        Button(action: {
+                            onFetchAllRepliesTap(comment.id)
+                        }, label: {
+                            Text("\(remainingCount)개 더보기")
+                                .font(.codive_body2_regular)
+                                .foregroundStyle(Color.Codive.grayscale4)
+                        })
+                        .padding(.top, 8)
                     }
                 }
                 .padding(.top, 10)
@@ -322,7 +344,8 @@ struct CommentRow_Previews: PreviewProvider {
             comment: mockComment,
             replyingToCommentId: nil,
             onReplyTap: { _ in },
-            onFetchRepliesTap: { _ in }
+            onFetchRepliesTap: { _ in },
+            onFetchAllRepliesTap: { _ in }
         )
         .previewDisplayName("댓글 아이템")
     }

@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import CodiveAPI
 
 @MainActor
 final class SettingDIContainer {
@@ -14,19 +15,33 @@ final class SettingDIContainer {
     // MARK: - Dependencies
     private let appRouter: AppRouter
     private let navigationRouter: NavigationRouter
+    private let profileDIContainer: ProfileDIContainer
+    private let authDIContainer: AuthDIContainer
+    private let apiClient: Client
 
     // ViewFactory
     lazy var settingViewFactory = SettingViewFactory(settingDIContainer: self)
-    
+
     // Data / Repository
     private let repository: SettingRepository
 
     // MARK: - Init
-    init(appRouter: AppRouter, navigationRouter: NavigationRouter) {
+    init(
+        appRouter: AppRouter,
+        navigationRouter: NavigationRouter,
+        profileDIContainer: ProfileDIContainer,
+        authDIContainer: AuthDIContainer,
+        apiClient: Client = CodiveAPIProvider.createClient(
+            middlewares: [CodiveAuthMiddleware(provider: KeychainTokenProvider())]
+        )
+    ) {
         self.appRouter = appRouter
         self.navigationRouter = navigationRouter
+        self.profileDIContainer = profileDIContainer
+        self.authDIContainer = authDIContainer
+        self.apiClient = apiClient
 
-        let dataSource = SettingsDataSource()
+        let dataSource = SettingsDataSource(apiClient: apiClient)
         let repo = SettingsRepositoryImpl(dataSource: dataSource)
         self.repository = repo
     }
@@ -60,13 +75,19 @@ final class SettingDIContainer {
         GetWithdrawNoticesUseCase(repository: repository)
     }
 
+    func makeWithdrawAccountUseCase() -> WithdrawAccountUseCase {
+        WithdrawAccountUseCase(repository: repository)
+    }
+
     // MARK: - ViewModels
     func makeSettingViewModel() -> SettingViewModel {
         SettingViewModel(
             appRouter: appRouter,
             navigationRouter: navigationRouter,
             getPrefsUC: makeGetNotificationPrefsUseCase(),
-            updatePrefsUC: makeUpdateNotificationPrefsUseCase()
+            updatePrefsUC: makeUpdateNotificationPrefsUseCase(),
+            authRepository: authDIContainer.authRepository,
+            profileViewModel: profileDIContainer.makeProfileViewModel()
         )
     }
 
@@ -92,6 +113,14 @@ final class SettingDIContainer {
         )
     }
 
+    func makeWithdrawViewModel() -> WithdrawViewModel {
+        WithdrawViewModel(
+            navigationRouter: navigationRouter,
+            appRouter: appRouter,
+            withdrawUC: makeWithdrawAccountUseCase()
+        )
+    }
+
     // MARK: - Views
     func makeSettingView() -> SettingView {
         SettingView(viewModel: self.makeSettingViewModel())
@@ -107,5 +136,9 @@ final class SettingDIContainer {
 
     func makeSettingBlockedView() -> SettingBlockedView {
         SettingBlockedView(vm: self.makeBlockedUsersViewModel())
+    }
+
+    func makeWithdrawView() -> WithdrawView {
+        WithdrawView(vm: makeWithdrawViewModel())
     }
 }

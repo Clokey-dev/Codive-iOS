@@ -20,6 +20,7 @@ class OtherProfileViewModel: ObservableObject {
     @Published var month: Date = Date()
     @Published var selectedDate: Date? = Date()
     @Published var isBlockMenuPresented: Bool = false
+    @Published var monthlyHistories: [String: String] = [:] // "2026-01-21" -> imageUrl
     
     // MARK: - Dependencies
     private let navigationRouter: NavigationRouter

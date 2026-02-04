@@ -16,37 +16,64 @@ public struct SimpleUser: Hashable, Sendable {
 
 // 좋아요한 기록
 public struct LikedRecord: Hashable, Sendable, Identifiable {
-    public let postId: PostID
+    public let id: Int64
     public let thumbnailURL: URL
-    public let likedAt: Date
-    public init(postId: PostID, thumbnailURL: URL, likedAt: Date) {
-        self.postId = postId
+    public let historyDate: Date
+    public let lastLikeId: Int64
+
+    public init(id: Int64, thumbnailURL: URL, historyDate: Date, lastLikeId: Int64) {
+        self.id = id
         self.thumbnailURL = thumbnailURL
-        self.likedAt = likedAt
+        self.historyDate = historyDate
+        self.lastLikeId = lastLikeId
     }
-    public var id: PostID { postId }
+}
+
+// 댓글에 달린 답글
+public struct CommentReply: Hashable, Sendable, Identifiable {
+    public var id: CommentID { replyId }
+    public let replyId: CommentID
+    public let author: SimpleUser
+    public let content: String
+    public let createdAt: Date
+
+    public init(
+        replyId: CommentID,
+        author: SimpleUser,
+        content: String,
+        createdAt: Date
+    ) {
+        self.replyId = replyId
+        self.author = author
+        self.content = content
+        self.createdAt = createdAt
+    }
 }
 
 // 내가 남긴 댓글
 public struct MyComment: Hashable, Sendable, Identifiable {
-    public var id: CommentID { commentId } 
+    public var id: CommentID { commentId }
     public let commentId: CommentID
     public let postId: PostID
     public let author: SimpleUser
     public let contentPreview: String
     public let createdAt: Date
+    public let replies: [CommentReply]
+
     public init(
         commentId: CommentID,
         postId: PostID,
         author: SimpleUser,
         contentPreview: String,
-        createdAt: Date
+        createdAt: Date,
+        replies: [CommentReply] = []
     ) {
         self.commentId = commentId
         self.postId = postId
         self.author = author
         self.contentPreview = contentPreview
         self.createdAt = createdAt
+        self.replies = replies
     }
 }
 

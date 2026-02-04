@@ -44,6 +44,7 @@ final class AuthRepositoryImpl: AuthRepository {
 
     func logout() async {
         await socialAuthService.logout()
+        try? KeychainManager.shared.clearAllTokens()
     }
 
     func saveTokens(accessToken: String, refreshToken: String) async throws {

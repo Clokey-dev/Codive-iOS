@@ -13,6 +13,7 @@ struct MyProfileInfo {
     let profileImageUrl: String?
     let followerCount: Int
     let followingCount: Int
+    let email: String?
 }
 
 struct FollowListResult {

@@ -19,7 +19,7 @@ struct AppRootView: View {
     
     init(appDIContainer: AppDIContainer) {
         self._appRouter = StateObject(wrappedValue: appDIContainer.appRouter)
-        self.authDIContainer = appDIContainer.makeAuthDIContainer()
+        self.authDIContainer = appDIContainer.authDIContainer
         self.appDIContainer = appDIContainer
         self._authRepository = State(wrappedValue: self.authDIContainer.authRepository)
     }
@@ -35,11 +35,9 @@ struct AppRootView: View {
                     authDIContainer.makeAuthFlowView()
 
                 case .termsAgreement:
-                    TermsAgreementView(
-                        onComplete: {
-                            appRouter.navigateToMain()
-                        }
-                    )
+                    TermsAgreementView {
+                        appRouter.navigateToMain()
+                    }
 
                 case .main:
                     MainTabView(appDIContainer: appDIContainer)
@@ -75,8 +73,8 @@ struct AppRootView: View {
             return
         }
 
-        let accessToken = queryItems.first(where: { $0.name == "accessToken" })?.value
-        let refreshToken = queryItems.first(where: { $0.name == "refreshToken" })?.value
+        let accessToken = queryItems.first { $0.name == "accessToken" }?.value
+        let refreshToken = queryItems.first { $0.name == "refreshToken" }?.value
 
         guard let unwrappedAccessToken = accessToken,
               let unwrappedRefreshToken = refreshToken else {

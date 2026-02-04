@@ -23,9 +23,16 @@ final class AppRouter: ObservableObject {
     @Published var currentAppState: AppState
     @Published var isLoading: Bool = false  // 로딩 상태
 
+    private weak var navigationRouter: NavigationRouter?
+
     init() {
         // 앱 시작시 스플래시부터 시작
         self.currentAppState = .splash
+    }
+
+    /// NavigationRouter 등록 (AppDIContainer에서 호출)
+    func setNavigationRouter(_ router: NavigationRouter) {
+        self.navigationRouter = router
     }
 
     func finishSplash() {
@@ -52,7 +59,12 @@ final class AppRouter: ObservableObject {
         isLoading = false
     }
 
+    /// 로그아웃: 토큰 삭제 + 모든 네비게이션 리셋 + 로그인 화면으로
     func logout() {
+        // 1. 모든 네비게이션 스택 제거
+        navigationRouter?.navigateToRoot()
+
+        // 2. 로그인 화면으로 상태 변경
         currentAppState = .auth
     }
 }

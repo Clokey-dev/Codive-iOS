@@ -3,13 +3,19 @@ import SwiftUI
 struct CalendarMonthView: View {
     @Binding var month: Date
     @Binding var selectedDate: Date?
+    @Binding var monthlyHistories: [String: String]
 
     private let calendar = Calendar.current
     private let weekdaySymbols = ["일", "월", "화", "수", "목", "금", "토"]
 
-    init(month: Binding<Date>, selectedDate: Binding<Date?>) {
+    init(
+        month: Binding<Date>,
+        selectedDate: Binding<Date?>,
+        monthlyHistories: Binding<[String: String]>
+    ) {
         self._month = month
         self._selectedDate = selectedDate
+        self._monthlyHistories = monthlyHistories
     }
     
     private let cellSpacing: CGFloat = 6  // 요일 간 가로, 세로 간격
@@ -100,29 +106,58 @@ struct CalendarMonthView: View {
                 Color.clear
             } else {
                 let isSelected = isSameDay(item.date, selectedDate)
-                let weekday = calendar.component(.weekday, from: item.date) // 1=일 ... 7=토
+                let weekday = calendar.component(.weekday, from: item.date)
                 let isWeekend = (weekday == 1 || weekday == 7)
+                let dateString = formatDate(item.date)
+                let imageUrl = monthlyHistories[dateString]
 
-                Text("\(item.dayNumber)")
-                    .font(.codive_body2_regular)
-                    .foregroundStyle(isSelected ? Color.white : (isWeekend ? Color.Codive.grayscale3 : Color.Codive.grayscale1))
-                    .frame(width: dayCellWidth, height: dayCellHeight, alignment: .center) // 가운데 정렬
-                    .background {
-                        if isSelected {
-                            Circle()
-                                .fill(Color.Codive.point1)
-                                .frame(width: 28, height: 28)
+                // 이미지 배경 (전체 셀을 덮음)
+                if let urlString = imageUrl, let url = URL(string: urlString) {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .scaledToFill()
+                                .clipped()
+                        case .empty, .failure:
+                            EmptyView()
+                        @unknown default:
+                            EmptyView()
                         }
                     }
+                }
+
+                // 날짜 숫자 - 가운데 (이미지가 없을 때만 보임)
+                if imageUrl == nil {
+                    Text("\(item.dayNumber)")
+                        .font(.codive_body2_regular)
+                        .foregroundStyle(isSelected ? Color.white : (isWeekend ? Color.Codive.grayscale3 : Color.Codive.grayscale1))
+                        .background {
+                            if isSelected {
+                                Circle()
+                                    .fill(Color.Codive.point1)
+                                    .frame(width: 20, height: 20)
+                            }
+                        }
+                }
             }
         }
         .frame(width: dayCellWidth, height: dayCellHeight)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
         .contentShape(Rectangle())
         .onTapGesture {
             if !item.isPlaceholder {
                 selectedDate = item.date
             }
         }
+    }
+
+    // Helper: Date -> "2026-01-21" 형식 변환
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: date)
     }
 
     private func monthTitle(_ date: Date) -> String {

@@ -30,7 +30,7 @@ final class DefaultUpdateProfileUseCase: UpdateProfileUseCase {
         imageData: Data?
     ) async throws -> MyProfileInfo {
         // 이미지가 있으면 먼저 업로드
-        var imageUrlToUpdate: String? = nil
+        var imageUrlToUpdate: String?
         if let imageData = imageData {
             imageUrlToUpdate = try await repository.uploadProfileImage(imageData)
         }

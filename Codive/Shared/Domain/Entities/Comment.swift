@@ -16,9 +16,12 @@ public struct Comment: Identifiable, Equatable {
 
     // 댓글(Parent) 전용 필드
     public let hasReplies: Bool
+    public var replyCount: Int?
 
     // UI 상태 관리를 위한 필드
     public var replies: [Comment]?
+    public var replyPage: Int = 0
+    public var hasMoreReplies: Bool = true
 
     public init(
         id: Int,
@@ -26,14 +29,20 @@ public struct Comment: Identifiable, Equatable {
         author: User,
         isMine: Bool,
         hasReplies: Bool = false,
-        replies: [Comment]? = nil
+        replyCount: Int? = nil,
+        replies: [Comment]? = nil,
+        replyPage: Int = 0,
+        hasMoreReplies: Bool = true
     ) {
         self.id = id
         self.content = content
         self.author = author
         self.isMine = isMine
         self.hasReplies = hasReplies
+        self.replyCount = replyCount
         self.replies = replies
+        self.replyPage = replyPage
+        self.hasMoreReplies = hasMoreReplies
     }
 }
 
@@ -53,7 +62,8 @@ extension Comment {
             author: user,
             isMine: apiResponse.isMine ?? false,
             hasReplies: apiResponse.replied ?? false,
-            replies: []
+            replyCount: apiResponse.replyCount.flatMap { Int($0) },
+            replies: nil
         )
     }
 

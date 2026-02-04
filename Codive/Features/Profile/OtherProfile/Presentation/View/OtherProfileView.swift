@@ -205,7 +205,11 @@ struct OtherProfileView: View {
                 .foregroundStyle(Color.Codive.grayscale1)
                 .padding(.horizontal, 20)
 
-            CalendarMonthView(month: $viewModel.month, selectedDate: $viewModel.selectedDate)
+            CalendarMonthView(
+                month: $viewModel.month,
+                selectedDate: $viewModel.selectedDate,
+                monthlyHistories: $viewModel.monthlyHistories
+            )
                 .padding(16)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .background(Color.white)

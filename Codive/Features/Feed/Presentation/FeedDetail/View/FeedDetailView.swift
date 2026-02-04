@@ -139,12 +139,12 @@ struct FeedDetailView: View {
         .sheet(isPresented: Binding(
             get: { navigationRouter.sheetDestination != nil && isCommentSheet(navigationRouter.sheetDestination) },
             set: { if !$0 { navigationRouter.dismissSheet() } }
-        ), content: {
+        )) {
             if case .comment(let feedId) = navigationRouter.sheetDestination {
                 commentDIContainer.commentViewFactory.makeView(for: .comment(feedId: feedId))
                     .presentationDetents([.fraction(0.7), .large])
             }
-        })
+        }
     }
 
     // MARK: - Helper Methods

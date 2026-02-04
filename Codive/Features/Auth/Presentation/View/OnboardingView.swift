@@ -78,7 +78,7 @@ struct OnboardingView: View {
             VStack {
                 Spacer()
 
-                VStack{
+                VStack {
                     // 온보딩 멘트 슬라이드
                     TabView(selection: $currentPage) {
                         ForEach(0..<Self.pages.count, id: \.self) { index in
@@ -202,7 +202,6 @@ struct OnboardingContainerView: View {
         onKakaoLogin: { },
         onAppleLogin: { },
         isLoading: false,
-        errorMessage: nil,
-        onErrorDismiss: { }
-    )
+        errorMessage: nil
+    ) { }
 }

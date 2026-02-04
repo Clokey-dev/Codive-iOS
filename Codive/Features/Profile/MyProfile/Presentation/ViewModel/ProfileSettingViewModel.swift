@@ -65,16 +65,16 @@ final class ProfileSettingViewModel: ObservableObject {
         }
     }
 
-    @Published var pickedProfileImage: Image? = nil
-    @Published var selectedPhotoPickerItem: PhotosPickerItem? = nil
+    @Published var pickedProfileImage: Image?
+    @Published var selectedPhotoPickerItem: PhotosPickerItem?
     @Published var isLoading: Bool = false
-    @Published var errorMessage: String? = nil
-    @Published var currentProfileImageUrl: String? = nil
+    @Published var errorMessage: String?
+    @Published var currentProfileImageUrl: String?
 
     @Published private(set) var canComplete: Bool = false
     @Published var isLoadingProfile: Bool = false
 
-    private var selectedImageData: Data? = nil
+    private var selectedImageData: Data?
 
     // MARK: - Initializer
     init(navigationRouter: NavigationRouter, updateProfileUseCase: UpdateProfileUseCase, profileRepository: ProfileRepository) {
@@ -241,7 +241,7 @@ final class ProfileSettingViewModel: ObservableObject {
         }
 
         do {
-            let _ = try await updateProfileUseCase.execute(
+            _ = try await updateProfileUseCase.execute(
                 nickname: nickname,
                 bio: intro,
                 isPublic: isPublic,

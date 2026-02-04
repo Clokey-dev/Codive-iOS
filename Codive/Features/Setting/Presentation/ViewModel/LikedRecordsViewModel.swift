@@ -44,4 +44,14 @@ final class LikedRecordsViewModel: ObservableObject {
             items = []
         }
     }
+
+    @MainActor
+    func navigateToFeedDetail(feedId: Int) {
+        navigationRouter.navigate(to: .feedDetail(feedId: feedId))
+    }
+
+    @MainActor
+    func navigateToFeedTab() {
+        navigationRouter.switchTabAndNavigate(to: .feed)
+    }
 }

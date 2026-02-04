@@ -205,6 +205,14 @@ struct MainTabView: View {
             FavoriteCodiView(showHeart: showHeart, navigationRouter: navigationRouter)
         case .settings:
             settingDIContainer.makeSettingView()
+        case .settingLikedRecords:
+            settingDIContainer.makeSettingLikedView()
+        case .settingMyComments:
+            settingDIContainer.makeSettingCommentView()
+        case .settingBlockedUsers:
+            settingDIContainer.makeSettingBlockedView()
+        case .settingWithdraw:
+            settingDIContainer.makeWithdrawView()
         case .profileSetting:
             profileDIContainer.makeProfileSettingView()
         case .followList(let mode, let memberId):

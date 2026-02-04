@@ -10,9 +10,12 @@ import SwiftUI
 struct SettingView: View {
 
     @ObservedObject private var vm: SettingViewModel
+    @ObservedObject private var profileViewModel: ProfileViewModel
+    @State private var showLogoutAlert = false
 
     init(viewModel: SettingViewModel) {
         self.vm = viewModel
+        self.profileViewModel = viewModel.profileViewModel
     }
 
     var body: some View {
@@ -54,7 +57,7 @@ struct SettingView: View {
                 Image("kakao")
                     .frame(width: 40, height: 40)
 
-                Text("email@xxxx.com")
+                Text(profileViewModel.email ?? "email@xxxx.com")
                     .font(.codive_body1_regular)
                     .foregroundStyle(Color.Codive.grayscale1)
             }
@@ -73,13 +76,31 @@ struct SettingView: View {
                 .background(Color.Codive.grayscale1)
                 .padding(.bottom, 16)
 
-            SettingRow(text: TextLiteral.Setting.likedRecords)
-                .padding(.bottom, 12)
+            Button(action: {
+                vm.navigateToLikedRecords()
+            }, label: {
+                SettingRow(text: TextLiteral.Setting.likedRecords)
+            })
+            .buttonStyle(.plain)
+            .contentShape(Rectangle())
+            .padding(.bottom, 12)
 
-            SettingRow(text: TextLiteral.Setting.myComments)
-                .padding(.bottom, 12)
+            Button(action: {
+                vm.navigateToMyComments()
+            }, label: {
+                SettingRow(text: TextLiteral.Setting.myComments)
+            })
+            .buttonStyle(.plain)
+            .contentShape(Rectangle())
+            .padding(.bottom, 12)
 
-            SettingRow(text: TextLiteral.Setting.blockedUsers)
+            Button(action: {
+                vm.navigateToBlockedUsers()
+            }, label: {
+                SettingRow(text: TextLiteral.Setting.blockedUsers)
+            })
+            .buttonStyle(.plain)
+            .contentShape(Rectangle())
         }
     }
 
@@ -154,13 +175,41 @@ struct SettingView: View {
             }
             .padding(.bottom, 12)
 
-            SettingRow(text: TextLiteral.Setting.inquiry)
-                .padding(.bottom, 12)
+            Button(action: {
+                vm.navigateToInquiry()
+            }, label: {
+                SettingRow(text: TextLiteral.Setting.inquiry)
+            })
+            .buttonStyle(.plain)
+            .contentShape(Rectangle())
+            .padding(.bottom, 12)
 
-            SettingRow(text: TextLiteral.Setting.logout)
-                .padding(.bottom, 12)
+            Button(action: {
+                showLogoutAlert = true
+            }, label: {
+                SettingRow(text: TextLiteral.Setting.logout)
+            })
+            .buttonStyle(.plain)
+            .contentShape(Rectangle())
+            .padding(.bottom, 12)
+            .alert("로그아웃", isPresented: $showLogoutAlert) {
+                Button("취소", role: .cancel) { }
+                Button("로그아웃", role: .destructive) {
+                    Task {
+                        await vm.logout()
+                    }
+                }
+            } message: {
+                Text("정말 로그아웃하시겠습니까?")
+            }
 
-            SettingRow(text: TextLiteral.Setting.withdraw)
+            Button(action: {
+                vm.navigateToWithdraw()
+            }, label: {
+                SettingRow(text: TextLiteral.Setting.withdraw)
+            })
+            .buttonStyle(.plain)
+            .contentShape(Rectangle())
         }
     }
 }
@@ -182,5 +231,6 @@ private struct SettingRow: View {
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundStyle(Color.Codive.grayscale3)
         }
+        .contentShape(Rectangle())
     }
 }
