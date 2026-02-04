@@ -20,17 +20,26 @@ protocol CommentDataSource {
 final class DefaultCommentDataSource: CommentDataSource {
     private let apiClient: Client
     private let jsonDecoder: JSONDecoder
+    private var currentUser: User
 
     init() {
         self.apiClient = CodiveAPIProvider.createClient(
             middlewares: [CodiveAuthMiddleware(provider: KeychainTokenProvider())]
         )
         self.jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
+        self.currentUser = User(id: "", nickname: "현재 사용자", profileImageUrl: nil)
     }
 
     init(apiClient: Client) {
         self.apiClient = apiClient
         self.jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
+        self.currentUser = User(id: "", nickname: "현재 사용자", profileImageUrl: nil)
+    }
+
+    init(apiClient: Client, currentUser: User) {
+        self.apiClient = apiClient
+        self.jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
+        self.currentUser = currentUser
     }
 
     func fetchComments(feedId: Int, page: Int) async throws -> (comments: [Comment], hasNext: Bool) {
@@ -95,15 +104,13 @@ final class DefaultCommentDataSource: CommentDataSource {
                 throw NSError(domain: "CommentDataSource", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid response format"])
             }
 
-            // 새로운 댓글 객체 생성 (추가 정보는 필요하면 별도로 조회)
-            let currentUser = User(id: "", nickname: "현재 사용자", profileImageUrl: nil)
             let newComment = Comment(
                 id: Int(commentId),
                 content: content,
                 author: currentUser,
                 isMine: true,
                 hasReplies: false,
-                replies: []
+                replies: nil
             )
 
             return newComment
@@ -142,7 +149,6 @@ final class DefaultCommentDataSource: CommentDataSource {
     }
 
     func postReply(feedId: Int, commentId: Int, content: String) async throws -> Comment {
-        // 대댓글 작성용 요청
         let body = Components.Schemas.CommentCreateRequest(
             historyId: Int64(feedId),
             content: content
@@ -167,15 +173,13 @@ final class DefaultCommentDataSource: CommentDataSource {
                 throw NSError(domain: "CommentDataSource", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid response format"])
             }
 
-            // 새로운 대댓글 객체 생성
-            let currentUser = User(id: "", nickname: "현재 사용자", profileImageUrl: nil)
             let newReply = Comment(
                 id: Int(replyId),
                 content: content,
                 author: currentUser,
                 isMine: true,
                 hasReplies: false,
-                replies: []
+                replies: nil
             )
 
             return newReply
@@ -188,6 +192,9 @@ final class DefaultCommentDataSource: CommentDataSource {
 
 // MARK: - Mock Implementation
 final class MockCommentDataSource: CommentDataSource {
+    private var commentIdCounter = 1000
+    private var replyIdCounter = 10000
+
     func fetchComments(feedId: Int, page: Int) async throws -> (comments: [Comment], hasNext: Bool) {
         try await Task.sleep(nanoseconds: 500_000_000)
 
@@ -201,11 +208,14 @@ final class MockCommentDataSource: CommentDataSource {
     func postComment(feedId: Int, content: String) async throws -> Comment {
         try await Task.sleep(nanoseconds: 300_000_000)
 
+        commentIdCounter += 1
         let newComment = Comment(
-            id: Int.random(in: 100...999),
+            id: commentIdCounter,
             content: content,
-            author: CommentMockData.users[2], // "CurrentUser"
-            isMine: true
+            author: CommentMockData.users[2],
+            isMine: true,
+            hasReplies: false,
+            replyCount: 0
         )
         return newComment
     }
@@ -218,11 +228,14 @@ final class MockCommentDataSource: CommentDataSource {
     func postReply(feedId: Int, commentId: Int, content: String) async throws -> Comment {
         try await Task.sleep(nanoseconds: 300_000_000)
 
+        replyIdCounter += 1
         let newReply = Comment(
-            id: Int.random(in: 100...999),
+            id: replyIdCounter,
             content: content,
             author: CommentMockData.users[2],
-            isMine: true
+            isMine: true,
+            hasReplies: false,
+            replyCount: 0
         )
         return newReply
     }

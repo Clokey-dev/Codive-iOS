@@ -75,7 +75,6 @@ final class FeedDetailViewModel: ObservableObject {
 
             // 각 이미지의 태그를 API로 가져오기
             self.displayableTags = await loadTagsForImages(images: fetchedFeed.images)
-
         } catch {
             errorMessage = TextLiteral.Feed.loadDetailFailed
             feed = nil

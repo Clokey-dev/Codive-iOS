@@ -36,35 +36,91 @@ struct SettingCommentView: View {
                     message: TextLiteral.Setting.myCommentsEmptyMessage,
                     actionTitle: TextLiteral.Setting.goToFeed
                 ) {
-                    // 라우팅
+                    vm.navigateToFeedTab()
                 }
             } else {
                 // 4) 정상 리스트
                 List {
-                    ForEach(vm.items) { (comment: MyComment) in 
-                        VStack(alignment: .leading, spacing: 6) {
-                            HStack(spacing: 8) {
-                                Text(comment.author.nickname)
-                                    .font(.codive_body1_bold)
+                    ForEach(vm.items) { (comment: MyComment) in
+                        VStack(alignment: .leading, spacing: 12) {
+                            // 댓글 본문
+                            HStack(spacing: 12) {
+                                // 프로필 이미지
+                                if let avatarURL = comment.author.avatarURL {
+                                    AsyncImage(url: avatarURL) { phase in
+                                        switch phase {
+                                        case .success(let image):
+                                            image
+                                                .resizable()
+                                                .scaledToFill()
+                                        case .empty, .failure:
+                                            Image(systemName: "person.circle.fill")
+                                                .font(.system(size: 32))
+                                                .foregroundStyle(Color.Codive.grayscale5)
+                                        @unknown default:
+                                            Color.Codive.grayscale5
+                                        }
+                                    }
+                                    .frame(width: 40, height: 40)
+                                    .clipShape(Circle())
+                                } else {
+                                    Image(systemName: "person.circle.fill")
+                                        .font(.system(size: 32))
+                                        .foregroundStyle(Color.Codive.grayscale5)
+                                }
 
-                                Spacer()
+                                VStack(alignment: .leading, spacing: 4) {
+                                    HStack(spacing: 8) {
+                                        Text(comment.author.nickname)
+                                            .font(.codive_body1_bold)
+                                            .foregroundStyle(Color.Codive.grayscale1)
 
-                                Text(
-                                    comment.createdAt.formatted(
-                                        date: .numeric,
-                                        time: .omitted
-                                    )
-                                )
-                                .font(.codive_body2_regular)
-                                .foregroundStyle(Color.Codive.grayscale4)
+                                        Spacer()
+
+                                        Text(
+                                            comment.createdAt.formatted(
+                                                date: .numeric,
+                                                time: .omitted
+                                            )
+                                        )
+                                        .font(.codive_body2_regular)
+                                        .foregroundStyle(Color.Codive.grayscale4)
+                                    }
+
+                                    Text(comment.contentPreview)
+                                        .font(.codive_body2_regular)
+                                        .foregroundStyle(Color.Codive.grayscale1)
+                                        .lineLimit(1)
+                                }
                             }
 
-                            Text(comment.contentPreview)
-                                .font(.codive_body2_regular)
-                                .foregroundStyle(Color.Codive.grayscale1)
-                                .lineLimit(3)
+                            // 답글 목록
+                            if !comment.replies.isEmpty {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    ForEach(comment.replies) { reply in
+                                        HStack(alignment: .top, spacing: 8) {
+                                            Text("L")
+                                                .font(.codive_body2_regular)
+                                                .foregroundStyle(Color.Codive.grayscale4)
+                                                .frame(width: 16)
+
+                                            VStack(alignment: .leading, spacing: 2) {
+                                                Text(reply.content)
+                                                    .font(.codive_body2_regular)
+                                                    .foregroundStyle(Color.Codive.grayscale1)
+                                                    .lineLimit(2)
+                                            }
+                                        }
+                                    }
+                                }
+                                .padding(.top, 4)
+                            }
                         }
-                        .padding(.vertical, 6)
+                        .padding(.vertical, 12)
+                        .listRowSeparator(.hidden)
+                        .onTapGesture {
+                            vm.navigateToFeedDetail(historyId: Int(comment.postId))
+                        }
                     }
                 }
                 .listStyle(.plain)

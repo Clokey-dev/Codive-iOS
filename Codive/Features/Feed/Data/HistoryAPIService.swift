@@ -15,6 +15,7 @@ protocol HistoryAPIServiceProtocol {
     func createHistory(request: HistoryCreateAPIRequest) async throws -> Int64
     func fetchHistoryDetail(historyId: Int64) async throws -> HistoryDetailDTO
     func fetchClothTags(historyImageId: Int64) async throws -> [ClothTagDTO]
+    func fetchMonthlyHistory(memberId: Int64, year: Int32, month: Int32) async throws -> [MonthlyHistoryItemDTO]
 }
 
 // MARK: - History Detail DTO
@@ -26,6 +27,7 @@ struct HistoryDetailDTO {
     let images: [HistoryImageDTO]
     let likeCount: Int64
     let commentCount: Int64
+    let isLiked: Bool
     let historyDate: String?
     let situationId: Int64?
     let situationName: String?
@@ -165,11 +167,12 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
                 } ?? [],
                 likeCount: result.likeCount ?? 0,
                 commentCount: result.commentCount ?? 0,
+                isLiked: result.liked ?? false,
                 historyDate: result.historyDate,
                 situationId: result.situationId,
                 situationName: result.situationName,
                 content: result.content,
-                hashtags: result.hashtags?.compactMap { $0 as? String },
+                hashtags: result.hashtags?.compactMap { $0 },
                 styles: result.styles?.compactMap { style in
                     guard let styleId = style.styleId, let styleName = style.styleName else { return nil }
                     return HistoryStyleDTO(styleId: styleId, styleName: styleName)
@@ -216,6 +219,41 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
                     clothImageUrl: tag.clothImageUrl,
                     locationX: locationX,
                     locationY: locationY
+                )
+            }
+
+        case .undocumented(statusCode: let code, _):
+            throw HistoryAPIError.serverError(statusCode: code)
+        }
+    }
+
+    // MARK: - Fetch Monthly History
+
+    func fetchMonthlyHistory(memberId: Int64, year: Int32, month: Int32) async throws -> [MonthlyHistoryItemDTO] {
+        let input = Operations.History_getMonthlyHistory.Input(
+            path: .init(memberId: memberId),
+            query: .init(year: year, month: month)
+        )
+
+        let response = try await client.History_getMonthlyHistory(input)
+
+        switch response {
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+            let decoded = try jsonDecoder.decode(
+                Components.Schemas.BaseResponseMonthlyHistoryResponse.self,
+                from: data
+            )
+
+            guard let payloads = decoded.result?.payloads else {
+                throw HistoryAPIError.noData
+            }
+
+            return payloads.compactMap { payload in
+                MonthlyHistoryItemDTO(
+                    historyId: payload.historyId,
+                    firstImageUrl: payload.firstImageUrl,
+                    historyDate: payload.historyDate
                 )
             }
 

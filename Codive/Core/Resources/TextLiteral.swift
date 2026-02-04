@@ -240,6 +240,9 @@ enum TextLiteral {
         static let withdrawTitle = "계정 탈퇴"
         static let withdrawNotice = "탈퇴 전 아래 내용을 확인해주세요"
         static let withdrawButton = "계정 탈퇴하기"
+        static let withdrawButtonLoading = "탈퇴 중..."
+        static let withdrawConfirmTitle = "정말 탈퇴하시겠습니까?"
+        static let withdrawConfirmMessage = "한 번 탈퇴하면 계정과 모든 데이터는 복구할 수 없습니다."
 
         // Liked Records
         static let likedRecordsEmpty = "좋아요 한 기록이 없어요!"

@@ -141,7 +141,6 @@ final class RecordDetailViewModel: ObservableObject {
                 // 7. 성공 시 메인으로
                 isLoading = false
                 navigationRouter.navigateToRoot()
-
             } catch {
                 isLoading = false
                 errorMessage = error.localizedDescription

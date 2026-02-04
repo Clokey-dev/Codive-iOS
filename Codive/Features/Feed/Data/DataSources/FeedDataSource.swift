@@ -169,7 +169,7 @@ extension HistoryDetailDTO {
             hashtags: hashtags,
             createdAt: createdAtDate,
             likeCount: Int(likeCount),
-            isLiked: nil,
+            isLiked: isLiked,
             commentCount: Int(commentCount)
         )
     }

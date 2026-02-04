@@ -34,6 +34,9 @@ final class SettingViewFactory {
         case .settingBlockedUsers:
             settingDIContainer?.makeSettingBlockedView()
 
+        case .settingWithdraw:
+            settingDIContainer?.makeWithdrawView()
+
         default:
             EmptyView()
         }

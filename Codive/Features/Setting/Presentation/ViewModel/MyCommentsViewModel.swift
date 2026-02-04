@@ -34,7 +34,7 @@ final class MyCommentsViewModel: ObservableObject {
         isLoading = true
         error = nil
         defer { isLoading = false }
-        
+
         do {
             let data = try await getCommentsUC.fetch(page: 1, size: pageSize)
             items = data
@@ -42,5 +42,15 @@ final class MyCommentsViewModel: ObservableObject {
             self.error = error
             items = []
         }
+    }
+
+    @MainActor
+    func navigateToFeedDetail(historyId: Int) {
+        navigationRouter.navigate(to: .feedDetail(feedId: historyId))
+    }
+
+    @MainActor
+    func navigateToFeedTab() {
+        navigationRouter.switchTabAndNavigate(to: .feed)
     }
 }
