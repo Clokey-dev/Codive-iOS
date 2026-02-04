@@ -44,6 +44,8 @@ final class HomeViewModel: ObservableObject {
     @Published var selectedIndicesByCategory: [Int: Int] = [:]
     @Published var selectedCodiClothes: [HomeClothEntity] = []
     
+    @Published var boardPayloads: [Payloads] = []
+    
     // MARK: - Dependencies
     
     let navigationRouter: NavigationRouter
@@ -348,6 +350,12 @@ extension HomeViewModel {
         showCompletePopUp = true
     }
     
+    func showCompletionFromBoard(payloads: [Payloads], imageURL: String) {
+        self.boardPayloads = payloads
+        self.capturedImageURL = imageURL
+        self.showCompletePopUp = true
+    }
+    
     /// 팝업에서 '기록하기' 버튼을 눌러 오늘 완성한 코디를 서버에 전송
 //    func handlePopupRecord() {
 //        Task {
@@ -400,70 +408,76 @@ extension HomeViewModel {
     func handlePopupRecord() {
         Task {
             do {
-                guard let imageURL = self.capturedImageURL else { return }
-                let containerSize: CGFloat = 260
+                // 1. 공통 이미지 URL 확인
+                guard let imageURL = self.capturedImageURL else {
+                    print("⚠️ [Error] 이미지 URL이 없습니다.")
+                    return
+                }
                 
-                // ✅ 수정: activeCategories의 현재 '순서'를 기준으로 옷을 재수집하여 Payload 생성
-                let sortedPayloads = activeCategories.enumerated().compactMap { (index, category) -> Payloads? in
-                    // 해당 카테고리에서 현재 선택된 옷 찾기
-                    guard let clothList = clothItemsByCategory[category.id] else { return nil }
-                    let selectedIndex = selectedIndicesByCategory[category.id] ?? 0
-                    let cloth = clothList.indices.contains(selectedIndex) ? clothList[selectedIndex] : clothList.first
-                    
-                    guard let selectedCloth = cloth else { return nil }
-                    
-                    // CodiLayoutCalculator 위치 계산 (현재 순서 index 반영)
-                    let position = CodiLayoutCalculator.position(
-                        index: index,
-                        totalCount: activeCategories.count,
-                        containerSize: containerSize
-                    )
-
-                    return Payloads(
-                        clothId: selectedCloth.clothId,
-                        locationX: Double(position.x / containerSize),
-                        locationY: Double(position.y / containerSize),
-                        ratio: 1.0,
-                        degree: 0,
-                        order: Int32(index + 1) // ✅ 1부터 시작하는 순서 부여
-                    )
+                // 2. 데이터 소스 구분 (보드 편집본 vs 홈 리스트 조합)
+                let finalPayloads: [Payloads]
+                
+                if !boardPayloads.isEmpty {
+                    // CASE A: 코디보드에서 편집하여 넘어온 경우
+                    finalPayloads = boardPayloads
+                    print("📝 [Case] 코디보드 편집 데이터로 기록을 시작합니다.")
+                } else {
+                    // CASE B: 홈 화면에서 바로 '결정하기'를 누른 경우
+                    finalPayloads = createPayloadsFromCurrentList()
+                    print("📝 [Case] 홈 화면 리스트 조합으로 기록을 시작합니다.")
                 }
 
+                // 3. 서버 전송용 DTO 생성
                 let request = CreateTodayCoordinateRequestDTO(
                     coordinateImageUrl: imageURL,
-                    payloads: sortedPayloads
+                    payloads: finalPayloads
                 )
 
-                // 🔍 [디버그 프린트 시작]
-                print("""
-                
-                ================================[ DTO 전송 데이터 확인 ]================================
-                📸 캡처된 이미지 URL: \(request.coordinateImageUrl)
-                👕 포함된 옷 개수: \(request.payloads.count)개
-                --------------------------------------------------------------------------------------
-                """)
-                
-                for (index, payload) in request.payloads.enumerated() {
-                    print("""
-                    [옷 \(index + 1)]
-                    - Cloth ID: \(payload.clothId)
-                    - 위치 (X, Y): (\(String(format: "%.4f", payload.locationX)), \(String(format: "%.4f", payload.locationY)))
-                    - 레이어 순서: \(payload.order)
-                    """)
-                }
-                print("====================================================================================\n")
-                // 🔍 [디버그 프린트 끝]
-
-                // 3. 서버 전송
+                // 5. 서버 전송 API 호출
                 let result = try await todayCodiUseCase.createTodayCoordinate(request: request)
                 
-                self.showCompletePopUp = false
-                self.hasCodi = true
-                print("✅ 오늘의 코디 저장 성공")
+                // 6. UI 상태 초기화 및 성공 처리
+                await MainActor.run {
+                    self.showCompletePopUp = false
+                    self.hasCodi = true
+                    self.boardPayloads = [] // 다음 기록을 위해 초기화
+                    self.capturedImageURL = nil
+                    print("✅ 오늘의 코디 저장 성공: \(result.coordinateId)")
+                }
                 
             } catch {
                 print("❌ 최종 코디 저장 실패: \(error.localizedDescription)")
             }
+        }
+    }
+
+    /// [Helper] 홈 화면의 현재 상태(순서/인덱스)를 기준으로 Payload 생성
+    private func createPayloadsFromCurrentList() -> [Payloads] {
+        let containerSize: CGFloat = 260
+        
+        // activeCategories의 현재 순서대로 옷을 찾아 좌표 부여
+        return activeCategories.enumerated().compactMap { (index, category) -> Payloads? in
+            guard let clothList = clothItemsByCategory[category.id] else { return nil }
+            let selectedIndex = selectedIndicesByCategory[category.id] ?? 0
+            let cloth = clothList.indices.contains(selectedIndex) ? clothList[selectedIndex] : clothList.first
+            
+            guard let selectedCloth = cloth else { return nil }
+            
+            // 리스트용 기본 좌표 계산
+            let position = CodiLayoutCalculator.position(
+                index: index,
+                totalCount: activeCategories.count,
+                containerSize: containerSize
+            )
+
+            return Payloads(
+                clothId: selectedCloth.clothId,
+                locationX: Double(position.x / containerSize),
+                locationY: Double(position.y / containerSize),
+                ratio: 1.0,
+                degree: 0,
+                order: Int32(index + 1)
+            )
         }
     }
     

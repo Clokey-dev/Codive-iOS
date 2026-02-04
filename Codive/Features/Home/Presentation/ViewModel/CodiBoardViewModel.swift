@@ -20,6 +20,7 @@ final class CodiBoardViewModel: ObservableObject {
     @Published var selectedImageID: Int? // 추가된 속성
     
     private let codiBoardUseCase: CodiBoardUseCase
+    private let todayCodiUseCase: TodayCodiUseCase
     private let navigationRouter: NavigationRouter
     private weak var homeViewModel: HomeViewModel?
     
@@ -28,22 +29,24 @@ final class CodiBoardViewModel: ObservableObject {
     init(
         navigationRouter: NavigationRouter,
         codiBoardUseCase: CodiBoardUseCase,
+        todayCodiUseCase: TodayCodiUseCase,
         homeViewModel: HomeViewModel? = nil
     ) {
         self.navigationRouter = navigationRouter
         self.codiBoardUseCase = codiBoardUseCase
+        self.todayCodiUseCase = todayCodiUseCase
         self.homeViewModel = homeViewModel
         
-        loadInitialData()
+//        loadInitialData()
         setupCodiDataSubscription()
     }
     
     // MARK: - Private Methods
     
     /// 초기 코디판 이미지 데이터를 로드
-    private func loadInitialData() {
-        self.images = codiBoardUseCase.loadCodiBoardImages()
-    }
+//    private func loadInitialData() {
+//        self.images = codiBoardUseCase.loadCodiBoardImages()
+//    }
 
     private func setupCodiDataSubscription() {
         HomeViewModel.codiTransferPublisher
@@ -74,26 +77,82 @@ final class CodiBoardViewModel: ObservableObject {
     // MARK: - Actions
     
     /// 구성된 코디를 서버에 저장하고 홈 화면의 완료 팝업을 띄움
+//    func handleConfirmCodi() {
+////        Task {
+////            do {
+////                // 1. 서버에 데이터 전송
+////                try await codiBoardUseCase.saveCodiItems(images)
+////                
+////                // 2. 저장 성공 후 UI 처리 (MainActor에서 실행됨)
+////                let imageURL = images.first?.imageURL
+////                navigationRouter.navigateBack()
+////                
+////                // 홈 화면으로 돌아가는 애니메이션 시간을 고려하여 지연 실행
+////                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+////                    self?.homeViewModel?.showCompletionPopup(imageURL: imageURL)
+////                }
+////                
+////                self.isConfirmed = true
+////            } catch {
+////                handleError(error)
+////            }
+////        }
+//    }
+    // CodiBoardViewModel.swift
+
+    // CodiBoardViewModel.swift
+
+    // CodiBoardViewModel.swift 내 handleConfirmCodi 수정
+
     func handleConfirmCodi() {
-//        Task {
-//            do {
-//                // 1. 서버에 데이터 전송
-//                try await codiBoardUseCase.saveCodiItems(images)
-//                
-//                // 2. 저장 성공 후 UI 처리 (MainActor에서 실행됨)
-//                let imageURL = images.first?.imageURL
-//                navigationRouter.navigateBack()
-//                
-//                // 홈 화면으로 돌아가는 애니메이션 시간을 고려하여 지연 실행
-//                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-//                    self?.homeViewModel?.showCompletionPopup(imageURL: imageURL)
-//                }
-//                
-//                self.isConfirmed = true
-//            } catch {
-//                handleError(error)
-//            }
-//        }
+        Task {
+            let boardSize: CGFloat = 260
+            let centerOffset = boardSize / 2
+            
+            // ✅ 수정 포인트: $images 대신 .constant(images)를 사용하여 Binding 타입으로 전달
+            let captureView = DraggableImageView(
+                items: .constant(images),
+                onActivate: { _ in }
+            )
+            .frame(width: boardSize, height: boardSize)
+            .background(Color.Codive.grayscale7)
+            
+            let renderer = ImageRenderer(content: captureView)
+            renderer.scale = UIScreen.main.scale
+            
+            guard let uiImage = renderer.uiImage,
+                  let jpgData = uiImage.jpegData(compressionQuality: 0.8) else { return }
+            
+            do {
+                // 이후 업로드 및 데이터 처리 로직 동일
+                let uploadedURL = try await todayCodiUseCase.execute(jpgData: jpgData)
+                
+                let finalPayloads = images.enumerated().map { index, entity in
+                    let absoluteX = entity.position.x + centerOffset
+                    let absoluteY = entity.position.y + centerOffset
+                    
+                    return Payloads(
+                        clothId: entity.id,
+                        locationX: Double(absoluteX / boardSize),
+                        locationY: Double(absoluteY / boardSize),
+                        ratio: Double(entity.scale),
+                        degree: entity.rotation,
+                        order: Int32(index + 1)
+                    )
+                }
+                
+                await MainActor.run {
+                    guard let homeVM = homeViewModel else { return }
+                    homeVM.capturedImageURL = uploadedURL
+                    homeVM.boardPayloads = finalPayloads
+                    homeVM.showCompletePopUp = true
+                    
+                    navigationRouter.navigateBack()
+                }
+            } catch {
+                print("❌ 저장 실패: \(error.localizedDescription)")
+            }
+        }
     }
     
     /// 에러 발생 시 처리 로직
