@@ -62,7 +62,7 @@ struct CodiClothCarouselView: View {
     let activeScale: CGFloat
     let inactiveScale: CGFloat
     let isEmptyState: Bool
-
+    
     @ViewBuilder
     private func emptyStateCard(at index: Int, width: CGFloat) -> some View {
         let border = RoundedRectangle(cornerRadius: 15)
@@ -202,8 +202,7 @@ struct CodiClothView: View {
         self.items = items
         self.isEmptyState = isEmptyState
         self.onIndexChanged = onIndexChanged
-        
-//        let initialIndex = isEmptyState ? 1 : max(0, items.count / 2)
+
         let initialIndex = isEmptyState ? 1 : 0
         _currentIndex = State(initialValue: initialIndex)
     }
@@ -221,6 +220,12 @@ struct CodiClothView: View {
                 )
                 .onChange(of: currentIndex) { newValue in
                     onIndexChanged?(newValue)
+                }
+                .onAppear {
+                    // 비어있는 상태가 아닐 때만 0번(또는 초기값)을 전달
+                    if !isEmptyState {
+                        onIndexChanged?(currentIndex)
+                    }
                 }
                 
                 // 카테고리 태그
