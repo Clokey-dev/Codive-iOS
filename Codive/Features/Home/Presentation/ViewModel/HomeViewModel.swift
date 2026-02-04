@@ -390,54 +390,6 @@ extension HomeViewModel {
     }
     
     /// 팝업에서 '기록하기' 버튼을 눌러 오늘 완성한 코디를 서버에 전송
-//    func handlePopupRecord() {
-//        Task {
-//            do {
-//                // 1️⃣ CodiCompositeView 캡처
-//                let image = captureCompletedCodiImage()
-//
-//                // 2️⃣ UIImage → Base64 String
-//                guard let coordinateImageUrl = image.toBase64String() else {
-//                    throw NSError(domain: "Base64EncodingFail", code: 0)
-//                }
-//
-//                self.completedCodiImageURL = coordinateImageUrl
-//
-//                // 3️⃣ 좌표 payload 생성
-//                let containerSize: CGFloat = 260
-//                let payloads = selectedCodiClothes.enumerated().map { index, cloth in
-//                    let position = CodiLayoutCalculator.position(
-//                        index: index,
-//                        totalCount: selectedCodiClothes.count,
-//                        containerSize: containerSize
-//                    )
-//
-//                    return Payloads(
-//                        clothId: cloth.clothId,
-//                        locationX: position.x,
-//                        locationY: position.y,
-//                        ratio: 1.0,
-//                        degree: 0,
-//                        order: Int32(index)
-//                    )
-//                }
-//
-//                // 4️⃣ 오늘의 코디 생성 (String 그대로 전달)
-//                let request = CreateTodayCoordinateRequestDTO(
-//                    coordinateImageUrl: coordinateImageUrl,
-//                    payloads: payloads
-//                )
-//
-//                let result = try await todayCodiUseCase.createTodayCoordinate(request: request)
-//                print("✅ 오늘 코디 생성 완료:", result.coordinateId)
-//
-//                showCompletePopUp = false
-//                hasCodi = true
-//            } catch {
-//                print("❌ 코디 기록 실패:", error)
-//            }
-//        }
-//    }
     func handlePopupRecord() {
         Task {
             do {
@@ -581,6 +533,36 @@ extension HomeViewModel {
             uiView.drawHierarchy(in: uiView.bounds, afterScreenUpdates: true)
         }
     }
+//    /// 이미지 캡처
+//    private func captureCompletedCodiImage() -> UIImage {
+//        let captureSize = CGSize(width: 260, height: 260)
+//        
+//        // 1. SwiftUI View 내부에서 배경을 먼저 꽉 채웁니다.
+//        let view = CodiCompositeView(clothes: selectedCodiClothes)
+//            .frame(width: captureSize.width, height: captureSize.height)
+//            .background(Color.Codive.grayscale7) // SwiftUI 배경색
+//            .ignoresSafeArea()
+//
+//        let controller = UIHostingController(rootView: view)
+//        let uiView = controller.view!
+//        
+//        // 2. 뷰의 크기를 먼저 설정합니다.
+//        uiView.bounds = CGRect(origin: .zero, size: captureSize)
+//        
+//        // 3. UIHostingController의 뷰 배경색을 투명하게 하거나 명시적으로 UIColor를 지정합니다.
+//        // 때로는 .clear로 두어야 SwiftUI의 .background 컬러가 제대로 보입니다.
+//        uiView.backgroundColor = UIColor(Color.Codive.grayscale7)
+//
+//        // 4. 렌더링 전 레이아웃을 강제로 업데이트합니다. (색상이 안 변할 때 중요)
+//        uiView.setNeedsLayout()
+//        uiView.layoutIfNeeded()
+//
+//        let renderer = UIGraphicsImageRenderer(size: captureSize)
+//        return renderer.image { _ in
+//            // 5. drawHierarchy 대신 draw(in:)을 사용해 봅니다.
+//            uiView.drawHierarchy(in: uiView.bounds, afterScreenUpdates: true)
+//        }
+//    }
 }
 
 extension UIImage {

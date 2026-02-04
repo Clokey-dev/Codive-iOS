@@ -27,6 +27,10 @@ struct CodiBoardView: View {
                 let imageHalfSize: CGFloat = 40
                 
                 contentView(boardSize: boardSize, imageHalfSize: imageHalfSize, totalWidth: geometry.size.width)
+                    .onAppear {
+                                            // ✅ 화면이 나타날 때 실제 렌더링되는 boardSize를 ViewModel에 전달
+                                            viewModel.boardSize = boardSize
+                                        }
             }
         }
         .navigationBarHidden(true)

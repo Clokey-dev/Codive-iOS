@@ -18,6 +18,7 @@ final class CodiBoardViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     @Published var currentlyDraggedID: Int?
     @Published var selectedImageID: Int? // 추가된 속성
+    @Published var boardSize: CGFloat = 260
     
     private let codiBoardUseCase: CodiBoardUseCase
     private let todayCodiUseCase: TodayCodiUseCase
@@ -155,76 +156,81 @@ final class CodiBoardViewModel: ObservableObject {
 //        }
 //    }
     func handleConfirmCodi() {
-        Task {
-            let boardSize: CGFloat = 260
-            let centerOffset = boardSize / 2
-            
-            print("📸 [Capture] 캡처 프로세스 시작...")
-            
-            let captureView = DraggableImageView(
-                items: .constant(images),
-                onActivate: { _ in }
-            )
-            .frame(width: boardSize, height: boardSize)
-            .background(Color.Codive.grayscale7)
-            
-            let renderer = ImageRenderer(content: captureView)
-            renderer.scale = UIScreen.main.scale
-            
-            guard let uiImage = renderer.uiImage else {
-                print("❌ [Capture] UIImage 생성 실패")
-                return
-            }
-            print("✅ [Capture] UIImage 생성 성공: \(uiImage.size)")
-            
-            guard let jpgData = uiImage.jpegData(compressionQuality: 0.8) else {
-                print("❌ [Capture] JPEG 데이터 변울 실패")
-                return
-            }
-            print("✅ [Capture] 데이터 변환 완료: \(jpgData.count) bytes")
-            
-            do {
-                print("📡 [Upload] 서버 업로드 요청 중...")
-                let uploadedURL = try await todayCodiUseCase.execute(jpgData: jpgData)
-                print("✅ [Upload] 서버 업로드 성공 URL: \(uploadedURL)")
+            Task {
+                // ✅ 2. 실제 화면 크기를 기준으로 캡처를 진행합니다.
+                let actualSize = boardSize
+                let centerOffset = actualSize / 2
                 
-                let finalPayloads = images.enumerated().map { index, entity in
-                    let absoluteX = entity.position.x + centerOffset
-                    let absoluteY = entity.position.y + centerOffset
+                print("📸 [Capture] 실제 보드 크기(\(actualSize))로 캡처 시작...")
+                
+                let captureView = ZStack {
+                    RoundedRectangle(cornerRadius: 15)
+                        .fill(Color.Codive.grayscale7)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 15)
+                                .stroke(Color.Codive.grayscale5, lineWidth: 1)
+                        )
                     
-                    return Payloads(
-                        clothId: entity.id,
-                        locationX: Double(absoluteX / boardSize),
-                        locationY: Double(absoluteY / boardSize),
-                        ratio: Double(entity.scale),
-                        degree: entity.rotation,
-                        order: Int32(index + 1)
+                    DraggableImageView(
+                        items: .constant(images),
+                        onActivate: { _ in }
                     )
                 }
+                .frame(width: actualSize, height: actualSize) // 실제 크기 적용
+                .clipShape(RoundedRectangle(cornerRadius: 15))
                 
-                // CodiBoardViewModel.swift 의 handleConfirmCodi 내부 MainActor 부분
-
-                await MainActor.run {
-                    guard let homeVM = homeViewModel else { return }
+                let renderer = ImageRenderer(content: captureView)
+                renderer.scale = UIScreen.main.scale
+                
+                guard var uiImage = renderer.uiImage else { return }
+                
+                // ✅ 3. 캡처된 이미지를 260x260 사이즈로 리사이징합니다.
+                let targetSize = CGSize(width: 260, height: 260)
+                uiImage = resizeImage(image: uiImage, targetSize: targetSize)
+                
+                guard let jpgData = uiImage.jpegData(compressionQuality: 0.8) else { return }
+                
+                do {
+                    let uploadedURL = try await todayCodiUseCase.execute(jpgData: jpgData)
                     
-                    // 1. 먼저 데이터를 준비합니다.
-                    homeVM.capturedImageURL = uploadedURL
-                    homeVM.boardPayloads = finalPayloads
-                    
-                    // 2. 화면을 먼저 닫습니다.
-                    navigationRouter.navigateBack()
-                    
-                    // 3. 아주 짧은 지연(0.1초) 후 팝업을 띄워 HomeView가 안정된 상태에서 로딩하게 합니다.
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        homeVM.showCompletePopUp = true
-                        print("🚀 [Navigation] Home 이동 후 팝업 트리거 완료")
+                    // ✅ 4. 좌표 계산 시에도 실제 크기(actualSize)를 기준으로 정규화(0~1)를 수행합니다.
+                    let finalPayloads = images.enumerated().map { index, entity in
+                        let absoluteX = entity.position.x + centerOffset
+                        let absoluteY = entity.position.y + centerOffset
+                        
+                        return Payloads(
+                            clothId: entity.id,
+                            locationX: Double(absoluteX / actualSize), // 0.0 ~ 1.0 사이 값
+                            locationY: Double(absoluteY / actualSize),
+                            ratio: Double(entity.scale),
+                            degree: entity.rotation,
+                            order: Int32(index + 1)
+                        )
                     }
+
+                    await MainActor.run {
+                        guard let homeVM = homeViewModel else { return }
+                        homeVM.capturedImageURL = uploadedURL
+                        homeVM.boardPayloads = finalPayloads
+                        navigationRouter.navigateBack()
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            homeVM.showCompletePopUp = true
+                        }
+                    }
+                } catch {
+                    print("❌ 에러: \(error.localizedDescription)")
                 }
-            } catch {
-                print("❌ [Error] 저장/업로드 실패: \(error.localizedDescription)")
             }
         }
-    }
+        
+        // ✅ UIImage 리사이징 헬퍼 함수
+        private func resizeImage(image: UIImage, targetSize: CGSize) -> UIImage {
+            let renderer = UIGraphicsImageRenderer(size: targetSize)
+            return renderer.image { _ in
+                image.draw(in: CGRect(origin: .zero, size: targetSize))
+            }
+        }
     
     /// 에러 발생 시 처리 로직
     private func handleError(_ error: Error) {

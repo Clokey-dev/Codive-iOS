@@ -182,7 +182,8 @@ struct CodiCompositeView: View {
         ZStack {
             // ✅ 배경을 Color.white로 변경하여 캡처 시 검은색 방지
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.white)
+//                .fill(Color.white)
+                .fill(Color.Codive.grayscale7)
                 .frame(width: containerSize, height: containerSize)
             
             ForEach(0..<clothes.count, id: \.self) { index in
