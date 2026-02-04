@@ -14,7 +14,7 @@ final class HomeViewModel: ObservableObject {
     
     // MARK: - Properties (UI State)
     
-    @Published var hasCodi: Bool = true
+    @Published var hasCodi: Bool = false
     @Published var showClothSelector: Bool = false
     @Published var selectedItemID: Int?
     @Published var selectedIndex: Int? = 0
@@ -131,15 +131,17 @@ extension HomeViewModel {
 
     /// 카테고리별 계절에 맞는 옷 조회
     func loadRecommendCategoryClothList() async {
+        self.activeCategories = []
+        self.clothItemsByCategory = [:]
+        
         let allCategories = categoryUseCase.loadCategories()
         let filteredCategories = allCategories.filter { $0.itemCount > 0 }
+ 
         self.activeCategories = filteredCategories
 
         var resultMap: [Int: [HomeClothEntity]] = [:]
 
         for category in filteredCategories {
-            print("📦 category title:", category.title)
-            print("📦 category.id:", category.id)
             do {
                 let result = try await categoryUseCase.loadClothItems(
                     lastClothId: nil,

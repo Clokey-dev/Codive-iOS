@@ -75,6 +75,7 @@ private extension HomeNoCodiView {
                     ) { newIndex in
                         viewModel.updateSelectedIndex(for: category.id, index: newIndex)
                     }
+                    .id("\(category.id)_\(clothItems.count)")
                     .background(Color.white)
                     .cornerRadius(15)
                     .onDrag {

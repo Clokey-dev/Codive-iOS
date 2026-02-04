@@ -26,19 +26,16 @@ struct ClothCardView: View {
                     .frame(height: 124)
                     .frame(width: 124)
                     .overlay {
-                        if let url = URL(string: item.imageUrl), item.imageUrl.hasPrefix("http") {
+                        if let url = URL(string: item.imageUrl), !item.imageUrl.isEmpty {
                             AsyncImage(url: url) { phase in
                                 switch phase {
                                 case .empty:
                                     ProgressView()
                                 case .success(let image):
-                                    image
-                                        .resizable()
-                                        .scaledToFit()
-                                case .failure:
-                                    Image(systemName: "photo")
-                                        .resizable()
-                                        .scaledToFit()
+                                    image.resizable().scaledToFit()
+                                case .failure(let error):
+                                    let _ = print("Image Load Error: \(error.localizedDescription) for URL: \(item.imageUrl)")
+                                    Image(systemName: "exclamationmark.triangle")
                                         .foregroundColor(.gray)
                                 @unknown default:
                                     EmptyView()
