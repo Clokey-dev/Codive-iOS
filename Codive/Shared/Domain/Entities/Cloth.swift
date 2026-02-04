@@ -14,7 +14,8 @@ public struct Cloth: Identifiable, Equatable, Hashable {
     public let name: String?
     public let brand: String?
     public let purchaseUrl: String?
-    public let categoryId: Int?
+    public let mainCategory: String?
+    public let subCategory: String?
     public let seasons: Set<Season>
 
     public init(
@@ -23,7 +24,8 @@ public struct Cloth: Identifiable, Equatable, Hashable {
         name: String? = nil,
         brand: String? = nil,
         purchaseUrl: String? = nil,
-        categoryId: Int? = nil,
+        mainCategory: String? = nil,
+        subCategory: String? = nil,
         seasons: Set<Season> = []
     ) {
         self.id = id
@@ -31,8 +33,20 @@ public struct Cloth: Identifiable, Equatable, Hashable {
         self.name = name
         self.brand = brand
         self.purchaseUrl = purchaseUrl
-        self.categoryId = categoryId
+        self.mainCategory = mainCategory
+        self.subCategory = subCategory
         self.seasons = seasons
+    }
+}
+
+// MARK: - Display Properties Extension
+extension Cloth {
+    /// 이름이 없을 때 표시할 카테고리 문자열 (예: "상의 > 후드티")
+    public var displayCategory: String {
+        if let mainCategory = mainCategory, let subCategory = subCategory {
+            return "\(mainCategory) > \(subCategory)"
+        }
+        return ""
     }
 }
 

@@ -82,8 +82,8 @@ struct MyClosetView: View {
                         ForEach(viewModel.clothItems) { cloth in
                             CustomClothCard(
                                 imageUrl: cloth.imageUrl,
-                                brand: cloth.brand ?? "",
-                                title: cloth.name ?? "",
+                                brand: cloth.brand ?? "No brand",
+                                title: cloth.name ?? cloth.displayCategory,
                                 isEditMode: viewModel.isEditMode,
                                 isSelected: viewModel.selectedItemIds.contains(cloth.id)
                             ) {

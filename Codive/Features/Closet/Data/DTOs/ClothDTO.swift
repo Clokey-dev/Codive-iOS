@@ -35,16 +35,18 @@ struct ClothResponseDTO: Decodable {
     let name: String?
     let brand: String?
     let purchaseUrl: String?
-    let categoryId: Int?
+    let parentCategory: String?
+    let category: String?
     let seasons: [String]
 
     enum CodingKeys: String, CodingKey {
         case id
-        case imageUrl = "image_url"
+        case imageUrl = "ImageUrl"
         case name
         case brand
         case purchaseUrl = "purchase_url"
-        case categoryId = "category_id"
+        case parentCategory = "parentCategory"
+        case category = "category"
         case seasons
     }
 
@@ -57,7 +59,8 @@ struct ClothResponseDTO: Decodable {
             name: name,
             brand: brand,
             purchaseUrl: purchaseUrl,
-            categoryId: categoryId,
+            mainCategory: parentCategory,
+            subCategory: category,
             seasons: seasonSet
         )
     }

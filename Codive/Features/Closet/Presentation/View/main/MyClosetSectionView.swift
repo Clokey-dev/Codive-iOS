@@ -123,7 +123,7 @@ struct MyClosetSectionView: View {
         ClothingCardView(
             imageUrl: cloth.imageUrl,
             brand: cloth.brand ?? "No brand",
-            name: cloth.name ?? "이름 없음"
+            name: cloth.name ?? cloth.displayCategory
         )
         .onTapGesture {
             viewModel.navigateToClothDetail(cloth)

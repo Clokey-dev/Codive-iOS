@@ -247,7 +247,14 @@ extension LookBookAPIService {
             let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseClothListResponse.self, from: data)
             
             let clothes: [ClothListItem] = decoded.result?.content?.map { item -> ClothListItem in
-                return ClothListItem(clothId: item.clothId ?? 0, imageUrl: item.ImageUrl ?? "", brand: item.brand, name: item.name)
+                return ClothListItem(
+                    clothId: item.clothId ?? 0,
+                    imageUrl: item.ImageUrl ?? "",
+                    brand: item.brand,
+                    name: item.name,
+                    parentCategory: item.parentCategory,
+                    category: item.category
+                )
             } ?? []
             
             return ClothListResult(clothes: clothes, isLast: decoded.result?.isLast ?? true)

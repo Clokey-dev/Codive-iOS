@@ -153,9 +153,10 @@ struct ClothDetailView: View {
         name: "스트링 리본 핑크 셔링 블라우스",
         brand: "로렌하이",
         purchaseUrl: "www.http://",
-        categoryId: 1,
+        mainCategory: "상의",
+        subCategory: "블라우스",
         seasons: [.spring]
     )
 
-    return closetDIContainer.makeClothDetailView(cloth: sampleCloth)
+    closetDIContainer.makeClothDetailView(cloth: sampleCloth)
 }

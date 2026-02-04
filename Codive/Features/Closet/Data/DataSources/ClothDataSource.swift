@@ -118,7 +118,8 @@ final class DefaultClothDataSource: ClothDataSource {
                 name: input.name.isEmpty ? nil : input.name,
                 brand: input.brand.isEmpty ? nil : input.brand,
                 purchaseUrl: input.purchaseUrl.isEmpty ? nil : input.purchaseUrl,
-                categoryId: input.categoryId,
+                mainCategory: nil,
+                subCategory: nil,
                 seasons: input.seasons
             )
         }
@@ -180,7 +181,11 @@ final class DefaultClothDataSource: ClothDataSource {
             id: Int(item.clothId),
             imageUrl: item.imageUrl,
             name: item.name,
-            brand: item.brand
+            brand: item.brand,
+            purchaseUrl: nil,
+            mainCategory: item.parentCategory,
+            subCategory: item.category,
+            seasons: []
         )
     }
 

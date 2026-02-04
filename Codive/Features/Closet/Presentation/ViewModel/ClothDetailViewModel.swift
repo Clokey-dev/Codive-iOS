@@ -46,12 +46,11 @@ final class ClothDetailViewModel: ObservableObject {
             }
         }
 
-        // fallback: 기존 로직
-        guard let categoryId = cloth.categoryId,
-              let category = CategoryConstants.category(byId: categoryId) else {
-            return "카테고리 없음"
+        // fallback: cloth의 mainCategory와 subCategory 사용
+        if !cloth.displayCategory.isEmpty {
+            return cloth.displayCategory
         }
-        return category.name
+        return "카테고리 없음"
     }
 
     var seasonText: String {

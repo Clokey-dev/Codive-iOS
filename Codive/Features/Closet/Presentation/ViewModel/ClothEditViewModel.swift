@@ -91,16 +91,13 @@ final class ClothEditViewModel: ObservableObject, ClothEditViewModelInput, Cloth
         self.clothRepository = clothRepository
         self.imageUrl = cloth.imageUrl
 
-        // 기존 Cloth 데이터로 폼 초기화 (목록에서 전달받은 기본 정보)
-        let subcategory = cloth.categoryId.flatMap { CategoryConstants.subcategory(byId: $0) }
-        let category = cloth.categoryId.flatMap { CategoryConstants.category(bySubcategoryId: $0) }
-
+        // 폼 초기화 (detail 조회 후 카테고리 정보 업데이트됨)
         self.clothForm = ClothFormData(
             name: cloth.name ?? "",
             brand: cloth.brand ?? "",
             purchaseUrl: cloth.purchaseUrl ?? "",
-            category: category,
-            subcategory: subcategory,
+            category: nil,
+            subcategory: nil,
             selectedSeasons: cloth.seasons
         )
     }
@@ -114,7 +111,7 @@ final class ClothEditViewModel: ObservableObject, ClothEditViewModelInput, Cloth
             // 이미지 URL 업데이트
             imageUrl = detail.clothImageUrl
 
-            // 카테고리 업데이트 (API 응답의 category 이름으로 찾기)
+            // 카테고리 업데이트 (API 응답의 이름으로 찾기)
             if let categoryName = detail.parentCategory,
                let subcategoryName = detail.category {
                 if let parentCategory = CategoryConstants.all.first(where: { $0.name == categoryName }),
