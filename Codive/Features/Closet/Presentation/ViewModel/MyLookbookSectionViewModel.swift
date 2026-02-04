@@ -43,4 +43,19 @@ final class MyLookbookSectionViewModel: ObservableObject {
             isLoading = false
         }
     }
+    
+    /// 룩북으로 이동
+    func navigateToLookBook() {
+        navigationRouter.navigate(to: .lookbook)
+    }
+    
+    func navigateToAddLookbook() {
+        // 1. 먼저 화면 이동을 지시합니다.
+        navigationRouter.navigate(to: .lookbook)
+        
+        // 2. 화면이 생성될 시간을 아주 잠깐(0.1초) 벌어준 뒤 신호를 보냅니다.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            LookBookEventManager.shared.shouldShowAddDialog.send(true)
+        }
+    }
 }

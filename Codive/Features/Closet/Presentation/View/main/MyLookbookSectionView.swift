@@ -34,7 +34,7 @@ struct MyLookbookSectionView: View {
                 Spacer()
                 
                 Button(
-                    action: { print("더보기") },
+                    action: { viewModel.navigateToLookBook() },
                     label: {
                         HStack(spacing: 2) {
                             Text("더보기")
@@ -52,6 +52,7 @@ struct MyLookbookSectionView: View {
                 if viewModel.lookBookList.count < 4 {
                     AddLookbookButton {
                         print("룩북 만들기 클릭")
+                        viewModel.navigateToAddLookbook()
                     }
                 }
                 
