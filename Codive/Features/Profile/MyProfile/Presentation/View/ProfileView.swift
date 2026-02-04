@@ -179,7 +179,7 @@ struct ProfileView: View {
                         CodiCard(
                             imageURL: URL(string: codi.imageUrl),
                             title: nil,
-                            icon: .none,
+                            icon: .heart(isSelected: true, onTap: {}),
                             cardWidth: 160,
                             imageSize: 160,
                             cornerRadius: 16,
