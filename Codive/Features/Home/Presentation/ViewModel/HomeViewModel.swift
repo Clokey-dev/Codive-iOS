@@ -224,10 +224,13 @@ extension HomeViewModel {
 //    }
     // HomeViewModel.swift
 
+    // HomeViewModel.swift
+
     func handleCodiBoardTap() {
         let containerSize: CGFloat = 260
+        // 보드 중앙 기준 좌표계로 변환하기 위한 오프셋
+        let centerOffset = containerSize / 2
         
-        // 1. 현재 activeCategories 순서에 따른 옷 데이터 생성
         let transferImages = activeCategories.enumerated().compactMap { (index, category) -> DraggableImageEntity? in
             guard let clothList = clothItemsByCategory[category.id],
                   let selectedIndex = selectedIndicesByCategory[category.id] else {
@@ -237,35 +240,37 @@ extension HomeViewModel {
             let cloth = clothList.indices.contains(selectedIndex) ? clothList[selectedIndex] : clothList.first
             guard let selectedCloth = cloth else { return nil }
             
-            // CodiLayoutCalculator를 이용한 초기 위치 계산
-            let pos = CodiLayoutCalculator.position(
+            // 1. CodiLayoutCalculator가 주는 절대 좌표 (0~260 범위)
+            let rawPos = CodiLayoutCalculator.position(
                 index: index,
                 totalCount: activeCategories.count,
                 containerSize: containerSize
             )
             
+            // 2. ZoomRotateDragView의 .offset 방식에 맞게 중앙(0,0) 기준 상대 좌표로 변환
+            let relativePos = CGPoint(
+                x: rawPos.x - centerOffset,
+                y: rawPos.y - centerOffset
+            )
+            
             return DraggableImageEntity(
                 id: selectedCloth.clothId,
-                name: selectedCloth.imageUrl, // DraggableImageProtocol의 imageUrl로 매핑됨
-                position: pos,
-                scale: 1.0,
+                name: selectedCloth.imageUrl,
+                position: relativePos,
+                scale: 0.7, // ✅ 크기를 70%로 줄여서 전달
                 rotation: 0
             )
         }
         
         let data = TodayCodiTransferData(images: transferImages)
         
-        // 🔍 [전송 디버그 로그]
         print("""
-        [보내는 쪽: HomeViewModel] 🚀 데이터 전송 시작
+        [보내는 쪽: HomeViewModel] 🚀 데이터 전송 (크기 70% 적용)
         - 전송 아이템 개수: \(data.images.count)개
-        - 아이템 IDs: \(data.images.map { $0.id })
+        - 적용 배율: \(data.images.first?.scale ?? 0)
         """)
         
-        // 2. PassthroughSubject로 데이터 발행
         Self.codiTransferPublisher.send(data)
-        
-        // 3. 화면 이동
         navigationRouter.navigate(to: .codiBoard)
     }
     
