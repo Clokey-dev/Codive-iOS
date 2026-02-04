@@ -22,6 +22,7 @@ final class HomeViewModel: ObservableObject {
     @Published var showCompletePopUp: Bool = false
     @Published var showLookBookSheet: Bool = false
     @Published var completedCodiImageURL: String?
+    @Published var capturedImageURL: String?
     
     // MARK: - Properties (Data)
     
@@ -88,7 +89,7 @@ extension HomeViewModel {
     
     /// 앱 실행 시 필요한 초기 데이터를 로드
     func loadInitialData() {
-        loadDummyCodi()
+//        loadDummyCodi()
         loadToday()
         loadActiveCategories()
     }
@@ -105,10 +106,10 @@ extension HomeViewModel {
         self.activeCategories = allCategories.filter { $0.itemCount > 0 }
     }
     
-    /// 오늘 이미 생성된 코디(더미) 데이터를 불러옴
-    func loadDummyCodi() {
-        codiItems = todayCodiUseCase.loadTodaysCodi()
-    }
+//    /// 오늘 이미 생성된 코디(더미) 데이터를 불러옴
+//    func loadDummyCodi() {
+//        codiItems = todayCodiUseCase.loadTodaysCodi()
+//    }
 }
 
 // MARK: - API & Async Methods
@@ -231,9 +232,21 @@ extension HomeViewModel {
 extension HomeViewModel {
     
     /// 현재 스크롤된 의류 조합을 수집하고 완료 팝업을 띄움
+//    func handleConfirmCodiTap() {
+//        let items = activeCategories
+//            .sorted { $0.id < $1.id }
+//            .compactMap { category -> HomeClothEntity? in
+//                guard let clothList = clothItemsByCategory[category.id] else { return nil }
+//                let index = selectedIndicesByCategory[category.id] ?? 0
+//                return clothList.indices.contains(index) ? clothList[index] : clothList.first
+//            }
+//        
+//        self.selectedCodiClothes = items
+//        self.showCompletePopUp = true
+//    }
     func handleConfirmCodiTap() {
+        // 1. 현재 선택된 옷 리스트 수집
         let items = activeCategories
-            .sorted { $0.id < $1.id }
             .compactMap { category -> HomeClothEntity? in
                 guard let clothList = clothItemsByCategory[category.id] else { return nil }
                 let index = selectedIndicesByCategory[category.id] ?? 0
@@ -241,7 +254,35 @@ extension HomeViewModel {
             }
         
         self.selectedCodiClothes = items
-        self.showCompletePopUp = true
+        
+        // 2. 비동기 캡처 및 업로드 시작
+        Task {
+            // 캡처할 뷰 생성
+            let captureView = CodiCompositeView(clothes: items)
+                .frame(width: 260, height: 260)
+            
+            // ImageRenderer 설정
+            let renderer = ImageRenderer(content: captureView)
+            renderer.scale = UIScreen.main.scale
+            
+            // 이미지 데이터 변환 및 업로드 (사용자가 제시한 로직 적용)
+            guard let uiImage = renderer.uiImage,
+                  let jpgData = uiImage.jpegData(compressionQuality: 0.8) else {
+                return
+            }
+            
+            do {
+                // 서버에 업로드하고 URL 수신
+                let uploadedURL = try await todayCodiUseCase.execute(jpgData: jpgData)
+                self.capturedImageURL = uploadedURL
+                
+                // 업로드 완료 후 팝업 띄우기
+                self.showCompletePopUp = true
+            } catch {
+                print("❌ 코디 이미지 업로드 실패: \(error.localizedDescription)")
+                // 필요 시 에러 알림 처리
+            }
+        }
     }
     
     /// 코디 확정 후 완료 팝업을 표시
@@ -251,21 +292,61 @@ extension HomeViewModel {
     }
     
     /// 팝업에서 '기록하기' 버튼을 눌러 오늘 완성한 코디를 서버에 전송
+//    func handlePopupRecord() {
+//        Task {
+//            do {
+//                // 1️⃣ CodiCompositeView 캡처
+//                let image = captureCompletedCodiImage()
+//
+//                // 2️⃣ UIImage → Base64 String
+//                guard let coordinateImageUrl = image.toBase64String() else {
+//                    throw NSError(domain: "Base64EncodingFail", code: 0)
+//                }
+//
+//                self.completedCodiImageURL = coordinateImageUrl
+//
+//                // 3️⃣ 좌표 payload 생성
+//                let containerSize: CGFloat = 260
+//                let payloads = selectedCodiClothes.enumerated().map { index, cloth in
+//                    let position = CodiLayoutCalculator.position(
+//                        index: index,
+//                        totalCount: selectedCodiClothes.count,
+//                        containerSize: containerSize
+//                    )
+//
+//                    return Payloads(
+//                        clothId: cloth.clothId,
+//                        locationX: position.x,
+//                        locationY: position.y,
+//                        ratio: 1.0,
+//                        degree: 0,
+//                        order: Int32(index)
+//                    )
+//                }
+//
+//                // 4️⃣ 오늘의 코디 생성 (String 그대로 전달)
+//                let request = CreateTodayCoordinateRequestDTO(
+//                    coordinateImageUrl: coordinateImageUrl,
+//                    payloads: payloads
+//                )
+//
+//                let result = try await todayCodiUseCase.createTodayCoordinate(request: request)
+//                print("✅ 오늘 코디 생성 완료:", result.coordinateId)
+//
+//                showCompletePopUp = false
+//                hasCodi = true
+//            } catch {
+//                print("❌ 코디 기록 실패:", error)
+//            }
+//        }
+//    }
     func handlePopupRecord() {
         Task {
             do {
-                // 1️⃣ CodiCompositeView 캡처
-                let image = captureCompletedCodiImage()
-
-                // 2️⃣ UIImage → Base64 String
-                guard let coordinateImageUrl = image.toBase64String() else {
-                    throw NSError(domain: "Base64EncodingFail", code: 0)
-                }
-
-                self.completedCodiImageURL = coordinateImageUrl
-
-                // 3️⃣ 좌표 payload 생성
+                guard let imageURL = self.capturedImageURL else { return }
                 let containerSize: CGFloat = 260
+                
+                // 좌표 데이터 생성
                 let payloads = selectedCodiClothes.enumerated().map { index, cloth in
                     let position = CodiLayoutCalculator.position(
                         index: index,
@@ -275,27 +356,25 @@ extension HomeViewModel {
 
                     return Payloads(
                         clothId: cloth.clothId,
-                        locationX: position.x,
-                        locationY: position.y,
+                        locationX: Double(position.x / containerSize),
+                        locationY: Double(position.y / containerSize),
                         ratio: 1.0,
                         degree: 0,
                         order: Int32(index)
                     )
                 }
 
-                // 4️⃣ 오늘의 코디 생성 (String 그대로 전달)
                 let request = CreateTodayCoordinateRequestDTO(
-                    coordinateImageUrl: coordinateImageUrl,
+                    coordinateImageUrl: imageURL, // 업로드된 실제 URL 사용
                     payloads: payloads
                 )
 
-                let result = try await todayCodiUseCase.createTodayCoordinate(request: request)
-                print("✅ 오늘 코디 생성 완료:", result.coordinateId)
-
-                showCompletePopUp = false
-                hasCodi = true
+                let _ = try await todayCodiUseCase.createTodayCoordinate(request: request)
+                
+                self.showCompletePopUp = false
+                self.hasCodi = true
             } catch {
-                print("❌ 코디 기록 실패:", error)
+                print("❌ 최종 코디 저장 실패: \(error)")
             }
         }
     }

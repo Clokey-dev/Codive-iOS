@@ -31,6 +31,9 @@ protocol HomeAPIServiceProtocol {
         size: Int32,
         direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
     ) async throws -> LookBookListResponseDTO
+    
+    /// 이미지 url 생성
+    func getPresignedUrls(for images: [Data]) async throws -> [PresignedUrlInfo]
 }
 
 final class HomeAPIService: HomeAPIServiceProtocol {
@@ -193,6 +196,37 @@ extension HomeAPIService {
             throw HomeAPIError.serverError(statusCode: code, message: "오늘의 코디 생성 실패")
         }
     }
+    
+    func getPresignedUrls(for images: [Data]) async throws -> [PresignedUrlInfo] {
+        let payloads = images.map { imageData in
+            let md5Hash = calculateMD5(from: imageData)
+            return (
+                payload: Components.Schemas.ClothImagesUploadRequestPayload(fileExtension: .JPEG, md5Hashes: md5Hash),
+                md5Hash: md5Hash
+            )
+        }
+        
+        let requestBody = Components.Schemas.ClothImagesUploadRequest(payloads: payloads.map { $0.payload })
+        let input = Operations.ClothAi_getClothUploadPresignedUrl.Input(body: .json(requestBody))
+        let response = try await client.ClothAi_getClothUploadPresignedUrl(input)
+        
+        switch response {
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseClothImagesPresignedUrlResponse.self, from: data)
+            
+            guard let urls = decoded.result?.urls, urls.count == images.count else {
+                throw ClothAPIError.presignedUrlMismatch
+            }
+            
+            return zip(urls, payloads).map { url, payloadInfo in
+                PresignedUrlInfo(presignedUrl: url, finalUrl: extractFinalUrl(from: url), md5Hash: payloadInfo.md5Hash)
+            }
+            
+        case .undocumented(statusCode: let code, _):
+            throw LookBookAPIError.serverError(statusCode: code, message: "Presigned URL 발급 실패")
+        }
+    }
 }
 
 private extension HomeAPIService {
@@ -206,6 +240,20 @@ private extension HomeAPIService {
         case .fall:   return .FALL
         case .winter: return .WINTER
         }
+    }
+    
+    func calculateMD5(from data: Data) -> String {
+        let digest = Insecure.MD5.hash(data: data)
+        return Data(digest).base64EncodedString()
+    }
+    
+    func extractFinalUrl(from presignedUrl: String) -> String {
+        guard let url = URL(string: presignedUrl),
+              var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+            return presignedUrl
+        }
+        components.query = nil
+        return components.string ?? presignedUrl
     }
 }
 

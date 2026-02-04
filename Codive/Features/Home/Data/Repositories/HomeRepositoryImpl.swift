@@ -80,6 +80,11 @@ final class HomeRepositoryImpl: HomeRepository {
             isLast: dto.isLast
         )
     }
+    
+    /// 이미지 업로드
+    func uploadCodiImage(jpgData: Data) async throws -> String {
+        return try await dataSource.uploadCodiImage(jpgData: jpgData)
+    }
 }
 
 extension HomeRepositoryImpl {

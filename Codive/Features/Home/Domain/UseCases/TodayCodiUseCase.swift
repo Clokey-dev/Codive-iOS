@@ -5,6 +5,8 @@
 //  Created by 한금준 on 12/25/25.
 //
 
+import Foundation
+
 final class TodayCodiUseCase {
     
     private let repository: HomeRepository
@@ -24,14 +26,24 @@ final class TodayCodiUseCase {
     func fetchTodayCoordinateClothes() async throws -> [TodayCoordinateClothEntity] {
         try await repository.fetchTodayCoordinateClothes()
     }
+    
+    func execute(jpgData: Data) async throws -> String {
+        guard !jpgData.isEmpty else {
+            throw HomeAPIError.invalidResponse
+        }
+        
+        let uploadedURL = try await repository.uploadCodiImage(jpgData: jpgData)
+        
+        return uploadedURL
+    }
 }
 
-extension TodayCodiUseCase {
-    func loadTodaysCodi() -> [CodiItemEntity] {
-        return repository.fetchCodiItems()
-    }
-    
-    func recordTodayCodi(_ codi: TodayDailyCodi) async throws {
-        try await repository.createTodayDailyCodi(codi)
-    }
-}
+//extension TodayCodiUseCase {
+//    func loadTodaysCodi() -> [CodiItemEntity] {
+//        return repository.fetchCodiItems()
+//    }
+//    
+//    func recordTodayCodi(_ codi: TodayDailyCodi) async throws {
+//        try await repository.createTodayDailyCodi(codi)
+//    }
+//}

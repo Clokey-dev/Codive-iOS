@@ -15,6 +15,8 @@ protocol HomeRepository {
     
     func postTodayTemp(request: PostTodayTemperatureAPIRequestDTO) async throws
     
+    func uploadCodiImage(jpgData: Data) async throws -> String
+    
     // MARK: - 코디가 없는 경우의 Home 관련
     
     /// 날씨에 따른 카테고리별 옷 리스트 api 연결
