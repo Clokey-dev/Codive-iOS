@@ -9,19 +9,13 @@ import SwiftUI
 
 struct MyLookbookSectionView: View {
     
-    // MARK: - Data Model
-    struct LookbookItem: Identifiable {
-        let id = UUID()
-        let title: String
+    @StateObject private var viewModel: MyLookbookSectionViewModel
+    
+    init(viewModel: MyLookbookSectionViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel)
     }
     
     // MARK: - Properties
-    // 임시 데이터
-    let lookbooks: [LookbookItem] = [
-        LookbookItem(title: "벚꽃 데이트룩"),
-        LookbookItem(title: "스페인 여행"),
-        LookbookItem(title: "독서실룩")
-    ]
     
     // 그리드 레이아웃 설정
     let columns = [
@@ -54,23 +48,28 @@ struct MyLookbookSectionView: View {
             .padding(.horizontal, 20)
             
             LazyVGrid(columns: columns, spacing: 20) {
-                // 룩북 개수가 4개 미만일 때만 '룩북 만들기' 버튼을 표시
-                if lookbooks.count < 4 {
+                // 1. 데이터 개수에 따른 '룩북 만들기' 버튼 표시 로직
+                if viewModel.lookBookList.count < 4 {
                     AddLookbookButton {
                         print("룩북 만들기 클릭")
-                        
                     }
                 }
                 
-                // 버튼 유무에 따라 표시할 카드 개수 조절
-                let displayCount = lookbooks.count < 4 ? 3 : 4
-                ForEach(lookbooks.prefix(displayCount)) { item in
-                    LookbookCardView(item: item)
+                // 2. ViewModel의 lookBookList를 사용하여 카드 생성
+                // 최대 표시 개수 계산 (기존 로직 유지)
+                let displayCount = viewModel.lookBookList.count < 4 ? 3 : 4
+                
+                ForEach(viewModel.lookBookList.prefix(displayCount)) { item in
+                    LookbookCardView(item: item) // LookBookEntity 전달
                 }
             }
             .padding(.horizontal, 20)
         }
         .padding(.vertical, 20)
+        .onAppear {
+            // 3. 화면 로드 시 데이터 페칭 호출
+            viewModel.fetchMyLookBooks()
+        }
     }
 }
 
@@ -115,20 +114,30 @@ struct AddLookbookButton: View {
 struct LookbookCardView: View {
     
     // MARK: - Properties
-    let item: MyLookbookSectionView.LookbookItem
+    let item: LookBookEntity
     
+    // MARK: - Body
     // MARK: - Body
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             ZStack {
+                // 배경색
                 Rectangle()
                     .fill(Color.Codive.grayscale6)
                 
-                Image(systemName: "tshirt")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 50)
-                    .foregroundStyle(Color.Codive.grayscale4)
+                // URL 이미지를 비동기로 로드
+                AsyncImage(url: URL(string: item.imageUrl)) { image in
+                    image
+                        .resizable()
+                        .scaledToFill() // 카드 꽉 차게 설정
+                } placeholder: {
+                    // 이미지 로딩 중이나 실패 시 보여줄 기본 아이콘
+                    Image(systemName: "tshirt")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 50)
+                        .foregroundStyle(Color.Codive.grayscale4)
+                }
             }
             .aspectRatio(1.0, contentMode: .fit)
             .cornerRadius(12)
@@ -138,7 +147,8 @@ struct LookbookCardView: View {
                     .stroke(Color.Codive.grayscale5, lineWidth: 1)
             )
             
-            Text(item.title)
+            // LookBookEntity의 lookbookName 적용
+            Text(item.lookbookName)
                 .font(.codive_body2_medium)
                 .foregroundStyle(Color.Codive.grayscale1)
                 .lineLimit(1)
@@ -147,6 +157,6 @@ struct LookbookCardView: View {
     }
 }
 
-#Preview {
-    MyLookbookSectionView()
-}
+//#Preview {
+//    MyLookbookSectionView()
+//}
