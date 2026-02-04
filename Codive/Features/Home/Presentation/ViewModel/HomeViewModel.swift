@@ -346,35 +346,66 @@ extension HomeViewModel {
                 guard let imageURL = self.capturedImageURL else { return }
                 let containerSize: CGFloat = 260
                 
-                // 좌표 데이터 생성
-                let payloads = selectedCodiClothes.enumerated().map { index, cloth in
+                // ✅ 수정: activeCategories의 현재 '순서'를 기준으로 옷을 재수집하여 Payload 생성
+                let sortedPayloads = activeCategories.enumerated().compactMap { (index, category) -> Payloads? in
+                    // 해당 카테고리에서 현재 선택된 옷 찾기
+                    guard let clothList = clothItemsByCategory[category.id] else { return nil }
+                    let selectedIndex = selectedIndicesByCategory[category.id] ?? 0
+                    let cloth = clothList.indices.contains(selectedIndex) ? clothList[selectedIndex] : clothList.first
+                    
+                    guard let selectedCloth = cloth else { return nil }
+                    
+                    // CodiLayoutCalculator 위치 계산 (현재 순서 index 반영)
                     let position = CodiLayoutCalculator.position(
                         index: index,
-                        totalCount: selectedCodiClothes.count,
+                        totalCount: activeCategories.count,
                         containerSize: containerSize
                     )
 
                     return Payloads(
-                        clothId: cloth.clothId,
+                        clothId: selectedCloth.clothId,
                         locationX: Double(position.x / containerSize),
                         locationY: Double(position.y / containerSize),
                         ratio: 1.0,
                         degree: 0,
-                        order: Int32(index)
+                        order: Int32(index + 1) // ✅ 1부터 시작하는 순서 부여
                     )
                 }
 
                 let request = CreateTodayCoordinateRequestDTO(
-                    coordinateImageUrl: imageURL, // 업로드된 실제 URL 사용
-                    payloads: payloads
+                    coordinateImageUrl: imageURL,
+                    payloads: sortedPayloads
                 )
 
-                let _ = try await todayCodiUseCase.createTodayCoordinate(request: request)
+                // 🔍 [디버그 프린트 시작]
+                print("""
+                
+                ================================[ DTO 전송 데이터 확인 ]================================
+                📸 캡처된 이미지 URL: \(request.coordinateImageUrl)
+                👕 포함된 옷 개수: \(request.payloads.count)개
+                --------------------------------------------------------------------------------------
+                """)
+                
+                for (index, payload) in request.payloads.enumerated() {
+                    print("""
+                    [옷 \(index + 1)]
+                    - Cloth ID: \(payload.clothId)
+                    - 위치 (X, Y): (\(String(format: "%.4f", payload.locationX)), \(String(format: "%.4f", payload.locationY)))
+                    - 레이어 순서: \(payload.order)
+                    """)
+                }
+                print("====================================================================================\n")
+                // 🔍 [디버그 프린트 끝]
+
+                // 3. 서버 전송
+                let result = try await todayCodiUseCase.createTodayCoordinate(request: request)
                 
                 self.showCompletePopUp = false
                 self.hasCodi = true
+                print("✅ 오늘의 코디 저장 성공")
+                
             } catch {
-                print("❌ 최종 코디 저장 실패: \(error)")
+                print("❌ 최종 코디 저장 실패: \(error.localizedDescription)")
             }
         }
     }
