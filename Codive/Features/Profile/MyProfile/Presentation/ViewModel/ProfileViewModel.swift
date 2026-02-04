@@ -18,6 +18,7 @@ class ProfileViewModel: ObservableObject {
     @Published var followingCount: Int = 0
     @Published var profileImageUrl: String?
     @Published var email: String?
+    @Published var favoriteCoordinates: [MyFavoriteLookBookResponseDTO] = []
 
     // MARK: - State
     @Published var month: Date = Date() {
@@ -36,16 +37,19 @@ class ProfileViewModel: ObservableObject {
     private let navigationRouter: NavigationRouter
     private let fetchMyProfileUseCase: FetchMyProfileUseCase
     private let fetchMonthlyHistoryUseCase: FetchMonthlyHistoryUseCase
+    private let fetchMyFavoriteLookBookUseCase: FetchMyFavoriteLookBookUseCase
 
     // MARK: - Initializer
     init(
         navigationRouter: NavigationRouter,
         fetchMyProfileUseCase: FetchMyProfileUseCase,
-        fetchMonthlyHistoryUseCase: FetchMonthlyHistoryUseCase
+        fetchMonthlyHistoryUseCase: FetchMonthlyHistoryUseCase,
+        fetchMyFavoriteLookBookUseCase: FetchMyFavoriteLookBookUseCase
     ) {
         self.navigationRouter = navigationRouter
         self.fetchMyProfileUseCase = fetchMyProfileUseCase
         self.fetchMonthlyHistoryUseCase = fetchMonthlyHistoryUseCase
+        self.fetchMyFavoriteLookBookUseCase = fetchMyFavoriteLookBookUseCase
     }
     
     // MARK: - Loading
@@ -72,6 +76,8 @@ class ProfileViewModel: ObservableObject {
 
         // 프로필 로드 후 캘린더 데이터 로드
         await loadMonthlyHistories()
+        
+        await loadFavoriteCoordinates()
     }
 
     func loadMonthlyHistories() async {
@@ -120,4 +126,13 @@ class ProfileViewModel: ObservableObject {
     func onMoreFavoriteCodiTapped() {
         navigationRouter.navigate(to: .favoriteCodiList(showHeart: true))
     }
+    
+    func loadFavoriteCoordinates() async {
+            do {
+                let coordinates = try await fetchMyFavoriteLookBookUseCase.fetchMyFavoriteCoordinate()
+                self.favoriteCoordinates = coordinates
+            } catch {
+                print("최애 코디 로드 실패: \(error)")
+            }
+        }
 }

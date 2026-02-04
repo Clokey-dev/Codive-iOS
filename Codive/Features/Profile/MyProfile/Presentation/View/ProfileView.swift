@@ -138,7 +138,7 @@ struct ProfileView: View {
                 }
             }
             .padding(.top, 4)
-
+            
             Text(viewModel.introText)
                 .font(.codive_body2_regular)
                 .foregroundStyle(Color.Codive.grayscale4)
@@ -146,7 +146,8 @@ struct ProfileView: View {
         }
         .frame(maxWidth: .infinity)
     }
-
+    
+    // MARK: - Favorite Codi
     // MARK: - Favorite Codi
     private var favoriteCodiSection: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -154,9 +155,9 @@ struct ProfileView: View {
                 Text("최애 코디")
                     .font(.codive_title2)
                     .foregroundStyle(Color.Codive.grayscale1)
-
+                
                 Spacer(minLength: 0)
-
+                
                 Button {
                     viewModel.onMoreFavoriteCodiTapped()
                 } label: {
@@ -171,21 +172,29 @@ struct ProfileView: View {
                 }
             }
             .padding(.horizontal, 20)
-
+            
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 10) {
-                    ForEach(0..<8, id: \.self) { _ in
+                    ForEach(viewModel.favoriteCoordinates, id: \.coordinateId) { codi in
                         CodiCard(
-                            imageURL: URL(string: "https://via.placeholder.com/160/F08080/FFFFFF?text=Date+Look"),
+                            imageURL: URL(string: codi.imageUrl),
                             title: nil,
-                            icon: .heart(isSelected: true, onTap: nil),   // 항상 하트 on, 타이틀 없음
+                            icon: .none,
                             cardWidth: 160,
                             imageSize: 160,
                             cornerRadius: 16,
                             iconPadding: 14,
                             iconSize: 20,
-                            onCardTap: nil
+                            onCardTap: {}
                         )
+                    }
+                    
+                    if viewModel.favoriteCoordinates.isEmpty {
+                        ForEach(0..<3) { _ in
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color.Codive.grayscale7)
+                                .frame(width: 160, height: 160)
+                        }
                     }
                 }
                 .padding(.top, 12)

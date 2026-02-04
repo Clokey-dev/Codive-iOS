@@ -18,6 +18,7 @@ protocol ProfileAPIServiceProtocol {
     func updateProfile(nickname: String, bio: String, isPublic: Bool, currentImageUrl: String?) async throws -> MyProfileInfo
     func checkNicknameDuplicate(nickname: String) async throws -> Bool
     func uploadProfileImage(_ imageData: Data) async throws -> String
+    func fetchMyFavoriteCoordinate() async throws -> [MyFavoriteLookBookResponseDTO]
 }
 
 // MARK: - Profile API Service Implementation
@@ -226,6 +227,33 @@ final class ProfileAPIService: ProfileAPIServiceProtocol {
 
         guard (200...299).contains(httpResponse.statusCode) else {
             throw ProfileAPIError.s3UploadFailed(statusCode: httpResponse.statusCode)
+        }
+    }
+}
+
+extension ProfileAPIService {
+    /// 나의 최애 코디 조회
+    func fetchMyFavoriteCoordinate() async throws -> [MyFavoriteLookBookResponseDTO] {
+        let input = Operations.Coordinate_getFavoriteCoordinates.Input()
+        let response = try await client.Coordinate_getFavoriteCoordinates(input)
+        
+        switch response {
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+            let jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
+            
+            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseListFavoriteCoordinateResponse.self, from: data)
+            
+            let items = decoded.result ?? []
+            
+            return items.map { item in
+                MyFavoriteLookBookResponseDTO(
+                    coordinateId: item.coordinateId ?? 0,
+                    imageUrl: item.imageUrl ?? "",
+                )
+            }
+        case .undocumented(statusCode: let code, _):
+            throw ProfileAPIError.serverError(statusCode: code, message: "최애 코디 조회 실패 (상태코드: \(code))")
         }
     }
 }

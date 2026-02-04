@@ -13,6 +13,7 @@ protocol ProfileDataSourceProtocol {
     func updateProfile(nickname: String, bio: String, isPublic: Bool, currentImageUrl: String?) async throws -> MyProfileInfo
     func checkNicknameDuplicate(nickname: String) async throws -> Bool
     func uploadProfileImage(_ imageData: Data) async throws -> String
+    func fetchMyFavoriteCoordinate() async throws -> [MyFavoriteLookBookResponseDTO]
 }
 
 final class ProfileDataSource: ProfileDataSourceProtocol {
@@ -40,5 +41,9 @@ final class ProfileDataSource: ProfileDataSourceProtocol {
 
     func uploadProfileImage(_ imageData: Data) async throws -> String {
         return try await apiService.uploadProfileImage(imageData)
+    }
+    
+    func fetchMyFavoriteCoordinate() async throws -> [MyFavoriteLookBookResponseDTO] {
+        return try await apiService.fetchMyFavoriteCoordinate()
     }
 }
