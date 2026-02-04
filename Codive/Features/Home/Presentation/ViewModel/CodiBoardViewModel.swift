@@ -50,7 +50,7 @@ final class CodiBoardViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] transferredData in
                 guard let self = self else { return }
- 
+                
                 self.images = transferredData.images
             }
             .store(in: &cancellables)
@@ -88,7 +88,7 @@ final class CodiBoardViewModel: ObservableObject {
             renderer.scale = UIScreen.main.scale
             
             guard var uiImage = renderer.uiImage else { return }
-
+            
             let targetSize = CGSize(width: 260, height: 260)
             uiImage = resizeImage(image: uiImage, targetSize: targetSize)
             
@@ -96,17 +96,19 @@ final class CodiBoardViewModel: ObservableObject {
             
             do {
                 let uploadedURL = try await todayCodiUseCase.execute(jpgData: jpgData)
-  
+                
                 let finalPayloads = images.enumerated().map { index, entity in
-                    let absoluteX = entity.position.x + centerOffset
-                    let absoluteY = entity.position.y + centerOffset
+                    let absoluteX = max(0, min(actualSize, entity.position.x + centerOffset))
+                    let absoluteY = max(0, min(actualSize, entity.position.y + centerOffset))
+                    
+                    let positiveDegree = entity.rotation < 0 ? entity.rotation + 360 : entity.rotation
                     
                     return Payloads(
                         clothId: entity.id,
                         locationX: Double(absoluteX / actualSize),
                         locationY: Double(absoluteY / actualSize),
                         ratio: Double(entity.scale),
-                        degree: entity.rotation,
+                        degree: positiveDegree,
                         order: Int32(index + 1)
                     )
                 }

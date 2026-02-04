@@ -37,13 +37,3 @@ final class TodayCodiUseCase {
         return uploadedURL
     }
 }
-
-//extension TodayCodiUseCase {
-//    func loadTodaysCodi() -> [CodiItemEntity] {
-//        return repository.fetchCodiItems()
-//    }
-//    
-//    func recordTodayCodi(_ codi: TodayDailyCodi) async throws {
-//        try await repository.createTodayDailyCodi(codi)
-//    }
-//}
