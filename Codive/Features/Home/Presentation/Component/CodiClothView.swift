@@ -34,7 +34,6 @@ struct ClothCardView: View {
                                 case .success(let image):
                                     image.resizable().scaledToFit()
                                 case .failure(let error):
-                                    let _ = print("Image Load Error: \(error.localizedDescription) for URL: \(item.imageUrl)")
                                     Image(systemName: "exclamationmark.triangle")
                                         .foregroundColor(.gray)
                                 @unknown default:

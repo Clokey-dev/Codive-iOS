@@ -9,10 +9,6 @@ import SwiftUI
 import Combine
 import CoreLocation
 
-struct TodayCodiTransferData {
-    let images: [DraggableImageEntity]
-}
-
 @MainActor
 final class HomeViewModel: ObservableObject {
     
@@ -97,7 +93,6 @@ extension HomeViewModel {
     
     /// 앱 실행 시 필요한 초기 데이터를 로드
     func loadInitialData() {
-//        loadDummyCodi()
         loadToday()
         loadActiveCategories()
     }
@@ -113,11 +108,6 @@ extension HomeViewModel {
         let allCategories = categoryUseCase.loadCategories()
         self.activeCategories = allCategories.filter { $0.itemCount > 0 }
     }
-    
-//    /// 오늘 이미 생성된 코디(더미) 데이터를 불러옴
-//    func loadDummyCodi() {
-//        codiItems = todayCodiUseCase.loadTodaysCodi()
-//    }
 }
 
 // MARK: - API & Async Methods
@@ -126,7 +116,7 @@ extension HomeViewModel {
         do {
             let weather = try await fetchWeatherUseCase.execute(for: location)
             self.weatherData = weather
-    
+            
             let temperature = weather.currentTemp
             let request = PostTodayTemperatureAPIRequestDTO(
                 temperature: Double(temperature)
@@ -137,7 +127,7 @@ extension HomeViewModel {
             print("Weather load or post failed:", error)
         }
     }
-
+    
     /// 카테고리별 계절에 맞는 옷 조회
     func loadRecommendCategoryClothList() async {
         self.activeCategories = []
@@ -145,11 +135,11 @@ extension HomeViewModel {
         
         let allCategories = categoryUseCase.loadCategories()
         let filteredCategories = allCategories.filter { $0.itemCount > 0 }
- 
+        
         self.activeCategories = filteredCategories
-
+        
         var resultMap: [Int: [HomeClothEntity]] = [:]
-
+        
         for category in filteredCategories {
             do {
                 let result = try await categoryUseCase.loadClothItems(
@@ -164,7 +154,7 @@ extension HomeViewModel {
                 resultMap[category.id] = []
             }
         }
-
+        
         self.clothItemsByCategory = resultMap
     }
 }
@@ -202,7 +192,7 @@ extension HomeViewModel {
             ]
         }
     }
-
+    
     /// 드래그를 통해 태그의 상대 위치를 업데이트
     func updateTagPosition(tagId: UUID, x: CGFloat, y: CGFloat, imageSize: CGSize) {
         if let index = selectedItemTags.firstIndex(where: { $0.id == tagId }) {
@@ -221,19 +211,12 @@ extension HomeViewModel {
 extension HomeViewModel {
     
     /// 코디보드 화면으로 이동
-//    func handleCodiBoardTap() {
-//        navigationRouter.navigate(to: .codiBoard)
-//    }
-    // HomeViewModel.swift
-
-    // HomeViewModel.swift
-
     func handleCodiBoardTap() {
         let containerSize: CGFloat = 260
         // 보드 중앙 기준 좌표계로 변환하기 위한 오프셋
         let centerOffset = containerSize / 2
         
-        let transferImages = activeCategories.enumerated().compactMap { (index, category) -> DraggableImageEntity? in
+        let transferImages = activeCategories.enumerated().compactMap { index, category -> DraggableImageEntity? in
             guard let clothList = clothItemsByCategory[category.id],
                   let selectedIndex = selectedIndicesByCategory[category.id] else {
                 return nil
@@ -242,14 +225,12 @@ extension HomeViewModel {
             let cloth = clothList.indices.contains(selectedIndex) ? clothList[selectedIndex] : clothList.first
             guard let selectedCloth = cloth else { return nil }
             
-            // 1. CodiLayoutCalculator가 주는 절대 좌표 (0~260 범위)
             let rawPos = CodiLayoutCalculator.position(
                 index: index,
                 totalCount: activeCategories.count,
                 containerSize: containerSize
             )
             
-            // 2. ZoomRotateDragView의 .offset 방식에 맞게 중앙(0,0) 기준 상대 좌표로 변환
             let relativePos = CGPoint(
                 x: rawPos.x - centerOffset,
                 y: rawPos.y - centerOffset
@@ -259,18 +240,12 @@ extension HomeViewModel {
                 id: selectedCloth.clothId,
                 name: selectedCloth.imageUrl,
                 position: relativePos,
-                scale: 0.7, // ✅ 크기를 70%로 줄여서 전달
+                scale: 0.7,
                 rotation: 0
             )
         }
         
         let data = TodayCodiTransferData(images: transferImages)
-        
-        print("""
-        [보내는 쪽: HomeViewModel] 🚀 데이터 전송 (크기 70% 적용)
-        - 전송 아이템 개수: \(data.images.count)개
-        - 적용 배율: \(data.images.first?.scale ?? 0)
-        """)
         
         Self.codiTransferPublisher.send(data)
         navigationRouter.navigate(to: .codiBoard)
@@ -289,22 +264,6 @@ extension HomeViewModel {
 
 // MARK: - Popup & Decision Actions
 extension HomeViewModel {
-    
-    /// 현재 스크롤된 의류 조합을 수집하고 완료 팝업을 띄움
-//    func handleConfirmCodiTap() {
-//        let items = activeCategories
-//            .sorted { $0.id < $1.id }
-//            .compactMap { category -> HomeClothEntity? in
-//                guard let clothList = clothItemsByCategory[category.id] else { return nil }
-//                let index = selectedIndicesByCategory[category.id] ?? 0
-//                return clothList.indices.contains(index) ? clothList[index] : clothList.first
-//            }
-//        
-//        self.selectedCodiClothes = items
-//        self.showCompletePopUp = true
-//    }
-    // HomeViewModel.swift 내 handleConfirmCodiTap 수정
-
     func handleConfirmCodiTap() {
         let items = activeCategories
             .compactMap { category -> HomeClothEntity? in
@@ -314,10 +273,8 @@ extension HomeViewModel {
             }
         
         self.selectedCodiClothes = items
-        print("📸 [Home Capture] 1단계: 이미지 다운로드 시작 (대상: \(items.count)개)")
         
         Task {
-            // 1. 모든 이미지를 UIImage로 병렬 다운로드
             var loadedImages: [Int64: UIImage] = [:]
             await withTaskGroup(of: (Int64, UIImage?).self) { group in
                 for cloth in items {
@@ -331,27 +288,19 @@ extension HomeViewModel {
                 }
             }
             
-            print("✅ [Home Capture] 2단계: 이미지 다운로드 완료 (\(loadedImages.count)/\(items.count))")
-
-            // 2. 다운로드된 이미지가 담긴 뷰 생성
             let captureView = CodiCompositeView(clothes: items, loadedImages: loadedImages)
                 .frame(width: 260, height: 260)
             
-            // 3. 캡처 실행 (이미 이미지가 있으므로 대기 시간 필요 없음)
             let renderer = ImageRenderer(content: captureView)
             renderer.scale = UIScreen.main.scale
             
             guard let uiImage = renderer.uiImage else {
-                print("❌ [Home Capture] UIImage 생성 실패")
                 return
             }
-            
-            print("✅ [Home Capture] 3단계: 이미지 캡처 성공")
             
             guard let jpgData = uiImage.jpegData(compressionQuality: 0.8) else { return }
             
             do {
-                print("📡 [Home Upload] 4단계: 서버 업로드 중...")
                 let uploadedURL = try await todayCodiUseCase.execute(jpgData: jpgData)
                 
                 await MainActor.run {
@@ -364,8 +313,7 @@ extension HomeViewModel {
             }
         }
     }
-
-    // ✅ 이미지 다운로드 헬퍼 메서드 추가
+    
     private func downloadUIImage(from urlString: String) async -> UIImage? {
         guard let url = URL(string: urlString) else { return nil }
         do {
@@ -393,55 +341,45 @@ extension HomeViewModel {
     func handlePopupRecord() {
         Task {
             do {
-                // 1. 공통 이미지 URL 확인
                 guard let imageURL = self.capturedImageURL else {
                     print("⚠️ [Error] 이미지 URL이 없습니다.")
                     return
                 }
-                
-                // 2. 데이터 소스 구분 (보드 편집본 vs 홈 리스트 조합)
+ 
                 let finalPayloads: [Payloads]
                 
                 if !boardPayloads.isEmpty {
-                    // CASE A: 코디보드에서 편집하여 넘어온 경우
                     finalPayloads = boardPayloads
-                    print("📝 [Case] 코디보드 편집 데이터로 기록을 시작합니다.")
                 } else {
-                    // CASE B: 홈 화면에서 바로 '결정하기'를 누른 경우
                     finalPayloads = createPayloadsFromCurrentList()
-                    print("📝 [Case] 홈 화면 리스트 조합으로 기록을 시작합니다.")
                 }
-
-                // 3. 서버 전송용 DTO 생성
+                
                 let request = CreateTodayCoordinateRequestDTO(
                     coordinateImageUrl: imageURL,
                     payloads: finalPayloads
                 )
-
-                // 5. 서버 전송 API 호출
+     
                 let result = try await todayCodiUseCase.createTodayCoordinate(request: request)
-                
-                // 6. UI 상태 초기화 및 성공 처리
+ 
                 await MainActor.run {
                     self.showCompletePopUp = false
                     self.hasCodi = true
-                    self.boardPayloads = [] // 다음 기록을 위해 초기화
+                    self.boardPayloads = []
                     self.capturedImageURL = nil
                     print("✅ 오늘의 코디 저장 성공: \(result.coordinateId)")
                 }
-                
             } catch {
                 print("❌ 최종 코디 저장 실패: \(error.localizedDescription)")
             }
         }
     }
-
+    
     /// [Helper] 홈 화면의 현재 상태(순서/인덱스)를 기준으로 Payload 생성
     private func createPayloadsFromCurrentList() -> [Payloads] {
         let containerSize: CGFloat = 260
         
         // activeCategories의 현재 순서대로 옷을 찾아 좌표 부여
-        return activeCategories.enumerated().compactMap { (index, category) -> Payloads? in
+        return activeCategories.enumerated().compactMap { index, category -> Payloads? in
             guard let clothList = clothItemsByCategory[category.id] else { return nil }
             let selectedIndex = selectedIndicesByCategory[category.id] ?? 0
             let cloth = clothList.indices.contains(selectedIndex) ? clothList[selectedIndex] : clothList.first
@@ -454,7 +392,7 @@ extension HomeViewModel {
                 totalCount: activeCategories.count,
                 containerSize: containerSize
             )
-
+            
             return Payloads(
                 clothId: selectedCloth.clothId,
                 locationX: Double(position.x / containerSize),
@@ -484,7 +422,7 @@ extension HomeViewModel {
                     size: 20,
                     direction: .DESC
                 )
-
+                
                 self.lookBookList = content.map { entity in
                     LookBookBottomSheetEntity(
                         lookbookId: entity.lookBookId,
@@ -493,8 +431,7 @@ extension HomeViewModel {
                         count: entity.count
                     )
                 }
-                
-                // 3. 데이터 로딩 후 시트 표시
+
                 self.showLookBookSheet = true
             } catch {
                 print("❌ 룩북 리스트 로드 실패: \(error.localizedDescription)")
@@ -522,47 +459,17 @@ extension HomeViewModel {
     private func captureCompletedCodiImage() -> UIImage {
         let view = CodiCompositeView(clothes: selectedCodiClothes)
             .frame(width: 260, height: 260)
-
+        
         let controller = UIHostingController(rootView: view)
         let uiView = controller.view!
         uiView.bounds = CGRect(origin: .zero, size: CGSize(width: 260, height: 260))
         uiView.backgroundColor = .clear
-
+        
         let renderer = UIGraphicsImageRenderer(size: CGSize(width: 260, height: 260))
         return renderer.image { _ in
             uiView.drawHierarchy(in: uiView.bounds, afterScreenUpdates: true)
         }
     }
-//    /// 이미지 캡처
-//    private func captureCompletedCodiImage() -> UIImage {
-//        let captureSize = CGSize(width: 260, height: 260)
-//        
-//        // 1. SwiftUI View 내부에서 배경을 먼저 꽉 채웁니다.
-//        let view = CodiCompositeView(clothes: selectedCodiClothes)
-//            .frame(width: captureSize.width, height: captureSize.height)
-//            .background(Color.Codive.grayscale7) // SwiftUI 배경색
-//            .ignoresSafeArea()
-//
-//        let controller = UIHostingController(rootView: view)
-//        let uiView = controller.view!
-//        
-//        // 2. 뷰의 크기를 먼저 설정합니다.
-//        uiView.bounds = CGRect(origin: .zero, size: captureSize)
-//        
-//        // 3. UIHostingController의 뷰 배경색을 투명하게 하거나 명시적으로 UIColor를 지정합니다.
-//        // 때로는 .clear로 두어야 SwiftUI의 .background 컬러가 제대로 보입니다.
-//        uiView.backgroundColor = UIColor(Color.Codive.grayscale7)
-//
-//        // 4. 렌더링 전 레이아웃을 강제로 업데이트합니다. (색상이 안 변할 때 중요)
-//        uiView.setNeedsLayout()
-//        uiView.layoutIfNeeded()
-//
-//        let renderer = UIGraphicsImageRenderer(size: captureSize)
-//        return renderer.image { _ in
-//            // 5. drawHierarchy 대신 draw(in:)을 사용해 봅니다.
-//            uiView.drawHierarchy(in: uiView.bounds, afterScreenUpdates: true)
-//        }
-//    }
 }
 
 extension UIImage {

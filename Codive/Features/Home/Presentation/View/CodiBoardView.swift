@@ -28,9 +28,8 @@ struct CodiBoardView: View {
                 
                 contentView(boardSize: boardSize, imageHalfSize: imageHalfSize, totalWidth: geometry.size.width)
                     .onAppear {
-                                            // ✅ 화면이 나타날 때 실제 렌더링되는 boardSize를 ViewModel에 전달
-                                            viewModel.boardSize = boardSize
-                                        }
+                        viewModel.boardSize = boardSize
+                    }
             }
         }
         .navigationBarHidden(true)
@@ -57,9 +56,9 @@ private extension CodiBoardView {
     func contentView(boardSize: CGFloat, imageHalfSize: CGFloat, totalWidth: CGFloat) -> some View {
         VStack(spacing: 0) {
             descriptionText
-
+            
             drawingBoard(size: boardSize, imageHalfSize: imageHalfSize)
-
+            
             Spacer()
         }
         .frame(
@@ -81,24 +80,17 @@ private extension CodiBoardView {
     }
     
     /// 이미지들을 배치하고 드래그할 수 있는 보드 영역
-    // CodiBoardView.swift
-
     func drawingBoard(size: CGFloat, imageHalfSize: CGFloat) -> some View {
         ZStack {
-            boardBackground(size: size) // 260x260 영역
-            
-            // DraggableImageView의 각 아이템들은 ZStack의 중앙(0,0)을 기준으로
-            // 위에서 넘겨준 relativePos 만큼 offset 되어 배치됩니다.
-            DraggableImageView(
-                items: $viewModel.images,
-                onActivate: { id in
-                    viewModel.selectImage(id: Int(id))
-                    viewModel.bringImageToFront(id: Int(id))
-                }
-            )
+            boardBackground(size: size)
+        
+            DraggableImageView(items: $viewModel.images) { id in
+                viewModel.selectImage(id: Int(id))
+                viewModel.bringImageToFront(id: Int(id))
+            }
         }
         .frame(width: size, height: size)
-        .clipShape(RoundedRectangle(cornerRadius: 15)) // 보드 밖으로 나가는 이미지 절단
+        .clipShape(RoundedRectangle(cornerRadius: 15))
         .padding(.horizontal, 20)
         .padding(.bottom, 20)
     }

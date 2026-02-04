@@ -88,20 +88,6 @@ final class HomeRepositoryImpl: HomeRepository {
 }
 
 extension HomeRepositoryImpl {
-    func createTodayDailyCodi(_ codi: TodayDailyCodi) async throws {
-        try await dataSource.createTodayDailyCodi(codi)
-    }
-    
-    // MARK: - 코디보드
-    
-    func fetchInitialImages() -> [DraggableImageEntity] {
-        dataSource.loadInitialImages()
-    }
-    
-    func saveCodiCoordinate(_ request: CodiCoordinateRequestDTO) async throws {
-        try await dataSource.saveCodiCoordinate(request)
-    }
-    
     // MARK: - 코디가 있는 경우의 Home 관련
     
     func fetchCodiItems() -> [CodiItemEntity] {

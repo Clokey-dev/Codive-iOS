@@ -80,3 +80,7 @@ struct DraggableImageEntity: DraggableImageProtocol, Equatable, Hashable {
     var scale: CGFloat
     var rotation: Double
 }
+
+struct TodayCodiTransferData {
+    let images: [DraggableImageEntity]
+}

@@ -41,14 +41,7 @@ protocol HomeRepository {
     ) async throws -> (content: [LookBookEntity], isLast: Bool)
     
     /// 기존 api
-    
-    func createTodayDailyCodi(_ codi: TodayDailyCodi) async throws
-    
-    // MARK: - 코디보드
-    
-    func fetchInitialImages() -> [DraggableImageEntity]
-    func saveCodiCoordinate(_ request: CodiCoordinateRequestDTO) async throws
-    
+
     // MARK: - 코디가 있는 경우의 Home 관련
     
     func fetchCodiItems() -> [CodiItemEntity]
