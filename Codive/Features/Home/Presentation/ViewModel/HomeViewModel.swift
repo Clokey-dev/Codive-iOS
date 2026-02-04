@@ -303,8 +303,9 @@ extension HomeViewModel {
 //        self.selectedCodiClothes = items
 //        self.showCompletePopUp = true
 //    }
+    // HomeViewModel.swift 내 handleConfirmCodiTap 수정
+
     func handleConfirmCodiTap() {
-        // 1. 현재 선택된 옷 리스트 수집
         let items = activeCategories
             .compactMap { category -> HomeClothEntity? in
                 guard let clothList = clothItemsByCategory[category.id] else { return nil }
@@ -313,34 +314,66 @@ extension HomeViewModel {
             }
         
         self.selectedCodiClothes = items
+        print("📸 [Home Capture] 1단계: 이미지 다운로드 시작 (대상: \(items.count)개)")
         
-        // 2. 비동기 캡처 및 업로드 시작
         Task {
-            // 캡처할 뷰 생성
-            let captureView = CodiCompositeView(clothes: items)
+            // 1. 모든 이미지를 UIImage로 병렬 다운로드
+            var loadedImages: [Int64: UIImage] = [:]
+            await withTaskGroup(of: (Int64, UIImage?).self) { group in
+                for cloth in items {
+                    group.addTask {
+                        let image = await self.downloadUIImage(from: cloth.imageUrl)
+                        return (cloth.clothId, image)
+                    }
+                }
+                for await (id, image) in group {
+                    if let img = image { loadedImages[id] = img }
+                }
+            }
+            
+            print("✅ [Home Capture] 2단계: 이미지 다운로드 완료 (\(loadedImages.count)/\(items.count))")
+
+            // 2. 다운로드된 이미지가 담긴 뷰 생성
+            let captureView = CodiCompositeView(clothes: items, loadedImages: loadedImages)
                 .frame(width: 260, height: 260)
             
-            // ImageRenderer 설정
+            // 3. 캡처 실행 (이미 이미지가 있으므로 대기 시간 필요 없음)
             let renderer = ImageRenderer(content: captureView)
             renderer.scale = UIScreen.main.scale
             
-            // 이미지 데이터 변환 및 업로드 (사용자가 제시한 로직 적용)
-            guard let uiImage = renderer.uiImage,
-                  let jpgData = uiImage.jpegData(compressionQuality: 0.8) else {
+            guard let uiImage = renderer.uiImage else {
+                print("❌ [Home Capture] UIImage 생성 실패")
                 return
             }
             
+            print("✅ [Home Capture] 3단계: 이미지 캡처 성공")
+            
+            guard let jpgData = uiImage.jpegData(compressionQuality: 0.8) else { return }
+            
             do {
-                // 서버에 업로드하고 URL 수신
+                print("📡 [Home Upload] 4단계: 서버 업로드 중...")
                 let uploadedURL = try await todayCodiUseCase.execute(jpgData: jpgData)
-                self.capturedImageURL = uploadedURL
                 
-                // 업로드 완료 후 팝업 띄우기
-                self.showCompletePopUp = true
+                await MainActor.run {
+                    self.capturedImageURL = uploadedURL
+                    self.showCompletePopUp = true
+                    print("🚀 [Home Success] 최종 이미지 URL: \(uploadedURL)")
+                }
             } catch {
-                print("❌ 코디 이미지 업로드 실패: \(error.localizedDescription)")
-                // 필요 시 에러 알림 처리
+                print("❌ [Home Capture] 서버 에러: \(error.localizedDescription)")
             }
+        }
+    }
+
+    // ✅ 이미지 다운로드 헬퍼 메서드 추가
+    private func downloadUIImage(from urlString: String) async -> UIImage? {
+        guard let url = URL(string: urlString) else { return nil }
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            return UIImage(data: data)
+        } catch {
+            print("❌ 이미지 다운로드 실패 (\(urlString)): \(error)")
+            return nil
         }
     }
     

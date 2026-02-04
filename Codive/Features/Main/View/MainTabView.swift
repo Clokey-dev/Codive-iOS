@@ -120,8 +120,10 @@ struct MainTabView: View {
                             isPresented: $homeViewModel.showCompletePopUp,
                             onRecordTapped: homeViewModel.handlePopupRecord,
                             onCloseTapped: homeViewModel.handlePopupClose,
-                            selectedClothes: homeViewModel.selectedCodiClothes
+                            selectedClothes: homeViewModel.selectedCodiClothes,
+                            singleImageUrl: homeViewModel.capturedImageURL
                         )
+                        .id(homeViewModel.capturedImageURL)
                         .zIndex(200)
                     }
                 }
