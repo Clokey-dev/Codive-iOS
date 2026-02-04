@@ -74,7 +74,7 @@ struct MyClosetView: View {
                         description: "계절에 맞는 옷을 채워넣어보세요.\n디지털 옷장에서 쉽게 관리할 수 있어요.",
                         buttonText: "옷 추가하기"
                     ) {
-                        // TODO: 옷 추가 네비게이션
+                        viewModel.navigateToAddCloth()
                     }
                     .padding(.top, 150)
                 } else {

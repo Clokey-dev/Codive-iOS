@@ -54,7 +54,7 @@ struct MyClosetSectionView: View {
                     description: "옷을 추가해보세요",
                     buttonText: "옷 추가하기"
                 ) {
-                    // TODO: 옷 추가 네비게이션
+                    viewModel.navigateToAddCloth()
                 }
                 .frame(height: 200)
             } else {
