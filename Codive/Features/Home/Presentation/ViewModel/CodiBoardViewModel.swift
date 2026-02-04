@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 @MainActor
 final class CodiBoardViewModel: ObservableObject {
@@ -14,6 +15,7 @@ final class CodiBoardViewModel: ObservableObject {
     
     @Published var isConfirmed: Bool = false
     @Published var images: [DraggableImageEntity] = []
+    private var cancellables = Set<AnyCancellable>()
     @Published var currentlyDraggedID: Int?
     @Published var selectedImageID: Int? // 추가된 속성
     
@@ -33,6 +35,7 @@ final class CodiBoardViewModel: ObservableObject {
         self.homeViewModel = homeViewModel
         
         loadInitialData()
+        setupCodiDataSubscription()
     }
     
     // MARK: - Private Methods
@@ -40,6 +43,25 @@ final class CodiBoardViewModel: ObservableObject {
     /// 초기 코디판 이미지 데이터를 로드
     private func loadInitialData() {
         self.images = codiBoardUseCase.loadCodiBoardImages()
+    }
+
+    private func setupCodiDataSubscription() {
+        HomeViewModel.codiTransferPublisher
+            .compactMap { $0 } // nil이 아닌 데이터만 통과
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] transferredData in
+                guard let self = self else { return }
+                
+                print("""
+                [받는 쪽: CodiBoardViewModel] ✅ 데이터 수신 성공!
+                - 받은 아이템 개수: \(transferredData.images.count)개
+                - 아이템 IDs: \(transferredData.images.map { $0.id })
+                """)
+                
+                // 기존 images에 할당
+                self.images = transferredData.images
+            }
+            .store(in: &cancellables)
     }
     
     // MARK: - Navigation

@@ -83,6 +83,13 @@ private extension CodiBoardView {
             
             // DraggableImageContainerView 사용
 //            DraggableImageView(viewModel: viewModel)
+            DraggableImageView(
+                        items: $viewModel.images,
+                        onActivate: { id in
+                            viewModel.selectImage(id: Int(id))
+                            viewModel.bringImageToFront(id: Int(id))
+                        }
+                    )
         }
         .frame(width: size, height: size)
         .padding(.horizontal, 20)

@@ -9,8 +9,14 @@ import SwiftUI
 import Combine
 import CoreLocation
 
+struct TodayCodiTransferData {
+    let images: [DraggableImageEntity]
+}
+
 @MainActor
 final class HomeViewModel: ObservableObject {
+    
+    static let codiTransferPublisher = CurrentValueSubject<TodayCodiTransferData?, Never>(nil)
     
     // MARK: - Properties (UI State)
     
@@ -213,7 +219,53 @@ extension HomeViewModel {
 extension HomeViewModel {
     
     /// 코디보드 화면으로 이동
+//    func handleCodiBoardTap() {
+//        navigationRouter.navigate(to: .codiBoard)
+//    }
+    // HomeViewModel.swift
+
     func handleCodiBoardTap() {
+        let containerSize: CGFloat = 260
+        
+        // 1. 현재 activeCategories 순서에 따른 옷 데이터 생성
+        let transferImages = activeCategories.enumerated().compactMap { (index, category) -> DraggableImageEntity? in
+            guard let clothList = clothItemsByCategory[category.id],
+                  let selectedIndex = selectedIndicesByCategory[category.id] else {
+                return nil
+            }
+            
+            let cloth = clothList.indices.contains(selectedIndex) ? clothList[selectedIndex] : clothList.first
+            guard let selectedCloth = cloth else { return nil }
+            
+            // CodiLayoutCalculator를 이용한 초기 위치 계산
+            let pos = CodiLayoutCalculator.position(
+                index: index,
+                totalCount: activeCategories.count,
+                containerSize: containerSize
+            )
+            
+            return DraggableImageEntity(
+                id: selectedCloth.clothId,
+                name: selectedCloth.imageUrl, // DraggableImageProtocol의 imageUrl로 매핑됨
+                position: pos,
+                scale: 1.0,
+                rotation: 0
+            )
+        }
+        
+        let data = TodayCodiTransferData(images: transferImages)
+        
+        // 🔍 [전송 디버그 로그]
+        print("""
+        [보내는 쪽: HomeViewModel] 🚀 데이터 전송 시작
+        - 전송 아이템 개수: \(data.images.count)개
+        - 아이템 IDs: \(data.images.map { $0.id })
+        """)
+        
+        // 2. PassthroughSubject로 데이터 발행
+        Self.codiTransferPublisher.send(data)
+        
+        // 3. 화면 이동
         navigationRouter.navigate(to: .codiBoard)
     }
     
