@@ -41,9 +41,6 @@ protocol LookBookAPIServiceProtocol {
         coordinateId: Int64
     ) async throws -> [CoordinateDetailResponseDTO]
     
-    /// 오늘의 코디 옷 정보 조회
-    func fetchTodayCoordinateClothes() async throws -> [GetTodayCoordinateClothResponseDTO]
-    
     /// 옷 리스트 조회
     func fetchClothes(lastClothId: Int64?, size: Int32, categoryId: Int64?, seasons: [Season]) async throws -> ClothListResult
     

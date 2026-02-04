@@ -23,8 +23,12 @@ final class TodayCodiUseCase {
     }
     
     /// 오늘의 코디 옷 정보 조회
-    func fetchTodayCoordinateClothes() async throws -> [TodayCoordinateClothEntity] {
-        try await repository.fetchTodayCoordinateClothes()
+    func fetchTodayCoordinatePreview() async throws -> FetchTodayCoordinatePreviewResponseDTO {
+        return try await repository.fetchTodayCoordinatePreview()
+    }
+    
+    func fetchTodayCoordinateDetails() async throws -> [FetchTodayCoordinateDetailsResponseDTO] {
+        return try await repository.fetchTodayCoordinateDetails()
     }
     
     func execute(jpgData: Data) async throws -> String {

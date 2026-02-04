@@ -26,7 +26,9 @@ protocol HomeDatasourceProtocol {
     func createTodayCoordinate(request: CreateTodayCoordinateRequestDTO) async throws -> CreateTodayCoordinateResponseDTO
     
     /// 오늘의 코디 옷 정보 조회
-    func fetchTodayCoordinateClothes() async throws -> [GetTodayCoordinateClothResponseDTO]
+    func fetchTodayCoordinatePreview() async throws -> FetchTodayCoordinatePreviewResponseDTO
+    
+    func fetchTodayCoordinateDetails() async throws -> [FetchTodayCoordinateDetailsResponseDTO]
     
     /// 룩북 전체 조회
     func fetchLookBookList(
@@ -171,8 +173,12 @@ final class HomeDatasource: HomeDatasourceProtocol {
     }
     
     /// 오늘의 코디 옷 정보 조회
-    func fetchTodayCoordinateClothes() async throws -> [GetTodayCoordinateClothResponseDTO] {
-        return try await apiService.fetchTodayCoordinateClothes()
+    func fetchTodayCoordinatePreview() async throws -> FetchTodayCoordinatePreviewResponseDTO {
+        return try await apiService.fetchTodayCoordinatePreview()
+    }
+    
+    func fetchTodayCoordinateDetails() async throws -> [FetchTodayCoordinateDetailsResponseDTO] {
+        return try await apiService.fetchTodayCoordinateDetails()
     }
     
     /// 룩북 전체 리스트 조회
@@ -261,42 +267,5 @@ extension HomeDatasource {
     }
     
     // MARK: - 코디가 있는 경우의 Home 관련
-    // 코디 불러오기
-    func loadDummyCodiItems() -> [CodiItemEntity] {
-        return [
-            CodiItemEntity(
-                id: 1,
-                imageName: "image1",
-                clothName: "시계",
-                brandName: "apple",
-                description: "사계절 착용 가능한 시계",
-                x: 300,
-                y: 100,
-                width: 70,
-                height: 70
-            ),
-            CodiItemEntity(
-                id: 2,
-                imageName: "image4",
-                clothName: "체크 셔츠",
-                brandName: "Polo",
-                description: "사계절 착용 가능한 셔츠",
-                x: 100,
-                y: 100,
-                width: 70,
-                height: 70
-            ),
-            CodiItemEntity(
-                id: 3,
-                imageName: "image3",
-                clothName: "와이드 치노 팬츠",
-                brandName: "Basic Concept",
-                description: "사계절 착용 가능한 면 바지",
-                x: 300,
-                y: 200,
-                width: 100,
-                height: 100
-            )
-        ]
-    }
+    
 }

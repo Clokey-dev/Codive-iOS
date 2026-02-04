@@ -63,6 +63,8 @@ struct HomeView: View {
             }
             .task {
                 await viewModel.loadWeather(for: nil)
+                // 오늘의 코디 여부 확인 (추가)
+                viewModel.fetchTodayCodiPreview()
 //                await viewModel.loadActiveCategoriesWithAPI()
             }
             .onChange(of: navigationRouter.currentDestination) { newDestination in

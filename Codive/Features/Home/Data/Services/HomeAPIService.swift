@@ -23,7 +23,9 @@ protocol HomeAPIServiceProtocol {
     func createTodayCoordinate(request: CreateTodayCoordinateRequestDTO) async throws -> CreateTodayCoordinateResponseDTO
     
     /// 오늘의 코디 옷 정보 조회
-    func fetchTodayCoordinateClothes() async throws -> [GetTodayCoordinateClothResponseDTO]
+    func fetchTodayCoordinatePreview() async throws -> FetchTodayCoordinatePreviewResponseDTO
+    
+    func fetchTodayCoordinateDetails() async throws -> [FetchTodayCoordinateDetailsResponseDTO]
     
     /// 룩북 전체 조회
     func fetchLookBookList(
@@ -80,26 +82,59 @@ extension HomeAPIService {
         }
     }
     
-    func fetchTodayCoordinateClothes() async throws -> [GetTodayCoordinateClothResponseDTO] {
-        let input = Operations.Coordinate_getTodayDailyCoordinateClothes.Input()
+    func fetchTodayCoordinatePreview() async throws -> FetchTodayCoordinatePreviewResponseDTO {
+        let input = Operations.Coordinate_getTodayCoordinatePreview.Input()
         
-        let response = try await client.Coordinate_getTodayDailyCoordinateClothes(input)
+        let response = try await client.Coordinate_getTodayCoordinatePreview(input)
+        
+        switch response {
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+            
+            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseDailyCoordinatePreviewResponse.self, from: data)
+            
+            guard let item = decoded.result else {
+                throw LookBookAPIError.invalidResponse
+            }
+            
+            return FetchTodayCoordinatePreviewResponseDTO(
+                coordinateId: item.coordinateId ?? 0,
+                imageUrl: item.imageUrl ?? "",
+                date: item.date ?? ""
+            )
+            
+        case .undocumented(statusCode: let code, _):
+            throw HomeAPIError.serverError(statusCode: code, message: "오늘의 코디 preview 조회 실패")
+        }
+    }
+    
+    func fetchTodayCoordinateDetails() async throws -> [FetchTodayCoordinateDetailsResponseDTO] {
+        let input = Operations.Coordinate_getTodayCoordinateDetails.Input()
+        
+        let response = try await client.Coordinate_getTodayCoordinateDetails(input)
         
         switch response {
         case .ok(let okResponse):
             let data = try await Data(collecting: okResponse.body.any, upTo: .max)
 
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseListDailyCoordinateClothResponse.self, from: data)
+            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseListCoordinateDetailsListResponse.self, from: data)
             
             let items = decoded.result ?? []
 
             return items.map { item in
-                GetTodayCoordinateClothResponseDTO(
+                FetchTodayCoordinateDetailsResponseDTO(
+                    coordinateClothId: item.coordinateClothId ?? 0,
+                    locationX: item.locationX ?? 0,
+                    locationY: item.locationY ?? 0,
+                    ratio: item.ratio ?? 0,
+                    degree: item.degree ?? 0,
+                    order: item.order ?? 0,
+                    clothId: item.clothId ?? 0,
                     imageUrl: item.imageUrl ?? "",
                     brand: item.brand ?? "",
                     name: item.name ?? "",
                     category: item.category ?? "",
-                    parentCategory: item.parentCategory ?? ""
+                    parentCategory: item.parentCategory ?? "",
                 )
             }
             

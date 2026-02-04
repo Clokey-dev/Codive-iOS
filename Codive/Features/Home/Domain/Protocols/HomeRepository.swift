@@ -30,9 +30,6 @@ protocol HomeRepository {
     /// 오늘의 코디 생성
     func createTodayCoordinate(request: CreateTodayCoordinateRequestDTO) async throws -> TodayCoordinateEntity
     
-    /// 오늘의 코디 옷 정보 조회
-    func fetchTodayCoordinateClothes() async throws -> [TodayCoordinateClothEntity]
-    
     // 룩북 조회
     func fetchLookBookList(
         lastLookBookId: Int64?,
@@ -43,8 +40,11 @@ protocol HomeRepository {
     /// 기존 api
 
     // MARK: - 코디가 있는 경우의 Home 관련
+    /// 오늘의 코디 옷 정보 조회
+    func fetchTodayCoordinatePreview() async throws -> FetchTodayCoordinatePreviewResponseDTO
     
-    func fetchCodiItems() -> [CodiItemEntity]
+    func fetchTodayCoordinateDetails() async throws -> [FetchTodayCoordinateDetailsResponseDTO]
+    
     func getToday() -> DateEntity
     
     // MARK: - 카테고리 수정 관련

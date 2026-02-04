@@ -58,9 +58,12 @@ final class HomeRepositoryImpl: HomeRepository {
     }
     
     /// 오늘의 코디 옷 정보 조회
-    func fetchTodayCoordinateClothes() async throws -> [TodayCoordinateClothEntity] {
-        let dtos = try await dataSource.fetchTodayCoordinateClothes()
-        return dtos.map { $0.toEntity() }
+    func fetchTodayCoordinatePreview() async throws -> FetchTodayCoordinatePreviewResponseDTO {
+        return try await dataSource.fetchTodayCoordinatePreview()
+    }
+    
+    func fetchTodayCoordinateDetails() async throws -> [FetchTodayCoordinateDetailsResponseDTO] {
+        return try await dataSource.fetchTodayCoordinateDetails()
     }
     
     // 룩북 조회
@@ -89,10 +92,6 @@ final class HomeRepositoryImpl: HomeRepository {
 
 extension HomeRepositoryImpl {
     // MARK: - 코디가 있는 경우의 Home 관련
-    
-    func fetchCodiItems() -> [CodiItemEntity] {
-        dataSource.loadDummyCodiItems()
-    }
     
     func getToday() -> DateEntity {
         dataSource.fetchToday()

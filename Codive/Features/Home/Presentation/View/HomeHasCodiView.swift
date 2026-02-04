@@ -125,14 +125,29 @@ private extension HomeHasCodiView {
     
     /// 캔버스 배경 디자인
     func boardBackground(size: CGSize) -> some View {
-        RoundedRectangle(cornerRadius: 15)
-            .fill(Color.Codive.grayscale7)
-            .frame(width: size.width, height: size.height)
-            .overlay {
-                RoundedRectangle(cornerRadius: 15)
-                    .stroke(Color.gray.opacity(0.4), lineWidth: 1)
-            }
-    }
+            RoundedRectangle(cornerRadius: 15)
+                .fill(Color.Codive.grayscale7)
+                .frame(width: size.width, height: size.height)
+                .overlay {
+                    // 서버로부터 받은 이미지 URL이 있다면 표시
+                    if let imageUrl = viewModel.todayCodiPreview?.imageUrl,
+                       let url = URL(string: imageUrl) {
+                        AsyncImage(url: url) { image in
+                            image
+                                .resizable()
+                                .scaledToFill() // 배경을 꽉 채우도록 설정
+                                .frame(width: size.width, height: size.height)
+                                .clipShape(RoundedRectangle(cornerRadius: 15))
+                        } placeholder: {
+                            ProgressView() // 로딩 중 표시
+                        }
+                    }
+                    
+                    // 테두리 유지
+                    RoundedRectangle(cornerRadius: 15)
+                        .stroke(Color.gray.opacity(0.4), lineWidth: 1)
+                }
+        }
     
     /// 태그 표시 로직 분리
     @ViewBuilder

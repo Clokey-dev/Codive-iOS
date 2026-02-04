@@ -39,6 +39,7 @@ final class HomeViewModel: ObservableObject {
     @Published var clothItemsByCategory: [Int: [HomeClothEntity]] = [:]
     @Published var selectedIndicesByCategory: [Int: Int] = [:]
     @Published var selectedCodiClothes: [HomeClothEntity] = []
+    @Published var todayCodiPreview: FetchTodayCoordinatePreviewResponseDTO?
     
     @Published var boardPayloads: [Payloads] = []
     
@@ -85,6 +86,7 @@ final class HomeViewModel: ObservableObject {
     
     func onAppear() {
         loadActiveCategories()
+        fetchTodayCodiPreview()
     }
 }
 
@@ -107,6 +109,28 @@ extension HomeViewModel {
     func loadActiveCategories() {
         let allCategories = categoryUseCase.loadCategories()
         self.activeCategories = allCategories.filter { $0.itemCount > 0 }
+    }
+    
+    func fetchTodayCodiPreview() {
+        Task {
+            do {
+                // UseCase를 통해 서버의 Preview 정보 조회
+                let preview = try await todayCodiUseCase.fetchTodayCoordinatePreview()
+                
+                await MainActor.run {
+                    self.todayCodiPreview = preview
+                    // 데이터가 성공적으로 들어오면 hasCodi를 true로 변경하여
+                    // HomeView에서 HomeHasCodiView를 그리도록 유도합니다.
+                    self.hasCodi = true
+                }
+            } catch {
+                // 코디가 없는 경우(404 등)에는 hasCodi를 false로 유지합니다.
+                await MainActor.run {
+                    self.hasCodi = false
+                }
+                print("❌ 오늘의 코디 데이터 없음 또는 로드 실패: \(error.localizedDescription)")
+            }
+        }
     }
 }
 

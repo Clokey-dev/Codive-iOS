@@ -39,9 +39,6 @@ protocol LookBookDataSourceProtocol {
         coordinateId: Int64
     ) async throws -> [CoordinateDetailResponseDTO]
     
-    /// 오늘의 코디 옷 정보 조회
-    func fetchTodayCoordinateClothes() async throws -> [GetTodayCoordinateClothResponseDTO]
-    
     /// 옷 리스트 조회
     func fetchClothItems(category: String?) async throws -> [ProductItem]
     
@@ -131,11 +128,6 @@ final class LookBookDataSource: LookBookDataSourceProtocol {
         coordinateId: Int64
     ) async throws -> [CoordinateDetailResponseDTO] {
         return try await apiService.fetchCoordinateDetail(coordinateId: coordinateId)
-    }
-    
-    /// 오늘의 코디 옷 정보 조회
-    func fetchTodayCoordinateClothes() async throws -> [GetTodayCoordinateClothResponseDTO] {
-        return try await apiService.fetchTodayCoordinateClothes()
     }
     
     /// 옷 리스트 조회

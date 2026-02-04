@@ -39,9 +39,6 @@ protocol LookBookRepository {
         coordinateId: Int64
     ) async throws -> [CoordinateDetailEntity]
     
-    /// 오늘의 코디 옷 정보 조회
-    func fetchTodayCoordinateClothes() async throws -> [TodayCoordinateClothEntity]
-    
     /// 옷 리스트 조회
     func fetchClothItems(category: String?) async throws -> [ProductItem]
     
