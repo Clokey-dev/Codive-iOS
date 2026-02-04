@@ -48,27 +48,23 @@ struct MyLookbookSectionView: View {
             .padding(.horizontal, 20)
             
             LazyVGrid(columns: columns, spacing: 20) {
-                // 1. 데이터 개수에 따른 '룩북 만들기' 버튼 표시 로직
                 if viewModel.lookBookList.count < 4 {
                     AddLookbookButton {
                         print("룩북 만들기 클릭")
                         viewModel.navigateToAddLookbook()
                     }
                 }
-                
-                // 2. ViewModel의 lookBookList를 사용하여 카드 생성
-                // 최대 표시 개수 계산 (기존 로직 유지)
+
                 let displayCount = viewModel.lookBookList.count < 4 ? 3 : 4
                 
                 ForEach(viewModel.lookBookList.prefix(displayCount)) { item in
-                    LookbookCardView(item: item) // LookBookEntity 전달
+                    LookbookCardView(item: item)
                 }
             }
             .padding(.horizontal, 20)
         }
         .padding(.vertical, 20)
         .onAppear {
-            // 3. 화면 로드 시 데이터 페칭 호출
             viewModel.fetchMyLookBooks()
         }
     }
@@ -118,7 +114,6 @@ struct LookbookCardView: View {
     let item: LookBookEntity
     
     // MARK: - Body
-    // MARK: - Body
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             ZStack {
@@ -147,8 +142,7 @@ struct LookbookCardView: View {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(Color.Codive.grayscale5, lineWidth: 1)
             )
-            
-            // LookBookEntity의 lookbookName 적용
+ 
             Text(item.lookbookName)
                 .font(.codive_body2_medium)
                 .foregroundStyle(Color.Codive.grayscale1)
@@ -157,7 +151,3 @@ struct LookbookCardView: View {
         }
     }
 }
-
-//#Preview {
-//    MyLookbookSectionView()
-//}
