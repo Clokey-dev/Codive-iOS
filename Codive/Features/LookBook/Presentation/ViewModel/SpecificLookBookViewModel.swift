@@ -202,7 +202,7 @@ final class SpecificLookBookViewModel: ObservableObject {
     }
     
     func navigateToAddCodi() {
-        navigationRouter.navigate(to: .addCodi(coordinateId: lookbookId))
+        navigationRouter.navigate(to: .addCodi(lookBookId: lookbookId))
     }
     
     func navigateToCodiDetail(codiId: Int) {
