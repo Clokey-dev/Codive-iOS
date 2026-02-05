@@ -31,6 +31,7 @@ final class AddCodiViewModel: ObservableObject {
     let coordinateId: Int64
     
     static let editCodiRequested = CurrentValueSubject<CodiEditData?, Never>(nil)
+    static let beforeCodiSelected = PassthroughSubject<BeforeCoordinateDailyEntity, Never>()
     
     var isButtonEnabled: Bool {
         let hasImage = capturedImage != nil || (selectedImageURL != nil && !selectedImageURL!.isEmpty)
@@ -58,6 +59,16 @@ private extension AddCodiViewModel {
                 self?.selectedImageURL = data.imageString
             }
             .store(in: &cancellables)
+        
+        AddCodiViewModel.beforeCodiSelected
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] entity in
+                    // 선택된 코디의 이미지를 미리보기에 반영
+                    self?.selectedImageURL = entity.imageUrl
+                    // 필요하다면 기본 이름을 설정해줄 수도 있습니다.
+                    // self?.codiName = "과거 코디 (\(entity.date))"
+                }
+                .store(in: &cancellables)
     }
 }
 

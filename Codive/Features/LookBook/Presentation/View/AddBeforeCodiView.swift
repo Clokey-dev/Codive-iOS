@@ -73,14 +73,14 @@ private extension AddBeforeCodiView {
             ),
             spacing: 16
         ) {
-            ForEach(viewModel.beforeCoordinateDailyList) { lookbook in
+            ForEach(viewModel.beforeCoordinateDailyList) { coordi in
                 BeforeCodiCard(
-                    imageURL: lookbook.imageUrl,
-                    date: lookbook.date,
+                    imageURL: coordi.imageUrl,
+                    date: coordi.date,
                     isSelected: false
                 )
                 .onTapGesture {
-                    viewModel.toggleSelection(id: Int(lookbook.id))
+                    viewModel.toggleSelection(id: coordi.id)
                 }
             }
         }
