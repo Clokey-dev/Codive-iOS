@@ -8,4 +8,5 @@
 public struct MyFavoriteLookBookResponseDTO {
     let coordinateId: Int64
     let imageUrl: String
+    let coordinateName: String
 }

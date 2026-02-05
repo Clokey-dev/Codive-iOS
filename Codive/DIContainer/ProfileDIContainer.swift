@@ -95,6 +95,13 @@ final class ProfileDIContainer {
     func makeOtherProfileViewModel() -> OtherProfileViewModel {
         return OtherProfileViewModel(navigationRouter: navigationRouter)
     }
+    
+    func makeFavoriteCodiViewModel() -> FavoriteCodiViewModel {
+        return FavoriteCodiViewModel(
+            navigationRouter: navigationRouter,
+            fetchMyFavoriteLookBookUseCase: makeFetchMyFavoriteLookBookUseCase()
+        )
+    }
 
     // MARK: - Views
     func makeProfileView() -> ProfileView {
@@ -111,6 +118,14 @@ final class ProfileDIContainer {
     func makeProfileSettingView() -> ProfileSettingView {
         return ProfileSettingView(
             viewModel: makeProfileSettingViewModel(),
+            navigationRouter: navigationRouter
+        )
+    }
+    
+    func makeFavoriteCodiView() -> FavoriteCodiView {
+        return FavoriteCodiView(
+            showHeart: true,
+            viewModel: makeFavoriteCodiViewModel(),
             navigationRouter: navigationRouter
         )
     }

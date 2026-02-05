@@ -201,8 +201,8 @@ struct MainTabView: View {
             homeDIContainer.makeEditCategoryView()
         case .codiBoard:
             homeDIContainer.makeCodiBoardView()
-        case .favoriteCodiList(let showHeart):
-            FavoriteCodiView(showHeart: showHeart, navigationRouter: navigationRouter)
+        case .favoriteCodiList:
+            profileDIContainer.makeFavoriteCodiView()
         case .settings:
             settingDIContainer.makeSettingView()
         case .settingLikedRecords:

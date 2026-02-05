@@ -250,6 +250,7 @@ extension ProfileAPIService {
                 MyFavoriteLookBookResponseDTO(
                     coordinateId: item.coordinateId ?? 0,
                     imageUrl: item.imageUrl ?? "",
+                    coordinateName: item.coordinateName ?? ""
                 )
             }
         case .undocumented(statusCode: let code, _):
