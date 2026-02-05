@@ -24,6 +24,7 @@ final class AddCodiViewModel: ObservableObject {
     @Published var isShowingBottomSheet: Bool = false
     @Published var isShowingSuccessView: Bool = false
     @Published var successMessage: String = ""
+    @Published var isPastCodiSelected: Bool = false
     
     private var cancellables = Set<AnyCancellable>()
     private let navigationRouter: NavigationRouter
@@ -57,18 +58,18 @@ private extension AddCodiViewModel {
             .sink { [weak self] data in
                 self?.receivedPayloads = data.payloads
                 self?.selectedImageURL = data.imageString
+                self?.isPastCodiSelected = false
             }
             .store(in: &cancellables)
         
         AddCodiViewModel.beforeCodiSelected
-                .receive(on: DispatchQueue.main)
-                .sink { [weak self] entity in
-                    // 선택된 코디의 이미지를 미리보기에 반영
-                    self?.selectedImageURL = entity.imageUrl
-                    // 필요하다면 기본 이름을 설정해줄 수도 있습니다.
-                    // self?.codiName = "과거 코디 (\(entity.date))"
-                }
-                .store(in: &cancellables)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] entity in
+                self?.selectedImageURL = entity.imageUrl
+                self?.isPastCodiSelected = true
+                self?.capturedImage = nil
+            }
+            .store(in: &cancellables)
     }
 }
 
@@ -129,6 +130,7 @@ extension AddCodiViewModel {
     func navigateToNewCodi() {
         isShowingBottomSheet = false
         navigationRouter.navigate(to: .addCodiDetail)
+        self.isPastCodiSelected = false
     }
     
     func handleRecallCodi() {

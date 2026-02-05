@@ -46,16 +46,16 @@ final class AddBeforeCodiViewModel: ObservableObject {
                     size: 20,
                     direction: .DESC
                 )
-
+                
                 self.beforeCoordinateDailyList = result.content
             } catch {
                 handleError(error)
             }
-
+            
             isLoading = false
         }
     }
-
+    
     func toggleSelection(id: Int64) {
         guard let selectedCodi = beforeCoordinateDailyList.first(where: { $0.id == id }) else { return }
         navigateToAddCodiWithData(codi: selectedCodi)
@@ -65,13 +65,8 @@ final class AddBeforeCodiViewModel: ObservableObject {
         navigationRouter.navigateBack()
     }
     
-//    private func navigateToAddCodiWithData(codi: BeforeCoordinateDailyEntity) {
-//        navigationRouter.navigateBack()
-//    }
     private func navigateToAddCodiWithData(codi: BeforeCoordinateDailyEntity) {
-        // 1. Combine 통로로 데이터 전송
         AddCodiViewModel.beforeCodiSelected.send(codi)
-        // 2. 현재 화면 닫기 (이전 AddCodiView로 돌아감)
         navigationRouter.navigateBack()
     }
 }
