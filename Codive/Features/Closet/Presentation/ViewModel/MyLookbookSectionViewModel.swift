@@ -52,4 +52,13 @@ final class MyLookbookSectionViewModel: ObservableObject {
             LookBookEventManager.shared.shouldShowAddDialog.send(true)
         }
     }
+    
+    func navigateToSpecificLookbook(lookBook: LookBookEntity) {
+        navigationRouter.navigate(
+            to: .specificLookbook(
+                lookbookId: lookBook.lookBookId,
+                name: lookBook.lookbookName
+            )
+        )
+    }
 }

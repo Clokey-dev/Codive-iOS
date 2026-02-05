@@ -58,7 +58,9 @@ struct MyLookbookSectionView: View {
                 let displayCount = viewModel.lookBookList.count < 4 ? 3 : 4
                 
                 ForEach(viewModel.lookBookList.prefix(displayCount)) { item in
-                    LookbookCardView(item: item)
+                    LookbookCardView(item: item) { selectedItem in
+                        viewModel.navigateToSpecificLookbook(lookBook: selectedItem)
+                    }
                 }
             }
             .padding(.horizontal, 20)
@@ -112,6 +114,7 @@ struct LookbookCardView: View {
     
     // MARK: - Properties
     let item: LookBookEntity
+    let onTap: (LookBookEntity) -> Void
     
     // MARK: - Body
     var body: some View {
@@ -120,14 +123,12 @@ struct LookbookCardView: View {
                 // 배경색
                 Rectangle()
                     .fill(Color.Codive.grayscale6)
-                
-                // URL 이미지를 비동기로 로드
+
                 AsyncImage(url: URL(string: item.imageUrl)) { image in
                     image
                         .resizable()
-                        .scaledToFill() // 카드 꽉 차게 설정
+                        .scaledToFill()
                 } placeholder: {
-                    // 이미지 로딩 중이나 실패 시 보여줄 기본 아이콘
                     Image(systemName: "tshirt")
                         .resizable()
                         .scaledToFit()
@@ -148,6 +149,9 @@ struct LookbookCardView: View {
                 .foregroundStyle(Color.Codive.grayscale1)
                 .lineLimit(1)
                 .padding(.leading, 2)
+        }
+        .onTapGesture {
+            onTap(item)
         }
     }
 }
