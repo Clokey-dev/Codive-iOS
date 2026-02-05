@@ -86,7 +86,7 @@ final class HomeViewModel: ObservableObject {
     
     func onAppear() {
         loadActiveCategories()
-        fetchTodayCodiPreview()
+        fetchTodayCodiData()
     }
 }
 
@@ -111,27 +111,76 @@ extension HomeViewModel {
         self.activeCategories = allCategories.filter { $0.itemCount > 0 }
     }
     
-    func fetchTodayCodiPreview() {
-        Task {
-            do {
-                // UseCase를 통해 서버의 Preview 정보 조회
-                let preview = try await todayCodiUseCase.fetchTodayCoordinatePreview()
-                
-                await MainActor.run {
+//    func fetchTodayCodiPreview() {
+//        Task {
+//            do {
+//                // UseCase를 통해 서버의 Preview 정보 조회
+//                let preview = try await todayCodiUseCase.fetchTodayCoordinatePreview()
+//                
+//                await MainActor.run {
+//                    self.todayCodiPreview = preview
+//                    // 데이터가 성공적으로 들어오면 hasCodi를 true로 변경하여
+//                    // HomeView에서 HomeHasCodiView를 그리도록 유도합니다.
+//                    self.hasCodi = true
+//                }
+//            } catch {
+//                // 코디가 없는 경우(404 등)에는 hasCodi를 false로 유지합니다.
+//                await MainActor.run {
+//                    self.hasCodi = false
+//                }
+//                print("❌ 오늘의 코디 데이터 없음 또는 로드 실패: \(error.localizedDescription)")
+//            }
+//        }
+//    }
+    func fetchTodayCodiData() {
+            Task {
+                do {
+                    // 1. 배경 이미지(Preview)와 상세 정보(Details)를 병렬로 호출
+                    async let previewReq = todayCodiUseCase.fetchTodayCoordinatePreview()
+                    async let detailsReq = todayCodiUseCase.fetchTodayCoordinateDetails()
+                    
+                    let (preview, details) = try await (previewReq, detailsReq)
+                    
                     self.todayCodiPreview = preview
-                    // 데이터가 성공적으로 들어오면 hasCodi를 true로 변경하여
-                    // HomeView에서 HomeHasCodiView를 그리도록 유도합니다.
+                    
+                    // 2. 서버 응답 DTO를 UI에서 사용하는 CodiItemEntity로 매핑
+                    self.codiItems = details.map { detail in
+                        CodiItemEntity(
+                            coordinateClothId: detail.coordinateClothId,
+                            locationX: detail.locationX,
+                            locationY: detail.locationY,
+                            ratio: detail.ratio,
+                            degree: detail.degree,
+                            order: detail.order,
+                            clothId: detail.clothId,
+                            imageUrl: detail.imageUrl,
+                            brand: detail.brand,
+                            name: detail.name,
+                            category: detail.category,
+                            parentCategory: detail.parentCategory
+                        )
+                    }
+                    
                     self.hasCodi = true
-                }
-            } catch {
-                // 코디가 없는 경우(404 등)에는 hasCodi를 false로 유지합니다.
-                await MainActor.run {
+                } catch {
                     self.hasCodi = false
+                    print("❌ 데이터 로드 실패: \(error)")
                 }
-                print("❌ 오늘의 코디 데이터 없음 또는 로드 실패: \(error.localizedDescription)")
             }
         }
-    }
+    
+    func toggleClothSelector() {
+            withAnimation(.spring()) {
+                showClothSelector.toggle()
+                if !showClothSelector { selectedItemID = nil }
+            }
+        }
+
+        func selectItem(_ id: Int?) {
+            withAnimation(.spring()) {
+                selectedItemID = id
+            }
+        }
 }
 
 // MARK: - API & Async Methods
@@ -187,35 +236,35 @@ extension HomeViewModel {
 extension HomeViewModel {
     
     /// 코디 이미지 내의 태그 표시 셀렉터를 토글
-    func toggleClothSelector() {
-        withAnimation(.spring()) {
-            showClothSelector.toggle()
-            if !showClothSelector {
-                selectedItemID = nil
-                selectedItemTags = []
-            }
-        }
-    }
-    
-    /// 코디판 이미지 중 특정 아이템을 선택하여 태그를 표시
-    func selectItem(_ id: Int?) {
-        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-            selectedItemID = id
-            guard let id = id, let item = codiItems.first(where: { $0.id == id }) else {
-                self.selectedItemTags = []
-                return
-            }
-            
-            self.selectedItemTags = [
-                ClothTagEntity(
-                    title: item.brandName,
-                    content: item.clothName,
-                    locationX: 0.5,
-                    locationY: 0.5
-                )
-            ]
-        }
-    }
+//    func toggleClothSelector() {
+//        withAnimation(.spring()) {
+//            showClothSelector.toggle()
+//            if !showClothSelector {
+//                selectedItemID = nil
+//                selectedItemTags = []
+//            }
+//        }
+//    }
+//    
+//    /// 코디판 이미지 중 특정 아이템을 선택하여 태그를 표시
+//    func selectItem(_ id: Int?) {
+//        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+//            selectedItemID = id
+//            guard let id = id, let item = codiItems.first(where: { $0.id == id }) else {
+//                self.selectedItemTags = []
+//                return
+//            }
+//            
+//            self.selectedItemTags = [
+//                ClothTagEntity(
+//                    title: item.brandName,
+//                    content: item.clothName,
+//                    locationX: 0.5,
+//                    locationY: 0.5
+//                )
+//            ]
+//        }
+//    }
     
     /// 드래그를 통해 태그의 상대 위치를 업데이트
     func updateTagPosition(tagId: UUID, x: CGFloat, y: CGFloat, imageSize: CGSize) {

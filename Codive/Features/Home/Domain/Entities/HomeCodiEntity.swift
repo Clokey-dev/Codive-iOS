@@ -13,16 +13,19 @@ struct TodayCoordinateEntity {
 }
 
 // MARK: - Codi Item
-struct CodiItemEntity: Identifiable {
-    let id: Int64
-    let imageName: String
-    let clothName: String
-    let brandName: String
-    let description: String
-    let x: CGFloat
-    let y: CGFloat
-    let width: CGFloat
-    let height: CGFloat
+struct CodiItemEntity {
+    let coordinateClothId: Int64
+    let locationX: Double
+    let locationY: Double
+    let ratio: Double
+    let degree: Double
+    let order: Int32
+    let clothId: Int64
+    let imageUrl: String
+    let brand: String
+    let name: String
+    let category: String
+    let parentCategory: String
 }
 
 struct TodayDailyCodi {
