@@ -8,6 +8,7 @@
 import SwiftUI
 import Combine
 import CoreLocation
+import Photos
 
 @MainActor
 final class HomeViewModel: ObservableObject {
@@ -280,7 +281,50 @@ extension HomeViewModel {
     
     /// 룩북으로 이동
     func selectEditCodi() {
-        navigationRouter.navigate(to: .lookbook)
+        //        navigationRouter.navigate(to: .lookbook)
+    }
+    
+    func sharedCodi() {
+        // 1. 저장할 이미지 URL 확인
+        guard let imageUrlString = todayCodiPreview?.imageUrl,
+              let url = URL(string: imageUrlString) else {
+            print("⚠️ [Save] 저장할 이미지 URL이 없습니다.")
+            return
+        }
+        
+        Task {
+            do {
+                // 2. 이미지 데이터 다운로드
+                let (data, _) = try await URLSession.shared.data(from: url)
+                guard let image = UIImage(data: data) else {
+                    print("⚠️ [Save] 이미지 변환 실패")
+                    return
+                }
+                
+                // 3. 사진첩 저장 실행
+                saveToPhotoLibrary(image: image)
+            } catch {
+                print("❌ [Save] 다운로드 실패: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    private func saveToPhotoLibrary(image: UIImage) {
+        PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
+            if status == .authorized || status == .limited {
+                PHPhotoLibrary.shared().performChanges {
+                    PHAssetChangeRequest.creationRequestForAsset(from: image)
+                } completionHandler: { success, error in
+                    if success {
+                        print("✅ 사진첩 저장 성공")
+                    } else if let error = error {
+                        print("❌ 저장 실패: \(error.localizedDescription)")
+                    }
+                }
+            } else {
+                print("⚠️ 사진첩 접근 권한이 거부되었습니다.")
+            }
+        }
     }
 }
 

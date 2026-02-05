@@ -75,7 +75,7 @@ private extension HomeHasCodiView {
             menuActions: [
                 { viewModel.selectEditCodi() },
                 { viewModel.addLookbook() },
-                { /*viewModel.sharedCodi()*/ }
+                { viewModel.sharedCodi() }
             ]
         )
         .zIndex(9999)
