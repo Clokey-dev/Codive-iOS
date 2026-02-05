@@ -11,45 +11,58 @@ import SwiftUI
 struct ProfileView: View {
     @ObservedObject private var navigationRouter: NavigationRouter
     @ObservedObject private var viewModel: ProfileViewModel
-
+    
     init(viewModel: ProfileViewModel, navigationRouter: NavigationRouter) {
         self._viewModel = ObservedObject(wrappedValue: viewModel)
         self._navigationRouter = ObservedObject(wrappedValue: navigationRouter)
     }
-
+    
     var body: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(spacing: 0) {
-                topBar
-
-                profileSection
-                    .padding(.top, 32)
-
-                Divider()
-                    .padding(.top, 24)
-                    .foregroundStyle(Color.Codive.grayscale7)
-
-                favoriteCodiSection
-                    .padding(.top, 24)
-
-                calendarSection
-                    .padding(.top, 40)
-
-                Spacer(minLength: 40)
+        GeometryReader { geometry in
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 0) {
+                    topBar
+                    
+                    profileSection
+                        .padding(.top, 32)
+                    
+                    Divider()
+                        .padding(.top, 24)
+                        .foregroundStyle(Color.Codive.grayscale7)
+                    
+                    favoriteCodiSection
+                        .padding(.top, 24)
+                    
+                    calendarSection
+                        .padding(.top, 40)
+                    
+                    Spacer(minLength: 40)
+                }
+            }
+            .background(Color.white)
+            .task {
+                await viewModel.loadMyProfile()
+            }
+            
+            if viewModel.isShowingPopup, let preview = viewModel.selectedCoordinatePreview {
+                FavoriteLookBookPopUp(
+                    imageUrl: preview.imageUrl,
+                    clothItems: viewModel.popupClothItems,
+                    payloads: viewModel.popupPayloads,
+                    onClose: { viewModel.isShowingPopup = false }
+                )
+                .transition(.opacity.combined(with: .scale))
+                .zIndex(1) // 다른 뷰보다 위에 표시
             }
         }
-        .background(Color.white)
-        .task {
-            await viewModel.loadMyProfile()
-        }
     }
-
+    
     // MARK: - Top Bar
     private var topBar: some View {
         HStack(spacing: 12) {
-
+            
             Spacer(minLength: 0)
-
+            
             Button {
                 viewModel.onEditProfileTapped()
             } label: {
@@ -58,7 +71,7 @@ struct ProfileView: View {
                     .scaledToFit()
                     .frame(width: 20, height: 20)
             }
-
+            
             Button {
                 viewModel.onSettingsTapped()
             } label: {
@@ -70,7 +83,7 @@ struct ProfileView: View {
         }
         .padding(.horizontal, 20)
     }
-
+    
     // MARK: - Profile
     private var profileSection: some View {
         VStack {
@@ -104,12 +117,12 @@ struct ProfileView: View {
                     .frame(width: 80, height: 80)
                     .clipShape(Circle())
             }
-
+            
             Text(viewModel.displayName)
                 .font(.codive_title2)
                 .foregroundStyle(Color.Codive.grayscale1)
                 .padding(.top, 9)
-
+            
             HStack(spacing: 20) {
                 Button {
                     viewModel.onFollowerTapped()
@@ -123,7 +136,7 @@ struct ProfileView: View {
                             .foregroundStyle(Color.Codive.grayscale1)
                     }
                 }
-
+                
                 Button {
                     viewModel.onFollowingTapped()
                 } label: {
@@ -147,7 +160,6 @@ struct ProfileView: View {
         .frame(maxWidth: .infinity)
     }
     
-    // MARK: - Favorite Codi
     // MARK: - Favorite Codi
     private var favoriteCodiSection: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -185,7 +197,10 @@ struct ProfileView: View {
                             cornerRadius: 16,
                             iconPadding: 14,
                             iconSize: 20,
-                            onCardTap: {}
+                            onCardTap: {
+                                // 카드 클릭 시 coordinateId 전달
+                                viewModel.onCodiCardTapped(coordinateId: Int64(codi.coordinateId))
+                            }
                         )
                     }
                     
@@ -202,7 +217,7 @@ struct ProfileView: View {
             .padding(.horizontal, 20)
         }
     }
-
+    
     // MARK: - Calendar
     private var calendarSection: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -210,23 +225,19 @@ struct ProfileView: View {
                 .font(.codive_title2)
                 .foregroundStyle(Color.Codive.grayscale1)
                 .padding(.horizontal, 20)
-
+            
             CalendarMonthView(
                 month: $viewModel.month,
                 selectedDate: $viewModel.selectedDate,
                 monthlyHistories: $viewModel.monthlyHistories
             )
-                .padding(16)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .background(Color.white)
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                .codiveCardShadow()
-                .padding(.horizontal, 20)
-                .padding(.top, 12)
+            .padding(16)
+            .frame(maxWidth: .infinity, alignment: .center)
+            .background(Color.white)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .codiveCardShadow()
+            .padding(.horizontal, 20)
+            .padding(.top, 12)
         }
     }
-}
-
-#Preview {
-    EmptyView()
 }

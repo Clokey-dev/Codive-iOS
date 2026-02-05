@@ -14,6 +14,13 @@ protocol ProfileDataSourceProtocol {
     func checkNicknameDuplicate(nickname: String) async throws -> Bool
     func uploadProfileImage(_ imageData: Data) async throws -> String
     func fetchMyFavoriteCoordinate() async throws -> [MyFavoriteLookBookResponseDTO]
+    /// 코디 preview 조회
+    func fetchCoordinatePreview(coordinateId: Int64) async throws -> CoordinatePreviewResponseDTO
+    
+    /// 코디 detail 조회
+    func fetchCoordinateDetail(
+        coordinateId: Int64
+    ) async throws -> [CoordinateDetailResponseDTO]
 }
 
 final class ProfileDataSource: ProfileDataSourceProtocol {
@@ -45,5 +52,15 @@ final class ProfileDataSource: ProfileDataSourceProtocol {
     
     func fetchMyFavoriteCoordinate() async throws -> [MyFavoriteLookBookResponseDTO] {
         return try await apiService.fetchMyFavoriteCoordinate()
+    }
+
+    func fetchCoordinatePreview(coordinateId: Int64) async throws -> CoordinatePreviewResponseDTO {
+        return try await apiService.fetchCoordinatePreview(coordinateId: coordinateId)
+    }
+
+    func fetchCoordinateDetail(
+        coordinateId: Int64
+    ) async throws -> [CoordinateDetailResponseDTO] {
+        return try await apiService.fetchCoordinateDetail(coordinateId: coordinateId)
     }
 }

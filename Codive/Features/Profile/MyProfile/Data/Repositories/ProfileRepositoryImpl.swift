@@ -37,4 +37,20 @@ final class ProfileRepositoryImpl: ProfileRepository {
     func fetchMyFavoriteCoordinate() async throws -> [MyFavoriteLookBookResponseDTO] {
         return try await dataSource.fetchMyFavoriteCoordinate()
     }
+
+    func fetchCoordinatePreview(coordinateId: Int64) async throws -> CoordinatePreviewEntity {
+        let dto = try await dataSource.fetchCoordinatePreview(coordinateId: coordinateId)
+        return dto.toEntity()
+    }
+
+    func fetchCoordinateDetail(
+        coordinateId: Int64
+    ) async throws -> [CoordinateDetailEntity] {
+        
+        let dtoList = try await dataSource.fetchCoordinateDetail(
+            coordinateId: coordinateId
+        )
+        
+        return dtoList.map { $0.toEntity() }
+    }
 }

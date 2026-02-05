@@ -13,7 +13,7 @@ struct FavoriteLookBookPopUp: View {
     let payloads: [Payloads]
     var onClose: () -> Void
     
-    @State private var showClothSelector: Bool = true
+    @State private var showClothSelector: Bool = false
     @State private var selectedIndex: Int = 0
     
     var body: some View {
