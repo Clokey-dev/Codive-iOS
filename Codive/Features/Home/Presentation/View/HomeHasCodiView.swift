@@ -19,7 +19,6 @@ struct HomeHasCodiView: View {
             VStack(alignment: .leading, spacing: 16) {
                 header
                 
-                // 메인 캔버스 영역
                 GeometryReader { canvasProxy in
                     let canvasSize = canvasProxy.size
                     
@@ -51,8 +50,6 @@ struct HomeHasCodiView: View {
 
 // MARK: - View Components
 private extension HomeHasCodiView {
-    
-    /// 상단 헤더 (오늘의 코디 제목 및 날짜)
     var header: some View {
         HStack {
             Text("\(TextLiteral.Home.todayCodiTitle)(\(viewModel.todayString))")

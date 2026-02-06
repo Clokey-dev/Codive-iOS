@@ -86,24 +86,3 @@ struct RecentlySearchResultRow: View {
         .padding(.horizontal, 16)
     }
 }
-
-// 프리뷰
-#Preview {
-    VStack {
-        RecentlySearchResultRow(
-            type: .hashTag(title: "드뮤어룩"),
-            onDelete: { print("해시태그 삭제 클릭") }
-        )
-        
-        Divider()
-        
-        RecentlySearchResultRow(
-            type: .member(
-                imageUrl: "https://example.com/profile.jpg",
-                title: "피크닉좋아",
-                subtitle: "hamster12"
-            ),
-            onDelete: { print("Delete clicked") }
-        )
-    }
-}

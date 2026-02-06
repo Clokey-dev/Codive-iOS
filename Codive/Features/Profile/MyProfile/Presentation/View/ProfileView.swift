@@ -48,11 +48,12 @@ struct ProfileView: View {
                 FavoriteLookBookPopUp(
                     imageUrl: preview.imageUrl,
                     clothItems: viewModel.popupClothItems,
-                    payloads: viewModel.popupPayloads,
-                    onClose: { viewModel.isShowingPopup = false }
-                )
+                    payloads: viewModel.popupPayloads
+                ) {
+                    viewModel.isShowingPopup = false
+                }
                 .transition(.opacity.combined(with: .scale))
-                .zIndex(1) // 다른 뷰보다 위에 표시
+                .zIndex(1)
             }
         }
     }

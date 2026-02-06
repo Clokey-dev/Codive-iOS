@@ -33,7 +33,7 @@ struct ClothCardView: View {
                                     ProgressView()
                                 case .success(let image):
                                     image.resizable().scaledToFit()
-                                case .failure(let error):
+                                case .failure:
                                     Image(systemName: "exclamationmark.triangle")
                                         .foregroundColor(.gray)
                                 @unknown default:
@@ -169,10 +169,10 @@ struct CodiClothCarouselView: View {
                     )
                 }
                 .onChange(of: currentIndex) { newValue in
-                                withAnimation(.spring()) {
-                                    proxy.scrollTo(newValue, anchor: .center)
-                                }
-                            }
+                    withAnimation(.spring()) {
+                        proxy.scrollTo(newValue, anchor: .center)
+                    }
+                }
                 .scrollDisabled(isEmptyState)
                 .onAppear {
                     proxy.scrollTo(currentIndex, anchor: .center)
@@ -188,54 +188,14 @@ struct CodiClothCarouselView: View {
     }
 }
 
-//struct CodiClothView: View {
-//    let title: String
-//    let items: [HomeClothEntity]
-//    let isEmptyState: Bool
-//    var onIndexChanged: ((Int) -> Void)?
-//    
-//    // Carousel 설정
-//    let spacing: CGFloat = 12
-//    let activeScale: CGFloat = 1.0
-//    let inactiveScale: CGFloat = 0.85
-//    
-//    @State private var currentIndex: Int
-//    
-//    init(title: String, items: [HomeClothEntity], isEmptyState: Bool, onIndexChanged: ((Int) -> Void)? = nil) {
-//        self.title = title
-//        self.items = items
-//        self.isEmptyState = isEmptyState
-//        self.onIndexChanged = onIndexChanged
-//
-//        let initialIndex = isEmptyState ? 1 : 0
-//        _currentIndex = State(initialValue: initialIndex)
-//    }
-//    
-//    var body: some View {
-//        HStack(spacing: 8) {
-//            ZStack(alignment: .topLeading) {
-//                CodiClothCarouselView(
-//                    items: items,
-//                    currentIndex: $currentIndex,
-//                    spacing: spacing,
-//                    activeScale: activeScale,
-//                    inactiveScale: inactiveScale,
-//                    isEmptyState: isEmptyState
-//                )
-//                .onChange(of: currentIndex) { newValue in
-//                    onIndexChanged?(newValue)
-//                }
 struct CodiClothView: View {
     let title: String
     let items: [HomeClothEntity]
     let isEmptyState: Bool
-//        var onIndexChanged: ((Int) -> Void)?
-    //
-        // Carousel 설정
-        let spacing: CGFloat = 12
-        let activeScale: CGFloat = 1.0
-        let inactiveScale: CGFloat = 0.85
-    // 추가: 외부에서 주입받는 인덱스
+
+    let spacing: CGFloat = 12
+    let activeScale: CGFloat = 1.0
+    let inactiveScale: CGFloat = 0.85
     let selectedIndex: Int
     var onIndexChanged: ((Int) -> Void)?
     
@@ -247,7 +207,7 @@ struct CodiClothView: View {
         self.isEmptyState = isEmptyState
         self.selectedIndex = selectedIndex
         self.onIndexChanged = onIndexChanged
-
+        
         // 초기값 설정: 비어있으면 1(중앙), 아니면 전달받은 selectedIndex 사용
         let initialIndex = isEmptyState ? 1 : selectedIndex
         _currentIndex = State(initialValue: initialIndex)

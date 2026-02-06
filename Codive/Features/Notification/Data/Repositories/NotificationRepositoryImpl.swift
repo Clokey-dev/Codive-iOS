@@ -29,7 +29,6 @@ final class NotificationRepositoryImpl: NotificationRepository {
             size: size
         )
         
-        
         return (
             content: dto.content.map { $0.toEntity() },
             isLast: dto.isLast

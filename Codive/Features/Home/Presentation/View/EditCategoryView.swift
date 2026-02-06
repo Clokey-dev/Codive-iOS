@@ -44,15 +44,13 @@ struct EditCategoryView: View {
 
 // MARK: - View Components
 private extension EditCategoryView {
-    
-    /// 상단 네비게이션 바
+
     var navigationBar: some View {
         CustomNavigationBar(title: TextLiteral.Home.editCategoryTitle) {
             viewModel.handleBackTap()
         }
     }
-    
-    /// 현재 카테고리 개수 표시 헤더
+
     var categoryHeader: some View {
         Text("\(TextLiteral.Home.currentCategoryCount) (\(viewModel.totalCount)/7)")
             .font(.codive_title2)
@@ -61,8 +59,7 @@ private extension EditCategoryView {
             .padding(.horizontal, 20)
             .padding(.vertical, 24)
     }
-    
-    /// 카테고리 아이템 리스트
+
     var categoryList: some View {
         VStack(spacing: 24) {
             ForEach($viewModel.categories, id: \.id) { $category in
@@ -78,7 +75,6 @@ private extension EditCategoryView {
         .padding(.bottom, 20)
     }
     
-    /// 하단 초기화 및 적용 버튼
     var bottomActionButtons: some View {
         HStack(spacing: 9) {
             CustomButton(
@@ -102,7 +98,6 @@ private extension EditCategoryView {
         .background(Color.white)
     }
     
-    /// 수정 취소 시 나타나는 알럿 버튼들
     @ViewBuilder
     var alertButtons: some View {
         Button(TextLiteral.Common.cancel, role: .cancel) {

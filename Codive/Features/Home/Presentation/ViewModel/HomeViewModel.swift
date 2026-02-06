@@ -8,7 +8,6 @@
 import SwiftUI
 import Combine
 import CoreLocation
-import Photos
 
 @MainActor
 final class HomeViewModel: ObservableObject {
@@ -50,14 +49,11 @@ final class HomeViewModel: ObservableObject {
     
     let navigationRouter: NavigationRouter
     private let fetchWeatherUseCase: FetchWeatherUseCase
-    private let todayCodiUseCase: TodayCodiUseCase
+    internal let todayCodiUseCase: TodayCodiUseCase
     private let dateUseCase: DateUseCase
     private let categoryUseCase: CategoryUseCase
     internal let addToLookBookUseCase: AddToLookBookUseCase
     
-    // MARK: - Computed Properties
-    
-    /// 현재 활성화된 모든 카테고리에 아이템이 하나도 없는지 확인
     var isAllCategoriesEmpty: Bool {
         let totalItemCount = activeCategories.reduce(0) { sum, category in
             sum + (clothItemsByCategory[category.id]?.count ?? 0)
@@ -85,90 +81,28 @@ final class HomeViewModel: ObservableObject {
         loadInitialData()
     }
     
-    // MARK: - Life Cycle
-    
     func onAppear() {
         loadActiveCategories()
         fetchTodayCodiData()
     }
 }
 
-// MARK: - Data Loading Methods
 extension HomeViewModel {
-    
-    /// 앱 실행 시 필요한 초기 데이터를 로드
     func loadInitialData() {
         loadToday()
         loadActiveCategories()
     }
-    
-    /// 현재 날짜 정보를 가져옴
+
     func loadToday() {
         let entity = dateUseCase.getToday()
         self.todayString = entity.formattedDate
     }
-    
-    /// 로컬에 저장된 활성화 카테고리 설정을 동기적으로 불러옴
+
     func loadActiveCategories() {
         let allCategories = categoryUseCase.loadCategories()
         self.activeCategories = allCategories.filter { $0.itemCount > 0 }
     }
     
-    /// 오늘의 코디 조회
-    func fetchTodayCodiData() {
-        guard !isEditingExistingCodi else { return }
-        Task {
-            do {
-                // 1. 배경 이미지(Preview)와 상세 정보(Details)를 병렬로 호출
-                async let previewReq = todayCodiUseCase.fetchTodayCoordinatePreview()
-                async let detailsReq = todayCodiUseCase.fetchTodayCoordinateDetails()
-                
-                let (preview, details) = try await (previewReq, detailsReq)
-                
-                self.todayCodiPreview = preview
-                
-                // 2. 서버 응답 DTO를 UI에서 사용하는 CodiItemEntity로 매핑
-                self.codiItems = details.map { detail in
-                    CodiItemEntity(
-                        coordinateClothId: detail.coordinateClothId,
-                        locationX: detail.locationX,
-                        locationY: detail.locationY,
-                        ratio: detail.ratio,
-                        degree: detail.degree,
-                        order: detail.order,
-                        clothId: detail.clothId,
-                        imageUrl: detail.imageUrl,
-                        brand: detail.brand,
-                        name: detail.name,
-                        category: detail.category,
-                        parentCategory: detail.parentCategory
-                    )
-                }
-                
-                self.hasCodi = true
-            } catch {
-                self.hasCodi = false
-                print("❌ 데이터 로드 실패: \(error)")
-            }
-        }
-    }
-    
-    func toggleClothSelector() {
-        withAnimation(.spring()) {
-            showClothSelector.toggle()
-            if !showClothSelector { selectedItemID = nil }
-        }
-    }
-    
-    func selectItem(_ id: Int?) {
-        withAnimation(.spring()) {
-            selectedItemID = id
-        }
-    }
-}
-
-// MARK: - API & Async Methods
-extension HomeViewModel {
     func loadWeather(for location: CLLocation?) async {
         do {
             let weather = try await fetchWeatherUseCase.execute(for: location)
@@ -184,8 +118,9 @@ extension HomeViewModel {
             print("Weather load or post failed:", error)
         }
     }
-    
-    /// 카테고리별 계절에 맞는 옷 조회
+}
+
+extension HomeViewModel {
     func loadRecommendCategoryClothList() async {
         self.activeCategories = []
         self.clothItemsByCategory = [:]
@@ -214,32 +149,26 @@ extension HomeViewModel {
         
         self.clothItemsByCategory = resultMap
     }
-}
 
-// MARK: - UI Logic & Actions
-extension HomeViewModel {
-    
-    /// 드래그를 통해 태그의 상대 위치를 업데이트
-    func updateTagPosition(tagId: UUID, x: CGFloat, y: CGFloat, imageSize: CGSize) {
-        if let index = selectedItemTags.firstIndex(where: { $0.id == tagId }) {
-            selectedItemTags[index].locationX = x / imageSize.width
-            selectedItemTags[index].locationY = y / imageSize.height
-        }
+    func moveCategory(from source: IndexSet, to destination: Int) {
+        activeCategories.move(fromOffsets: source, toOffset: destination)
+        
+        // 순서 변경을 로컬에 저장하려면 categoryUseCase를 통해 저장
+        // categoryUseCase.saveCategoryOrder(activeCategories)
     }
-    
-    /// 카테고리별로 선택된 의류의 인덱스를 업데이트
+
     func updateSelectedIndex(for categoryId: Int, index: Int) {
         selectedIndicesByCategory[categoryId] = index
     }
 }
 
-// MARK: - Navigation
 extension HomeViewModel {
+    func handleEditCategory() {
+        navigationRouter.navigate(to: .editCategory)
+    }
     
-    /// 코디보드 화면으로 이동
     func handleCodiBoardTap() {
         let containerSize: CGFloat = 260
-        // 보드 중앙 기준 좌표계로 변환하기 위한 오프셋
         let centerOffset = containerSize / 2
         
         let transferImages = activeCategories.enumerated().compactMap { index, category -> DraggableImageEntity? in
@@ -277,94 +206,6 @@ extension HomeViewModel {
         navigationRouter.navigate(to: .codiBoard)
     }
     
-    /// 카테고리 편집 화면으로 이동
-    func handleEditCategory() {
-        navigationRouter.navigate(to: .editCategory)
-    }
-    
-    /// 오늘의 코디 수정
-    func selectEditCodi() {
-        
-        // 2. 수정 모드 플래그 활성화 및 화면 전환
-        self.isEditingExistingCodi = true
-        self.hasCodi = false
-        
-        Task {
-            // 옷 리스트가 없으면 로드
-            if clothItemsByCategory.isEmpty {
-                await loadRecommendCategoryClothList()
-            }
-            
-            var restoredIndices: [Int: Int] = [:]
-            
-            for item in codiItems {
-                if let category = activeCategories.first(where: { $0.title == item.parentCategory }) {
-                    if let clothList = clothItemsByCategory[category.id],
-                       let index = clothList.firstIndex(where: { $0.clothId == item.clothId }) {
-                        restoredIndices[category.id] = index
-                    }
-                }
-            }
-            
-            await MainActor.run {
-                self.selectedIndicesByCategory = restoredIndices
-            }
-        }
-    }
-    
-    /// 수정 취소 또는 뒤로가기 시 상태를 복구하고 싶을 때 사용 (선택 사항)
-    func cancelEditCodi() {
-        if todayCodiPreview != nil {
-            self.hasCodi = true
-        }
-    }
-    
-    func sharedCodi() {
-        // 1. 저장할 이미지 URL 확인
-        guard let imageUrlString = todayCodiPreview?.imageUrl,
-              let url = URL(string: imageUrlString) else {
-            print("⚠️ [Save] 저장할 이미지 URL이 없습니다.")
-            return
-        }
-        
-        Task {
-            do {
-                // 2. 이미지 데이터 다운로드
-                let (data, _) = try await URLSession.shared.data(from: url)
-                guard let image = UIImage(data: data) else {
-                    print("⚠️ [Save] 이미지 변환 실패")
-                    return
-                }
-                
-                // 3. 사진첩 저장 실행
-                saveToPhotoLibrary(image: image)
-            } catch {
-                print("❌ [Save] 다운로드 실패: \(error.localizedDescription)")
-            }
-        }
-    }
-    
-    private func saveToPhotoLibrary(image: UIImage) {
-        PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
-            if status == .authorized || status == .limited {
-                PHPhotoLibrary.shared().performChanges {
-                    PHAssetChangeRequest.creationRequestForAsset(from: image)
-                } completionHandler: { success, error in
-                    if success {
-                        print("✅ 사진첩 저장 성공")
-                    } else if let error = error {
-                        print("❌ 저장 실패: \(error.localizedDescription)")
-                    }
-                }
-            } else {
-                print("⚠️ 사진첩 접근 권한이 거부되었습니다.")
-            }
-        }
-    }
-}
-
-// MARK: - Popup & Decision Actions
-extension HomeViewModel {
     func handleConfirmCodiTap() {
         let items = activeCategories
             .compactMap { category -> HomeClothEntity? in
@@ -414,18 +255,9 @@ extension HomeViewModel {
             }
         }
     }
-    
-    private func downloadUIImage(from urlString: String) async -> UIImage? {
-        guard let url = URL(string: urlString) else { return nil }
-        do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            return UIImage(data: data)
-        } catch {
-            print("❌ 이미지 다운로드 실패 (\(urlString)): \(error)")
-            return nil
-        }
-    }
-    
+}
+
+extension HomeViewModel {
     /// 코디 확정 후 완료 팝업을 표시
     func showCompletionPopup(imageURL: String?) {
         completedCodiImageURL = imageURL
@@ -521,10 +353,35 @@ extension HomeViewModel {
             )
         }
     }
-    
-    /// 팝업을 닫기
+
     func handlePopupClose() {
         showCompletePopUp = false
         completedCodiImageURL = nil
+    }
+
+    private func captureCompletedCodiImage() -> UIImage {
+        let view = CodiCompositeView(clothes: selectedCodiClothes)
+            .frame(width: 260, height: 260)
+        
+        let controller = UIHostingController(rootView: view)
+        let uiView = controller.view!
+        uiView.bounds = CGRect(origin: .zero, size: CGSize(width: 260, height: 260))
+        uiView.backgroundColor = .clear
+        
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 260, height: 260))
+        return renderer.image { _ in
+            uiView.drawHierarchy(in: uiView.bounds, afterScreenUpdates: true)
+        }
+    }
+    
+    private func downloadUIImage(from urlString: String) async -> UIImage? {
+        guard let url = URL(string: urlString) else { return nil }
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            return UIImage(data: data)
+        } catch {
+            print("❌ 이미지 다운로드 실패 (\(urlString)): \(error)")
+            return nil
+        }
     }
 }

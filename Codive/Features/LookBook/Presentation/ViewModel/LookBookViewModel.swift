@@ -220,4 +220,3 @@ extension UIImage {
         return data.base64EncodedString()
     }
 }
-

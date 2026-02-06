@@ -36,8 +36,6 @@ protocol HomeRepository {
         size: Int32,
         direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
     ) async throws -> (content: [LookBookEntity], isLast: Bool)
-    
-    /// 기존 api
 
     // MARK: - 코디가 있는 경우의 Home 관련
     /// 오늘의 코디 옷 정보 조회

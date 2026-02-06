@@ -81,7 +81,7 @@ struct CompletePopUp: View {
 
 struct CodiCompositeView: View {
     let clothes: [HomeClothEntity]
-    var loadedImages: [Int64: UIImage]? = nil
+    var loadedImages: [Int64: UIImage]?
     
     let containerSize: CGFloat = 260
     let itemSize: CGFloat = 100

@@ -166,7 +166,6 @@ extension SearchAPIService {
     }
 }
 
-
 // MARK: - Search API Error
 
 enum SearchAPIError: LocalizedError {

@@ -27,7 +27,7 @@ struct SelectableClothItem: View {
         .frame(width: 72, height: 72)
         .overlay {
             RoundedRectangle(cornerRadius: 8)
-                .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2) // 선택 시 강조
+                .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2)
         }
         .onTapGesture {
             isSelected.toggle()
