@@ -96,15 +96,30 @@ struct OtherProfileView: View {
     // MARK: - Profile
     private var profileSection: some View {
         VStack {
-            AsyncImage(url: URL(string: viewModel.profileImageUrl ?? "")) { image in
-                image.resizable().scaledToFill()
-            } placeholder: {
+            if let urlString = viewModel.profileImageUrl, !urlString.isEmpty {
+                AsyncImage(url: URL(string: urlString)) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                    case .failure, .empty:
+                        Image("Profile")
+                            .resizable()
+                            .scaledToFill()
+                    @unknown default:
+                        EmptyView()
+                    }
+                }
+                .frame(width: 80, height: 80)
+                .clipShape(Circle())
+            } else {
                 Image("Profile")
                     .resizable()
                     .scaledToFill()
+                    .frame(width: 80, height: 80)
+                    .clipShape(Circle())
             }
-            .frame(width: 80, height: 80)
-            .clipShape(Circle())
 
             Text(viewModel.displayName)
                 .font(.codive_title2)
@@ -152,18 +167,19 @@ struct OtherProfileView: View {
     }
 
     private var followButton: some View {
-        Button {
+        let isFollowing = viewModel.isFollowing
+        return Button {
             viewModel.onFollowButtonTapped()
         } label: {
-            Text(viewModel.isFollowing ? "팔로잉" : "팔로우")
+            Text(isFollowing ? "팔로잉" : "팔로우")
                 .font(.codive_body2_medium)
-                .foregroundStyle(viewModel.isFollowing ? Color.Codive.main0 : .white)
+                .foregroundStyle(isFollowing ? Color.Codive.main0 : .white)
                 .frame(width: 76, height: 32)
-                .background(viewModel.isFollowing ? .white : Color.Codive.main0)
+                .background(isFollowing ? .white : Color.Codive.main0)
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                 .overlay(
                     RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        .stroke(viewModel.isFollowing ? Color.Codive.main0 : .clear, lineWidth: 1)
+                        .stroke(isFollowing ? Color.Codive.main0 : .clear, lineWidth: 1)
                 )
         }
         .buttonStyle(.plain)
