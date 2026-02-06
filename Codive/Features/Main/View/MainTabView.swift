@@ -213,6 +213,8 @@ struct MainTabView: View {
             settingDIContainer.makeWithdrawView()
         case .profileSetting:
             profileDIContainer.makeProfileSettingView()
+        case .myProfile:
+            profileDIContainer.makeProfileView()
         case .followList(let mode, let memberId):
             profileDIContainer.makeFollowListView(mode: mode, memberId: memberId)
         case .myCloset:

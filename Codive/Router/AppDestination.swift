@@ -44,6 +44,7 @@ enum AppDestination: Hashable, Identifiable {
     case favoriteCodiList(showHeart: Bool)
     case followList(mode: FollowListMode, memberId: Int)
     case otherProfile(userId: Int)
+    case myProfile
 
     case myCloset
     case clothDetail(cloth: Cloth)
@@ -80,7 +81,7 @@ enum AppDestination: Hashable, Identifiable {
             return true
 
         // Profile Flow
-        case .favoriteCodiList, .settings, .followList, .profileSetting:
+        case .favoriteCodiList, .settings, .followList, .profileSetting, .otherProfile, .myProfile:
             return true
 
         // Closet Flow - 전체 화면
@@ -118,7 +119,7 @@ enum AppDestination: Hashable, Identifiable {
             return false
 
         // Profile Flow - 자체 네비게이션 바 있음
-        case .favoriteCodiList, .settings, .followList, .profileSetting:
+        case .favoriteCodiList, .settings, .followList, .profileSetting, .otherProfile, .myProfile:
             return false
 
         // Closet Flow - 자체 네비게이션 바 있음

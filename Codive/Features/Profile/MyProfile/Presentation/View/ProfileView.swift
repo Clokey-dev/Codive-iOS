@@ -39,6 +39,7 @@ struct ProfileView: View {
             }
         }
         .background(Color.white)
+        .navigationBarBackButtonHidden(!navigationRouter.path.isEmpty)
         .task {
             await viewModel.loadMyProfile()
         }
@@ -47,6 +48,17 @@ struct ProfileView: View {
     // MARK: - Top Bar
     private var topBar: some View {
         HStack(spacing: 12) {
+            // 뒤로가기 버튼: 네비게이션으로 들어왔을 때만 표시
+            if !navigationRouter.path.isEmpty {
+                Button {
+                    navigationRouter.navigateBack()
+                } label: {
+                    Image("back")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24, height: 24)
+                }
+            }
 
             Spacer(minLength: 0)
 

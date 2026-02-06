@@ -41,6 +41,10 @@ final class ProfileDIContainer {
         return HistoryRepositoryImpl(historyAPIService: historyAPIService)
     }()
 
+    private lazy var otherProfileRepository: OtherProfileRepository = {
+        return OtherProfileRepositoryImpl(apiService: profileAPIService)
+    }()
+
     // MARK: - UseCases
     func makeFetchMyProfileUseCase() -> FetchMyProfileUseCase {
         return DefaultFetchMyProfileUseCase(repository: profileRepository)
@@ -56,6 +60,14 @@ final class ProfileDIContainer {
 
     func makeFetchMonthlyHistoryUseCase() -> FetchMonthlyHistoryUseCase {
         return FetchMonthlyHistoryUseCase(historyRepository: historyRepository)
+    }
+
+    func makeFetchMemberInfoUseCase() -> FetchMemberInfoUseCase {
+        return DefaultFetchMemberInfoUseCase(repository: otherProfileRepository)
+    }
+
+    func makeToggleFollowUseCase() -> ToggleFollowUseCase {
+        return DefaultToggleFollowUseCase(repository: otherProfileRepository)
     }
 
     // MARK: - ViewModels
@@ -87,8 +99,14 @@ final class ProfileDIContainer {
         )
     }
 
-    func makeOtherProfileViewModel() -> OtherProfileViewModel {
-        return OtherProfileViewModel(navigationRouter: navigationRouter)
+    func makeOtherProfileViewModel(memberId: Int) -> OtherProfileViewModel {
+        return OtherProfileViewModel(
+            memberId: memberId,
+            navigationRouter: navigationRouter,
+            fetchMemberInfoUseCase: makeFetchMemberInfoUseCase(),
+            toggleFollowUseCase: makeToggleFollowUseCase(),
+            fetchMonthlyHistoryUseCase: makeFetchMonthlyHistoryUseCase()
+        )
     }
 
     // MARK: - Views

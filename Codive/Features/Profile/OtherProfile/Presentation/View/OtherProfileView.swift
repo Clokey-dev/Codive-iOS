@@ -56,6 +56,15 @@ struct OtherProfileView: View {
             }
         }
         .background(Color.white)
+        .navigationBarBackButtonHidden(true)
+        .task {
+            await viewModel.loadProfile()
+        }
+        .onChange(of: viewModel.month) { _ in
+            Task {
+                await viewModel.loadMonthlyHistories()
+            }
+        }
     }
 
     // MARK: - Top Bar
@@ -87,11 +96,15 @@ struct OtherProfileView: View {
     // MARK: - Profile
     private var profileSection: some View {
         VStack {
-            Image("Profile")
-                .resizable()
-                .scaledToFill()
-                .frame(width: 80, height: 80)
-                .clipShape(Circle())
+            AsyncImage(url: URL(string: viewModel.profileImageUrl ?? "")) { image in
+                image.resizable().scaledToFill()
+            } placeholder: {
+                Image("Profile")
+                    .resizable()
+                    .scaledToFill()
+            }
+            .frame(width: 80, height: 80)
+            .clipShape(Circle())
 
             Text(viewModel.displayName)
                 .font(.codive_title2)
