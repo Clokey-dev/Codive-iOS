@@ -61,8 +61,12 @@ struct FeedDetailView: View {
                         // 프로필
                         ProfileHeaderView(
                             profileImageUrl: feed.author.profileImageUrl ?? "",
-                            nickname: feed.author.nickname
-                        ) { }
+                            nickname: feed.author.nickname,
+                            onMoreTap: { },
+                            onProfileTap: {
+                                viewModel.navigateToProfile(userId: feed.author.id, isMine: feed.author.isMe ?? false)
+                            }
+                        )
                         
                         // 이미지 슬라이더
                         FeedImageSlider(

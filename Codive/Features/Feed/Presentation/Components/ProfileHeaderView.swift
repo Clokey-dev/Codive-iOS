@@ -11,6 +11,7 @@ struct ProfileHeaderView: View {
     let profileImageUrl: String
     let nickname: String
     let onMoreTap: () -> Void
+    let onProfileTap: () -> Void
     
     var body: some View {
         HStack(spacing: 8) {
@@ -20,13 +21,19 @@ struct ProfileHeaderView: View {
                 .scaledToFill()
                 .frame(width: 32, height: 32)
                 .clipShape(Circle())
-            
+                .onTapGesture {
+                    onProfileTap()
+                }
+
             Text(nickname)
                 .font(.codive_body2_medium)
                 .foregroundStyle(Color.Codive.grayscale1)
-            
+                .onTapGesture {
+                    onProfileTap()
+                }
+
             Spacer()
-            
+
             Button(action: onMoreTap) {
                 Image(systemName: "ellipsis")
                     .rotationEffect(.degrees(90))

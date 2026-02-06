@@ -59,6 +59,20 @@ final class FeedViewModel: ObservableObject {
         navigationRouter.navigate(to: .feedDetail(feedId: feedId))
     }
 
+    /// 프로필로 이동 (isMine 기준으로 내 프로필 또는 다른 사람 프로필)
+    func navigateToProfile(userId: String, isMine: Bool) {
+        guard let memberId = Int(userId) else {
+            print("❌ Invalid userId: \(userId)")
+            return
+        }
+
+        if isMine {
+            navigationRouter.navigate(to: .myProfile)
+        } else {
+            navigationRouter.navigate(to: .otherProfile(userId: memberId))
+        }
+    }
+
     /// 첫 페이지 Feed 로드
     func loadFeeds() async {
         // 이미 로딩 중이면 중복 호출 방지

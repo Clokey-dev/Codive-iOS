@@ -189,4 +189,19 @@ final class FeedDetailViewModel: ObservableObject {
     func commentButtonTapped() {
         navigationRouter.presentSheet(for: .comment(feedId: self.feedId))
     }
+
+    // MARK: - 프로필 이동
+    /// 프로필로 이동 (isMine 기준으로 내 프로필 또는 다른 사람 프로필)
+    func navigateToProfile(userId: String, isMine: Bool) {
+        guard let memberId = Int(userId) else {
+            print("❌ Invalid userId: \(userId)")
+            return
+        }
+
+        if isMine {
+            navigationRouter.navigate(to: .myProfile)
+        } else {
+            navigationRouter.navigate(to: .otherProfile(userId: memberId))
+        }
+    }
 }

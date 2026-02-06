@@ -12,8 +12,10 @@ struct CustomFeedCard: View {
     let imageUrl: String
     let profileImageUrl: String
     let nickname: String
-    
+
     @Binding var isLiked: Bool
+
+    let onProfileTap: () -> Void
     
     // MARK: - Body
     var body: some View {
@@ -94,6 +96,9 @@ struct CustomFeedCard: View {
             }
             .padding(.leading, 15)
             .padding(.bottom, 15)
+            .onTapGesture {
+                onProfileTap()
+            }
         }
         // 카드 전체 스타일
         .aspectRatio(3/4, contentMode: .fit)
@@ -109,7 +114,8 @@ struct CustomFeedCard: View {
             imageUrl: "sample_feed_image",
             profileImageUrl: "sample_profile",
             nickname: "닉네임",
-            isLiked: .constant(true)
+            isLiked: .constant(true),
+            onProfileTap: {}
         )
         .frame(width: 160)
     }
