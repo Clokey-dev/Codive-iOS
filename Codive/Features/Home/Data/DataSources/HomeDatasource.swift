@@ -36,6 +36,9 @@ protocol HomeDatasourceProtocol {
         size: Int32,
         direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
     ) async throws -> LookBookListResponseDTO
+    
+    /// 코디 수정
+    func patchUpdateCoordinates(coordinateId: Int64, request: EditCoordinateRequestDTO) async throws
 }
 
 final class HomeDatasource: HomeDatasourceProtocol {
@@ -192,6 +195,11 @@ final class HomeDatasource: HomeDatasourceProtocol {
             size: size,
             direction: direction
         )
+    }
+    
+    /// 코디 수정
+    func patchUpdateCoordinates(coordinateId: Int64, request: EditCoordinateRequestDTO) async throws {
+        try await apiService.patchUpdateCoordinates(coordinateId: coordinateId, request: request)
     }
     
     /// 코디 이미지를 S3에 업로드하고 최종 URL을 반환

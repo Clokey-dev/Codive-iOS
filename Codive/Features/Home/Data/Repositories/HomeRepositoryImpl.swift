@@ -84,6 +84,11 @@ final class HomeRepositoryImpl: HomeRepository {
         )
     }
     
+    /// 코디 수정
+    func patchUpdateCoordinates(coordinateId: Int64, request: EditCoordinateRequestDTO) async throws {
+        try await dataSource.patchUpdateCoordinates(coordinateId: coordinateId, request: request)
+    }
+    
     /// 이미지 업로드
     func uploadCodiImage(jpgData: Data) async throws -> String {
         return try await dataSource.uploadCodiImage(jpgData: jpgData)

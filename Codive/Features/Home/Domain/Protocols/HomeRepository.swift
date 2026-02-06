@@ -45,6 +45,9 @@ protocol HomeRepository {
     
     func fetchTodayCoordinateDetails() async throws -> [FetchTodayCoordinateDetailsResponseDTO]
     
+    /// 코디 수정
+    func patchUpdateCoordinates(coordinateId: Int64, request: EditCoordinateRequestDTO) async throws
+    
     func getToday() -> DateEntity
     
     // MARK: - 카테고리 수정 관련

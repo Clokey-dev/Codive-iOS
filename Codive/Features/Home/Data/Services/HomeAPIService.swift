@@ -34,6 +34,9 @@ protocol HomeAPIServiceProtocol {
         direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
     ) async throws -> LookBookListResponseDTO
     
+    /// 코디 수정
+    func patchUpdateCoordinates(coordinateId: Int64, request: EditCoordinateRequestDTO) async throws
+    
     /// 이미지 url 생성
     func getPresignedUrls(for images: [Data]) async throws -> [PresignedUrlInfo]
 }
@@ -255,6 +258,92 @@ extension HomeAPIService {
             
         case .undocumented(statusCode: let code, _):
             throw LookBookAPIError.serverError(statusCode: code, message: "Presigned URL 발급 실패")
+        }
+    }
+    
+//    func patchUpdateCoordinates(coordinateId: Int64, request: EditCoordinateRequestDTO) async throws {
+//        let requestBody = Components.Schemas.CoordinateUpdateRequest(
+//            coordinateImageUrl: request.coordinateImageUrl,
+//            name: request.name,
+//            memo: request.memo,
+//            payloads: request.payloads?.map {
+//                Components.Schemas.CoordinateUpdateRequestPayload(
+//                    clothId: $0.clothId,
+//                    locationX: $0.locationX,
+//                    locationY: $0.locationY,
+//                    ratio: $0.ratio,
+//                    degree: $0.degree,
+//                    order: Int32($0.order)
+//                )
+//            }
+//        )
+//        
+//        let input = Operations.Coordinate_updateCoordinate.Input(
+//            path: .init(coordinateId: coordinateId),
+//            body: .json(requestBody)
+//        )
+//        let response = try await client.Coordinate_updateCoordinate(input)
+//        
+//        switch response {
+//        case .ok:
+//            return
+//        case .undocumented(statusCode: let code, _):
+//            throw LookBookAPIError.serverError(statusCode: code, message: "코디 수정 실패")
+//        }
+//    }
+    func patchUpdateCoordinates(coordinateId: Int64, request: EditCoordinateRequestDTO) async throws {
+        print("--------------------------------------------------")
+        print("🚀 [API Request] PATCH Coordinate - ID: \(coordinateId)")
+        
+        let requestBody = Components.Schemas.CoordinateUpdateRequest(
+            coordinateImageUrl: request.coordinateImageUrl,
+            name: request.name,
+            memo: request.memo,
+            payloads: request.payloads?.map {
+                Components.Schemas.CoordinateUpdateRequestPayload(
+                    clothId: $0.clothId,
+                    locationX: $0.locationX,
+                    locationY: $0.locationY,
+                    ratio: $0.ratio,
+                    degree: $0.degree,
+                    order: Int32($0.order)
+                )
+            }
+        )
+
+        let input = Operations.Coordinate_updateCoordinate.Input(
+            path: .init(coordinateId: coordinateId),
+            body: .json(requestBody)
+        )
+        
+        let response = try await client.Coordinate_updateCoordinate(input)
+        
+        switch response {
+        case .ok:
+            print("✅ [API Success] 코디 수정 성공")
+            return
+            
+        case .undocumented(statusCode: let code, let payload):
+            print("❌ [API Error] Status Code: \(code)")
+            
+            // HTTPBody에서 데이터를 추출하여 문자열로 변환하는 로직
+            var errorBody: String = "No body content"
+            if let body = payload.body {
+                do {
+                    // body를 Data로 변환한 뒤 String으로 변환
+                    let data = try await Data(collecting: body, upTo: 1024 * 1024) // 최대 1MB
+                    if let decodedString = String(data: data, encoding: .utf8) {
+                        errorBody = decodedString
+                    }
+                } catch {
+                    errorBody = "Failed to decode error body: \(error.localizedDescription)"
+                }
+            }
+            
+            print("⚠️ Server Error Message: \(errorBody)")
+            print("--------------------------------------------------")
+            
+            throw LookBookAPIError.serverError(statusCode: code, message: "코디 수정 실패: \(errorBody)")
         }
     }
 }

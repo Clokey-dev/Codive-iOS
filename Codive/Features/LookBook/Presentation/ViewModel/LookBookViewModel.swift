@@ -211,3 +211,13 @@ final class LookBookViewModel: ObservableObject {
         )
     }
 }
+
+extension UIImage {
+    func toBase64String() -> String? {
+        guard let data = self.jpegData(compressionQuality: 0.9) else {
+            return nil
+        }
+        return data.base64EncodedString()
+    }
+}
+

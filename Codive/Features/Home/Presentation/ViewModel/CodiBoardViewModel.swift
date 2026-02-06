@@ -59,10 +59,21 @@ final class CodiBoardViewModel: ObservableObject {
     // MARK: - Navigation
     
     /// 이전 화면으로 이동
+//    func handleBackTap() {
+//        if homeViewModel?.todayCodiPreview != nil {
+//                    homeViewModel?.hasCodi = true
+//                }
+//        navigationRouter.navigateBack()
+//    }
     func handleBackTap() {
-        if homeViewModel?.todayCodiPreview != nil {
-                    homeViewModel?.hasCodi = true
-                }
+        // 수정 중이었거나 기존 데이터가 있다면 화면 상태를 HasCodi로 복구
+        if let homeVM = homeViewModel {
+            if homeVM.todayCodiPreview != nil {
+                homeVM.hasCodi = true
+            }
+            // 수정 모드 플래그 해제 (다음에 새로 들어올 때를 위해)
+            homeVM.isEditingExistingCodi = false
+        }
         navigationRouter.navigateBack()
     }
     

@@ -53,7 +53,7 @@ final class HomeViewModel: ObservableObject {
     private let todayCodiUseCase: TodayCodiUseCase
     private let dateUseCase: DateUseCase
     private let categoryUseCase: CategoryUseCase
-    private let addToLookBookUseCase: AddToLookBookUseCase
+    internal let addToLookBookUseCase: AddToLookBookUseCase
     
     // MARK: - Computed Properties
     
@@ -282,42 +282,42 @@ extension HomeViewModel {
         navigationRouter.navigate(to: .editCategory)
     }
     
-    /// 룩북으로 이동
-    // HomeViewModel.swift
-
+    /// 오늘의 코디 수정
     func selectEditCodi() {
-        print("🚀 [수정 모드] 데이터 매칭 시작")
+        
+        // 2. 수정 모드 플래그 활성화 및 화면 전환
         self.isEditingExistingCodi = true
         self.hasCodi = false
         
         Task {
+            // 옷 리스트가 없으면 로드
             if clothItemsByCategory.isEmpty {
                 await loadRecommendCategoryClothList()
             }
             
             var restoredIndices: [Int: Int] = [:]
+
             for item in codiItems {
-                if let category = activeCategories.first(where: { $0.title == item.parentCategory }),
-                   let clothList = clothItemsByCategory[category.id],
-                   let index = clothList.firstIndex(where: { $0.clothId == item.clothId }) {
-                    restoredIndices[category.id] = index
+                if let category = activeCategories.first(where: { $0.title == item.parentCategory }) {
+                    if let clothList = clothItemsByCategory[category.id],
+                       let index = clothList.firstIndex(where: { $0.clothId == item.clothId }) {
+                        restoredIndices[category.id] = index
+                    }
                 }
             }
             
             await MainActor.run {
-                // 한꺼번에 업데이트하여 여러 번 리렌더링되는 것을 방지
                 self.selectedIndicesByCategory = restoredIndices
-                print("✅ 매칭 완료: \(restoredIndices)")
             }
         }
     }
-        
-        /// 수정 취소 또는 뒤로가기 시 상태를 복구하고 싶을 때 사용 (선택 사항)
-        func cancelEditCodi() {
-            if todayCodiPreview != nil {
-                self.hasCodi = true
-            }
+    
+    /// 수정 취소 또는 뒤로가기 시 상태를 복구하고 싶을 때 사용 (선택 사항)
+    func cancelEditCodi() {
+        if todayCodiPreview != nil {
+            self.hasCodi = true
         }
+    }
     
     func sharedCodi() {
         // 1. 저장할 이미지 URL 확인
@@ -439,40 +439,84 @@ extension HomeViewModel {
     }
     
     /// 팝업에서 '기록하기' 버튼을 눌러 오늘 완성한 코디를 서버에 전송
+    // HomeViewModel.swift
+
     func handlePopupRecord() {
         Task {
             do {
-                guard let imageURL = self.capturedImageURL else {
-                    print("⚠️ [Error] 이미지 URL이 없습니다.")
-                    return
+                guard let imageURL = self.capturedImageURL else { return }
+                
+                // 1. 페이로드 추출 및 좌표 정밀도 보정 (소수점 4자리)
+                let rawPayloads = boardPayloads.isEmpty ? createPayloadsFromCurrentList() : boardPayloads
+                
+                let finalPayloads = rawPayloads.map { p in
+                    Payloads(
+                        clothId: p.clothId,
+                        locationX: (p.locationX * 10000).rounded() / 10000,
+                        locationY: (p.locationY * 10000).rounded() / 10000,
+                        ratio: (p.ratio * 100).rounded() / 100,
+                        degree: (p.degree * 100).rounded() / 100,
+                        order: Int32(p.order)
+                    )
                 }
                 
-                let finalPayloads: [Payloads]
-                
-                if !boardPayloads.isEmpty {
-                    finalPayloads = boardPayloads
+                if isEditingExistingCodi, let coordinateId = todayCodiPreview?.coordinateId {
+                    print("🔄 [PATCH] 오늘의 코디 수정 요청 (ID: \(coordinateId))")
+                    
+                    // 오늘의 코디는 name, memo를 지원하지 않을 확률이 높으므로 nil로 설정
+                    // 만약 서버에서 필드 자체를 체크한다면, DTO에서 해당 필드들을 생략하고 보낼 필요가 있습니다.
+                    let editRequest = EditCoordinateRequestDTO(
+                        coordinateImageUrl: imageURL,
+                        name: "\(todayString) 코디",
+                        memo: nil,
+                        payloads: finalPayloads
+                    )
+                    
+                    try await todayCodiUseCase.patchUpdateCoordinates(
+                        coordinateId: coordinateId,
+                        request: editRequest
+                    )
+                    print("✅ 오늘의 코디 수정 성공")
+                    
                 } else {
-                    finalPayloads = createPayloadsFromCurrentList()
+                    // 생성 모드 (기존과 동일)
+                    let createRequest = CreateTodayCoordinateRequestDTO(
+                        coordinateImageUrl: imageURL,
+                        payloads: finalPayloads
+                    )
+                    let result = try await todayCodiUseCase.createTodayCoordinate(request: createRequest)
+                    print("✅ 오늘의 코디 신규 생성 성공 (ID: \(result.coordinateId))")
                 }
-                
-                let request = CreateTodayCoordinateRequestDTO(
-                    coordinateImageUrl: imageURL,
-                    payloads: finalPayloads
-                )
-                
-                let result = try await todayCodiUseCase.createTodayCoordinate(request: request)
                 
                 await MainActor.run {
-                    self.showCompletePopUp = false
-                    self.hasCodi = true
-                    self.boardPayloads = []
-                    self.capturedImageURL = nil
-                    print("✅ 오늘의 코디 저장 성공: \(result.coordinateId)")
+                    self.completeProcess()
                 }
+                
             } catch {
-                print("❌ 최종 코디 저장 실패: \(error.localizedDescription)")
+                print("\n❌ [최종 에러 보고]")
+                print("- 에러 타입: \(error)")
+                // 400 에러가 지속될 경우, 서버 명세서에서 PATCH의 payloads 필드명이 'Payload'인지 확인이 필요합니다.
             }
         }
+    }
+
+    private func completeProcess() {
+        self.isEditingExistingCodi = false
+        self.showCompletePopUp = false
+        self.hasCodi = true
+        self.boardPayloads = []
+        self.capturedImageURL = nil
+        self.fetchTodayCodiData() // 수정 완료 후 최신 데이터 다시 불러오기
+    }
+
+    // 상태 초기화 로직 분리
+    private func resetUIStateAfterRecord() {
+        self.isEditingExistingCodi = false
+        self.showCompletePopUp = false
+        self.hasCodi = true
+        self.boardPayloads = []
+        self.capturedImageURL = nil
+        self.fetchTodayCodiData()
     }
     
     /// [Helper] 홈 화면의 현재 상태(순서/인덱스)를 기준으로 Payload 생성
@@ -512,72 +556,3 @@ extension HomeViewModel {
     }
 }
 
-// MARK: - LookBook Actions
-extension HomeViewModel {
-    /// 내 룩북 리스트를 불러와 바텀시트를 표시
-    func addLookbook() {
-        Task {
-            do {
-                let (content, _) = try await addToLookBookUseCase.fetchLookBookList(
-                    lastLookBookId: nil,
-                    size: 20,
-                    direction: .DESC
-                )
-                
-                self.lookBookList = content.map { entity in
-                    LookBookBottomSheetEntity(
-                        lookbookId: entity.lookBookId,
-                        imageUrl: entity.imageUrl,
-                        title: entity.lookbookName,
-                        count: entity.count
-                    )
-                }
-                
-                self.showLookBookSheet = true
-            } catch {
-                print("❌ 룩북 리스트 로드 실패: \(error.localizedDescription)")
-            }
-        }
-    }
-    
-    /// 바텀시트에서 특정 룩북을 선택
-    func selectLookBook(_ entity: LookBookBottomSheetEntity) {
-        showLookBookSheet = false
-    }
-}
-
-extension HomeViewModel {
-    
-    /// 카테고리 순서 변경
-    func moveCategory(from source: IndexSet, to destination: Int) {
-        activeCategories.move(fromOffsets: source, toOffset: destination)
-        
-        // 순서 변경을 로컬에 저장하려면 categoryUseCase를 통해 저장
-        // categoryUseCase.saveCategoryOrder(activeCategories)
-    }
-    
-    /// 이미지 캡처
-    private func captureCompletedCodiImage() -> UIImage {
-        let view = CodiCompositeView(clothes: selectedCodiClothes)
-            .frame(width: 260, height: 260)
-        
-        let controller = UIHostingController(rootView: view)
-        let uiView = controller.view!
-        uiView.bounds = CGRect(origin: .zero, size: CGSize(width: 260, height: 260))
-        uiView.backgroundColor = .clear
-        
-        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 260, height: 260))
-        return renderer.image { _ in
-            uiView.drawHierarchy(in: uiView.bounds, afterScreenUpdates: true)
-        }
-    }
-}
-
-extension UIImage {
-    func toBase64String() -> String? {
-        guard let data = self.jpegData(compressionQuality: 0.9) else {
-            return nil
-        }
-        return data.base64EncodedString()
-    }
-}

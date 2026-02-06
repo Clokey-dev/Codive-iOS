@@ -40,4 +40,9 @@ final class TodayCodiUseCase {
         
         return uploadedURL
     }
+    
+    /// 오늘의 코디 수정
+    func patchUpdateCoordinates(coordinateId: Int64, request: EditCoordinateRequestDTO) async throws {
+        try await repository.patchUpdateCoordinates(coordinateId: coordinateId, request: request)
+    }
 }
