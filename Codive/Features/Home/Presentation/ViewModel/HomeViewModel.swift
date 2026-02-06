@@ -27,6 +27,8 @@ final class HomeViewModel: ObservableObject {
     @Published var completedCodiImageURL: String?
     @Published var capturedImageURL: String?
     
+    @Published var isEditingExistingCodi: Bool = false
+    
     // MARK: - Properties (Data)
     
     @Published var weatherData: WeatherData?
@@ -114,6 +116,7 @@ extension HomeViewModel {
     
     /// 오늘의 코디 조회
     func fetchTodayCodiData() {
+        guard !isEditingExistingCodi else { return }
         Task {
             do {
                 // 1. 배경 이미지(Preview)와 상세 정보(Details)를 병렬로 호출
@@ -280,9 +283,41 @@ extension HomeViewModel {
     }
     
     /// 룩북으로 이동
+    // HomeViewModel.swift
+
     func selectEditCodi() {
-        //        navigationRouter.navigate(to: .lookbook)
+        print("🚀 [수정 모드] 데이터 매칭 시작")
+        self.isEditingExistingCodi = true
+        self.hasCodi = false
+        
+        Task {
+            if clothItemsByCategory.isEmpty {
+                await loadRecommendCategoryClothList()
+            }
+            
+            var restoredIndices: [Int: Int] = [:]
+            for item in codiItems {
+                if let category = activeCategories.first(where: { $0.title == item.parentCategory }),
+                   let clothList = clothItemsByCategory[category.id],
+                   let index = clothList.firstIndex(where: { $0.clothId == item.clothId }) {
+                    restoredIndices[category.id] = index
+                }
+            }
+            
+            await MainActor.run {
+                // 한꺼번에 업데이트하여 여러 번 리렌더링되는 것을 방지
+                self.selectedIndicesByCategory = restoredIndices
+                print("✅ 매칭 완료: \(restoredIndices)")
+            }
+        }
     }
+        
+        /// 수정 취소 또는 뒤로가기 시 상태를 복구하고 싶을 때 사용 (선택 사항)
+        func cancelEditCodi() {
+            if todayCodiPreview != nil {
+                self.hasCodi = true
+            }
+        }
     
     func sharedCodi() {
         // 1. 저장할 이미지 URL 확인

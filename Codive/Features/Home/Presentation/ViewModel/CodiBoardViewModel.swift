@@ -60,6 +60,9 @@ final class CodiBoardViewModel: ObservableObject {
     
     /// 이전 화면으로 이동
     func handleBackTap() {
+        if homeViewModel?.todayCodiPreview != nil {
+                    homeViewModel?.hasCodi = true
+                }
         navigationRouter.navigateBack()
     }
     
