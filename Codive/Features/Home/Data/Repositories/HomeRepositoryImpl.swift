@@ -89,6 +89,14 @@ final class HomeRepositoryImpl: HomeRepository {
         try await dataSource.patchUpdateCoordinates(coordinateId: coordinateId, request: request)
     }
     
+    /// 이전 일일 코디로 자동 생성
+    func createAutoDailyCoordinate(
+        request: CreateAutoDailyCoordinateAPIRequestDTO
+    ) async throws -> AutoDailyCoordinateEntity {
+        let dto = try await dataSource.createAutoDailyCoordinate(request: request)
+        return dto.toEntity()
+    }
+    
     /// 이미지 업로드
     func uploadCodiImage(jpgData: Data) async throws -> String {
         return try await dataSource.uploadCodiImage(jpgData: jpgData)

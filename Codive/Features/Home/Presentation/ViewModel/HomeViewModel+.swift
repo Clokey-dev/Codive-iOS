@@ -35,8 +35,40 @@ extension HomeViewModel {
         }
     }
     /// 바텀시트에서 특정 룩북을 선택
+    //    func selectLookBook(_ entity: LookBookBottomSheetEntity) {
+    //        showLookBookSheet = false
+    //    }
+    
     func selectLookBook(_ entity: LookBookBottomSheetEntity) {
-        showLookBookSheet = false
+        // 1. 필요한 데이터(오늘의 코디 ID)가 있는지 확인
+        guard let dailyCodiId = todayCodiPreview?.coordinateId else {
+            print("⚠️ [Lookbook] 추가할 오늘의 코디 정보가 없습니다.")
+            return
+        }
+        
+        Task {
+            do {
+                // 2. 요청 DTO 구성
+                let request = CreateAutoDailyCoordinateAPIRequestDTO(
+                    name: "\(todayString) 코디", // 현재 날짜 기반 이름
+                    memo: "", // nil 대신 빈 문자열 (필요시 DTO 구조에 따라 조정)
+                    dailyCoordinateId: dailyCodiId,
+                    lookBookId: entity.lookbookId
+                )
+                
+                // 3. 유스케이스 호출
+                let result = try await addToLookBookUseCase.createAutoDailyCoordinate(request: request)
+                
+                print("✅ [Lookbook] 룩북 추가 성공: CoordinateID \(result.coordinateId)")
+                
+                await MainActor.run {
+                    self.showLookBookSheet = false
+                    // 성공 피드백 알림 등을 여기에 추가할 수 있습니다.
+                }
+            } catch {
+                print("❌ [Lookbook] 룩북 추가 실패: \(error.localizedDescription)")
+            }
+        }
     }
 }
 

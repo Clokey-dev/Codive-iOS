@@ -39,6 +39,9 @@ protocol HomeDatasourceProtocol {
     
     /// 코디 수정
     func patchUpdateCoordinates(coordinateId: Int64, request: EditCoordinateRequestDTO) async throws
+    
+    /// 이전 일일 코디로 자동 생성
+    func createAutoDailyCoordinate(request: CreateAutoDailyCoordinateAPIRequestDTO) async throws -> CreateAutoDailyCoordinateAPIResponseDTO
 }
 
 final class HomeDatasource: HomeDatasourceProtocol {
@@ -217,6 +220,11 @@ final class HomeDatasource: HomeDatasourceProtocol {
         )
 
         return urlInfo.finalUrl
+    }
+    
+    /// 이전 일일 코디로 자동 생성
+    func createAutoDailyCoordinate(request: CreateAutoDailyCoordinateAPIRequestDTO) async throws -> CreateAutoDailyCoordinateAPIResponseDTO {
+        return try await apiService.createAutoDailyCoordinate(request: request)
     }
  
     private func uploadImageToS3(

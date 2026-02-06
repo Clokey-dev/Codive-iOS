@@ -37,6 +37,8 @@ protocol HomeAPIServiceProtocol {
     /// 코디 수정
     func patchUpdateCoordinates(coordinateId: Int64, request: EditCoordinateRequestDTO) async throws
     
+    func createAutoDailyCoordinate(request: CreateAutoDailyCoordinateAPIRequestDTO) async throws -> CreateAutoDailyCoordinateAPIResponseDTO
+    
     /// 이미지 url 생성
     func getPresignedUrls(for images: [Data]) async throws -> [PresignedUrlInfo]
 }
@@ -289,6 +291,34 @@ extension HomeAPIService {
             return
         case .undocumented(statusCode: let code, _):
             throw LookBookAPIError.serverError(statusCode: code, message: "코디 수정 실패")
+        }
+    }
+    
+    func createAutoDailyCoordinate(request: CreateAutoDailyCoordinateAPIRequestDTO) async throws -> CreateAutoDailyCoordinateAPIResponseDTO {
+        let requestBody = Components.Schemas.CoordinateAutoCreateRequest(
+            name: request.name,
+            memo: request.memo,
+            dailyCoordinateId: request.dailyCoordinateId,
+            lookBookId: request.lookBookId
+        )
+        let input = Operations.Coordinate_createCoordinateAuto.Input(body: .json(requestBody))
+        let response = try await client.Coordinate_createCoordinateAuto(input)
+        
+        switch response {
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+            let decoded = try jsonDecoder.decode(
+                Components.Schemas.BaseResponseCoordinateCreateResponse.self,
+                from: data
+            )
+            
+            guard let coordinateId = decoded.result?.coordinateId else {
+                throw LookBookAPIError.invalidResponse
+            }
+            return CreateAutoDailyCoordinateAPIResponseDTO(coordinateId: coordinateId)
+            
+        case .undocumented(statusCode: let code, _):
+            throw LookBookAPIError.serverError(statusCode: code, message: "이전 일일 코디 자동 생성 실패")
         }
     }
 }

@@ -26,4 +26,11 @@ final class AddToLookBookUseCase {
             direction: direction
         )
     }
+    
+    /// 이전 일일 코디로 자동 생성
+    func createAutoDailyCoordinate(
+        request: CreateAutoDailyCoordinateAPIRequestDTO
+    ) async throws -> AutoDailyCoordinateEntity {
+        try await repository.createAutoDailyCoordinate(request: request)
+    }
 }

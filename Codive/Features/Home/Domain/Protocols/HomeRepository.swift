@@ -48,6 +48,9 @@ protocol HomeRepository {
     /// 코디 수정
     func patchUpdateCoordinates(coordinateId: Int64, request: EditCoordinateRequestDTO) async throws
     
+    /// 이전 일일 코디로 자동 생성
+    func createAutoDailyCoordinate(request: CreateAutoDailyCoordinateAPIRequestDTO) async throws -> AutoDailyCoordinateEntity
+    
     func getToday() -> DateEntity
     
     // MARK: - 카테고리 수정 관련
