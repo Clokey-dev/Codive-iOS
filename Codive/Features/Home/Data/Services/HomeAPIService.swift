@@ -42,10 +42,10 @@ protocol HomeAPIServiceProtocol {
 }
 
 final class HomeAPIService: HomeAPIServiceProtocol {
-
+    
     private let client: Client
     private let jsonDecoder: JSONDecoder
-
+    
     init(tokenProvider: TokenProvider = KeychainTokenProvider()) {
         self.client = CodiveAPIProvider.createClient(
             middlewares: [CodiveAuthMiddleware(provider: tokenProvider)]
@@ -58,8 +58,8 @@ extension HomeAPIService {
     
     func fetchRecommendCategoryCloth(lastClothId: Int64?, size: Int32, categoryId: Int64, season: [Season]) async throws -> HomeCategoryResponseDTO {
         guard let firstSeason = season.first else {
-                throw HomeAPIError.invalidResponse
-            }
+            throw HomeAPIError.invalidResponse
+        }
         let seasonPayload = mapSeasonToQueryParam(firstSeason)
         
         let input = Operations.Cloth_recommendCategoryClothes.Input(
@@ -71,7 +71,7 @@ extension HomeAPIService {
         switch response {
         case .ok(let okResponse):
             let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-
+            
             let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseClothRecommendListResponse.self, from: data)
             
             let content: [HomeCategoryResponseItem] = decoded.result?.content?.map { item -> HomeCategoryResponseItem in
@@ -119,11 +119,11 @@ extension HomeAPIService {
         switch response {
         case .ok(let okResponse):
             let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-
+            
             let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseListCoordinateDetailsListResponse.self, from: data)
             
             let items = decoded.result ?? []
-
+            
             return items.map { item in
                 FetchTodayCoordinateDetailsResponseDTO(
                     coordinateClothId: item.coordinateClothId ?? 0,
@@ -181,10 +181,10 @@ extension HomeAPIService {
         let requestBody = Components.Schemas.TemperatureNotificationRequest(
             temperature: request.temperature
         )
-
+        
         let input = Operations.sendTemperatureNotification.Input(body: .json(requestBody))
         let response = try await client.sendTemperatureNotification(input)
-
+        
         switch response {
         case .ok:
             return
@@ -211,7 +211,7 @@ extension HomeAPIService {
         )
         let input = Operations.Coordinate_createDailyCoordinate.Input(body: .json(requestBody))
         let response = try await client.Coordinate_createDailyCoordinate(input)
-
+        
         switch response {
         case .ok(let okResponse):
             let data = try await Data(collecting: okResponse.body.any, upTo: .max)
@@ -219,12 +219,12 @@ extension HomeAPIService {
                 Components.Schemas.BaseResponseCoordinateCreateResponse.self,
                 from: data
             )
-
+            
             guard let coordinateId = decoded.result?.coordinateId else {
                 throw HomeAPIError.invalidResponse
             }
             return CreateTodayCoordinateResponseDTO(coordinateId: coordinateId)
-
+            
         case .undocumented(statusCode: let code, _):
             throw HomeAPIError.serverError(statusCode: code, message: "오늘의 코디 생성 실패")
         }
@@ -261,40 +261,7 @@ extension HomeAPIService {
         }
     }
     
-//    func patchUpdateCoordinates(coordinateId: Int64, request: EditCoordinateRequestDTO) async throws {
-//        let requestBody = Components.Schemas.CoordinateUpdateRequest(
-//            coordinateImageUrl: request.coordinateImageUrl,
-//            name: request.name,
-//            memo: request.memo,
-//            payloads: request.payloads?.map {
-//                Components.Schemas.CoordinateUpdateRequestPayload(
-//                    clothId: $0.clothId,
-//                    locationX: $0.locationX,
-//                    locationY: $0.locationY,
-//                    ratio: $0.ratio,
-//                    degree: $0.degree,
-//                    order: Int32($0.order)
-//                )
-//            }
-//        )
-//        
-//        let input = Operations.Coordinate_updateCoordinate.Input(
-//            path: .init(coordinateId: coordinateId),
-//            body: .json(requestBody)
-//        )
-//        let response = try await client.Coordinate_updateCoordinate(input)
-//        
-//        switch response {
-//        case .ok:
-//            return
-//        case .undocumented(statusCode: let code, _):
-//            throw LookBookAPIError.serverError(statusCode: code, message: "코디 수정 실패")
-//        }
-//    }
     func patchUpdateCoordinates(coordinateId: Int64, request: EditCoordinateRequestDTO) async throws {
-        print("--------------------------------------------------")
-        print("🚀 [API Request] PATCH Coordinate - ID: \(coordinateId)")
-        
         let requestBody = Components.Schemas.CoordinateUpdateRequest(
             coordinateImageUrl: request.coordinateImageUrl,
             name: request.name,
@@ -310,46 +277,24 @@ extension HomeAPIService {
                 )
             }
         )
-
+        
         let input = Operations.Coordinate_updateCoordinate.Input(
             path: .init(coordinateId: coordinateId),
             body: .json(requestBody)
         )
-        
         let response = try await client.Coordinate_updateCoordinate(input)
         
         switch response {
         case .ok:
-            print("✅ [API Success] 코디 수정 성공")
             return
-            
-        case .undocumented(statusCode: let code, let payload):
-            print("❌ [API Error] Status Code: \(code)")
-            
-            // HTTPBody에서 데이터를 추출하여 문자열로 변환하는 로직
-            var errorBody: String = "No body content"
-            if let body = payload.body {
-                do {
-                    // body를 Data로 변환한 뒤 String으로 변환
-                    let data = try await Data(collecting: body, upTo: 1024 * 1024) // 최대 1MB
-                    if let decodedString = String(data: data, encoding: .utf8) {
-                        errorBody = decodedString
-                    }
-                } catch {
-                    errorBody = "Failed to decode error body: \(error.localizedDescription)"
-                }
-            }
-            
-            print("⚠️ Server Error Message: \(errorBody)")
-            print("--------------------------------------------------")
-            
-            throw LookBookAPIError.serverError(statusCode: code, message: "코디 수정 실패: \(errorBody)")
+        case .undocumented(statusCode: let code, _):
+            throw LookBookAPIError.serverError(statusCode: code, message: "코디 수정 실패")
         }
     }
 }
 
 private extension HomeAPIService {
-
+    
     func mapSeasonToQueryParam(
         _ season: Season
     ) -> Operations.Cloth_recommendCategoryClothes.Input.Query.seasonPayload {
@@ -385,7 +330,7 @@ enum HomeAPIError: LocalizedError {
     case s3UploadFailed(statusCode: Int)
     case noClothIdsReturned
     case serverError(statusCode: Int, message: String)
-
+    
     var errorDescription: String? {
         switch self {
         case .presignedUrlMismatch:

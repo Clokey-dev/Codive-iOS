@@ -12,7 +12,7 @@ struct HomeNoCodiView: View {
     // MARK: - Properties
     @ObservedObject var viewModel: HomeViewModel
     @State private var draggingItem: CategoryEntity?
-
+    
     // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
@@ -27,15 +27,11 @@ struct HomeNoCodiView: View {
         }
         .onAppear {
             viewModel.onAppear()
-//            Task {
-//                await viewModel.loadRecommendCategoryClothList()
-//            }
             Task {
-                            // 이미 카테고리 아이템이 있다면(수정 모드 진입 등) 새로 로드하지 않음
-                            if viewModel.clothItemsByCategory.isEmpty {
-                                await viewModel.loadRecommendCategoryClothList()
-                            }
-                        }
+                if viewModel.clothItemsByCategory.isEmpty {
+                    await viewModel.loadRecommendCategoryClothList()
+                }
+            }
         }
     }
 }
@@ -68,41 +64,22 @@ private extension HomeNoCodiView {
         .padding(.bottom, 16)
     }
     
-//    var codiClothList: some View {
-//        ScrollView(.vertical, showsIndicators: false) {
-//            VStack(spacing: 16) {
-//                ForEach(viewModel.activeCategories) { category in
-//                    let clothItems = viewModel.clothItemsByCategory[category.id] ?? []
-//                    
-//                    CodiClothView(
-//                        title: category.title,
-//                        items: clothItems,
-//                        isEmptyState: clothItems.isEmpty
-//                    ) { newIndex in
-//                        viewModel.updateSelectedIndex(for: category.id, index: newIndex)
-//                    }
-//                    .id("\(category.id)_\(clothItems.count)")
-//                    .background(Color.white)
-//                    .cornerRadius(15)
     var codiClothList: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 16) {
                 ForEach(viewModel.activeCategories, id: \.id) { category in
-                    // 1. 필요한 데이터를 안전하게 추출 (타입 명시)
                     let items: [HomeClothEntity] = viewModel.clothItemsByCategory[category.id] ?? []
                     let selectedIdx: Int = viewModel.selectedIndicesByCategory[category.id] ?? 0
                     
-                    // 2. 뷰를 생성할 때 고유 ID는 category.id만 사용 (스크롤 안정성 핵심)
                     CodiClothView(
                         title: category.title,
                         items: items,
                         selectedIndex: selectedIdx,
-                        isEmptyState: items.isEmpty,
-                        onIndexChanged: { newIndex in
-                            viewModel.updateSelectedIndex(for: category.id, index: newIndex)
-                        }
-                    )
-                    .id(category.id) // 여기에 selectedIdx를 포함하면 스크롤 시 뷰가 튀게 됩니다.
+                        isEmptyState: items.isEmpty
+                    ) { newIndex in
+                        viewModel.updateSelectedIndex(for: category.id, index: newIndex)
+                    }
+                    .id(category.id)
                     .background(Color.white)
                     .cornerRadius(15)
                     .onDrag {
@@ -177,14 +154,14 @@ struct CategoryDropDelegate: DropDelegate {
             }
         }
     }
-
+    
     func performDrop(info: DropInfo) -> Bool {
         withAnimation(.easeInOut) {
             draggingItem = nil
         }
         return true
     }
-
+    
     func dropUpdated(info: DropInfo) -> DropProposal? {
         return DropProposal(operation: .move)
     }

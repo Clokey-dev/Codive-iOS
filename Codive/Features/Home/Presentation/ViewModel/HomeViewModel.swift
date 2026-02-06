@@ -296,7 +296,7 @@ extension HomeViewModel {
             }
             
             var restoredIndices: [Int: Int] = [:]
-
+            
             for item in codiItems {
                 if let category = activeCategories.first(where: { $0.title == item.parentCategory }) {
                     if let clothList = clothItemsByCategory[category.id],
@@ -438,33 +438,25 @@ extension HomeViewModel {
         self.showCompletePopUp = true
     }
     
-    /// 팝업에서 '기록하기' 버튼을 눌러 오늘 완성한 코디를 서버에 전송
-    // HomeViewModel.swift
-
     func handlePopupRecord() {
         Task {
             do {
                 guard let imageURL = self.capturedImageURL else { return }
                 
-                // 1. 페이로드 추출 및 좌표 정밀도 보정 (소수점 4자리)
                 let rawPayloads = boardPayloads.isEmpty ? createPayloadsFromCurrentList() : boardPayloads
                 
                 let finalPayloads = rawPayloads.map { p in
                     Payloads(
                         clothId: p.clothId,
-                        locationX: (p.locationX * 10000).rounded() / 10000,
-                        locationY: (p.locationY * 10000).rounded() / 10000,
-                        ratio: (p.ratio * 100).rounded() / 100,
-                        degree: (p.degree * 100).rounded() / 100,
+                        locationX: p.locationX,
+                        locationY: p.locationY,
+                        ratio: p.ratio,
+                        degree: p.degree * 100,
                         order: Int32(p.order)
                     )
                 }
                 
                 if isEditingExistingCodi, let coordinateId = todayCodiPreview?.coordinateId {
-                    print("🔄 [PATCH] 오늘의 코디 수정 요청 (ID: \(coordinateId))")
-                    
-                    // 오늘의 코디는 name, memo를 지원하지 않을 확률이 높으므로 nil로 설정
-                    // 만약 서버에서 필드 자체를 체크한다면, DTO에서 해당 필드들을 생략하고 보낼 필요가 있습니다.
                     let editRequest = EditCoordinateRequestDTO(
                         coordinateImageUrl: imageURL,
                         name: "\(todayString) 코디",
@@ -476,10 +468,7 @@ extension HomeViewModel {
                         coordinateId: coordinateId,
                         request: editRequest
                     )
-                    print("✅ 오늘의 코디 수정 성공")
-                    
                 } else {
-                    // 생성 모드 (기존과 동일)
                     let createRequest = CreateTodayCoordinateRequestDTO(
                         coordinateImageUrl: imageURL,
                         payloads: finalPayloads
@@ -491,26 +480,13 @@ extension HomeViewModel {
                 await MainActor.run {
                     self.completeProcess()
                 }
-                
             } catch {
-                print("\n❌ [최종 에러 보고]")
                 print("- 에러 타입: \(error)")
-                // 400 에러가 지속될 경우, 서버 명세서에서 PATCH의 payloads 필드명이 'Payload'인지 확인이 필요합니다.
             }
         }
     }
-
+    
     private func completeProcess() {
-        self.isEditingExistingCodi = false
-        self.showCompletePopUp = false
-        self.hasCodi = true
-        self.boardPayloads = []
-        self.capturedImageURL = nil
-        self.fetchTodayCodiData() // 수정 완료 후 최신 데이터 다시 불러오기
-    }
-
-    // 상태 초기화 로직 분리
-    private func resetUIStateAfterRecord() {
         self.isEditingExistingCodi = false
         self.showCompletePopUp = false
         self.hasCodi = true
@@ -519,11 +495,9 @@ extension HomeViewModel {
         self.fetchTodayCodiData()
     }
     
-    /// [Helper] 홈 화면의 현재 상태(순서/인덱스)를 기준으로 Payload 생성
     private func createPayloadsFromCurrentList() -> [Payloads] {
         let containerSize: CGFloat = 260
         
-        // activeCategories의 현재 순서대로 옷을 찾아 좌표 부여
         return activeCategories.enumerated().compactMap { index, category -> Payloads? in
             guard let clothList = clothItemsByCategory[category.id] else { return nil }
             let selectedIndex = selectedIndicesByCategory[category.id] ?? 0
@@ -531,7 +505,6 @@ extension HomeViewModel {
             
             guard let selectedCloth = cloth else { return nil }
             
-            // 리스트용 기본 좌표 계산
             let position = CodiLayoutCalculator.position(
                 index: index,
                 totalCount: activeCategories.count,
@@ -555,4 +528,3 @@ extension HomeViewModel {
         completedCodiImageURL = nil
     }
 }
-
