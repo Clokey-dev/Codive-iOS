@@ -20,7 +20,7 @@ extension HomeViewModel {
         Task {
             // 옷 리스트가 없으면 로드
             if clothItemsByCategory.isEmpty {
-                await loadRecommendCategoryClothList()
+                await loadRecommendCategoryClothList(seasons: self.currentSeasons)
             }
             
             var restoredIndices: [Int: Int] = [:]

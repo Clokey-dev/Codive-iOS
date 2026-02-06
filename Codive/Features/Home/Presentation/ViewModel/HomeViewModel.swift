@@ -61,6 +61,13 @@ final class HomeViewModel: ObservableObject {
         return totalItemCount == 0
     }
     
+    var currentSeasons: Set<Season> {
+        let temp = Int(weatherData?.currentTemp ?? 20)
+        if temp >= 30 { return [.summer] }
+        else if temp >= 10 { return [.spring, .fall] }
+        else { return [.winter] }
+    }
+    
     // MARK: - Initializer
     
     init(
@@ -92,12 +99,12 @@ extension HomeViewModel {
         loadToday()
         loadActiveCategories()
     }
-
+    
     func loadToday() {
         let entity = dateUseCase.getToday()
         self.todayString = entity.formattedDate
     }
-
+    
     func loadActiveCategories() {
         let allCategories = categoryUseCase.loadCategories()
         self.activeCategories = allCategories.filter { $0.itemCount > 0 }
@@ -109,6 +116,10 @@ extension HomeViewModel {
             self.weatherData = weather
             
             let temperature = weather.currentTemp
+            
+            let targetSeasons = determineSeasons(from: temperature)
+            await loadRecommendCategoryClothList(seasons: targetSeasons)
+            
             let request = PostTodayTemperatureAPIRequestDTO(
                 temperature: Double(temperature)
             )
@@ -118,10 +129,20 @@ extension HomeViewModel {
             print("Weather load or post failed:", error)
         }
     }
+    
+    internal func determineSeasons(from temperature: Int) -> Set<Season> {
+        if temperature >= 30 {
+            return [.summer]
+        } else if temperature >= 10 {
+            return [.spring, .fall]
+        } else {
+            return [.winter]
+        }
+    }
 }
 
 extension HomeViewModel {
-    func loadRecommendCategoryClothList() async {
+    func loadRecommendCategoryClothList(seasons: Set<Season>) async {
         self.activeCategories = []
         self.clothItemsByCategory = [:]
         
@@ -138,7 +159,7 @@ extension HomeViewModel {
                     lastClothId: nil,
                     size: 10,
                     categoryId: Int64(category.id),
-                    season: [.spring]
+                    season: seasons // 전달받은 seasons 사용
                 )
                 resultMap[category.id] = result.content
             } catch {
@@ -149,14 +170,14 @@ extension HomeViewModel {
         
         self.clothItemsByCategory = resultMap
     }
-
+    
     func moveCategory(from source: IndexSet, to destination: Int) {
         activeCategories.move(fromOffsets: source, toOffset: destination)
         
         // 순서 변경을 로컬에 저장하려면 categoryUseCase를 통해 저장
         // categoryUseCase.saveCategoryOrder(activeCategories)
     }
-
+    
     func updateSelectedIndex(for categoryId: Int, index: Int) {
         selectedIndicesByCategory[categoryId] = index
     }
@@ -353,12 +374,12 @@ extension HomeViewModel {
             )
         }
     }
-
+    
     func handlePopupClose() {
         showCompletePopUp = false
         completedCodiImageURL = nil
     }
-
+    
     private func captureCompletedCodiImage() -> UIImage {
         let view = CodiCompositeView(clothes: selectedCodiClothes)
             .frame(width: 260, height: 260)

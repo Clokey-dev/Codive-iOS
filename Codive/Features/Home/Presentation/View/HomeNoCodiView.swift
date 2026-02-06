@@ -29,7 +29,7 @@ struct HomeNoCodiView: View {
             viewModel.onAppear()
             Task {
                 if viewModel.clothItemsByCategory.isEmpty {
-                    await viewModel.loadRecommendCategoryClothList()
+                    await viewModel.loadRecommendCategoryClothList(seasons: viewModel.currentSeasons)
                 }
             }
         }
