@@ -157,10 +157,14 @@ struct OtherProfileView: View {
         } label: {
             Text(viewModel.isFollowing ? "팔로잉" : "팔로우")
                 .font(.codive_body2_medium)
-                .foregroundStyle(Color.white)
+                .foregroundStyle(viewModel.isFollowing ? Color.Codive.main0 : .white)
                 .frame(width: 76, height: 32)
-                .background(viewModel.isFollowing ? Color.Codive.main0 : Color.Codive.main4)
+                .background(viewModel.isFollowing ? .white : Color.Codive.main0)
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .stroke(viewModel.isFollowing ? Color.Codive.main0 : .clear, lineWidth: 1)
+                )
         }
         .buttonStyle(.plain)
     }
