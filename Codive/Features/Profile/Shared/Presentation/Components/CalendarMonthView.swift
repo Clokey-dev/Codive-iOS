@@ -105,7 +105,7 @@ struct CalendarMonthView: View {
             if item.isPlaceholder {
                 Color.clear
             } else {
-                let isSelected = isSameDay(item.date, selectedDate)
+                let isToday = isSameDay(item.date, Date())
                 let weekday = calendar.component(.weekday, from: item.date)
                 let isWeekend = (weekday == 1 || weekday == 7)
                 let dateString = formatDate(item.date)
@@ -132,9 +132,9 @@ struct CalendarMonthView: View {
                 if imageUrl == nil {
                     Text("\(item.dayNumber)")
                         .font(.codive_body2_regular)
-                        .foregroundStyle(isSelected ? Color.white : (isWeekend ? Color.Codive.grayscale3 : Color.Codive.grayscale1))
+                        .foregroundStyle(isToday ? Color.white : (isWeekend ? Color.Codive.grayscale3 : Color.Codive.grayscale1))
                         .background {
-                            if isSelected {
+                            if isToday {
                                 Circle()
                                     .fill(Color.Codive.point1)
                                     .frame(width: 20, height: 20)
@@ -147,6 +147,7 @@ struct CalendarMonthView: View {
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .contentShape(Rectangle())
         .onTapGesture {
+            // 모든 날짜 선택 가능
             if !item.isPlaceholder {
                 selectedDate = item.date
             }

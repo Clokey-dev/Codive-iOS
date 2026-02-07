@@ -22,10 +22,27 @@ final class OtherProfileViewModel: ObservableObject {
     @Published var errorMessage: String?
 
     // MARK: - Calendar State
-    @Published var month: Date = Date()
-    @Published var selectedDate: Date? = Date()
+    @Published var month: Date = Date() {
+        didSet {
+            Task {
+                await loadMonthlyHistories()
+            }
+        }
+    }
+    @Published var selectedDate: Date? = Date() {
+        didSet {
+            // 선택한 날짜의 기록이 있으면 FeedDetailView로 이동
+            if let selectedDate = selectedDate {
+                let dateString = formatDate(selectedDate)
+                if let historyId = monthlyHistoryIds[dateString] {
+                    navigationRouter.navigate(to: .feedDetail(feedId: Int(historyId)))
+                }
+            }
+        }
+    }
     @Published var isBlockMenuPresented: Bool = false
     @Published var monthlyHistories: [String: String] = [:] // "2026-01-21" -> imageUrl
+    @Published var monthlyHistoryIds: [String: Int] = [:] // "2026-01-21" -> historyId
 
     // MARK: - Dependencies
     private let memberId: Int
@@ -90,17 +107,26 @@ final class OtherProfileViewModel: ObservableObject {
             )
 
             var newHistories: [String: String] = [:]
+            var newHistoryIds: [String: Int] = [:]
             for item in items {
                 if newHistories[item.historyDate] == nil {
                     newHistories[item.historyDate] = item.firstImageUrl
+                    newHistoryIds[item.historyDate] = Int(item.historyId)
                 }
             }
 
             self.monthlyHistories = newHistories
+            self.monthlyHistoryIds = newHistoryIds
 
         } catch {
             print("❌ 월별 기록 조회 실패:", error)
         }
+    }
+
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: date)
     }
     
     // MARK: - Actions
