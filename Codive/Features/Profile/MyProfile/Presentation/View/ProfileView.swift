@@ -18,27 +18,53 @@ struct ProfileView: View {
     }
 
     var body: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(spacing: 0) {
-                topBar
+        ZStack {
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 0) {
+                    topBar
 
-                profileSection
-                    .padding(.top, 32)
+                    profileSection
+                        .padding(.top, 32)
 
-                Divider()
-                    .padding(.top, 24)
-                    .foregroundStyle(Color.Codive.grayscale7)
+                    Divider()
+                        .padding(.top, 24)
+                        .foregroundStyle(Color.Codive.grayscale7)
 
-                favoriteCodiSection
-                    .padding(.top, 24)
+                    favoriteCodiSection
+                        .padding(.top, 24)
 
-                calendarSection
-                    .padding(.top, 40)
+                    calendarSection
+                        .padding(.top, 40)
 
-                Spacer(minLength: 40)
+                    Spacer(minLength: 40)
+                }
+            }
+            .background(Color.white)
+
+            if viewModel.isEmptyHistoryModalPresented {
+                Color.black
+                    .opacity(0.3)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        viewModel.isEmptyHistoryModalPresented = false
+                        viewModel.selectedDate = nil
+                    }
+
+                EmptyHistoryModalView(
+                    selectedDate: viewModel.selectedDate,
+                    onClose: {
+                        viewModel.isEmptyHistoryModalPresented = false
+                        viewModel.selectedDate = nil
+                    },
+                    onAddRecord: {
+                        viewModel.isEmptyHistoryModalPresented = false
+                        viewModel.selectedDate = nil
+                        viewModel.onAddRecordTapped()
+                    }
+                )
+                .frame(maxHeight: .infinity, alignment: .center)
             }
         }
-        .background(Color.white)
         .navigationBarBackButtonHidden(!navigationRouter.path.isEmpty)
         .task {
             await viewModel.loadMyProfile()
