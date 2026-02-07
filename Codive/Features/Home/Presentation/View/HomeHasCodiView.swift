@@ -127,7 +127,13 @@ private extension HomeHasCodiView {
                         entity: item,
                         isSelected: .init(
                             get: { viewModel.selectedItemID == Int(item.coordinateClothId) },
-                            set: { _ in viewModel.selectItem(Int(item.coordinateClothId)) }
+                            set: { newValue in
+                                if newValue {
+                                    viewModel.selectItem(Int(item.coordinateClothId))
+                                } else {
+                                    viewModel.selectItem(nil)
+                                }
+                            }
                         )
                     )
                 }
