@@ -46,11 +46,8 @@ final class MyLookbookSectionViewModel: ObservableObject {
     }
     
     func navigateToAddLookbook() {
+        LookBookEventManager.shared.shouldShowAddDialog.send(true)
         navigationRouter.navigate(to: .lookbook)
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            LookBookEventManager.shared.shouldShowAddDialog.send(true)
-        }
     }
     
     func navigateToSpecificLookbook(lookBook: LookBookEntity) {
