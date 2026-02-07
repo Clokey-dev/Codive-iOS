@@ -63,9 +63,7 @@ final class HomeViewModel: ObservableObject {
     
     var currentSeasons: Set<Season> {
         let temp = Int(weatherData?.currentTemp ?? 20)
-        if temp >= 30 { return [.summer] }
-        else if temp >= 10 { return [.spring, .fall] }
-        else { return [.winter] }
+        if temp >= 18 { return [.summer] } else if temp >= 7 { return [.spring, .fall] } else { return [.winter] }
     }
     
     // MARK: - Initializer
