@@ -37,17 +37,29 @@ struct CompletePopUp: View {
                         switch phase {
                         case .empty:
                             ProgressView()
-                                .onAppear { print("⏳ [Popup] 이미지 로딩 시작: \(imageUrl)") }
+                                .onAppear {
+                                    #if DEBUG
+                                    print("⏳ [Popup] 이미지 로딩 시작: \(imageUrl)")
+                                    #endif
+                                }
                         case .success(let image):
                             image.resizable()
                                 .scaledToFill()
-                                .onAppear { print("✅ [Popup] 이미지 로드 성공") }
+                                .onAppear {
+                                    #if DEBUG
+                                    print("✅ [Popup] 이미지 로드 성공")
+                                    #endif
+                                }
                         case .failure(let error):
                             VStack {
                                 Image(systemName: "exclamationmark.triangle")
                                 Text("로드 실패")
                             }
-                            .onAppear { print("❌ [Popup] 이미지 로드 실패: \(error.localizedDescription)") }
+                            .onAppear {
+                                #if DEBUG
+                                print("❌ [Popup] 이미지 로드 실패: \(error.localizedDescription)")
+                                #endif
+                            }
                         @unknown default:
                             EmptyView()
                         }
@@ -59,7 +71,11 @@ struct CompletePopUp: View {
                     CodiCompositeView(clothes: selectedClothes)
                         .frame(width: 260, height: 260)
                         .padding(.vertical, 16)
-                        .onAppear { print("ℹ️ [Popup] 옷 리스트 합성 모드로 표시 중") }
+                        .onAppear {
+                            #if DEBUG
+                            print("ℹ️ [Popup] 옷 리스트 합성 모드로 표시 중")
+                            #endif
+                        }
                 }
             }
             
