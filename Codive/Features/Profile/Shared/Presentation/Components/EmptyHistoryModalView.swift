@@ -36,10 +36,10 @@ struct EmptyHistoryModalView: View {
                 .frame(height: 24)
 
             // 아이콘
-            Image("ic_edit")
+            Image("feed_orange")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 48, height: 48)
+                .frame(width: 30, height: 34)
                 .foregroundStyle(Color.Codive.main0)
                 .padding(.bottom, 20)
 
