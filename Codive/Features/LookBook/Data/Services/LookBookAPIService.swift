@@ -512,7 +512,10 @@ extension LookBookAPIService {
             isoFormatter.formatOptions = [.withInternetDateTime]
             if let date = isoFormatter.date(from: dateString) { return date }
             
-            return Date() // 파싱 실패 시 기본값
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Unsupported date format: \(dateString)"
+            )
         }
         return decoder
     }
