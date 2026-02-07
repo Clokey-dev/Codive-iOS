@@ -304,7 +304,7 @@ extension HomeViewModel {
                         locationX: p.locationX,
                         locationY: p.locationY,
                         ratio: p.ratio,
-                        degree: p.degree * 100,
+                        degree: p.degree,
                         order: Int32(p.order)
                     )
                 }
