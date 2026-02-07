@@ -11,6 +11,7 @@ import SwiftUI
 struct ProfileView: View {
     @ObservedObject private var navigationRouter: NavigationRouter
     @ObservedObject private var viewModel: ProfileViewModel
+    @EnvironmentObject private var mainTabViewModel: MainTabViewModel
 
     init(viewModel: ProfileViewModel, navigationRouter: NavigationRouter) {
         self._viewModel = ObservedObject(wrappedValue: viewModel)
@@ -18,57 +19,36 @@ struct ProfileView: View {
     }
 
     var body: some View {
-        ZStack {
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 0) {
-                    topBar
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 0) {
+                topBar
 
-                    profileSection
-                        .padding(.top, 32)
+                profileSection
+                    .padding(.top, 32)
 
-                    Divider()
-                        .padding(.top, 24)
-                        .foregroundStyle(Color.Codive.grayscale7)
+                Divider()
+                    .padding(.top, 24)
+                    .foregroundStyle(Color.Codive.grayscale7)
 
-                    favoriteCodiSection
-                        .padding(.top, 24)
+                favoriteCodiSection
+                    .padding(.top, 24)
 
-                    calendarSection
-                        .padding(.top, 40)
+                calendarSection
+                    .padding(.top, 40)
 
-                    Spacer(minLength: 40)
-                }
-            }
-            .background(Color.white)
-
-            if viewModel.isEmptyHistoryModalPresented {
-                Color.black
-                    .opacity(0.3)
-                    .ignoresSafeArea()
-                    .onTapGesture {
-                        viewModel.isEmptyHistoryModalPresented = false
-                        viewModel.selectedDate = nil
-                    }
-
-                EmptyHistoryModalView(
-                    selectedDate: viewModel.selectedDate,
-                    onClose: {
-                        viewModel.isEmptyHistoryModalPresented = false
-                        viewModel.selectedDate = nil
-                    },
-                    onAddRecord: {
-                        viewModel.isEmptyHistoryModalPresented = false
-                        viewModel.selectedDate = nil
-                        viewModel.onAddRecordTapped()
-                    }
-                )
-                .frame(height: 310, alignment: .center)
-                .padding(.horizontal, 55)
+                Spacer(minLength: 40)
             }
         }
+        .background(Color.white)
         .navigationBarBackButtonHidden(!navigationRouter.path.isEmpty)
         .task {
             await viewModel.loadMyProfile()
+
+            // 콜백 설정: 기록이 없는 날짜가 선택되면 모달 표시
+            viewModel.onEmptyHistoryDateSelected = { [weak mainTabViewModel] date in
+                mainTabViewModel?.emptyHistoryModalDate = date
+                mainTabViewModel?.isEmptyHistoryModalPresented = true
+            }
         }
     }
 

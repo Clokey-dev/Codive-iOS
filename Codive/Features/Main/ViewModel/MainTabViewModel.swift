@@ -11,9 +11,13 @@ import Foundation
 final class MainTabViewModel: ObservableObject {
     @Published var selectedTab: TabBarType = .home
     @Published var hasUnreadNotification: Bool = false
-    
+
+    // MARK: - Empty History Modal State
+    @Published var isEmptyHistoryModalPresented: Bool = false
+    @Published var emptyHistoryModalDate: Date?
+
     private let navigationRouter: NavigationRouter
-    
+
     private let notificationUsecase: TopNavigationNotificaionUsecase
     
     init(

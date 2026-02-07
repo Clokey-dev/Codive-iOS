@@ -141,10 +141,39 @@ struct MainTabView: View {
                     .zIndex(100)
                     .transition(.opacity)
             }
+
+            // MARK: - Empty History Modal Overlay
+            if viewModel.isEmptyHistoryModalPresented {
+                Color.black
+                    .opacity(0.3)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        viewModel.isEmptyHistoryModalPresented = false
+                        viewModel.emptyHistoryModalDate = nil
+                    }
+                    .zIndex(300)
+
+                EmptyHistoryModalView(
+                    selectedDate: viewModel.emptyHistoryModalDate,
+                    onClose: {
+                        viewModel.isEmptyHistoryModalPresented = false
+                        viewModel.emptyHistoryModalDate = nil
+                    },
+                    onAddRecord: {
+                        viewModel.isEmptyHistoryModalPresented = false
+                        viewModel.emptyHistoryModalDate = nil
+                        navigationRouter.navigate(to: .recordAdd)
+                    }
+                )
+                .frame(height: 310, alignment: .center)
+                .padding(.horizontal, 55)
+                .zIndex(301)
+            }
         }
         .onAppear {
             viewModel.loadNotificationExist()
         }
+        .environmentObject(viewModel)
     }
     
     // MARK: - Computed Properties

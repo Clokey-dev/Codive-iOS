@@ -29,18 +29,18 @@ class ProfileViewModel: ObservableObject {
     }
     @Published var selectedDate: Date? = Date() {
         didSet {
-            // 선택한 날짜의 기록이 있으면 FeedDetailView로 이동, 없으면 모달 표시
+            // 선택한 날짜의 기록이 있으면 FeedDetailView로 이동
             if let selectedDate = selectedDate {
                 let dateString = formatDate(selectedDate)
                 if let historyId = monthlyHistoryIds[dateString] {
                     navigationRouter.navigate(to: .feedDetail(feedId: Int(historyId)))
                 } else {
-                    isEmptyHistoryModalPresented = true
+                    // 기록이 없으면 콜백 호출
+                    onEmptyHistoryDateSelected?(selectedDate)
                 }
             }
         }
     }
-    @Published var isEmptyHistoryModalPresented: Bool = false
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     @Published var monthlyHistories: [String: String] = [:] // "2026-01-21" -> imageUrl
@@ -50,6 +50,9 @@ class ProfileViewModel: ObservableObject {
     private let navigationRouter: NavigationRouter
     private let fetchMyProfileUseCase: FetchMyProfileUseCase
     private let fetchMonthlyHistoryUseCase: FetchMonthlyHistoryUseCase
+
+    // MARK: - Callbacks
+    var onEmptyHistoryDateSelected: ((Date) -> Void)?
 
     // MARK: - Initializer
     init(
@@ -117,7 +120,7 @@ class ProfileViewModel: ObservableObject {
         }
     }
 
-    private func formatDate(_ date: Date) -> String {
+    func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         return formatter.string(from: date)
@@ -142,9 +145,5 @@ class ProfileViewModel: ObservableObject {
 
     func onMoreFavoriteCodiTapped() {
         navigationRouter.navigate(to: .favoriteCodiList(showHeart: true))
-    }
-
-    func onAddRecordTapped() {
-        navigationRouter.navigate(to: .recordAdd)
     }
 }
