@@ -80,7 +80,8 @@ final class ProfileAPIService: ProfileAPIServiceProtocol {
                 profileImageUrl: memberInfo.profileImageUrl,
                 followerCount: Int(memberInfo.followerCount ?? 0),
                 followingCount: Int(memberInfo.followingCount ?? 0),
-                email: memberInfo.email
+                email: memberInfo.email,
+                isPublic: memberInfo.isPublic ?? true
             )
 
         case .undocumented(statusCode: let code, _):

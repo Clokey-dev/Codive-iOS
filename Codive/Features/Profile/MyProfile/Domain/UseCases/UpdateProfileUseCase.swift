@@ -12,7 +12,8 @@ protocol UpdateProfileUseCase {
         nickname: String,
         bio: String,
         isPublic: Bool,
-        imageData: Data?
+        imageData: Data?,
+        currentImageUrl: String?
     ) async throws -> MyProfileInfo
 }
 
@@ -27,10 +28,11 @@ final class DefaultUpdateProfileUseCase: UpdateProfileUseCase {
         nickname: String,
         bio: String,
         isPublic: Bool,
-        imageData: Data?
+        imageData: Data?,
+        currentImageUrl: String?
     ) async throws -> MyProfileInfo {
         // 이미지가 있으면 먼저 업로드
-        var imageUrlToUpdate: String?
+        var imageUrlToUpdate: String? = currentImageUrl
         if let imageData = imageData {
             imageUrlToUpdate = try await repository.uploadProfileImage(imageData)
         }
