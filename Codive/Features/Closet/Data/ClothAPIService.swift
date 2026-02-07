@@ -304,8 +304,9 @@ extension ClothAPIService {
             let data = try await Data(collecting: okResponse.body.any, upTo: .max)
             let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseLookBookListResponse.self, from: data)
             
-            let content: [LookBookListResponseItem] = decoded.result?.content?.map { item -> LookBookListResponseItem in
-                return LookBookListResponseItem(lookBookId: item.lookBookId ?? 0, lookBookName: item.lookBookName ?? "", imageUrl: item.imageUrl ?? "", count: item.count ?? 0)
+            let content: [LookBookListResponseItem] = decoded.result?.content?.compactMap { item -> LookBookListResponseItem? in
+                guard let lookBookId = item.lookBookId else { return nil }
+                return LookBookListResponseItem(lookBookId: lookBookId, lookBookName: item.lookBookName ?? "", imageUrl: item.imageUrl ?? "", count: item.count ?? 0)
             } ?? []
             
             return LookBookListResponseDTO(content: content, isLast: decoded.result?.isLast ?? true)
