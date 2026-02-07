@@ -23,9 +23,15 @@ struct RecordDetailView: View {
     var body: some View {
         GeometryReader { geometry in
             VStack(spacing: 0) {
-                CustomNavigationBar(title: TextLiteral.Add.recordTitle) {
-                    viewModel.dismissView()
-                }
+                CustomNavigationBar(
+                    title: TextLiteral.Add.recordTitle,
+                    onBack: { viewModel.dismissView() },
+                    rightButton: .text(
+                        title: "완료",
+                        isEnabled: viewModel.isCompleteEnabled,
+                        action: { viewModel.completeRecord() }
+                    )
+                )
 
                 ScrollViewReader { scrollProxy in
                     ScrollView {
@@ -47,9 +53,6 @@ struct RecordDetailView: View {
                                         scrollProxy.scrollTo("captionSection", anchor: .bottom)
                                     }
                                 }
-
-                            bottomButton()
-                                .padding(.vertical, 20)
                         }
                     }
                 }
@@ -173,14 +176,4 @@ private extension RecordDetailView {
         .padding(.bottom, 40)
     }
     
-    @ViewBuilder
-    func bottomButton() -> some View {
-        CustomButton(text: TextLiteral.Add.recordDetailComplete, widthType: .fixed) {
-            viewModel.completeRecord()
-        }
-        .padding(.horizontal, 20)
-        .padding(.bottom, 20)
-        .opacity(viewModel.isCompleteEnabled ? 1.0 : 0.5)
-        .disabled(!viewModel.isCompleteEnabled)
-    }
 }

@@ -31,7 +31,11 @@ struct ProfileSettingView: View {
                 CustomNavigationBar(
                     title: "프로필 설정",
                     onBack: { navigationRouter.navigateBack() },
-                    rightButton: .none
+                    rightButton: .text(
+                        title: "완료",
+                        isEnabled: viewModel.canComplete && !viewModel.isLoading,
+                        action: { viewModel.onCompleteTapped() }
+                    )
                 )
 
                 if viewModel.isLoadingProfile {
@@ -75,16 +79,6 @@ struct ProfileSettingView: View {
                 }
             }
             .background(Color.white)
-
-            VStack {
-                Spacer()
-                completeButton
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 20)
-                    .background(Color.white)
-            }
-            .ignoresSafeArea(edges: .bottom)
-            .padding(.bottom, 10)
         }
         .navigationBarHidden(true)
         .onAppear {
@@ -259,15 +253,6 @@ struct ProfileSettingView: View {
         .buttonStyle(.plain)
     }
 
-    private var completeButton: some View {
-        CustomButton(
-            text: viewModel.isLoading ? "저장 중..." : "설정 완료",
-            widthType: .fixed,
-            isEnabled: viewModel.canComplete && !viewModel.isLoading
-        ) {
-            viewModel.onCompleteTapped()
-        }
-    }
 }
 
 #Preview {
