@@ -15,32 +15,32 @@ struct ProfileHeaderView: View {
     
     var body: some View {
         HStack(spacing: 8) {
-            AsyncImage(url: URL(string: profileImageUrl)) { phase in
-                switch phase {
-                case .success(let image):
-                    image
-                        .resizable()
-                        .scaledToFill()
-                case .failure, .empty:
-                    Image("Profile")
-                        .resizable()
-                        .scaledToFill()
-                @unknown default:
-                    EmptyView()
+            Button(action: onProfileTap) {
+                AsyncImage(url: URL(string: profileImageUrl)) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                    case .failure, .empty:
+                        Image("Profile")
+                            .resizable()
+                            .scaledToFill()
+                    @unknown default:
+                        EmptyView()
+                    }
                 }
+                .frame(width: 32, height: 32)
+                .clipShape(Circle())
             }
-            .frame(width: 32, height: 32)
-            .clipShape(Circle())
-            .onTapGesture {
-                onProfileTap()
-            }
+            .buttonStyle(.plain)
 
-            Text(nickname)
-                .font(.codive_body2_medium)
-                .foregroundStyle(Color.Codive.grayscale1)
-                .onTapGesture {
-                    onProfileTap()
-                }
+            Button(action: onProfileTap) {
+                Text(nickname)
+                    .font(.codive_body2_medium)
+                    .foregroundStyle(Color.Codive.grayscale1)
+            }
+            .buttonStyle(.plain)
 
             Spacer()
 

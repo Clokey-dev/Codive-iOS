@@ -24,6 +24,7 @@ struct HistoryDetailDTO {
     let memberId: Int64
     let profileImageUrl: String?
     let nickname: String?
+    let isMine: Bool
     let images: [HistoryImageDTO]
     let likeCount: Int64
     let commentCount: Int64
@@ -158,6 +159,7 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
                 memberId: result.memberId ?? 0,
                 profileImageUrl: result.profileImageUrl,
                 nickname: result.nickname,
+                isMine: result.isMine ?? false,
                 images: result.images?.compactMap { img in
                     guard let imageUrl = img.imageUrl else { return nil }
                     return HistoryImageDTO(

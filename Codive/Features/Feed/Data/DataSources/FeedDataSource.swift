@@ -145,7 +145,8 @@ extension HistoryDetailDTO {
         let author = User(
             id: String(memberId),
             nickname: nickname ?? "",
-            profileImageUrl: profileImageUrl
+            profileImageUrl: profileImageUrl,
+            isMe: isMine
         )
 
         let feedImages = images.map { img in

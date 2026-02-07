@@ -198,9 +198,13 @@ final class FeedDetailViewModel: ObservableObject {
             return
         }
 
+        print("🔍 Profile Navigation - userId: \(userId), isMine: \(isMine)")
+
         if isMine {
+            print("✓ Navigate to myProfile")
             navigationRouter.navigate(to: .myProfile)
         } else {
+            print("✓ Navigate to otherProfile(userId: \(memberId))")
             navigationRouter.navigate(to: .otherProfile(userId: memberId))
         }
     }
