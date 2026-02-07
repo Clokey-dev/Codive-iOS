@@ -289,7 +289,7 @@ extension ProfileAPIService {
             )
             
         case .undocumented(statusCode: let code, _):
-            throw LookBookAPIError.serverError(statusCode: code, message: "코디 preview 조회 실패")
+            throw ProfileAPIError.serverError(statusCode: code, message: "코디 preview 조회 실패")
         }
     }
     
@@ -330,7 +330,7 @@ extension ProfileAPIService {
             }
             
         case .undocumented(statusCode: let code, _):
-            throw LookBookAPIError.serverError(statusCode: code, message: "코디 detail 조회 실패")
+            throw ProfileAPIError.serverError(statusCode: code, message: "코디 detail 조회 실패")
         }
     }
 }
