@@ -50,7 +50,6 @@ struct MyLookbookSectionView: View {
             LazyVGrid(columns: columns, spacing: 20) {
                 if viewModel.lookBookList.count < 4 {
                     AddLookbookButton {
-                        print("룩북 만들기 클릭")
                         viewModel.navigateToAddLookbook()
                     }
                 }
