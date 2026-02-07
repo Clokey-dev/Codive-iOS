@@ -70,7 +70,6 @@ struct EmptyHistoryModalView: View {
         .frame(maxWidth: .infinity)
         .background(Color.white)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .padding(.horizontal, 20)
     }
 }
 

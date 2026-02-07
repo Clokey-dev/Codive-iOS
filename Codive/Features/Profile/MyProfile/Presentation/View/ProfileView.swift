@@ -62,7 +62,8 @@ struct ProfileView: View {
                         viewModel.onAddRecordTapped()
                     }
                 )
-                .frame(maxHeight: .infinity, alignment: .center)
+                .frame(height: 310, alignment: .center)
+                .padding(.horizontal, 55)
             }
         }
         .navigationBarBackButtonHidden(!navigationRouter.path.isEmpty)
