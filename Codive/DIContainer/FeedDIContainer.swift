@@ -44,6 +44,10 @@ final class FeedDIContainer {
         )
     }()
 
+    private lazy var historyRepository: HistoryRepository = {
+        return HistoryRepositoryImpl(historyAPIService: HistoryAPIService())
+    }()
+
     // MARK: - UseCases
 
     func makeCreateRecordUseCase() -> CreateRecordUseCase {
@@ -87,6 +91,7 @@ final class FeedDIContainer {
             fetchLikersUseCase: makeFetchFeedLikersUseCase(),
             toggleLikeUseCase: makeToggleLikeUseCase(),
             fetchClothTagsUseCase: makeFetchClothTagsUseCase(),
+            historyRepository: historyRepository,
             navigationRouter: navigationRouter
         )
     }
@@ -114,12 +119,14 @@ extension FeedDIContainer {
         let likersUseCase = DefaultFetchFeedLikersUseCase(feedRepository: repository)
         let toggleLikeUseCase = DefaultToggleLikeUseCase(feedRepository: repository)
         let clothTagsUseCase = DefaultFetchClothTagsUseCase(feedRepository: repository)
+        let mockHistoryRepository = HistoryRepositoryImpl()
         return FeedDetailViewModel(
             feedId: feedId,
             fetchFeedDetailUseCase: detailUseCase,
             fetchLikersUseCase: likersUseCase,
             toggleLikeUseCase: toggleLikeUseCase,
             fetchClothTagsUseCase: clothTagsUseCase,
+            historyRepository: mockHistoryRepository,
             navigationRouter: navigationRouter
         )
     }

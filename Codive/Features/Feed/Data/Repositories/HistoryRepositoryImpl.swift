@@ -31,4 +31,8 @@ final class HistoryRepositoryImpl: HistoryRepository {
             )
         }
     }
+
+    func deleteHistory(historyId: Int64) async throws {
+        try await historyAPIService.deleteHistory(historyId: historyId)
+    }
 }

@@ -9,4 +9,5 @@ import Foundation
 
 protocol HistoryRepository {
     func fetchMonthlyHistory(memberId: Int64, year: Int32, month: Int32) async throws -> [MonthlyHistoryItem]
+    func deleteHistory(historyId: Int64) async throws
 }

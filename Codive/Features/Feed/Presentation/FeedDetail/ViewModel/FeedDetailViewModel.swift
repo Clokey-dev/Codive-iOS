@@ -25,6 +25,7 @@ final class FeedDetailViewModel: ObservableObject {
     @Published var isLikesSheetPresented: Bool = false // 좋아요 목록 시트 표시 여부
 
     @Published var isMoreMenuPresented: Bool = false // 더보기 메뉴 표시 여부
+    @Published var showDeleteAlert: Bool = false // 삭제 확인 Alert
 
     // MARK: - Private Properties
 
@@ -33,6 +34,7 @@ final class FeedDetailViewModel: ObservableObject {
     private let fetchLikersUseCase: FetchFeedLikersUseCase
     private let toggleLikeUseCase: ToggleLikeUseCase
     private let fetchClothTagsUseCase: FetchClothTagsUseCase
+    private let historyRepository: HistoryRepository
     private let navigationRouter: NavigationRouter
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -48,6 +50,7 @@ final class FeedDetailViewModel: ObservableObject {
         fetchLikersUseCase: FetchFeedLikersUseCase,
         toggleLikeUseCase: ToggleLikeUseCase,
         fetchClothTagsUseCase: FetchClothTagsUseCase,
+        historyRepository: HistoryRepository,
         navigationRouter: NavigationRouter
     ) {
         self.feedId = feedId
@@ -55,6 +58,7 @@ final class FeedDetailViewModel: ObservableObject {
         self.fetchLikersUseCase = fetchLikersUseCase
         self.toggleLikeUseCase = toggleLikeUseCase
         self.fetchClothTagsUseCase = fetchClothTagsUseCase
+        self.historyRepository = historyRepository
         self.navigationRouter = navigationRouter
     }
 
@@ -229,8 +233,32 @@ final class FeedDetailViewModel: ObservableObject {
 
     func onDeleteTapped() {
         dismissMoreMenu()
-        // TODO: 삭제 기능 구현
-        print("삭제하기 탭됨")
+        // 메뉴 닫히는 애니메이션 후 Alert 띄우기
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.showDeleteAlert = true
+        }
+    }
+
+    func confirmDelete() {
+        guard let feed = feed else {
+            print("❌ Feed is nil")
+            return
+        }
+
+        Task {
+            do {
+                print("🗑️ Deleting history with ID: \(feed.id)")
+                isLoading = true
+                try await historyRepository.deleteHistory(historyId: Int64(feed.id))
+                print("✅ Delete API success")
+                isLoading = false
+                navigationRouter.navigateBack()
+            } catch {
+                print("❌ Delete API error: \(error.localizedDescription)")
+                isLoading = false
+                errorMessage = "삭제에 실패했습니다. (\(error.localizedDescription))"
+            }
+        }
     }
 
     func onReportTapped() {

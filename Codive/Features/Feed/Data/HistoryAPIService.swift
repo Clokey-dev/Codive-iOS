@@ -16,6 +16,7 @@ protocol HistoryAPIServiceProtocol {
     func fetchHistoryDetail(historyId: Int64) async throws -> HistoryDetailDTO
     func fetchClothTags(historyImageId: Int64) async throws -> [ClothTagDTO]
     func fetchMonthlyHistory(memberId: Int64, year: Int32, month: Int32) async throws -> [MonthlyHistoryItemDTO]
+    func deleteHistory(historyId: Int64) async throws
 }
 
 // MARK: - History Detail DTO
@@ -258,6 +259,24 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
                     historyDate: payload.historyDate
                 )
             }
+
+        case .undocumented(statusCode: let code, _):
+            throw HistoryAPIError.serverError(statusCode: code)
+        }
+    }
+
+    // MARK: - Delete History
+
+    func deleteHistory(historyId: Int64) async throws {
+        let input = Operations.History_deleteHistory.Input(
+            path: .init(historyId: historyId)
+        )
+
+        let response = try await client.History_deleteHistory(input)
+
+        switch response {
+        case .ok:
+            return
 
         case .undocumented(statusCode: let code, _):
             throw HistoryAPIError.serverError(statusCode: code)

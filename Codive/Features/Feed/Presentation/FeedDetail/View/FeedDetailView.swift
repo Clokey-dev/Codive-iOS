@@ -199,6 +199,14 @@ struct FeedDetailView: View {
                     .presentationDetents([.fraction(0.7), .large])
             }
         }
+        .alert("기록 삭제", isPresented: $viewModel.showDeleteAlert) {
+            Button("취소", role: .cancel) { }
+            Button("삭제", role: .destructive) {
+                viewModel.confirmDelete()
+            }
+        } message: {
+            Text("이 기록을 삭제하시겠습니까?\n삭제된 기록은 복구할 수 없습니다.")
+        }
     }
 
     // MARK: - Helper Methods
