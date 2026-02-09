@@ -49,6 +49,7 @@ struct FeedItemDTO {
     let feedId: Int64
     let imageUrl: String?
     let isLiked: Bool?
+    let isMine: Bool?
     let createdAt: Date?
     let author: FeedAuthorDTO
 }
@@ -129,6 +130,7 @@ extension FeedAPIService {
                     feedId: item.feedId ?? 0,
                     imageUrl: item.imageUrl,
                     isLiked: item.isLiked,
+                    isMine: item.isMine,
                     createdAt: item.createdAt,
                     author: FeedAuthorDTO(
                         memberId: item.author?.memberId ?? 0,
