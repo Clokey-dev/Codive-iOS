@@ -101,11 +101,7 @@ extension LookBookAPIService {
         direction: Operations.Coordinate_getDailyCoordinates.Input.Query.directionPayload
     ) async throws -> PastDailyCoordinateResponseDTO {
         let input = Operations.Coordinate_getDailyCoordinates.Input(
-            query: .init(
-                lastCoordinateId: lastCoordinateId,
-                size: size,
-                direction: direction
-            )
+            query: .init(lastCoordinateId: lastCoordinateId, size: size, direction: direction)
         )
         
         let response = try await client.Coordinate_getDailyCoordinates(input)
@@ -114,18 +110,25 @@ extension LookBookAPIService {
         case .ok(let okResponse):
             let data = try await Data(collecting: okResponse.body.any, upTo: .max)
             
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseDailyCoordinateListResponse.self, from: data)
-            
-            let content: [PastDailyCoordinateListResponseItem] =
-            decoded.result?.content?.map { item -> PastDailyCoordinateListResponseItem in
-                return PastDailyCoordinateListResponseItem(
-                    coordinateId: item.coordinateId ?? 0,
-                    imageUrl: item.imageUrl ?? "",
-                    date: formatDate(item.date)
+            do {
+                // 헬퍼 메서드를 사용하여 디코딩
+                let decoded = try makeCustomDecoder().decode(
+                    Components.Schemas.BaseResponseSliceResponseDailyCoordinateListResponse.self,
+                    from: data
                 )
-            } ?? []
-            
-            return PastDailyCoordinateResponseDTO(content: content, isLast: decoded.result?.isLast ?? true)
+                
+                let content: [PastDailyCoordinateListResponseItem] = decoded.result?.content?.map { item in
+                    return PastDailyCoordinateListResponseItem(
+                        coordinateId: item.coordinateId ?? 0,
+                        imageUrl: item.imageUrl ?? "",
+                        date: dateToSimpleString(item.date) // 헬퍼 메서드 사용
+                    )
+                } ?? []
+                
+                return PastDailyCoordinateResponseDTO(content: content, isLast: decoded.result?.isLast ?? true)
+            } catch {
+                throw LookBookAPIError.invalidResponse
+            }
             
         case .undocumented(statusCode: let code, _):
             throw LookBookAPIError.serverError(statusCode: code, message: "과거 일일 코디 조회 실패")
@@ -201,34 +204,6 @@ extension LookBookAPIService {
             
         case .undocumented(statusCode: let code, _):
             throw LookBookAPIError.serverError(statusCode: code, message: "코디 detail 조회 실패")
-        }
-    }
-    
-    func fetchTodayCoordinateClothes() async throws -> [GetTodayCoordinateClothResponseDTO] {
-        let input = Operations.Coordinate_getTodayDailyCoordinateClothes.Input()
-        
-        let response = try await client.Coordinate_getTodayDailyCoordinateClothes(input)
-        
-        switch response {
-        case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseListDailyCoordinateClothResponse.self, from: data)
-            
-            let items = decoded.result ?? []
-            
-            return items.map { item in
-                GetTodayCoordinateClothResponseDTO(
-                    imageUrl: item.imageUrl ?? "",
-                    brand: item.brand ?? "",
-                    name: item.name ?? "",
-                    category: item.category ?? "",
-                    parentCategory: item.parentCategory ?? ""
-                )
-            }
-            
-        case .undocumented(statusCode: let code, _):
-            throw LookBookAPIError.serverError(statusCode: code, message: "오늘의 코디 옷 정보 조회 실패")
         }
     }
     
@@ -415,7 +390,7 @@ extension LookBookAPIService {
             name: request.name,
             memo: request.memo,
             payloads: request.payloads?.map {
-                Components.Schemas.CoordinateUpdateRequestPayload (
+                Components.Schemas.CoordinateUpdateRequestPayload(
                     clothId: $0.clothId,
                     locationX: $0.locationX,
                     locationY: $0.locationY,
@@ -516,6 +491,41 @@ extension LookBookAPIService {
         }
         components.query = nil
         return components.string ?? presignedUrl
+    }
+    
+    /// 다양한 날짜 형식을 처리할 수 있는 디코더를 생성합니다.
+    private func makeCustomDecoder() -> JSONDecoder {
+        let decoder = JSONDecoder()
+        let simpleFormatter = DateFormatter()
+        simpleFormatter.dateFormat = "yyyy-MM-dd"
+        
+        let isoFormatter = ISO8601DateFormatter()
+        isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        
+        decoder.dateDecodingStrategy = .custom { decoder in
+            let container = try decoder.singleValueContainer()
+            let dateString = try container.decode(String.self)
+            
+            if let date = simpleFormatter.date(from: dateString) { return date }
+            if let date = isoFormatter.date(from: dateString) { return date }
+            
+            isoFormatter.formatOptions = [.withInternetDateTime]
+            if let date = isoFormatter.date(from: dateString) { return date }
+            
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Unsupported date format: \(dateString)"
+            )
+        }
+        return decoder
+    }
+    
+    /// Date 객체를 다시 "yyyy-MM-dd" 문자열로 변환합니다.
+    private func dateToSimpleString(_ date: Date?) -> String {
+        guard let date = date else { return "" }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: date)
     }
 }
 

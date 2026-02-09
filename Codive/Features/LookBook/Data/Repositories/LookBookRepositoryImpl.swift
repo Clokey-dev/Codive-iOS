@@ -90,12 +90,6 @@ final class LookBookRepositoryImpl: LookBookRepository {
         return dtoList.map { $0.toEntity() }
     }
     
-    /// 오늘의 코디 옷 정보 조회
-    func fetchTodayCoordinateClothes() async throws -> [TodayCoordinateClothEntity] {
-        let dtoList = try await datasource.fetchTodayCoordinateClothes()
-        return dtoList.map { $0.toEntity() }
-    }
-    
     /// 옷 리스트 조회
     func fetchClothItems(category: String?) async throws -> [ProductItem] {
         return try await datasource.fetchClothItems(category: category)

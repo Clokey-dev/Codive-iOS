@@ -13,19 +13,21 @@ struct SelectableClothItem: View {
     
     var body: some View {
         ZStack {
-            Image(entity.imageName)
-                .resizable()
-                .scaledToFill()
-                .frame(width: 68, height: 68)
-                .clipped()
+            AsyncImage(url: URL(string: entity.imageUrl)) { phase in
+                if let image = phase.image {
+                    image.resizable().scaledToFill()
+                } else {
+                    Color.gray.opacity(0.2)
+                }
+            }
+            .frame(width: 68, height: 68)
+            .clipped()
+            .cornerRadius(8)
         }
         .frame(width: 72, height: 72)
-        .background(alignment: .center) {
-            Color.white
-        }
-        .overlay(alignment: .center) {
+        .overlay {
             RoundedRectangle(cornerRadius: 8)
-                .stroke(isSelected ? .black : .gray, lineWidth: 1)
+                .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2)
         }
         .onTapGesture {
             isSelected.toggle()

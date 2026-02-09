@@ -31,12 +31,7 @@ final class CodiUseCase {
     ) async throws -> [CoordinateDetailEntity] {
         try await repository.fetchCoordinateDetail(coordinateId: coordinateId)
     }
-    
-    /// 오늘의 코디 옷 정보 조회
-    func fetchTodayCoordinateClothes() async throws -> [TodayCoordinateClothEntity] {
-        try await repository.fetchTodayCoordinateClothes()
-    }
-    
+
     /// 코디 수동 생성
     func createManualCoordinate(
         request: CreateManualCoordinateAPIRequestDTO

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 @MainActor
 final class LookBookViewModel: ObservableObject {
@@ -14,6 +15,8 @@ final class LookBookViewModel: ObservableObject {
     
     let navigationRouter: NavigationRouter
     private let listUseCase: LookBookMainUseCase
+    
+    private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Published State (Data)
     
@@ -40,6 +43,21 @@ final class LookBookViewModel: ObservableObject {
     ) {
         self.navigationRouter = navigationRouter
         self.listUseCase = listUseCase
+        
+        setupBindings()
+    }
+    
+    private func setupBindings() {
+        LookBookEventManager.shared.shouldShowAddDialog
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] shouldShow in
+                if shouldShow {
+                    self?.isShowingAddDialog = true
+                    // ⚠️ 한 번 띄웠으면 다시 초기화해주어야 다음 진입 시 중복으로 뜨지 않습니다.
+                    LookBookEventManager.shared.shouldShowAddDialog.send(false)
+                }
+            }
+            .store(in: &cancellables)
     }
     
     // MARK: - 룩북 전체 조회
@@ -191,5 +209,14 @@ final class LookBookViewModel: ObservableObject {
                 name: lookBook.lookbookName
             )
         )
+    }
+}
+
+extension UIImage {
+    func toBase64String() -> String? {
+        guard let data = self.jpegData(compressionQuality: 0.9) else {
+            return nil
+        }
+        return data.base64EncodedString()
     }
 }

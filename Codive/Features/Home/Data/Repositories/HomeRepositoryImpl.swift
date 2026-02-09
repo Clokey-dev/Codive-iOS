@@ -58,9 +58,12 @@ final class HomeRepositoryImpl: HomeRepository {
     }
     
     /// 오늘의 코디 옷 정보 조회
-    func fetchTodayCoordinateClothes() async throws -> [TodayCoordinateClothEntity] {
-        let dtos = try await dataSource.fetchTodayCoordinateClothes()
-        return dtos.map { $0.toEntity() }
+    func fetchTodayCoordinatePreview() async throws -> FetchTodayCoordinatePreviewResponseDTO {
+        return try await dataSource.fetchTodayCoordinatePreview()
+    }
+    
+    func fetchTodayCoordinateDetails() async throws -> [FetchTodayCoordinateDetailsResponseDTO] {
+        return try await dataSource.fetchTodayCoordinateDetails()
     }
     
     // 룩북 조회
@@ -80,28 +83,28 @@ final class HomeRepositoryImpl: HomeRepository {
             isLast: dto.isLast
         )
     }
+    
+    /// 코디 수정
+    func patchUpdateCoordinates(coordinateId: Int64, request: EditCoordinateRequestDTO) async throws {
+        try await dataSource.patchUpdateCoordinates(coordinateId: coordinateId, request: request)
+    }
+    
+    /// 이전 일일 코디로 자동 생성
+    func createAutoDailyCoordinate(
+        request: CreateAutoDailyCoordinateAPIRequestDTO
+    ) async throws -> AutoDailyCoordinateEntity {
+        let dto = try await dataSource.createAutoDailyCoordinate(request: request)
+        return dto.toEntity()
+    }
+    
+    /// 이미지 업로드
+    func uploadCodiImage(jpgData: Data) async throws -> String {
+        return try await dataSource.uploadCodiImage(jpgData: jpgData)
+    }
 }
 
 extension HomeRepositoryImpl {
-    func createTodayDailyCodi(_ codi: TodayDailyCodi) async throws {
-        try await dataSource.createTodayDailyCodi(codi)
-    }
-    
-    // MARK: - 코디보드
-    
-    func fetchInitialImages() -> [DraggableImageEntity] {
-        dataSource.loadInitialImages()
-    }
-    
-    func saveCodiCoordinate(_ request: CodiCoordinateRequestDTO) async throws {
-        try await dataSource.saveCodiCoordinate(request)
-    }
-    
     // MARK: - 코디가 있는 경우의 Home 관련
-    
-    func fetchCodiItems() -> [CodiItemEntity] {
-        dataSource.loadDummyCodiItems()
-    }
     
     func getToday() -> DateEntity {
         dataSource.fetchToday()

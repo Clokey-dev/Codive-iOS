@@ -57,13 +57,18 @@ final class ProfileDIContainer {
     func makeFetchMonthlyHistoryUseCase() -> FetchMonthlyHistoryUseCase {
         return FetchMonthlyHistoryUseCase(historyRepository: historyRepository)
     }
+    
+    func makeFetchMyFavoriteLookBookUseCase() -> FetchMyFavoriteLookBookUseCase {
+        return FetchMyFavoriteLookBookUseCase(repository: profileRepository)
+    }
 
     // MARK: - ViewModels
     private lazy var profileViewModel: ProfileViewModel = {
         return ProfileViewModel(
             navigationRouter: navigationRouter,
             fetchMyProfileUseCase: makeFetchMyProfileUseCase(),
-            fetchMonthlyHistoryUseCase: makeFetchMonthlyHistoryUseCase()
+            fetchMonthlyHistoryUseCase: makeFetchMonthlyHistoryUseCase(),
+            fetchMyFavoriteLookBookUseCase: makeFetchMyFavoriteLookBookUseCase()
         )
     }()
 
@@ -90,6 +95,13 @@ final class ProfileDIContainer {
     func makeOtherProfileViewModel() -> OtherProfileViewModel {
         return OtherProfileViewModel(navigationRouter: navigationRouter)
     }
+    
+    func makeFavoriteCodiViewModel() -> FavoriteCodiViewModel {
+        return FavoriteCodiViewModel(
+            navigationRouter: navigationRouter,
+            fetchMyFavoriteLookBookUseCase: makeFetchMyFavoriteLookBookUseCase()
+        )
+    }
 
     // MARK: - Views
     func makeProfileView() -> ProfileView {
@@ -106,6 +118,14 @@ final class ProfileDIContainer {
     func makeProfileSettingView() -> ProfileSettingView {
         return ProfileSettingView(
             viewModel: makeProfileSettingViewModel(),
+            navigationRouter: navigationRouter
+        )
+    }
+    
+    func makeFavoriteCodiView(showHeart: Bool) -> FavoriteCodiView {
+        return FavoriteCodiView(
+            showHeart: showHeart,
+            viewModel: makeFavoriteCodiViewModel(),
             navigationRouter: navigationRouter
         )
     }

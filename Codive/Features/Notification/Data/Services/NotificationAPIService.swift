@@ -25,10 +25,10 @@ protocol NotificationAPIServiceProtocol {
 }
 
 final class NotificationAPIService: NotificationAPIServiceProtocol {
-
+    
     private let client: Client
     private let jsonDecoder: JSONDecoder
-
+    
     init(tokenProvider: TokenProvider = KeychainTokenProvider()) {
         self.client = CodiveAPIProvider.createClient(
             middlewares: [CodiveAuthMiddleware(provider: tokenProvider)]
@@ -41,7 +41,7 @@ extension NotificationAPIService {
     func patchEachNotification(notificationId: Int64) async throws {
         let input = Operations.updateReadStatus.Input(path: .init(notificationId: notificationId))
         let response = try await client.updateReadStatus(input)
-
+        
         switch response {
         case .ok:
             return
@@ -64,18 +64,11 @@ extension NotificationAPIService {
 }
 
 extension NotificationAPIService {
-    private func formatDate(_ date: Date?) -> String {
-        guard let date else { return "" }
+    func fetchNotificationList(
+        lastNotificationId: Int64?,
+        size: Int32
+    ) async throws -> NotificationListResponseDTO {
         
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [
-            .withInternetDateTime,
-            .withFractionalSeconds
-        ]
-        return formatter.string(from: date)
-    }
-    
-    func fetchNotificationList(lastNotificationId: Int64?, size: Int32) async throws -> NotificationListResponseDTO {
         let input = Operations.Notification_getNotificationList.Input(
             query: .init(
                 lastNotificationId: lastNotificationId,
@@ -87,26 +80,32 @@ extension NotificationAPIService {
         
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+            let data = try await Data(
+                collecting: okResponse.body.any,
+                upTo: .max
+            )
             
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseNotificationListResponse.self, from: data)
+            let decoded = try jsonDecoder.decode(
+                Components.Schemas.BaseResponseSliceResponseNotificationListResponse.self,
+                from: data
+            )
             
-            let content: [NotificationListResponseItem] = decoded.result?.content?.map { item -> NotificationListResponseItem in
-                return NotificationListResponseItem(
-                    notificationId: item.notificationId ?? 0,
-                    notificationImageUrl: item.notificationImageUrl ?? "",
-                    notificationContent: item.notificationContent ?? "",
-                    redirectInfo: item.redirectInfo ?? "",
-                    redirectType: item.redirectType?.rawValue ?? "",
-                    readStatus: item.readStatus?.rawValue ?? "",
-                    createdAt: formatDate(item.createdAt)
-                )
-            } ?? []
+            guard let result = decoded.result else {
+                throw NotificationAPIError.invalidResponse
+            }
             
-            return NotificationListResponseDTO(content: content, isLast: decoded.result?.isLast ?? true)
+            let content = mapNotificationItems(result.content)
+            
+            return NotificationListResponseDTO(
+                content: content,
+                isLast: result.isLast ?? true
+            )
             
         case .undocumented(statusCode: let code, _):
-            throw NotificationAPIError.serverError(statusCode: code, message: "개별 룩북 코디 목록 조회 실패")
+            throw NotificationAPIError.serverError(
+                statusCode: code,
+                message: "알림 목록 조회 실패"
+            )
         }
     }
     
@@ -124,7 +123,7 @@ extension NotificationAPIService {
             guard let item = decoded.result else {
                 throw NotificationAPIError.invalidResponse
             }
-
+            
             return ReportReceivedAPIResponseDTO(
                 isReported: item.isReported ?? false,
                 targetType: item.targetType.flatMap { ReportType(rawValue: $0.rawValue) }
@@ -137,7 +136,6 @@ extension NotificationAPIService {
 }
 
 extension NotificationAPIService {
-    
     func fetchNotificationExist() async throws -> NotificationExistAPIResponseDTO {
         
         let input = Operations.Notification_existsUnreadNotification.Input()
@@ -163,6 +161,50 @@ extension NotificationAPIService {
     }
 }
 
+
+extension NotificationAPIService {
+    private func mapNotificationItems(
+        _ items: [Components.Schemas.NotificationListResponse]?
+    ) -> [NotificationListResponseItem] {
+        items?.map { item in
+            let notificationType = NotificationType(
+                rawValue: item.notificationType?.rawValue ?? ""
+            ) ?? .unknown
+            
+            let readStatus = ReadStatus(
+                rawValue: item.readStatus?.rawValue ?? ""
+            ) ?? .notRead
+            
+            let redirectType = NotificationRedirectType(
+                rawValue: item.action?.redirectType?.rawValue ?? ""
+            ) ?? .none
+            
+            return NotificationListResponseItem(
+                notificationId: item.notificationId ?? 0,
+                notificationImageUrl: item.notificationImageUrl ?? "",
+                notificationContent: item.notificationContent ?? "",
+                notificationType: notificationType,
+                action: NotificationActionDTO(
+                    redirectType: redirectType,
+                    redirectInfo: item.action?.redirectInfo ?? ""
+                ),
+                readStatus: readStatus,
+                createdAt: formatDate(item.createdAt)
+            )
+        } ?? []
+    }
+    
+    private func formatDate(_ date: Date?) -> String {
+        guard let date else { return "" }
+        
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [
+            .withInternetDateTime,
+            .withFractionalSeconds
+        ]
+        return formatter.string(from: date)
+    }
+}
 // MARK: - ClothAPIError
 
 enum NotificationAPIError: LocalizedError {
@@ -172,7 +214,7 @@ enum NotificationAPIError: LocalizedError {
     case s3UploadFailed(statusCode: Int)
     case noClothIdsReturned
     case serverError(statusCode: Int, message: String)
-
+    
     var errorDescription: String? {
         switch self {
         case .presignedUrlMismatch:

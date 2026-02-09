@@ -21,7 +21,7 @@ enum MenuType {
             return [
                 .init(icon: .system(name: "pencil"), text: "코디 수정"),
                 .init(icon: .system(name: "plus"), text: "룩북에 추가"),
-                .init(icon: .asset(name: "ic_share"), text: "코디 공유")
+                .init(icon: .asset(name: "ic_share"), text: "코디 저장")
             ]
         case .lookbook:
             return [

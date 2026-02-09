@@ -13,8 +13,8 @@ final class NotificationViewModel: ObservableObject {
     private let navigationRouter: NavigationRouter
     private let useCase: NotificationUseCase
     
-    @Published var unreadNotifications: [NotificationEntity] = []
-    @Published var readNotifications: [NotificationEntity] = []
+    @Published var unreadNotifications: [NotificationListResponseItem] = []
+    @Published var readNotifications: [NotificationListResponseItem] = []
     
     @Published var isReported: Bool = false
     @Published var reportType: ReportType?
@@ -34,21 +34,14 @@ final class NotificationViewModel: ObservableObject {
                     lastNotificationId: nil,
                     size: 20
                 )
-
+                
                 updateNotificationLists(result.content)
-
+                
                 let reportResult = try await useCase.fetchReportReceived()
                 self.isReported = reportResult.isReported
                 
                 if reportResult.isReported {
-                    switch reportResult.targetType {
-                    case .COMMENT:
-                        self.reportType = .COMMENT
-                    case .HISTORY:
-                        self.reportType = .HISTORY
-                    case .none:
-                        self.reportType = nil
-                    }
+                    self.reportType = reportResult.targetType
                 } else {
                     self.reportType = nil
                 }
@@ -65,20 +58,26 @@ final class NotificationViewModel: ObservableObject {
                 
                 if let index = unreadNotifications.firstIndex(where: { $0.notificationId == notificationId }) {
                     var readItem = unreadNotifications.remove(at: index)
-                    readItem.readStatus = .read
+                    readItem = NotificationListResponseItem(
+                        notificationId: readItem.notificationId,
+                        notificationImageUrl: readItem.notificationImageUrl,
+                        notificationContent: readItem.notificationContent,
+                        notificationType: readItem.notificationType,
+                        action: readItem.action,
+                        readStatus: .read,
+                        createdAt: readItem.createdAt
+                    )
                     readNotifications.insert(readItem, at: 0)
                 }
-                
-                print("✅ Notification marked as read:", notificationId)
             } catch {
-                readErrorMessage = "알림 읽음 처리에 실패했어요. 잠시 후 다시 시도해 주세요."
-                print("❌ Notification markAsRead failed:", error)}
+                readErrorMessage = "알림 읽음 처리에 실패했어요."
+            }
         }
     }
     
-    private func updateNotificationLists(_ all: [NotificationEntity]) {
-        self.unreadNotifications = all.filter { $0.readStatus == .unread }
-        self.readNotifications = all.filter { $0.readStatus == .read }
+    private func updateNotificationLists(_ all: [NotificationListResponseItem]) {
+        unreadNotifications = all.filter { $0.readStatus == .notRead }
+        readNotifications = all.filter { $0.readStatus == .read }
     }
     
     // MARK: - Navigation

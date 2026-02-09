@@ -46,17 +46,17 @@ final class AddBeforeCodiViewModel: ObservableObject {
                     size: 20,
                     direction: .DESC
                 )
-
+                
                 self.beforeCoordinateDailyList = result.content
             } catch {
                 handleError(error)
             }
-
+            
             isLoading = false
         }
     }
-
-    func toggleSelection(id: Int) {
+    
+    func toggleSelection(id: Int64) {
         guard let selectedCodi = beforeCoordinateDailyList.first(where: { $0.id == id }) else { return }
         navigateToAddCodiWithData(codi: selectedCodi)
     }
@@ -66,6 +66,7 @@ final class AddBeforeCodiViewModel: ObservableObject {
     }
     
     private func navigateToAddCodiWithData(codi: BeforeCoordinateDailyEntity) {
+        AddCodiViewModel.beforeCodiSelected.send(codi)
         navigationRouter.navigateBack()
     }
 }

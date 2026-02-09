@@ -30,7 +30,7 @@ struct SearchRecommendationResponseDTO {
 
 /// 유저 검색
 struct SearchUserResponseDTO {
-    let content : [SearchUserResponseItem]
+    let content: [SearchUserResponseItem]
     let isLast: Bool
 }
 
@@ -59,7 +59,6 @@ struct SearchHistoryResponseItem {
     let historyImageUrl: String
     let profileImageUrl: String
     let nickname: String
-    
     
     func toEntity() -> SearchHistoriesEntity {
         return SearchHistoriesEntity(
