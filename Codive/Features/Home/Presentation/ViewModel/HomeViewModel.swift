@@ -12,9 +12,11 @@ import CoreLocation
 @MainActor
 final class HomeViewModel: ObservableObject {
     
+    static let codiTransferPublisher = CurrentValueSubject<TodayCodiTransferData?, Never>(nil)
+    
     // MARK: - Properties (UI State)
     
-    @Published var hasCodi: Bool = true
+    @Published var hasCodi: Bool = false
     @Published var showClothSelector: Bool = false
     @Published var selectedItemID: Int?
     @Published var selectedIndex: Int? = 0
@@ -22,6 +24,9 @@ final class HomeViewModel: ObservableObject {
     @Published var showCompletePopUp: Bool = false
     @Published var showLookBookSheet: Bool = false
     @Published var completedCodiImageURL: String?
+    @Published var capturedImageURL: String?
+    
+    @Published var isEditingExistingCodi: Bool = false
     
     // MARK: - Properties (Data)
     
@@ -36,24 +41,29 @@ final class HomeViewModel: ObservableObject {
     @Published var clothItemsByCategory: [Int: [HomeClothEntity]] = [:]
     @Published var selectedIndicesByCategory: [Int: Int] = [:]
     @Published var selectedCodiClothes: [HomeClothEntity] = []
+    @Published var todayCodiPreview: FetchTodayCoordinatePreviewResponseDTO?
+    
+    @Published var boardPayloads: [Payloads] = []
     
     // MARK: - Dependencies
     
     let navigationRouter: NavigationRouter
     private let fetchWeatherUseCase: FetchWeatherUseCase
-    private let todayCodiUseCase: TodayCodiUseCase
+    internal let todayCodiUseCase: TodayCodiUseCase
     private let dateUseCase: DateUseCase
     private let categoryUseCase: CategoryUseCase
-    private let addToLookBookUseCase: AddToLookBookUseCase
+    internal let addToLookBookUseCase: AddToLookBookUseCase
     
-    // MARK: - Computed Properties
-    
-    /// 현재 활성화된 모든 카테고리에 아이템이 하나도 없는지 확인
     var isAllCategoriesEmpty: Bool {
         let totalItemCount = activeCategories.reduce(0) { sum, category in
             sum + (clothItemsByCategory[category.id]?.count ?? 0)
         }
         return totalItemCount == 0
+    }
+    
+    var currentSeasons: Set<Season> {
+        let temp = Int(weatherData?.currentTemp ?? 20)
+        if temp >= 18 { return [.summer] } else if temp >= 7 { return [.spring, .fall] } else { return [.winter] }
     }
     
     // MARK: - Initializer
@@ -76,49 +86,38 @@ final class HomeViewModel: ObservableObject {
         loadInitialData()
     }
     
-    // MARK: - Life Cycle
-    
     func onAppear() {
         loadActiveCategories()
+        fetchTodayCodiData()
     }
 }
 
-// MARK: - Data Loading Methods
 extension HomeViewModel {
-    
-    /// 앱 실행 시 필요한 초기 데이터를 로드
     func loadInitialData() {
-        loadDummyCodi()
         loadToday()
         loadActiveCategories()
     }
     
-    /// 현재 날짜 정보를 가져옴
     func loadToday() {
         let entity = dateUseCase.getToday()
         self.todayString = entity.formattedDate
     }
     
-    /// 로컬에 저장된 활성화 카테고리 설정을 동기적으로 불러옴
     func loadActiveCategories() {
         let allCategories = categoryUseCase.loadCategories()
         self.activeCategories = allCategories.filter { $0.itemCount > 0 }
     }
     
-    /// 오늘 이미 생성된 코디(더미) 데이터를 불러옴
-    func loadDummyCodi() {
-        codiItems = todayCodiUseCase.loadTodaysCodi()
-    }
-}
-
-// MARK: - API & Async Methods
-extension HomeViewModel {
     func loadWeather(for location: CLLocation?) async {
         do {
             let weather = try await fetchWeatherUseCase.execute(for: location)
             self.weatherData = weather
-    
+            
             let temperature = weather.currentTemp
+            
+            let targetSeasons = determineSeasons(from: temperature)
+            await loadRecommendCategoryClothList(seasons: targetSeasons)
+            
             let request = PostTodayTemperatureAPIRequestDTO(
                 temperature: Double(temperature)
             )
@@ -128,24 +127,37 @@ extension HomeViewModel {
             print("Weather load or post failed:", error)
         }
     }
+    
+    internal func determineSeasons(from temperature: Int) -> Set<Season> {
+        if temperature >= 30 {
+            return [.summer]
+        } else if temperature >= 10 {
+            return [.spring, .fall]
+        } else {
+            return [.winter]
+        }
+    }
+}
 
-    /// 카테고리별 계절에 맞는 옷 조회
-    func loadRecommendCategoryClothList() async {
+extension HomeViewModel {
+    func loadRecommendCategoryClothList(seasons: Set<Season>) async {
+        self.activeCategories = []
+        self.clothItemsByCategory = [:]
+        
         let allCategories = categoryUseCase.loadCategories()
         let filteredCategories = allCategories.filter { $0.itemCount > 0 }
+        
         self.activeCategories = filteredCategories
-
+        
         var resultMap: [Int: [HomeClothEntity]] = [:]
-
+        
         for category in filteredCategories {
-            print("📦 category title:", category.title)
-            print("📦 category.id:", category.id)
             do {
                 let result = try await categoryUseCase.loadClothItems(
                     lastClothId: nil,
                     size: 10,
                     categoryId: Int64(category.id),
-                    season: [.spring]
+                    season: seasons // 전달받은 seasons 사용
                 )
                 resultMap[category.id] = result.content
             } catch {
@@ -153,196 +165,10 @@ extension HomeViewModel {
                 resultMap[category.id] = []
             }
         }
-
+        
         self.clothItemsByCategory = resultMap
     }
-}
-
-// MARK: - UI Logic & Actions
-extension HomeViewModel {
     
-    /// 코디 이미지 내의 태그 표시 셀렉터를 토글
-    func toggleClothSelector() {
-        withAnimation(.spring()) {
-            showClothSelector.toggle()
-            if !showClothSelector {
-                selectedItemID = nil
-                selectedItemTags = []
-            }
-        }
-    }
-    
-    /// 코디판 이미지 중 특정 아이템을 선택하여 태그를 표시
-    func selectItem(_ id: Int?) {
-        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-            selectedItemID = id
-            guard let id = id, let item = codiItems.first(where: { $0.id == id }) else {
-                self.selectedItemTags = []
-                return
-            }
-            
-            self.selectedItemTags = [
-                ClothTagEntity(
-                    title: item.brandName,
-                    content: item.clothName,
-                    locationX: 0.5,
-                    locationY: 0.5
-                )
-            ]
-        }
-    }
-
-    /// 드래그를 통해 태그의 상대 위치를 업데이트
-    func updateTagPosition(tagId: UUID, x: CGFloat, y: CGFloat, imageSize: CGSize) {
-        if let index = selectedItemTags.firstIndex(where: { $0.id == tagId }) {
-            selectedItemTags[index].locationX = x / imageSize.width
-            selectedItemTags[index].locationY = y / imageSize.height
-        }
-    }
-    
-    /// 카테고리별로 선택된 의류의 인덱스를 업데이트
-    func updateSelectedIndex(for categoryId: Int, index: Int) {
-        selectedIndicesByCategory[categoryId] = index
-    }
-}
-
-// MARK: - Navigation
-extension HomeViewModel {
-    
-    /// 코디보드 화면으로 이동
-    func handleCodiBoardTap() {
-        navigationRouter.navigate(to: .codiBoard)
-    }
-    
-    /// 카테고리 편집 화면으로 이동
-    func handleEditCategory() {
-        navigationRouter.navigate(to: .editCategory)
-    }
-    
-    /// 룩북으로 이동
-    func selectEditCodi() {
-        navigationRouter.navigate(to: .lookbook)
-    }
-}
-
-// MARK: - Popup & Decision Actions
-extension HomeViewModel {
-    
-    /// 현재 스크롤된 의류 조합을 수집하고 완료 팝업을 띄움
-    func handleConfirmCodiTap() {
-        let items = activeCategories
-            .sorted { $0.id < $1.id }
-            .compactMap { category -> HomeClothEntity? in
-                guard let clothList = clothItemsByCategory[category.id] else { return nil }
-                let index = selectedIndicesByCategory[category.id] ?? 0
-                return clothList.indices.contains(index) ? clothList[index] : clothList.first
-            }
-        
-        self.selectedCodiClothes = items
-        self.showCompletePopUp = true
-    }
-    
-    /// 코디 확정 후 완료 팝업을 표시
-    func showCompletionPopup(imageURL: String?) {
-        completedCodiImageURL = imageURL
-        showCompletePopUp = true
-    }
-    
-    /// 팝업에서 '기록하기' 버튼을 눌러 오늘 완성한 코디를 서버에 전송
-    func handlePopupRecord() {
-        Task {
-            do {
-                // 1️⃣ CodiCompositeView 캡처
-                let image = captureCompletedCodiImage()
-
-                // 2️⃣ UIImage → Base64 String
-                guard let coordinateImageUrl = image.toBase64String() else {
-                    throw NSError(domain: "Base64EncodingFail", code: 0)
-                }
-
-                self.completedCodiImageURL = coordinateImageUrl
-
-                // 3️⃣ 좌표 payload 생성
-                let containerSize: CGFloat = 260
-                let payloads = selectedCodiClothes.enumerated().map { index, cloth in
-                    let position = CodiLayoutCalculator.position(
-                        index: index,
-                        totalCount: selectedCodiClothes.count,
-                        containerSize: containerSize
-                    )
-
-                    return Payloads(
-                        clothId: cloth.clothId,
-                        locationX: position.x,
-                        locationY: position.y,
-                        ratio: 1.0,
-                        degree: 0,
-                        order: Int32(index)
-                    )
-                }
-
-                // 4️⃣ 오늘의 코디 생성 (String 그대로 전달)
-                let request = CreateTodayCoordinateRequestDTO(
-                    coordinateImageUrl: coordinateImageUrl,
-                    payloads: payloads
-                )
-
-                let result = try await todayCodiUseCase.createTodayCoordinate(request: request)
-                print("✅ 오늘 코디 생성 완료:", result.coordinateId)
-
-                showCompletePopUp = false
-                hasCodi = true
-            } catch {
-                print("❌ 코디 기록 실패:", error)
-            }
-        }
-    }
-    
-    /// 팝업을 닫기
-    func handlePopupClose() {
-        showCompletePopUp = false
-        completedCodiImageURL = nil
-    }
-}
-
-// MARK: - LookBook Actions
-extension HomeViewModel {
-    /// 내 룩북 리스트를 불러와 바텀시트를 표시
-    func addLookbook() {
-        Task {
-            do {
-                let (content, _) = try await addToLookBookUseCase.fetchLookBookList(
-                    lastLookBookId: nil,
-                    size: 20,
-                    direction: .DESC
-                )
-
-                self.lookBookList = content.map { entity in
-                    LookBookBottomSheetEntity(
-                        lookbookId: entity.lookBookId,
-                        imageUrl: entity.imageUrl,
-                        title: entity.lookbookName,
-                        count: entity.count
-                    )
-                }
-                
-                // 3. 데이터 로딩 후 시트 표시
-                self.showLookBookSheet = true
-            } catch {
-                print("❌ 룩북 리스트 로드 실패: \(error.localizedDescription)")
-            }
-        }
-    }
-    
-    /// 바텀시트에서 특정 룩북을 선택
-    func selectLookBook(_ entity: LookBookBottomSheetEntity) {
-        showLookBookSheet = false
-    }
-}
-
-extension HomeViewModel {
-    
-    /// 카테고리 순서 변경
     func moveCategory(from source: IndexSet, to destination: Int) {
         activeCategories.move(fromOffsets: source, toOffset: destination)
         
@@ -350,28 +176,231 @@ extension HomeViewModel {
         // categoryUseCase.saveCategoryOrder(activeCategories)
     }
     
-    /// 이미지 캡처
+    func updateSelectedIndex(for categoryId: Int, index: Int) {
+        selectedIndicesByCategory[categoryId] = index
+    }
+}
+
+extension HomeViewModel {
+    func handleEditCategory() {
+        navigationRouter.navigate(to: .editCategory)
+    }
+    
+    func handleCodiBoardTap() {
+        let containerSize: CGFloat = 260
+        let centerOffset = containerSize / 2
+        
+        let transferImages = activeCategories.enumerated().compactMap { index, category -> DraggableImageEntity? in
+            guard let clothList = clothItemsByCategory[category.id],
+                  let selectedIndex = selectedIndicesByCategory[category.id] else {
+                return nil
+            }
+            
+            let cloth = clothList.indices.contains(selectedIndex) ? clothList[selectedIndex] : clothList.first
+            guard let selectedCloth = cloth else { return nil }
+            
+            let rawPos = CodiLayoutCalculator.position(
+                index: index,
+                totalCount: activeCategories.count,
+                containerSize: containerSize
+            )
+            
+            let relativePos = CGPoint(
+                x: rawPos.x - centerOffset,
+                y: rawPos.y - centerOffset
+            )
+            
+            return DraggableImageEntity(
+                id: selectedCloth.clothId,
+                name: selectedCloth.imageUrl,
+                position: relativePos,
+                scale: 0.7,
+                rotation: 0
+            )
+        }
+        
+        let data = TodayCodiTransferData(images: transferImages)
+        
+        Self.codiTransferPublisher.send(data)
+        navigationRouter.navigate(to: .codiBoard)
+    }
+    
+    func handleConfirmCodiTap() {
+        let items = activeCategories
+            .compactMap { category -> HomeClothEntity? in
+                guard let clothList = clothItemsByCategory[category.id] else { return nil }
+                let index = selectedIndicesByCategory[category.id] ?? 0
+                return clothList.indices.contains(index) ? clothList[index] : clothList.first
+            }
+        
+        self.selectedCodiClothes = items
+        
+        Task {
+            var loadedImages: [Int64: UIImage] = [:]
+            await withTaskGroup(of: (Int64, UIImage?).self) { group in
+                for cloth in items {
+                    group.addTask {
+                        let image = await self.downloadUIImage(from: cloth.imageUrl)
+                        return (cloth.clothId, image)
+                    }
+                }
+                for await (id, image) in group {
+                    if let img = image { loadedImages[id] = img }
+                }
+            }
+            
+            let captureView = CodiCompositeView(clothes: items, loadedImages: loadedImages)
+                .frame(width: 260, height: 260)
+            
+            let renderer = ImageRenderer(content: captureView)
+            renderer.scale = UIScreen.main.scale
+            
+            guard let uiImage = renderer.uiImage else {
+                return
+            }
+            
+            guard let jpgData = uiImage.jpegData(compressionQuality: 0.8) else { return }
+            
+            do {
+                let uploadedURL = try await todayCodiUseCase.execute(jpgData: jpgData)
+                
+                await MainActor.run {
+                    self.capturedImageURL = uploadedURL
+                    self.showCompletePopUp = true
+                    print("🚀 [Home Success] 최종 이미지 URL: \(uploadedURL)")
+                }
+            } catch {
+                print("❌ [Home Capture] 서버 에러: \(error.localizedDescription)")
+            }
+        }
+    }
+}
+
+extension HomeViewModel {
+    /// 코디 확정 후 완료 팝업을 표시
+    func showCompletionPopup(imageURL: String?) {
+        completedCodiImageURL = imageURL
+        showCompletePopUp = true
+    }
+    
+    func showCompletionFromBoard(payloads: [Payloads], imageURL: String) {
+        self.boardPayloads = payloads
+        self.capturedImageURL = imageURL
+        self.showCompletePopUp = true
+    }
+    
+    func handlePopupRecord() {
+        Task {
+            do {
+                guard let imageURL = self.capturedImageURL else { return }
+                
+                let rawPayloads = boardPayloads.isEmpty ? createPayloadsFromCurrentList() : boardPayloads
+                
+                let finalPayloads = rawPayloads.map { p in
+                    Payloads(
+                        clothId: p.clothId,
+                        locationX: p.locationX,
+                        locationY: p.locationY,
+                        ratio: p.ratio,
+                        degree: p.degree,
+                        order: Int32(p.order)
+                    )
+                }
+                
+                if isEditingExistingCodi, let coordinateId = todayCodiPreview?.coordinateId {
+                    let editRequest = EditCoordinateRequestDTO(
+                        coordinateImageUrl: imageURL,
+                        name: "\(todayString) 코디",
+                        memo: nil,
+                        payloads: finalPayloads
+                    )
+                    
+                    try await todayCodiUseCase.patchUpdateCoordinates(
+                        coordinateId: coordinateId,
+                        request: editRequest
+                    )
+                } else {
+                    let createRequest = CreateTodayCoordinateRequestDTO(
+                        coordinateImageUrl: imageURL,
+                        payloads: finalPayloads
+                    )
+                    let result = try await todayCodiUseCase.createTodayCoordinate(request: createRequest)
+                    print("✅ 오늘의 코디 신규 생성 성공 (ID: \(result.coordinateId))")
+                }
+                
+                await MainActor.run {
+                    self.completeProcess()
+                }
+            } catch {
+                print("- 에러 타입: \(error)")
+            }
+        }
+    }
+    
+    private func completeProcess() {
+        self.isEditingExistingCodi = false
+        self.showCompletePopUp = false
+        self.hasCodi = true
+        self.boardPayloads = []
+        self.capturedImageURL = nil
+        self.fetchTodayCodiData()
+    }
+    
+    private func createPayloadsFromCurrentList() -> [Payloads] {
+        let containerSize: CGFloat = 260
+        
+        return activeCategories.enumerated().compactMap { index, category -> Payloads? in
+            guard let clothList = clothItemsByCategory[category.id] else { return nil }
+            let selectedIndex = selectedIndicesByCategory[category.id] ?? 0
+            let cloth = clothList.indices.contains(selectedIndex) ? clothList[selectedIndex] : clothList.first
+            
+            guard let selectedCloth = cloth else { return nil }
+            
+            let position = CodiLayoutCalculator.position(
+                index: index,
+                totalCount: activeCategories.count,
+                containerSize: containerSize
+            )
+            
+            return Payloads(
+                clothId: selectedCloth.clothId,
+                locationX: Double(position.x / containerSize),
+                locationY: Double(position.y / containerSize),
+                ratio: 1.0,
+                degree: 0,
+                order: Int32(index + 1)
+            )
+        }
+    }
+    
+    func handlePopupClose() {
+        showCompletePopUp = false
+        completedCodiImageURL = nil
+    }
+    
     private func captureCompletedCodiImage() -> UIImage {
         let view = CodiCompositeView(clothes: selectedCodiClothes)
             .frame(width: 260, height: 260)
-
+        
         let controller = UIHostingController(rootView: view)
         let uiView = controller.view!
         uiView.bounds = CGRect(origin: .zero, size: CGSize(width: 260, height: 260))
         uiView.backgroundColor = .clear
-
+        
         let renderer = UIGraphicsImageRenderer(size: CGSize(width: 260, height: 260))
         return renderer.image { _ in
             uiView.drawHierarchy(in: uiView.bounds, afterScreenUpdates: true)
         }
     }
-}
-
-extension UIImage {
-    func toBase64String() -> String? {
-        guard let data = self.jpegData(compressionQuality: 0.9) else {
+    
+    private func downloadUIImage(from urlString: String) async -> UIImage? {
+        guard let url = URL(string: urlString) else { return nil }
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            return UIImage(data: data)
+        } catch {
+            print("❌ 이미지 다운로드 실패 (\(urlString)): \(error)")
             return nil
         }
-        return data.base64EncodedString()
     }
 }

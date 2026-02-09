@@ -12,7 +12,7 @@ struct HomeNoCodiView: View {
     // MARK: - Properties
     @ObservedObject var viewModel: HomeViewModel
     @State private var draggingItem: CategoryEntity?
-
+    
     // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
@@ -28,7 +28,9 @@ struct HomeNoCodiView: View {
         .onAppear {
             viewModel.onAppear()
             Task {
-                await viewModel.loadRecommendCategoryClothList()
+                if viewModel.clothItemsByCategory.isEmpty {
+                    await viewModel.loadRecommendCategoryClothList(seasons: viewModel.currentSeasons)
+                }
             }
         }
     }
@@ -65,16 +67,19 @@ private extension HomeNoCodiView {
     var codiClothList: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 16) {
-                ForEach(viewModel.activeCategories) { category in
-                    let clothItems = viewModel.clothItemsByCategory[category.id] ?? []
+                ForEach(viewModel.activeCategories, id: \.id) { category in
+                    let items: [HomeClothEntity] = viewModel.clothItemsByCategory[category.id] ?? []
+                    let selectedIdx: Int = viewModel.selectedIndicesByCategory[category.id] ?? 0
                     
                     CodiClothView(
                         title: category.title,
-                        items: clothItems,
-                        isEmptyState: clothItems.isEmpty
+                        items: items,
+                        selectedIndex: selectedIdx,
+                        isEmptyState: items.isEmpty
                     ) { newIndex in
                         viewModel.updateSelectedIndex(for: category.id, index: newIndex)
                     }
+                    .id(category.id)
                     .background(Color.white)
                     .cornerRadius(15)
                     .onDrag {
@@ -149,14 +154,14 @@ struct CategoryDropDelegate: DropDelegate {
             }
         }
     }
-
+    
     func performDrop(info: DropInfo) -> Bool {
         withAnimation(.easeInOut) {
             draggingItem = nil
         }
         return true
     }
-
+    
     func dropUpdated(info: DropInfo) -> DropProposal? {
         return DropProposal(operation: .move)
     }

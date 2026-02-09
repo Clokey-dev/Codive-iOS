@@ -98,6 +98,7 @@ final class HomeDIContainer {
         return CodiBoardViewModel(
             navigationRouter: navigationRouter,
             codiBoardUseCase: makeCodiBoardUseCase(),
+            todayCodiUseCase: makeTodayCodiUseCase(),
             homeViewModel: homeViewModel
         )
     }

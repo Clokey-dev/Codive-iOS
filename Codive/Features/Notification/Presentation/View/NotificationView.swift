@@ -59,7 +59,11 @@ struct NotificationView: View {
     
     // MARK: - View Builders
     @ViewBuilder
-    private func notificationSection(title: String, notifications: [NotificationEntity]) -> some View {
+    private func notificationSection(
+        title: String,
+        notifications: [NotificationListResponseItem]
+    ) -> some View {
+        
         if !notifications.isEmpty {
             HStack {
                 Text(title)
@@ -68,16 +72,16 @@ struct NotificationView: View {
                 Spacer()
             }
             .padding(.top, 20)
-
+            
             VStack(spacing: 16) {
-                ForEach(notifications) { item in
-                    NotificationRow(entity: item)
-                        .contentShape(Rectangle()) // 투명한 영역도 탭이 되도록 설정
+                ForEach(notifications, id: \.notificationId) { item in
+                    NotificationRow(notification: item)
+                        .contentShape(Rectangle())
                         .onTapGesture {
-                            if item.readStatus == .unread {
+                            if item.readStatus == .notRead {
                                 viewModel.markAsRead(notificationId: item.notificationId)
                             }
-                            // 페이지 이동 로직 호출 구간
+                            // redirect 처리 위치
                         }
                 }
             }

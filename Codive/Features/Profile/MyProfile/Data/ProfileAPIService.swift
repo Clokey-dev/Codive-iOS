@@ -21,6 +21,11 @@ protocol ProfileAPIServiceProtocol {
     func fetchMemberInfo(memberId: Int) async throws -> OtherProfileEntity
     func toggleFollow(memberId: Int) async throws
     func togglePendingFollow(memberId: Int) async throws
+    func fetchMyFavoriteCoordinate() async throws -> [MyFavoriteLookBookResponseDTO]
+    func fetchCoordinatePreview(coordinateId: Int64) async throws -> CoordinatePreviewResponseDTO
+    func fetchCoordinateDetail(
+        coordinateId: Int64
+    ) async throws -> [CoordinateDetailResponseDTO]
 }
 
 // MARK: - Profile API Service Implementation
@@ -290,6 +295,106 @@ final class ProfileAPIService: ProfileAPIServiceProtocol {
 
         guard (200...299).contains(httpResponse.statusCode) else {
             throw ProfileAPIError.s3UploadFailed(statusCode: httpResponse.statusCode)
+        }
+    }
+}
+
+extension ProfileAPIService {
+    /// 나의 최애 코디 조회
+    func fetchMyFavoriteCoordinate() async throws -> [MyFavoriteLookBookResponseDTO] {
+        let input = Operations.Coordinate_getFavoriteCoordinates.Input()
+        let response = try await client.Coordinate_getFavoriteCoordinates(input)
+        
+        switch response {
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+            let jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
+            
+            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseListFavoriteCoordinateResponse.self, from: data)
+            
+            let items = decoded.result ?? []
+            
+            return items.map { item in
+                MyFavoriteLookBookResponseDTO(
+                    coordinateId: item.coordinateId ?? 0,
+                    imageUrl: item.imageUrl ?? "",
+                    coordinateName: item.coordinateName ?? ""
+                )
+            }
+        case .undocumented(statusCode: let code, _):
+            throw ProfileAPIError.serverError(statusCode: code, message: "최애 코디 조회 실패 (상태코드: \(code))")
+        }
+    }
+    
+    func fetchCoordinatePreview(coordinateId: Int64) async throws -> CoordinatePreviewResponseDTO {
+        let input = Operations.Coordinate_getCoordinatePreview.Input(
+            path: .init(
+                coordinateId: coordinateId
+            )
+        )
+        
+        let response = try await client.Coordinate_getCoordinatePreview(input)
+        
+        switch response {
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+            
+            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseCoordinatePreviewResponse.self, from: data)
+            
+            guard let item = decoded.result else {
+                throw LookBookAPIError.invalidResponse
+            }
+            
+            return CoordinatePreviewResponseDTO(
+                coordinateId: item.coordinateId ?? 0,
+                imageUrl: item.imageUrl ?? "",
+                coordinateName: item.coordinateName ?? "",
+                coordinateMemo: item.coordinateMemo ?? ""
+            )
+            
+        case .undocumented(statusCode: let code, _):
+            throw ProfileAPIError.serverError(statusCode: code, message: "코디 preview 조회 실패")
+        }
+    }
+    
+    func fetchCoordinateDetail(
+        coordinateId: Int64
+    ) async throws -> [CoordinateDetailResponseDTO] {
+        let input = Operations.Coordinate_getCoordinateDetails.Input(
+            path: .init(
+                coordinateId: coordinateId
+            )
+        )
+        
+        let response = try await client.Coordinate_getCoordinateDetails(input)
+        
+        switch response {
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+            
+            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseListCoordinateDetailsListResponse.self, from: data)
+            
+            let items = decoded.result ?? []
+            
+            return items.map { item in
+                CoordinateDetailResponseDTO(
+                    coordinateClothId: item.coordinateClothId ?? 0,
+                    locationX: item.locationX ?? 0,
+                    locationY: item.locationY ?? 0,
+                    ratio: item.ratio ?? 1.0,
+                    degree: item.degree ?? 0,
+                    order: item.order ?? 0,
+                    clothId: item.clothId ?? 0,
+                    imageUrl: item.imageUrl ?? "",
+                    brand: item.brand ?? "",
+                    name: item.name ?? "",
+                    category: item.category ?? "",
+                    parentCategory: item.parentCategory ?? ""
+                )
+            }
+            
+        case .undocumented(statusCode: let code, _):
+            throw ProfileAPIError.serverError(statusCode: code, message: "코디 detail 조회 실패")
         }
     }
 }

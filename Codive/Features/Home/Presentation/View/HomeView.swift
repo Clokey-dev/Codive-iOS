@@ -63,12 +63,15 @@ struct HomeView: View {
             }
             .task {
                 await viewModel.loadWeather(for: nil)
-//                await viewModel.loadActiveCategoriesWithAPI()
+                if !viewModel.isEditingExistingCodi {
+                    viewModel.fetchTodayCodiData()
+                }
             }
             .onChange(of: navigationRouter.currentDestination) { newDestination in
                 if newDestination == nil {
-                    viewModel.loadActiveCategories()
-                    // 홈으로 돌아올 때 스크롤 초기화
+                    if viewModel.todayCodiPreview == nil {
+                        viewModel.loadActiveCategories()
+                    }
                     scrollViewID = UUID()
                 }
             }

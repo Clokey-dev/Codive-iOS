@@ -26,7 +26,9 @@ protocol HomeDatasourceProtocol {
     func createTodayCoordinate(request: CreateTodayCoordinateRequestDTO) async throws -> CreateTodayCoordinateResponseDTO
     
     /// 오늘의 코디 옷 정보 조회
-    func fetchTodayCoordinateClothes() async throws -> [GetTodayCoordinateClothResponseDTO]
+    func fetchTodayCoordinatePreview() async throws -> FetchTodayCoordinatePreviewResponseDTO
+    
+    func fetchTodayCoordinateDetails() async throws -> [FetchTodayCoordinateDetailsResponseDTO]
     
     /// 룩북 전체 조회
     func fetchLookBookList(
@@ -34,6 +36,12 @@ protocol HomeDatasourceProtocol {
         size: Int32,
         direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
     ) async throws -> LookBookListResponseDTO
+    
+    /// 코디 수정
+    func patchUpdateCoordinates(coordinateId: Int64, request: EditCoordinateRequestDTO) async throws
+    
+    /// 이전 일일 코디로 자동 생성
+    func createAutoDailyCoordinate(request: CreateAutoDailyCoordinateAPIRequestDTO) async throws -> CreateAutoDailyCoordinateAPIResponseDTO
 }
 
 final class HomeDatasource: HomeDatasourceProtocol {
@@ -171,8 +179,12 @@ final class HomeDatasource: HomeDatasourceProtocol {
     }
     
     /// 오늘의 코디 옷 정보 조회
-    func fetchTodayCoordinateClothes() async throws -> [GetTodayCoordinateClothResponseDTO] {
-        return try await apiService.fetchTodayCoordinateClothes()
+    func fetchTodayCoordinatePreview() async throws -> FetchTodayCoordinatePreviewResponseDTO {
+        return try await apiService.fetchTodayCoordinatePreview()
+    }
+    
+    func fetchTodayCoordinateDetails() async throws -> [FetchTodayCoordinateDetailsResponseDTO] {
+        return try await apiService.fetchTodayCoordinateDetails()
     }
     
     /// 룩북 전체 리스트 조회
@@ -187,29 +199,61 @@ final class HomeDatasource: HomeDatasourceProtocol {
             direction: direction
         )
     }
+    
+    /// 코디 수정
+    func patchUpdateCoordinates(coordinateId: Int64, request: EditCoordinateRequestDTO) async throws {
+        try await apiService.patchUpdateCoordinates(coordinateId: coordinateId, request: request)
+    }
+    
+    /// 코디 이미지를 S3에 업로드하고 최종 URL을 반환
+    func uploadCodiImage(jpgData: Data) async throws -> String {
+        let presignedUrlInfos = try await apiService.getPresignedUrls(for: [jpgData])
+        
+        guard let urlInfo = presignedUrlInfos.first else {
+            throw LookBookAPIError.uploadFailed(message: "Presigned URL 발급 실패")
+        }
+        
+        try await uploadImageToS3(
+            presignedUrl: urlInfo.presignedUrl,
+            imageData: jpgData,
+            md5Hash: urlInfo.md5Hash
+        )
+
+        return urlInfo.finalUrl
+    }
+    
+    /// 이전 일일 코디로 자동 생성
+    func createAutoDailyCoordinate(request: CreateAutoDailyCoordinateAPIRequestDTO) async throws -> CreateAutoDailyCoordinateAPIResponseDTO {
+        return try await apiService.createAutoDailyCoordinate(request: request)
+    }
+ 
+    private func uploadImageToS3(
+        presignedUrl: String,
+        imageData: Data,
+        md5Hash: String
+    ) async throws {
+        guard let url = URL(string: presignedUrl) else {
+            throw LookBookAPIError.invalidUrl
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type")
+        request.setValue(md5Hash, forHTTPHeaderField: "Content-MD5")
+        request.httpBody = imageData
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            throw LookBookAPIError.uploadFailed(message: "S3 업로드 실패 (Status: \((response as? HTTPURLResponse)?.statusCode ?? -1))")
+        }
+        
+        print("✅ S3 이미지 업로드 성공")
+    }
 }
 
 extension HomeDatasource {
-    // 오늘의 코디 추가하기
-    func createTodayDailyCodi(_ entity: TodayDailyCodi) async throws {
-
-        let requestDTO = CodiCoordinateRequestDTO(
-            coordinateImageUrl: entity.coordinateImageUrl,
-            Payload: entity.payloads.map {
-                CodiCoordinatePayloadDTO(
-                    clothId: Int64($0.clothId),
-                    locationX: $0.locationX,
-                    locationY: $0.locationY,
-                    ratio: $0.ratio,
-                    degree: Double($0.degree),
-                    order: $0.order
-                )
-            }
-        )
-
-        try await saveCodiCoordinate(requestDTO)
-    }
-    
     // MARK: - Categorory 수정 뷰 관련
     /// 카테고리 별 개수
     func loadCategories() -> [CategoryEntity] {
@@ -219,7 +263,7 @@ extension HomeDatasource {
         }
 
         return [
-            CategoryEntity(id: 1, title: "상의", itemCount: 2),
+            CategoryEntity(id: 1, title: "상의", itemCount: 1),
             CategoryEntity(id: 2, title: "바지", itemCount: 1),
             CategoryEntity(id: 3, title: "스커트", itemCount: 0),
             CategoryEntity(id: 4, title: "아우터", itemCount: 0),
@@ -237,73 +281,7 @@ extension HomeDatasource {
         print("저장 완료:")
         categories.forEach { print("\($0.id): \($0.title): \($0.itemCount)") }
     }
-
-    // MARK: - 코디보드
-    // 코디 추가하기
-    func saveCodiCoordinate(_ request: CodiCoordinateRequestDTO) async throws {
-        try await Task.sleep(nanoseconds: 500_000_000)
-
-        for (index, item) in request.Payload.enumerated() {
-            print("""
-            [Item \(index)] 
-              - clothId: \(item.clothId)
-              - position: (\(item.locationX), \(item.locationY))
-              - ratio(scale): \(item.ratio)
-              - degree: \(item.degree)
-              - order: \(item.order)
-            """)
-        }
-    }
-    
-    // 코디보드 옷 불러오기
-    func loadInitialImages() -> [DraggableImageEntity] {
-        return [
-//            DraggableImageEntity(id: 1, name: "image1", position: CGPoint(x: 80, y: 80), scale: 1.0, rotationAngle: 0.0),
-//            DraggableImageEntity(id: 2, name: "image2", position: CGPoint(x: 160, y: 120), scale: 1.0, rotationAngle: 0.0),
-//            DraggableImageEntity(id: 3, name: "image3", position: CGPoint(x: 240, y: 160), scale: 1.0, rotationAngle: 0.0),
-//            DraggableImageEntity(id: 4, name: "image4", position: CGPoint(x: 120, y: 240), scale: 1.0, rotationAngle: 0.0),
-//            DraggableImageEntity(id: 5, name: "image5", position: CGPoint(x: 200, y: 280), scale: 1.0, rotationAngle: 0.0),
-//            DraggableImageEntity(id: 6, name: "image6", position: CGPoint(x: 250, y: 240), scale: 1.0, rotationAngle: 0.0)
-        ]
-    }
     
     // MARK: - 코디가 있는 경우의 Home 관련
-    // 코디 불러오기
-    func loadDummyCodiItems() -> [CodiItemEntity] {
-        return [
-            CodiItemEntity(
-                id: 1,
-                imageName: "image1",
-                clothName: "시계",
-                brandName: "apple",
-                description: "사계절 착용 가능한 시계",
-                x: 300,
-                y: 100,
-                width: 70,
-                height: 70
-            ),
-            CodiItemEntity(
-                id: 2,
-                imageName: "image4",
-                clothName: "체크 셔츠",
-                brandName: "Polo",
-                description: "사계절 착용 가능한 셔츠",
-                x: 100,
-                y: 100,
-                width: 70,
-                height: 70
-            ),
-            CodiItemEntity(
-                id: 3,
-                imageName: "image3",
-                clothName: "와이드 치노 팬츠",
-                brandName: "Basic Concept",
-                description: "사계절 착용 가능한 면 바지",
-                x: 300,
-                y: 200,
-                width: 100,
-                height: 100
-            )
-        ]
-    }
+    
 }

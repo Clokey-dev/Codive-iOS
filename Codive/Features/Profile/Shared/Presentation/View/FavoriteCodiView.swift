@@ -9,19 +9,20 @@ import SwiftUI
 
 struct FavoriteCodiView: View {
     @ObservedObject private var navigationRouter: NavigationRouter
+    @ObservedObject private var viewModel: FavoriteCodiViewModel
     
-    let showHeart: Bool
-
     private let columns: [GridItem] = [
         GridItem(.flexible(), spacing: 15),
         GridItem(.flexible(), spacing: 15)
     ]
-
-    init(showHeart: Bool, navigationRouter: NavigationRouter) {
+    let showHeart: Bool
+    
+    init(showHeart: Bool, viewModel: FavoriteCodiViewModel, navigationRouter: NavigationRouter) {
         self.showHeart = showHeart
-        self.navigationRouter = navigationRouter
+        self._viewModel = ObservedObject(wrappedValue: viewModel)
+        self._navigationRouter = ObservedObject(wrappedValue: navigationRouter)
     }
-
+    
     var body: some View {
         VStack(spacing: 0) {
             CustomNavigationBar(
@@ -29,33 +30,37 @@ struct FavoriteCodiView: View {
                 onBack: { navigationRouter.navigateBack() },
                 rightButton: .none
             )
-
+            
             ScrollView(showsIndicators: false) {
-                LazyVGrid(columns: columns, spacing: 32) {
-                    ForEach(0..<8, id: \.self) { idx in
-                        CodiCard(
-                            imageURL: URL(string: "https://via.placeholder.com/160"),
-                            title: idx.isMultiple(of: 2) ? "영화관 데이트" : "미술관 데이트",
-                            icon: showHeart ? .heart(isSelected: true, onTap: nil) : .none,
-                            cardWidth: 160,
-                            imageSize: 160,
-                            cornerRadius: 16,
-                            iconPadding: 14,
-                            iconSize: 20,
-                            onCardTap: nil
-                        )
+                if viewModel.isLoading && viewModel.favoriteCoordinates.isEmpty {
+                    ProgressView()
+                        .padding(.top, 50)
+                } else {
+                    LazyVGrid(columns: columns, spacing: 32) {
+                        ForEach(viewModel.favoriteCoordinates, id: \.coordinateId) { coordinate in
+                            CodiCard(
+                                imageURL: URL(string: coordinate.imageUrl),
+                                title: coordinate.coordinateName,
+                                icon: .heart(isSelected: true, onTap: {}),
+                                cardWidth: 160,
+                                imageSize: 160,
+                                cornerRadius: 16,
+                                iconPadding: 14,
+                                iconSize: 20,
+                                onCardTap: {}
+                            )
+                        }
                     }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 20)
+                    .padding(.bottom, 24)
                 }
-                .padding(.horizontal, 20)
-                .padding(.top, 20)
-                .padding(.bottom, 24)
             }
         }
         .background(Color.white)
         .navigationBarHidden(true)
+        .task {
+            await viewModel.loadFavoriteCoordinates()
+        }
     }
-}
-
-#Preview {
-    FavoriteCodiView(showHeart: true, navigationRouter: NavigationRouter())
 }

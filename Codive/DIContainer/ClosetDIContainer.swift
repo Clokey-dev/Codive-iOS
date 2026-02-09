@@ -51,6 +51,10 @@ final class ClosetDIContainer {
     func makeDeleteClothItemsUseCase() -> DeleteClothItemsUseCase {
         return DeleteClothItemsUseCase(repository: clothRepository)
     }
+    
+    func makeFetchMyLookBookListUseCase() -> FetchMyLookBookListUseCase {
+        return FetchMyLookBookListUseCase(repository: clothRepository)
+    }
 
     // MARK: - ViewModels
     func makeMyClosetViewModel() -> MyClosetViewModel {
@@ -65,6 +69,13 @@ final class ClosetDIContainer {
         return MyClosetSectionViewModel(
             navigationRouter: navigationRouter,
             fetchMyClosetClothItemsUseCase: makeFetchMyClosetClothItemsUseCase()
+        )
+    }
+    
+    func makeMyLookBookSectionViewModel() -> MyLookbookSectionViewModel {
+        return MyLookbookSectionViewModel(
+            navigationRouter: navigationRouter,
+            fetchMyLookBookListUseCase: makeFetchMyLookBookListUseCase()
         )
     }
 

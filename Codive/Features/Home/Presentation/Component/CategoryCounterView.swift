@@ -30,7 +30,6 @@ struct CategoryCounterView: View {
             
             Spacer()
             
-            // 감소 버튼: 이제 상의/하의 등도 isEmpty가 아니면(1이면) 0으로 줄일 수 있습니다.
             Button {
                 if !isFixed && !isEmpty {
                     count -= 1

@@ -27,8 +27,8 @@ final class LookBookViewFactory {
                 lookbookId: lookbookId,
                 name: name
             )
-        case .addCodi(let coordinateId):
-            lookBookDIContainer?.makeAddCodiView(coordinateId: coordinateId)
+        case .addCodi(let lookBookId):
+            lookBookDIContainer?.makeAddCodiView(lookBookId: lookBookId)
         case .addCodiDetail:
             lookBookDIContainer?.makeAddCodiDetailView()
         case .addBeforeCodi(let coordinateId):

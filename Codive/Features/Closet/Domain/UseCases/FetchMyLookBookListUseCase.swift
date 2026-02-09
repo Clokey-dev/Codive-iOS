@@ -1,20 +1,25 @@
 //
-//  AddToLookBookUseCase.swift
+//  FetchMyLookBookListUseCase.swift
 //  Codive
 //
-//  Created by 한금준 on 12/27/25.
+//  Created by 한금준 on 2/4/26.
 //
 
 import CodiveAPI
 
-final class AddToLookBookUseCase {
+// MARK: - FetchMyLookBookListUseCase
+final class FetchMyLookBookListUseCase {
 
-    private let repository: HomeRepository
+    // MARK: - Properties
+    private let repository: ClothRepository
 
-    init(repository: HomeRepository) {
+    // MARK: - Initializer
+    init(repository: ClothRepository) {
         self.repository = repository
     }
-    
+
+    // MARK: - Methods
+    /// 룩북 목록 조회
     func fetchLookBookList(
         lastLookBookId: Int64?,
         size: Int32,
@@ -25,12 +30,5 @@ final class AddToLookBookUseCase {
             size: size,
             direction: direction
         )
-    }
-    
-    /// 이전 일일 코디로 자동 생성
-    func createAutoDailyCoordinate(
-        request: CreateAutoDailyCoordinateAPIRequestDTO
-    ) async throws -> AutoDailyCoordinateEntity {
-        try await repository.createAutoDailyCoordinate(request: request)
     }
 }

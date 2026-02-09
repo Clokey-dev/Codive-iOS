@@ -21,8 +21,8 @@ struct ZoomRotateDragView<Content: View>: View {
     @GestureState private var gestureRotation: Angle = .zero
     
     // MARK: - 제약 조건 설정
-    private let minScale: CGFloat = 0.4  // 최소 크기 (40%)
-    private let maxScale: CGFloat = 4.0  // 최대 크기 (400%)
+    private let minScale: CGFloat = 0.4
+    private let maxScale: CGFloat = 4.0
 
     init(
         id: Int64,
@@ -42,7 +42,6 @@ struct ZoomRotateDragView<Content: View>: View {
 
     var body: some View {
         content
-            // 화면에 보이는 배율도 제한 범위 내에서만 움직이도록 시각적 보정
             .scaleEffect(clampedScale(scale * gestureScale))
             .rotationEffect(Angle(degrees: rotation) + gestureRotation)
             .offset(x: position.x + gestureOffset.width, y: position.y + gestureOffset.height)
@@ -60,7 +59,6 @@ struct ZoomRotateDragView<Content: View>: View {
                     MagnificationGesture()
                         .updating($gestureScale) { v, s, _ in s = v }
                         .onEnded { v in
-                            // 제스처 종료 시 최종 scale 값을 제한 범위 내로 고정
                             let newScale = scale * v
                             scale = min(max(newScale, minScale), maxScale)
                         }
@@ -73,7 +71,6 @@ struct ZoomRotateDragView<Content: View>: View {
             )
     }
     
-    // 시각적으로 이미지가 너무 작아져서 사라지는 것을 방지하는 보조 함수
     private func clampedScale(_ current: CGFloat) -> CGFloat {
         return min(max(current, minScale * 0.8), maxScale * 1.2)
     }

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CodiveAPI
 
 // MARK: - ClothDataSource Protocol
 
@@ -40,6 +41,13 @@ protocol ClothDataSource {
     func deleteCloth(clothId: Int) async throws
 
     func deleteClothItems(_ clothIds: [Int]) async throws
+    
+    /// 룩북 전체 조회
+    func fetchLookBookList(
+        lastLookBookId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
+    ) async throws -> LookBookListResponseDTO
 }
 
 // MARK: - DefaultClothDataSource
@@ -199,6 +207,19 @@ final class DefaultClothDataSource: ClothDataSource {
 
     func deleteCloth(clothId: Int) async throws {
         try await apiService.deleteCloth(clothId: Int64(clothId))
+    }
+    
+    /// 룩북 전체 리스트 조회
+    func fetchLookBookList(
+        lastLookBookId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
+    ) async throws -> LookBookListResponseDTO {
+        return try await apiService.fetchLookBookList(
+            lastLookBookId: lastLookBookId,
+            size: size,
+            direction: direction
+        )
     }
 }
 
