@@ -28,7 +28,9 @@ struct ClosetView: View {
 
                 WardrobeReportView()
 
-                MyLookbookSectionView()
+                MyLookbookSectionView(
+                    viewModel: closetDIContainer.makeMyLookBookSectionViewModel()
+                )
                 Spacer(minLength: 45)
             }
         }

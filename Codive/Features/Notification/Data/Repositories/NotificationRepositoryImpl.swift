@@ -23,16 +23,13 @@ final class NotificationRepositoryImpl: NotificationRepository {
         try await datasource.patchAllNotification()
     }
     
-    func fetchNotificationList(lastNotificationId: Int64?, size: Int32) async throws -> (content: [NotificationEntity], isLast: Bool) {
-        let dto = try await datasource.fetchNotificationList(
+    func fetchNotificationList(
+        lastNotificationId: Int64?,
+        size: Int32
+    ) async throws -> NotificationListResponseDTO {
+        return try await datasource.fetchNotificationList(
             lastNotificationId: lastNotificationId,
             size: size
-        )
-        
-        
-        return (
-            content: dto.content.map { $0.toEntity() },
-            isLast: dto.isLast
         )
     }
     

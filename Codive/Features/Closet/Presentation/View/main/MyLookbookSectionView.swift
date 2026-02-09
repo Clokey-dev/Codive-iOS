@@ -9,19 +9,13 @@ import SwiftUI
 
 struct MyLookbookSectionView: View {
     
-    // MARK: - Data Model
-    struct LookbookItem: Identifiable {
-        let id = UUID()
-        let title: String
+    @StateObject private var viewModel: MyLookbookSectionViewModel
+    
+    init(viewModel: MyLookbookSectionViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel)
     }
     
     // MARK: - Properties
-    // 임시 데이터
-    let lookbooks: [LookbookItem] = [
-        LookbookItem(title: "벚꽃 데이트룩"),
-        LookbookItem(title: "스페인 여행"),
-        LookbookItem(title: "독서실룩")
-    ]
     
     // 그리드 레이아웃 설정
     let columns = [
@@ -40,7 +34,7 @@ struct MyLookbookSectionView: View {
                 Spacer()
                 
                 Button(
-                    action: { print("더보기") },
+                    action: { viewModel.navigateToLookBook() },
                     label: {
                         HStack(spacing: 2) {
                             Text("더보기")
@@ -54,23 +48,26 @@ struct MyLookbookSectionView: View {
             .padding(.horizontal, 20)
             
             LazyVGrid(columns: columns, spacing: 20) {
-                // 룩북 개수가 4개 미만일 때만 '룩북 만들기' 버튼을 표시
-                if lookbooks.count < 4 {
+                if viewModel.lookBookList.count < 4 {
                     AddLookbookButton {
-                        print("룩북 만들기 클릭")
-                        
+                        viewModel.navigateToAddLookbook()
                     }
                 }
+
+                let displayCount = viewModel.lookBookList.count < 4 ? 3 : 4
                 
-                // 버튼 유무에 따라 표시할 카드 개수 조절
-                let displayCount = lookbooks.count < 4 ? 3 : 4
-                ForEach(lookbooks.prefix(displayCount)) { item in
-                    LookbookCardView(item: item)
+                ForEach(viewModel.lookBookList.prefix(displayCount)) { item in
+                    LookbookCardView(item: item) { selectedItem in
+                        viewModel.navigateToSpecificLookbook(lookBook: selectedItem)
+                    }
                 }
             }
             .padding(.horizontal, 20)
         }
         .padding(.vertical, 20)
+        .onAppear {
+            viewModel.fetchMyLookBooks()
+        }
     }
 }
 
@@ -115,20 +112,28 @@ struct AddLookbookButton: View {
 struct LookbookCardView: View {
     
     // MARK: - Properties
-    let item: MyLookbookSectionView.LookbookItem
+    let item: LookBookEntity
+    let onTap: (LookBookEntity) -> Void
     
     // MARK: - Body
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             ZStack {
+                // 배경색
                 Rectangle()
                     .fill(Color.Codive.grayscale6)
-                
-                Image(systemName: "tshirt")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 50)
-                    .foregroundStyle(Color.Codive.grayscale4)
+
+                AsyncImage(url: URL(string: item.imageUrl)) { image in
+                    image
+                        .resizable()
+                        .scaledToFill()
+                } placeholder: {
+                    Image(systemName: "tshirt")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 50)
+                        .foregroundStyle(Color.Codive.grayscale4)
+                }
             }
             .aspectRatio(1.0, contentMode: .fit)
             .cornerRadius(12)
@@ -137,16 +142,15 @@ struct LookbookCardView: View {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(Color.Codive.grayscale5, lineWidth: 1)
             )
-            
-            Text(item.title)
+ 
+            Text(item.lookbookName)
                 .font(.codive_body2_medium)
                 .foregroundStyle(Color.Codive.grayscale1)
                 .lineLimit(1)
                 .padding(.leading, 2)
         }
+        .onTapGesture {
+            onTap(item)
+        }
     }
-}
-
-#Preview {
-    MyLookbookSectionView()
 }

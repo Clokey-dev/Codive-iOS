@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CodiveAPI
 
 // MARK: - ClothRepository
 protocol ClothRepository {
@@ -38,4 +39,11 @@ protocol ClothRepository {
     func deleteCloth(clothId: Int) async throws
 
     func deleteClothItems(_ clothIds: [Int]) async throws
+    
+    /// 룩북 조회
+    func fetchLookBookList(
+        lastLookBookId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
+    ) async throws -> (content: [LookBookEntity], isLast: Bool)
 }

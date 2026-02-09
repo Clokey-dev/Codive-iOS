@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CodiveAPI
 
 // MARK: - ClothRepositoryImpl
 
@@ -89,5 +90,23 @@ final class ClothRepositoryImpl: ClothRepository {
     
     func deleteCloth(clothId: Int) async throws {
         try await dataSource.deleteCloth(clothId: clothId)
+    }
+    
+    // 룩북 조회
+    func fetchLookBookList(
+        lastLookBookId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
+    ) async throws -> (content: [LookBookEntity], isLast: Bool) {
+        let dto = try await dataSource.fetchLookBookList(
+            lastLookBookId: lastLookBookId,
+            size: size,
+            direction: direction
+        )
+        
+        return (
+            content: dto.content.map { $0.toEntity() },
+            isLast: dto.isLast
+        )
     }
 }

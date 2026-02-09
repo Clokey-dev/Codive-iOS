@@ -55,7 +55,6 @@ struct AddCodiDetailView: View {
             
             GeometryReader { geometry in
                 let boardSize = geometry.size.width - 40
-                let imageHalfSize: CGFloat = 40
                 
                 ZStack(alignment: .bottom) {
                     VStack(spacing: 20) {

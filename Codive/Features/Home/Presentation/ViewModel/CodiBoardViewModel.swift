@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 @MainActor
 final class CodiBoardViewModel: ObservableObject {
@@ -14,10 +15,13 @@ final class CodiBoardViewModel: ObservableObject {
     
     @Published var isConfirmed: Bool = false
     @Published var images: [DraggableImageEntity] = []
+    private var cancellables = Set<AnyCancellable>()
     @Published var currentlyDraggedID: Int?
-    @Published var selectedImageID: Int? // 추가된 속성
+    @Published var selectedImageID: Int?
+    @Published var boardSize: CGFloat = 260
     
     private let codiBoardUseCase: CodiBoardUseCase
+    private let todayCodiUseCase: TodayCodiUseCase
     private let navigationRouter: NavigationRouter
     private weak var homeViewModel: HomeViewModel?
     
@@ -26,26 +30,40 @@ final class CodiBoardViewModel: ObservableObject {
     init(
         navigationRouter: NavigationRouter,
         codiBoardUseCase: CodiBoardUseCase,
+        todayCodiUseCase: TodayCodiUseCase,
         homeViewModel: HomeViewModel? = nil
     ) {
         self.navigationRouter = navigationRouter
         self.codiBoardUseCase = codiBoardUseCase
+        self.todayCodiUseCase = todayCodiUseCase
         self.homeViewModel = homeViewModel
         
-        loadInitialData()
+        setupCodiDataSubscription()
     }
     
     // MARK: - Private Methods
     
     /// 초기 코디판 이미지 데이터를 로드
-    private func loadInitialData() {
-        self.images = codiBoardUseCase.loadCodiBoardImages()
+    private func setupCodiDataSubscription() {
+        HomeViewModel.codiTransferPublisher
+            .compactMap { $0 }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] transferredData in
+                guard let self = self else { return }
+                
+                self.images = transferredData.images
+            }
+            .store(in: &cancellables)
     }
     
     // MARK: - Navigation
-    
-    /// 이전 화면으로 이동
     func handleBackTap() {
+        if let homeVM = homeViewModel {
+            if homeVM.todayCodiPreview != nil {
+                homeVM.hasCodi = true
+            }
+            homeVM.isEditingExistingCodi = false
+        }
         navigationRouter.navigateBack()
     }
     
@@ -53,31 +71,77 @@ final class CodiBoardViewModel: ObservableObject {
     
     /// 구성된 코디를 서버에 저장하고 홈 화면의 완료 팝업을 띄움
     func handleConfirmCodi() {
-//        Task {
-//            do {
-//                // 1. 서버에 데이터 전송
-//                try await codiBoardUseCase.saveCodiItems(images)
-//                
-//                // 2. 저장 성공 후 UI 처리 (MainActor에서 실행됨)
-//                let imageURL = images.first?.imageURL
-//                navigationRouter.navigateBack()
-//                
-//                // 홈 화면으로 돌아가는 애니메이션 시간을 고려하여 지연 실행
-//                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-//                    self?.homeViewModel?.showCompletionPopup(imageURL: imageURL)
-//                }
-//                
-//                self.isConfirmed = true
-//            } catch {
-//                handleError(error)
-//            }
-//        }
+        Task {
+            let actualSize = boardSize
+            let centerOffset = actualSize / 2
+            
+            let captureView = ZStack {
+                RoundedRectangle(cornerRadius: 15)
+                    .fill(Color.Codive.grayscale7)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 15)
+                            .stroke(Color.Codive.grayscale5, lineWidth: 1)
+                    )
+                
+                DraggableImageView(items: .constant(images)) { _ in }
+            }
+                .frame(width: actualSize, height: actualSize)
+                .clipShape(RoundedRectangle(cornerRadius: 15))
+            
+            let renderer = ImageRenderer(content: captureView)
+            renderer.scale = UIScreen.main.scale
+            
+            guard var uiImage = renderer.uiImage else { return }
+            
+            let targetSize = CGSize(width: 260, height: 260)
+            uiImage = resizeImage(image: uiImage, targetSize: targetSize)
+            
+            guard let jpgData = uiImage.jpegData(compressionQuality: 0.8) else { return }
+            
+            do {
+                let uploadedURL = try await todayCodiUseCase.execute(jpgData: jpgData)
+                
+                let finalPayloads = images.enumerated().map { index, entity in
+                    let absoluteX = max(0, min(actualSize, entity.position.x + centerOffset))
+                    let absoluteY = max(0, min(actualSize, entity.position.y + centerOffset))
+                    
+                    let positiveDegree = entity.rotation < 0 ? entity.rotation + 360 : entity.rotation
+                    
+                    return Payloads(
+                        clothId: entity.id,
+                        locationX: Double(absoluteX / actualSize),
+                        locationY: Double(absoluteY / actualSize),
+                        ratio: Double(entity.scale),
+                        degree: positiveDegree,
+                        order: Int32(index + 1)
+                    )
+                }
+                
+                await MainActor.run {
+                    guard let homeVM = homeViewModel else { return }
+                    homeVM.capturedImageURL = uploadedURL
+                    homeVM.boardPayloads = finalPayloads
+                    navigationRouter.navigateBack()
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        homeVM.showCompletePopUp = true
+                    }
+                }
+            } catch {
+                print("❌ 에러: \(error.localizedDescription)")
+            }
+        }
     }
     
-    /// 에러 발생 시 처리 로직
+    private func resizeImage(image: UIImage, targetSize: CGSize) -> UIImage {
+        let renderer = UIGraphicsImageRenderer(size: targetSize)
+        return renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: targetSize))
+        }
+    }
+    
     private func handleError(_ error: Error) {
         print("코디 저장 실패: \(error.localizedDescription)")
-        // TODO: 필요한 경우 사용자에게 보여줄 에러 알럿 로직 추가
     }
     
     // MARK: - DraggableImageViewModelProtocol Implementation

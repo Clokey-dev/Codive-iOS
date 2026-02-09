@@ -60,15 +60,6 @@ struct CoordinateDetailEntity {
     let parentCategory: String
 }
 
-/// 오늘의 코디 옷 정보 조회
-struct TodayCoordinateClothEntity {
-    let imageUrl: String
-    let brand: String
-    let name: String
-    let category: String
-    let parentCategory: String
-}
-
 /// 코디 수동 생성
 struct ManualCoordinateEntity {
     let coordinateId: Int64

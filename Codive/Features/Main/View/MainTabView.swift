@@ -120,8 +120,10 @@ struct MainTabView: View {
                             isPresented: $homeViewModel.showCompletePopUp,
                             onRecordTapped: homeViewModel.handlePopupRecord,
                             onCloseTapped: homeViewModel.handlePopupClose,
-                            selectedClothes: homeViewModel.selectedCodiClothes
+                            selectedClothes: homeViewModel.selectedCodiClothes,
+                            singleImageUrl: homeViewModel.capturedImageURL
                         )
+                        .id(homeViewModel.capturedImageURL)
                         .zIndex(200)
                     }
                 }
@@ -200,7 +202,7 @@ struct MainTabView: View {
         case .codiBoard:
             homeDIContainer.makeCodiBoardView()
         case .favoriteCodiList(let showHeart):
-            FavoriteCodiView(showHeart: showHeart, navigationRouter: navigationRouter)
+            profileDIContainer.makeFavoriteCodiView(showHeart: showHeart)
         case .settings:
             settingDIContainer.makeSettingView()
         case .settingLikedRecords:

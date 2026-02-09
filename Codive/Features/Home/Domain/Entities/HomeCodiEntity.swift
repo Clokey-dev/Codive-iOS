@@ -13,16 +13,19 @@ struct TodayCoordinateEntity {
 }
 
 // MARK: - Codi Item
-struct CodiItemEntity: Identifiable {
-    let id: Int64
-    let imageName: String
-    let clothName: String
-    let brandName: String
-    let description: String
-    let x: CGFloat
-    let y: CGFloat
-    let width: CGFloat
-    let height: CGFloat
+struct CodiItemEntity {
+    let coordinateClothId: Int64
+    let locationX: Double
+    let locationY: Double
+    let ratio: Double
+    let degree: Double
+    let order: Int32
+    let clothId: Int64
+    let imageUrl: String
+    let brand: String
+    let name: String
+    let category: String
+    let parentCategory: String
 }
 
 struct TodayDailyCodi {
@@ -54,15 +57,6 @@ struct CodiCoordinatePayloadDTO: Codable {
     let order: Int
 }
 
-// MARK: - Draggable Image
-//struct DraggableImageEntity: Identifiable, Hashable {
-//    let id: Int
-//    let name: String
-//    var position: CGPoint
-//    var scale: CGFloat
-//    var rotationAngle: Double
-////    let imageURL: String? = nil
-//}
 protocol DraggableImageProtocol: Identifiable {
     var id: Int64 { get }
     var imageUrl: String { get }
@@ -79,4 +73,17 @@ struct DraggableImageEntity: DraggableImageProtocol, Equatable, Hashable {
     var position: CGPoint
     var scale: CGFloat
     var rotation: Double
+}
+
+struct TodayCodiTransferData {
+    let images: [DraggableImageEntity]
+}
+
+/// 오늘의 코디 옷 정보 조회
+struct TodayCoordinateClothEntity {
+    let imageUrl: String
+    let brand: String
+    let name: String
+    let category: String
+    let parentCategory: String
 }

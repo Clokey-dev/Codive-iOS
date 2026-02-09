@@ -23,7 +23,7 @@ final class NotificationUseCase {
         try await repository.patchAllNotification()
     }
     
-    func fetchNotificationList(lastNotificationId: Int64?, size: Int32) async throws -> (content: [NotificationEntity], isLast: Bool) {
+    func fetchNotificationList(lastNotificationId: Int64?, size: Int32) async throws -> NotificationListResponseDTO {
         return try await repository.fetchNotificationList(
             lastNotificationId: lastNotificationId,
             size: size
@@ -33,8 +33,4 @@ final class NotificationUseCase {
     func fetchReportReceived() async throws -> ReportReceivedAPIResponseDTO {
         return try await repository.fetchReportReceived()
     }
-    
-//    func fetchReportStatus() -> ReportEntity {
-//        return false
-//    }
 }

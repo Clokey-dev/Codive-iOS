@@ -27,6 +27,9 @@ struct CodiBoardView: View {
                 let imageHalfSize: CGFloat = 40
                 
                 contentView(boardSize: boardSize, imageHalfSize: imageHalfSize, totalWidth: geometry.size.width)
+                    .onAppear {
+                        viewModel.boardSize = boardSize
+                    }
             }
         }
         .navigationBarHidden(true)
@@ -53,9 +56,9 @@ private extension CodiBoardView {
     func contentView(boardSize: CGFloat, imageHalfSize: CGFloat, totalWidth: CGFloat) -> some View {
         VStack(spacing: 0) {
             descriptionText
-
+            
             drawingBoard(size: boardSize, imageHalfSize: imageHalfSize)
-
+            
             Spacer()
         }
         .frame(
@@ -78,13 +81,16 @@ private extension CodiBoardView {
     
     /// 이미지들을 배치하고 드래그할 수 있는 보드 영역
     func drawingBoard(size: CGFloat, imageHalfSize: CGFloat) -> some View {
-        return ZStack {
+        ZStack {
             boardBackground(size: size)
-            
-            // DraggableImageContainerView 사용
-//            DraggableImageView(viewModel: viewModel)
+        
+            DraggableImageView(items: $viewModel.images) { id in
+                viewModel.selectImage(id: Int(id))
+                viewModel.bringImageToFront(id: Int(id))
+            }
         }
         .frame(width: size, height: size)
+        .clipShape(RoundedRectangle(cornerRadius: 15))
         .padding(.horizontal, 20)
         .padding(.bottom, 20)
     }

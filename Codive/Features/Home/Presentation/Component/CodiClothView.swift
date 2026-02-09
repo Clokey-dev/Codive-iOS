@@ -26,19 +26,15 @@ struct ClothCardView: View {
                     .frame(height: 124)
                     .frame(width: 124)
                     .overlay {
-                        if let url = URL(string: item.imageUrl), item.imageUrl.hasPrefix("http") {
+                        if let url = URL(string: item.imageUrl), !item.imageUrl.isEmpty {
                             AsyncImage(url: url) { phase in
                                 switch phase {
                                 case .empty:
                                     ProgressView()
                                 case .success(let image):
-                                    image
-                                        .resizable()
-                                        .scaledToFit()
+                                    image.resizable().scaledToFit()
                                 case .failure:
-                                    Image(systemName: "photo")
-                                        .resizable()
-                                        .scaledToFit()
+                                    Image(systemName: "exclamationmark.triangle")
                                         .foregroundColor(.gray)
                                 @unknown default:
                                     EmptyView()
@@ -65,7 +61,7 @@ struct CodiClothCarouselView: View {
     let activeScale: CGFloat
     let inactiveScale: CGFloat
     let isEmptyState: Bool
-
+    
     @ViewBuilder
     private func emptyStateCard(at index: Int, width: CGFloat) -> some View {
         let border = RoundedRectangle(cornerRadius: 15)
@@ -172,6 +168,11 @@ struct CodiClothCarouselView: View {
                             }
                     )
                 }
+                .onChange(of: currentIndex) { newValue in
+                    withAnimation(.spring()) {
+                        proxy.scrollTo(newValue, anchor: .center)
+                    }
+                }
                 .scrollDisabled(isEmptyState)
                 .onAppear {
                     proxy.scrollTo(currentIndex, anchor: .center)
@@ -191,23 +192,24 @@ struct CodiClothView: View {
     let title: String
     let items: [HomeClothEntity]
     let isEmptyState: Bool
-    var onIndexChanged: ((Int) -> Void)?
-    
-    // Carousel 설정
+
     let spacing: CGFloat = 12
     let activeScale: CGFloat = 1.0
     let inactiveScale: CGFloat = 0.85
+    let selectedIndex: Int
+    var onIndexChanged: ((Int) -> Void)?
     
     @State private var currentIndex: Int
     
-    init(title: String, items: [HomeClothEntity], isEmptyState: Bool, onIndexChanged: ((Int) -> Void)? = nil) {
+    init(title: String, items: [HomeClothEntity], selectedIndex: Int = 0, isEmptyState: Bool, onIndexChanged: ((Int) -> Void)? = nil) {
         self.title = title
         self.items = items
         self.isEmptyState = isEmptyState
+        self.selectedIndex = selectedIndex
         self.onIndexChanged = onIndexChanged
         
-//        let initialIndex = isEmptyState ? 1 : max(0, items.count / 2)
-        let initialIndex = isEmptyState ? 1 : 0
+        // 초기값 설정: 비어있으면 1(중앙), 아니면 전달받은 selectedIndex 사용
+        let initialIndex = isEmptyState ? 1 : selectedIndex
         _currentIndex = State(initialValue: initialIndex)
     }
     
@@ -224,6 +226,18 @@ struct CodiClothView: View {
                 )
                 .onChange(of: currentIndex) { newValue in
                     onIndexChanged?(newValue)
+                }
+                // 중요: 부모가 준 selectedIndex가 바뀌면(수정 버튼 클릭 시) 내부 currentIndex도 동기화
+                .onChange(of: selectedIndex) { newValue in
+                    withAnimation(.spring()) {
+                        self.currentIndex = newValue
+                    }
+                }
+                .onAppear {
+                    // 비어있는 상태가 아닐 때만 0번(또는 초기값)을 전달
+                    if !isEmptyState {
+                        onIndexChanged?(currentIndex)
+                    }
                 }
                 
                 // 카테고리 태그

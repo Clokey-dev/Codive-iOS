@@ -33,4 +33,24 @@ final class ProfileRepositoryImpl: ProfileRepository {
     func uploadProfileImage(_ imageData: Data) async throws -> String {
         return try await dataSource.uploadProfileImage(imageData)
     }
+    
+    func fetchMyFavoriteCoordinate() async throws -> [MyFavoriteLookBookResponseDTO] {
+        return try await dataSource.fetchMyFavoriteCoordinate()
+    }
+
+    func fetchCoordinatePreview(coordinateId: Int64) async throws -> CoordinatePreviewEntity {
+        let dto = try await dataSource.fetchCoordinatePreview(coordinateId: coordinateId)
+        return dto.toEntity()
+    }
+
+    func fetchCoordinateDetail(
+        coordinateId: Int64
+    ) async throws -> [CoordinateDetailEntity] {
+        
+        let dtoList = try await dataSource.fetchCoordinateDetail(
+            coordinateId: coordinateId
+        )
+        
+        return dtoList.map { $0.toEntity() }
+    }
 }

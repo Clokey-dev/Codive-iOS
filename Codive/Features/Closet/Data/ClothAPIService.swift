@@ -20,6 +20,13 @@ protocol ClothAPIServiceProtocol {
     func fetchClothDetails(clothId: Int64) async throws -> ClothDetailResult
     func updateCloth(clothId: Int64, request: ClothUpdateAPIRequest) async throws
     func deleteCloth(clothId: Int64) async throws
+    
+    /// 룩북 전체 조회
+    func fetchLookBookList(
+        lastLookBookId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
+    ) async throws -> LookBookListResponseDTO
 }
 
 // MARK: - Supporting Types
@@ -275,6 +282,37 @@ extension ClothAPIService {
             return
         case .undocumented(statusCode: let code, _):
             throw ClothAPIError.serverError(statusCode: code, message: "옷 삭제 실패")
+        }
+    }
+}
+
+extension ClothAPIService {
+    func fetchLookBookList(
+        lastLookBookId: Int64?,
+        size: Int32,
+        direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload = .DESC
+    ) async throws -> LookBookListResponseDTO {
+        
+        let input = Operations.LookBook_getLookBooks.Input(
+            query: .init(lastLookBookId: lastLookBookId, size: size, direction: direction)
+        )
+        
+        let response = try await client.LookBook_getLookBooks(input)
+        
+        switch response {
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseLookBookListResponse.self, from: data)
+            
+            let content: [LookBookListResponseItem] = decoded.result?.content?.compactMap { item -> LookBookListResponseItem? in
+                guard let lookBookId = item.lookBookId else { return nil }
+                return LookBookListResponseItem(lookBookId: lookBookId, lookBookName: item.lookBookName ?? "", imageUrl: item.imageUrl ?? "", count: item.count ?? 0)
+            } ?? []
+            
+            return LookBookListResponseDTO(content: content, isLast: decoded.result?.isLast ?? true)
+            
+        case .undocumented(statusCode: let code, _):
+            throw LookBookAPIError.serverError(statusCode: code, message: "룩북 목록 조회 실패")
         }
     }
 }

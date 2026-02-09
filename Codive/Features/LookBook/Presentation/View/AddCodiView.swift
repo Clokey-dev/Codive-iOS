@@ -132,12 +132,14 @@ private extension AddCodiView {
                 .resizable()
                 .scaledToFill()
             
-            EditCodiOverlayView()
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    viewModel.handleEditCodiTap()
-                }
+            if !viewModel.isPastCodiSelected {
+                EditCodiOverlayView()
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        viewModel.handleEditCodiTap()
+                    }
+            }
         }
         .frame(height: 335)
         .clipShape(RoundedRectangle(cornerRadius: 12))

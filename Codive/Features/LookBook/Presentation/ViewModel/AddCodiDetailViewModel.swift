@@ -195,7 +195,6 @@ final class AddCodiDetailViewModel: ObservableObject {
                 rotation: payload.degree
             )
         }
-        
     }
     
     func handleBackTap() { navigationRouter.navigateBack() }
