@@ -32,37 +32,40 @@ struct FeedDetailView: View {
 
     // MARK: - Body
     var body: some View {
-        VStack(spacing: 0) {
-            HStack {
-                Button(action: {
-                    navigationRouter.navigateBack()
-                }, label: {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 20))
+        ZStack {
+            VStack(spacing: 0) {
+                HStack {
+                    Button(action: {
+                        navigationRouter.navigateBack()
+                    }, label: {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 20))
+                            .foregroundStyle(.black)
+                    })
+
+                    Spacer()
+
+                    Text(TextLiteral.Feed.detailTitle)
+                        .font(.codive_title2)
                         .foregroundStyle(.black)
-                })
-                
-                Spacer()
-                
-                Text(TextLiteral.Feed.detailTitle)
-                    .font(.codive_title2)
-                    .foregroundStyle(.black)
-                
-                Spacer()
-                
-                Color.clear.frame(width: 24, height: 24)
-            }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 12)
-            
-            ScrollView {
-                VStack(spacing: 0) {
-                    if let feed = viewModel.feed {
+
+                    Spacer()
+
+                    Color.clear.frame(width: 24, height: 24)
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 12)
+
+                ScrollView {
+                    VStack(spacing: 0) {
+                        if let feed = viewModel.feed {
                         // 프로필
                         ProfileHeaderView(
                             profileImageUrl: feed.author.profileImageUrl ?? "",
                             nickname: feed.author.nickname,
-                            onMoreTap: { },
+                            onMoreTap: {
+                                viewModel.showMoreMenu()
+                            },
                             onProfileTap: {
                                 viewModel.navigateToProfile(userId: feed.author.id, isMine: feed.author.isMe ?? false)
                             }
@@ -123,11 +126,58 @@ struct FeedDetailView: View {
                     } else {
                         Text(viewModel.errorMessage ?? TextLiteral.Feed.genericLoadFailed)
                             .padding(.top, 50)
+                        }
                     }
                 }
+            .background(Color.white)
+            }
+
+            // 더보기 메뉴 오버레이
+            if viewModel.isMoreMenuPresented, let feed = viewModel.feed {
+                ZStack(alignment: .topTrailing) {
+                    Color.black
+                        .opacity(0.001)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            viewModel.dismissMoreMenu()
+                        }
+
+                    if feed.author.isMe ?? false {
+                        // 내 피드: 수정하기, 삭제하기
+                        CustomOverflowMenu(
+                            menuType: .closet,
+                            menuActions: [
+                                { viewModel.onEditTapped() },
+                                { viewModel.onDeleteTapped() }
+                            ],
+                            isExpanded: viewModel.isMoreMenuPresented,
+                            showButton: false
+                        ) {
+                            viewModel.dismissMoreMenu()
+                        }
+                        .padding(.trailing, 20)
+                        .padding(.top, 80)
+                    } else {
+                        // 다른 사람 피드: 신고하기, 차단하기
+                        CustomOverflowMenu(
+                            menuType: .report,
+                            menuActions: [
+                                { viewModel.onReportTapped() },
+                                { viewModel.onBlockTapped() }
+                            ],
+                            isExpanded: viewModel.isMoreMenuPresented,
+                            showButton: false
+                        ) {
+                            viewModel.dismissMoreMenu()
+                        }
+                        .padding(.trailing, 20)
+                        .padding(.top, 80)
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .zIndex(10)
             }
         }
-        .background(Color.white)
         .navigationBarHidden(true)
         .onAppear {
             Task {

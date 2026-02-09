@@ -59,13 +59,19 @@ struct MenuItem {
 struct CustomOverflowMenu: View {
     let menuType: MenuType
     let menuActions: [() -> Void]
-    
-    @State private var isExpanded = false
-    
-    init(menuType: MenuType, menuActions: [() -> Void]) {
+    var isExpanded: Bool = false
+    var showButton: Bool = true
+    var onToggle: (() -> Void)?
+    var onClose: (() -> Void)?
+
+    init(menuType: MenuType, menuActions: [() -> Void], isExpanded: Bool = false, showButton: Bool = true, onToggle: (() -> Void)? = nil, onClose: (() -> Void)? = nil) {
         self.menuType = menuType
         self.menuActions = menuActions
-        
+        self.isExpanded = isExpanded
+        self.showButton = showButton
+        self.onToggle = onToggle
+        self.onClose = onClose
+
         assert(
             menuType.items.count == menuActions.count,
             "\(menuType) 메뉴의 항목 개수와 연결된 액션 개수가 일치해야 합니다."
@@ -77,20 +83,29 @@ struct CustomOverflowMenu: View {
     }
     
     var body: some View {
-        Button(action: toggleMenu) {
-            Image(systemName: "ellipsis")
-                .rotationEffect(.degrees(90))
-                .font(.title2)
-                .foregroundStyle(Color.Codive.grayscale1)
-                .padding()
-        }
-        .overlay(alignment: .topTrailing) {
-            if isExpanded {
-                expandedMenu
+        ZStack {
+            if showButton {
+                Button(action: { onToggle?() }) {
+                    Image(systemName: "ellipsis")
+                        .rotationEffect(.degrees(90))
+                        .font(.title2)
+                        .foregroundStyle(Color.Codive.grayscale1)
+                        .padding()
+                }
+                .overlay(alignment: .topTrailing) {
+                    if isExpanded {
+                        expandedMenu
+                    }
+                }
+                .animation(.spring(), value: isExpanded)
+                .zIndex(1)
+            } else {
+                // showButton이 false일 때는 expandedMenu만 표시
+                if isExpanded {
+                    expandedMenu
+                }
             }
         }
-        .animation(.spring(), value: isExpanded)
-        .zIndex(1)
     }
 }
 
@@ -101,7 +116,7 @@ private extension CustomOverflowMenu {
             
             Color.clear
                 .contentShape(Rectangle())
-                .onTapGesture(perform: closeMenu)
+                .onTapGesture { onClose?() }
             
             VStack(spacing: 0) {
                 ForEach(Array(menuItems.enumerated()), id: \.offset) { index, item in
@@ -123,7 +138,7 @@ private extension CustomOverflowMenu {
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .shadow(color: .gray.opacity(0.2), radius: 10, x: 0, y: 2)
             .fixedSize(horizontal: true, vertical: false)
-            .offset(x: -20, y: 50)
+            .offset(x: -15, y: 0)
             .transition(.scale(scale: 0.8, anchor: .topTrailing).combined(with: .opacity))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -164,19 +179,10 @@ private extension CustomOverflowMenu {
 }
 
 private extension CustomOverflowMenu {
-    func toggleMenu() {
-        withAnimation { isExpanded.toggle() }
-    }
-    
-    func closeMenu() {
-        withAnimation { isExpanded = false }
-    }
-    
     func performAction(at index: Int) {
         guard index < menuActions.count else { return }
-        closeMenu()
-        
-        // 2) 다음 런루프에서 액션 실행 (네비게이션/시트 전환 시 UI 레이어 충돌 방지)
+
+        // 다음 런루프에서 액션 실행 (네비게이션/시트 전환 시 UI 레이어 충돌 방지)
         DispatchQueue.main.async {
             self.menuActions[index]()
         }

@@ -24,6 +24,8 @@ final class FeedDetailViewModel: ObservableObject {
     @Published var likers: [User] = [] // 좋아요 누른 유저 목록
     @Published var isLikesSheetPresented: Bool = false // 좋아요 목록 시트 표시 여부
 
+    @Published var isMoreMenuPresented: Bool = false // 더보기 메뉴 표시 여부
+
     // MARK: - Private Properties
 
     private let feedId: Int
@@ -207,5 +209,39 @@ final class FeedDetailViewModel: ObservableObject {
             print("✓ Navigate to otherProfile(userId: \(memberId))")
             navigationRouter.navigate(to: .otherProfile(userId: memberId))
         }
+    }
+
+    // MARK: - 더보기 메뉴
+
+    func showMoreMenu() {
+        isMoreMenuPresented = true
+    }
+
+    func dismissMoreMenu() {
+        isMoreMenuPresented = false
+    }
+
+    func onEditTapped() {
+        dismissMoreMenu()
+        // TODO: 수정 화면으로 이동
+        print("수정하기 탭됨")
+    }
+
+    func onDeleteTapped() {
+        dismissMoreMenu()
+        // TODO: 삭제 기능 구현
+        print("삭제하기 탭됨")
+    }
+
+    func onReportTapped() {
+        dismissMoreMenu()
+        guard let feed = feed else { return }
+        navigationRouter.navigate(to: .report(target: .post(id: feed.id)))
+    }
+
+    func onBlockTapped() {
+        dismissMoreMenu()
+        // TODO: 차단 기능 구현
+        print("차단하기 탭됨")
     }
 }
