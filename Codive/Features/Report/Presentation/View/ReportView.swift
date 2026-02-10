@@ -9,30 +9,40 @@ import SwiftUI
 
 struct ReportView: View {
     @ObservedObject var vm: ReportViewModel
+    @ObservedObject var navigationRouter: NavigationRouter
     var onSubmit: (() -> Void)?
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                CustomNavigationBar(title: vm.navTitle) {
-                    // 뒤로가기 액션
-                }
+        VStack(spacing: 0) {
+            CustomNavigationBar(
+                title: vm.navTitle,
+                onBack: onBackTapped
+            )
 
-                reportingUser
-                reportingContent
-                Divider()
-                reportingReasons
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    reportingUser
+                    reportingContent
+                    Divider()
+                    reportingReasons
+                }
+            }
+            .safeAreaInset(edge: .bottom) {
+                CustomButton(text: TextLiteral.Report.next, widthType: .fixed) {
+                    onSubmit?()
+                }
+                .disabled(!vm.isNextEnabled || vm.isSubmitting)
+                .padding(.horizontal, 20)
+                .padding(.bottom, 48)
             }
         }
-        .safeAreaInset(edge: .bottom) {
-            CustomButton(text: TextLiteral.Report.next, widthType: .fixed) {
-                onSubmit?()
-            }
-            .disabled(!vm.isNextEnabled || vm.isSubmitting)
-            .padding(.horizontal, 20)
-            .padding(.bottom, 48)
-        }
+        .navigationBarHidden(true)
         .task { await vm.loadContext() }
+    }
+
+    // MARK: - Navigation
+    private func onBackTapped() {
+        navigationRouter.navigateBack()
     }
 
     // MARK: 작성자
@@ -44,25 +54,29 @@ struct ReportView: View {
                 .padding(.bottom, 12)
                 .padding(.leading, 20)
 
-            Group {
-                HStack {
-                    // 후에 실제 프로필 이미지 주입
+            HStack {
+                if let avatarURL = vm.context?.author.avatarURL {
+                    AsyncImage(url: avatarURL) { image in
+                        image.resizable()
+                            .scaledToFill()
+                    } placeholder: {
+                        Image("Profile")
+                            .resizable()
+                            .scaledToFill()
+                    }
+                    .frame(width: 40, height: 40)
+                    .clipShape(Circle())
+                } else {
                     Image("Profile")
                         .resizable()
                         .scaledToFill()
                         .frame(width: 40, height: 40)
                         .clipShape(Circle())
-
-                    VStack(alignment: .leading) {
-                        Text(vm.authorName)
-                            .font(.codive_body1_medium)
-                            .foregroundStyle(Color.Codive.grayscale1)
-
-                        Text(vm.authorHandle)
-                            .font(.codive_body3_medium)
-                            .foregroundStyle(Color.Codive.grayscale3)
-                    }
                 }
+
+                Text(vm.authorName)
+                    .font(.codive_body1_medium)
+                    .foregroundStyle(Color.Codive.grayscale1)
             }
             .padding(.leading, 20)
         }
@@ -71,12 +85,12 @@ struct ReportView: View {
     // MARK: 내용 미리보기
     private var reportingContent: some View {
         VStack(alignment: .leading) {
-            Text(vm.contentSectionTitle) // "기록 내용" / "댓글 내용"
+            Text(vm.contentSectionTitle)
                 .font(.codive_title2)
                 .foregroundStyle(Color.Codive.grayscale1)
                 .padding(.bottom, 12)
 
-            Text(vm.contentPreview)
+            Text(vm.contentPreview.isEmpty ? "-" : vm.contentPreview)
                 .font(.codive_body3_regular)
                 .foregroundStyle(Color.Codive.grayscale2)
                 .lineLimit(nil)
@@ -107,7 +121,6 @@ struct ReportView: View {
                         vm.select(reason: reason)
                     }
 
-                    // 보조 설명
                     if let sub = helperLines(for: reason), vm.selectedReason == reason {
                         VStack(alignment: .leading) {
                             ForEach(sub, id: \.self) { line in
@@ -123,7 +136,6 @@ struct ReportView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
 
-                    // 기타 사유 입력
                     if reason.isEtc, vm.selectedReason == reason {
                         TextEditor(
                             text: Binding(
@@ -144,7 +156,6 @@ struct ReportView: View {
         .padding(.horizontal, 20)
     }
 
-    // MARK: 디자인 유지용 보조 설명 매핑
     private func helperLines(for reason: ReportReason) -> [String]? {
         switch reason {
         case .post(let r):

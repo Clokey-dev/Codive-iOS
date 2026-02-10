@@ -24,6 +24,7 @@ struct MainTabView: View {
     private let lookBookDIContainer: LookBookDIContainer
     private let settingDIContainer: SettingDIContainer
     private let profileDIContainer: ProfileDIContainer
+    private let reportDIContainer: ReportDIContainer
 
     // MARK: - Initializer
     init(appDIContainer: AppDIContainer) {
@@ -38,6 +39,7 @@ struct MainTabView: View {
         self.lookBookDIContainer = appDIContainer.makeLookBookDIContainer()
         self.settingDIContainer = appDIContainer.makeSettingDIContainer()
         self.profileDIContainer = appDIContainer.makeProfileDIContainer()
+        self.reportDIContainer = appDIContainer.makeReportDIContainer()
 
         self._navigationRouter = ObservedObject(wrappedValue: appDIContainer.navigationRouter)
         let viewModel = MainTabViewModel(
@@ -260,6 +262,10 @@ struct MainTabView: View {
         // LookBook Flow
         case .lookbook, .specificLookbook, .addCodi, .addCodiDetail, .addBeforeCodi, .codiDetail, .editCodi:
             lookBookDIContainer.lookBookViewFactory.makeView(for: destination)
+
+        // Report Flow
+        case .report, .reportDetail:
+            reportDIContainer.reportViewFactory.makeView(for: destination)
 
         default:
             EmptyView()

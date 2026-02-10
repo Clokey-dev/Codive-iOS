@@ -207,6 +207,16 @@ struct FeedDetailView: View {
         } message: {
             Text("이 기록을 삭제하시겠습니까?\n삭제된 기록은 복구할 수 없습니다.")
         }
+        .alert("사용자 차단", isPresented: $viewModel.showBlockAlert) {
+            Button("취소", role: .cancel) { }
+            Button("차단", role: .destructive) {
+                viewModel.confirmBlock()
+            }
+        } message: {
+            if let feed = viewModel.feed {
+                Text("\(feed.author.nickname)님을 차단하시겠습니까?\n차단된 사용자의 기록을 더 이상 볼 수 없습니다.")
+            }
+        }
     }
 
     // MARK: - Helper Methods

@@ -26,6 +26,7 @@ final class FeedDetailViewModel: ObservableObject {
 
     @Published var isMoreMenuPresented: Bool = false // 더보기 메뉴 표시 여부
     @Published var showDeleteAlert: Bool = false // 삭제 확인 Alert
+    @Published var showBlockAlert: Bool = false // 차단 확인 Alert
 
     // MARK: - Private Properties
 
@@ -269,7 +270,33 @@ final class FeedDetailViewModel: ObservableObject {
 
     func onBlockTapped() {
         dismissMoreMenu()
-        // TODO: 차단 기능 구현
-        print("차단하기 탭됨")
+        showBlockAlert = true
+    }
+
+    func confirmBlock() {
+        guard let feed = feed,
+              let userId = Int64(feed.author.id) else {
+            print("❌ Invalid user ID")
+            return
+        }
+
+        Task {
+            do {
+                isLoading = true
+                print("🔒 Blocking user with ID: \(userId)")
+                // 차단 API 호출
+                // try await memberRepository.blockUser(userId: userId)
+                isLoading = false
+                print("✅ Block successful")
+                navigationRouter.successMessage = "사용자를 차단했습니다."
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self.navigationRouter.navigateBack()
+                }
+            } catch {
+                isLoading = false
+                print("❌ Block error: \(error.localizedDescription)")
+                errorMessage = "차단에 실패했습니다: \(error.localizedDescription)"
+            }
+        }
     }
 }
