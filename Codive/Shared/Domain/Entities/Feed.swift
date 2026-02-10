@@ -8,7 +8,7 @@
 import Foundation
 
 // MARK: - Feed
-public struct Feed: Identifiable, Equatable {
+public struct Feed: Identifiable, Equatable, Hashable {
     public let id: Int
     public let content: String?
     public let author: User
@@ -54,7 +54,7 @@ public struct Feed: Identifiable, Equatable {
 }
 
 // MARK: - FeedImage
-public struct FeedImage: Identifiable, Equatable {
+public struct FeedImage: Identifiable, Equatable, Hashable {
     public let id: UUID = UUID()
     public let imageId: Int64?
     public let imageUrl: String
@@ -68,7 +68,7 @@ public struct FeedImage: Identifiable, Equatable {
 }
 
 // MARK: - ImageClothTag
-public struct ImageClothTag: Identifiable, Equatable {
+public struct ImageClothTag: Identifiable, Equatable, Hashable {
     public let id: UUID = UUID()
     
     public let clothId: Int

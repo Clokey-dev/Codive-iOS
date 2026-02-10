@@ -47,6 +47,13 @@ final class AddDIContainer {
             navigationRouter: navigationRouter
         )
     }
+
+    func makeRecordDetailViewModelForEdit(feed: Feed) -> RecordDetailViewModel {
+        return RecordDetailViewModel(
+            feed: feed,
+            navigationRouter: navigationRouter
+        )
+    }
     
     func makePhotoTagViewModel(photo: SelectedPhoto, allPhotos: [SelectedPhoto]) -> PhotoTagViewModel {
         return PhotoTagViewModel(
@@ -81,6 +88,12 @@ final class AddDIContainer {
     func makeRecordDetailView(selectedPhotos: [SelectedPhoto]) -> RecordDetailView {
         return RecordDetailView(
             viewModel: makeRecordDetailViewModel(selectedPhotos: selectedPhotos)
+        )
+    }
+
+    func makeRecordDetailViewForEdit(feed: Feed) -> RecordDetailView {
+        return RecordDetailView(
+            viewModel: makeRecordDetailViewModelForEdit(feed: feed)
         )
     }
     

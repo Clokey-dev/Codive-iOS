@@ -13,11 +13,12 @@ enum AppDestination: Hashable, Identifiable {
     case termsAgreement
     case main
     case recordAdd
-    case clothPhotoSelect 
+    case clothPhotoSelect
     case clothAdd(photos: [SelectedPhoto])
     case photoEdit(photos: [SelectedPhoto])
     case photoEditForCloth(photos: [SelectedPhoto])
     case recordDetail(photos: [SelectedPhoto])
+    case recordEdit(feed: Feed)
     case photoTag(photo: SelectedPhoto, allPhotos: [SelectedPhoto])
     case settings
     case settingLikedRecords
@@ -61,7 +62,7 @@ enum AppDestination: Hashable, Identifiable {
     var shouldCoverTabBar: Bool {
         switch self {
         // Add Flow - 기록 추가 관련 전체 화면
-        case .recordAdd, .clothPhotoSelect, .clothAdd, .photoEdit, .photoEditForCloth, .recordDetail, .photoTag:
+        case .recordAdd, .clothPhotoSelect, .clothAdd, .photoEdit, .photoEditForCloth, .recordDetail, .recordEdit, .photoTag:
             return true
 
         // Home Flow
@@ -103,7 +104,7 @@ enum AppDestination: Hashable, Identifiable {
     var shouldShowTopBar: Bool {
         switch self {
         // Add Flow - 전체 화면이므로 상단바 숨김
-        case .recordAdd, .clothPhotoSelect, .clothAdd, .photoEdit, .photoEditForCloth, .recordDetail, .photoTag:
+        case .recordAdd, .clothPhotoSelect, .clothAdd, .photoEdit, .photoEditForCloth, .recordDetail, .recordEdit, .photoTag:
             return false
 
         // Home Flow - 상단바 표시

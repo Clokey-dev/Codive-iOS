@@ -34,6 +34,8 @@ final class AddViewFactory {
             addDIContainer?.makePhotoEditView(selectedPhotos: photos, flowType: .cloth)
         case .recordDetail(let photos):
             addDIContainer?.makeRecordDetailView(selectedPhotos: photos)
+        case .recordEdit(let feed):
+            addDIContainer?.makeRecordDetailViewForEdit(feed: feed)
         case .photoTag(let photo, let allPhotos):
             addDIContainer?.makePhotoTagView(photo: photo, allPhotos: allPhotos)
         default:

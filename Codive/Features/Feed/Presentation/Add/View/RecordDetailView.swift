@@ -28,7 +28,7 @@ struct RecordDetailView: View {
                     onBack: { viewModel.dismissView() },
                     rightButton: .text(
                         title: "완료",
-                        isEnabled: viewModel.isCompleteEnabled,
+                        isEnabled: viewModel.isCompleteEnabled && !viewModel.isLoading,
                         action: { viewModel.completeRecord() }
                     )
                 )
@@ -69,6 +69,23 @@ struct RecordDetailView: View {
                 Button(TextLiteral.Common.cancel, role: .cancel) {}
             } message: {
                 Text(TextLiteral.Add.exitAlertMessage)
+            }
+            .alert("오류", isPresented: .constant(viewModel.errorMessage != nil)) {
+                Button("확인", role: .cancel) {
+                    viewModel.errorMessage = nil
+                }
+            } message: {
+                Text(viewModel.errorMessage ?? "")
+            }
+            .overlay(alignment: .center) {
+                if viewModel.isLoading {
+                    ZStack {
+                        Color.black.opacity(0.3)
+                            .ignoresSafeArea()
+                        ProgressView()
+                            .tint(.white)
+                    }
+                }
             }
         }
     }

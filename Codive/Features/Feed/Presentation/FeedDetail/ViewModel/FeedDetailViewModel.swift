@@ -227,8 +227,8 @@ final class FeedDetailViewModel: ObservableObject {
 
     func onEditTapped() {
         dismissMoreMenu()
-        // TODO: 수정 화면으로 이동
-        print("수정하기 탭됨")
+        guard let feed = feed else { return }
+        navigationRouter.navigate(to: .recordEdit(feed: feed))
     }
 
     func onDeleteTapped() {

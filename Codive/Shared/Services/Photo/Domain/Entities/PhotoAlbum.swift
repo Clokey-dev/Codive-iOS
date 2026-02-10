@@ -31,13 +31,14 @@ struct SelectedPhoto: Identifiable, Equatable, Hashable {
     let originalImage: UIImage
     var croppedImage: UIImage
     var order: Int
-    var clothTags: [ClothTag] = [] 
-    
+    var clothTags: [ClothTag] = []
+    var imageUrl: String? = nil // 수정 모드에서 기존 이미지 URL 저장
+
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
         hasher.combine(order)
     }
-    
+
     static func == (lhs: SelectedPhoto, rhs: SelectedPhoto) -> Bool {
         lhs.id == rhs.id && lhs.order == rhs.order
     }

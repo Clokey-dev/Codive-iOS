@@ -254,7 +254,7 @@ struct MainTabView: View {
             closetDIContainer.closetViewFactory.makeView(for: destination)
 
         // Add Flow
-        case .recordAdd, .clothPhotoSelect, .photoEdit, .photoEditForCloth, .recordDetail, .photoTag, .clothAdd:
+        case .recordAdd, .clothPhotoSelect, .photoEdit, .photoEditForCloth, .recordDetail, .recordEdit, .photoTag, .clothAdd:
             addDIContainer.addViewFactory.makeView(for: destination)
 
         // LookBook Flow

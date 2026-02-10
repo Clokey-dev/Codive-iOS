@@ -105,6 +105,15 @@ final class FeedDIContainer {
             commentDIContainer: commentDIContainer
         )
     }
+
+    func makeRecordDetailViewForEdit(feed: Feed) -> RecordDetailView {
+        let viewModel = RecordDetailViewModel(
+            feed: feed,
+            navigationRouter: navigationRouter,
+            recordDataSource: DefaultRecordDataSource()
+        )
+        return RecordDetailView(viewModel: viewModel)
+    }
 }
 
 #if DEBUG

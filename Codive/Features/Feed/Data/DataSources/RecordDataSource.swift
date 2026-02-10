@@ -21,6 +21,7 @@ struct RecordCreateRequest {
 struct RecordPhoto {
     let image: UIImage
     let clothTags: [RecordClothTag]
+    var imageUrl: String? = nil // 수정 모드에서 기존 이미지 URL 저장
 }
 
 struct RecordClothTag {
@@ -33,6 +34,7 @@ struct RecordClothTag {
 
 protocol RecordDataSource {
     func createRecord(request: RecordCreateRequest) async throws -> Int64
+    func updateRecord(historyId: Int64, request: RecordCreateRequest) async throws
 }
 
 // MARK: - Implementation
@@ -72,6 +74,27 @@ final class DefaultRecordDataSource: RecordDataSource {
 
         // Step 3: 기록 생성 API 호출
         return try await historyAPIService.createHistory(request: apiRequest)
+    }
+
+    func updateRecord(historyId: Int64, request: RecordCreateRequest) async throws {
+        // 수정 시에는 이미지 URL이 이미 설정되어 있음
+        let payloads = request.photos.map { photo in
+            HistoryImagePayload(
+                imageUrl: photo.imageUrl ?? "", // 기존 이미지 URL 사용
+                clothTags: photo.clothTags
+            )
+        }
+
+        let apiRequest = HistoryCreateAPIRequest(
+            content: request.content,
+            situationId: request.situationId,
+            styleIds: request.styleIds,
+            hashtags: request.hashtags,
+            payloads: payloads
+        )
+
+        // 기록 수정 API 호출
+        try await historyAPIService.updateHistory(historyId: historyId, request: apiRequest)
     }
 
     // MARK: - Private Methods
