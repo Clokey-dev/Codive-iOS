@@ -165,7 +165,7 @@ private struct FeedCellView: View {
                     }
                 ),
                 onProfileTap: {
-                    viewModel.navigateToProfile(userId: feed.author.id, isMine: feed.author.isMe ?? false)
+                    viewModel.navigateToProfile(userId: feed.author.id)
                 }
             )
         }

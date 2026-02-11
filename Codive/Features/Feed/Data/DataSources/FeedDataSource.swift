@@ -99,7 +99,7 @@ private extension FeedItemDTO {
         return Feed(
             id: Int(feedId),
             content: nil,
-            author: author.toDomain(isMine: isMine ?? false),
+            author: author.toDomain(),
             images: imageUrl.map { [FeedImage(imageUrl: $0)] } ?? [],
             situationId: nil,
             styleIds: nil,
@@ -113,13 +113,13 @@ private extension FeedItemDTO {
 }
 
 private extension FeedAuthorDTO {
-    func toDomain(isMine: Bool) -> User {
+    func toDomain() -> User {
         return User(
             id: String(memberId),
             nickname: nickname ?? "",
             profileImageUrl: profileImageUrl,
             isFollowing: isFollowing,
-            isMe: isMine
+            isMe: false
         )
     }
 }

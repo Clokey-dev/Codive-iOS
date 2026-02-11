@@ -198,7 +198,7 @@ final class FeedDetailViewModel: ObservableObject {
     }
 
     // MARK: - 프로필 이동
-    /// 프로필로 이동 (isMine 기준으로 내 프로필 또는 다른 사람 프로필)
+    /// 프로필로 이동 (History에서 isMine을 사용해 분기 처리)
     func navigateToProfile(userId: String, isMine: Bool) {
         guard let memberId = Int(userId) else {
             print("❌ Invalid userId: \(userId)")
