@@ -7,9 +7,14 @@
 
 import Foundation
 
+// MARK: - Type Aliases
+public typealias FeedID = Int
+public typealias ImageID = Int64
+public typealias ClothID = Int
+
 // MARK: - Feed
 public struct Feed: Identifiable, Equatable, Hashable {
-    public let id: Int
+    public let id: FeedID
     public let content: String?
     public let author: User
     public let images: [FeedImage]
@@ -56,11 +61,11 @@ public struct Feed: Identifiable, Equatable, Hashable {
 // MARK: - FeedImage
 public struct FeedImage: Identifiable, Equatable, Hashable {
     public let id: UUID = UUID()
-    public let imageId: Int64?
+    public let imageId: ImageID?
     public let imageUrl: String
     public let tags: [ImageClothTag]
 
-    public init(imageId: Int64? = nil, imageUrl: String, tags: [ImageClothTag] = []) {
+    public init(imageId: ImageID? = nil, imageUrl: String, tags: [ImageClothTag] = []) {
         self.imageId = imageId
         self.imageUrl = imageUrl
         self.tags = tags
@@ -70,12 +75,12 @@ public struct FeedImage: Identifiable, Equatable, Hashable {
 // MARK: - ImageClothTag
 public struct ImageClothTag: Identifiable, Equatable, Hashable {
     public let id: UUID = UUID()
-    
-    public let clothId: Int
+
+    public let clothId: ClothID
     public let locationX: Double
     public let locationY: Double
-        
-    public init(clothId: Int, locationX: Double, locationY: Double) {
+
+    public init(clothId: ClothID, locationX: Double, locationY: Double) {
         self.clothId = clothId
         self.locationX = locationX
         self.locationY = locationY
