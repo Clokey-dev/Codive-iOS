@@ -27,6 +27,8 @@ final class FeedDetailViewModel: ObservableObject {
     @Published var isMoreMenuPresented: Bool = false // 더보기 메뉴 표시 여부
     @Published var showDeleteAlert: Bool = false // 삭제 확인 Alert
     @Published var showBlockAlert: Bool = false // 차단 확인 Alert
+    @Published var showBlockFailureAlert: Bool = false // 차단 실패 Alert
+    @Published var blockErrorMessage: String = "" // 차단 실패 에러 메시지
 
     // MARK: - Private Properties
 
@@ -35,7 +37,8 @@ final class FeedDetailViewModel: ObservableObject {
     private let fetchLikersUseCase: FetchFeedLikersUseCase
     private let toggleLikeUseCase: ToggleLikeUseCase
     private let fetchClothTagsUseCase: FetchClothTagsUseCase
-    private let historyRepository: HistoryRepository
+    private let deleteHistoryUseCase: DeleteHistoryUseCase
+    private let toggleBlockUseCase: ToggleBlockUseCase
     private let navigationRouter: NavigationRouter
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -51,7 +54,8 @@ final class FeedDetailViewModel: ObservableObject {
         fetchLikersUseCase: FetchFeedLikersUseCase,
         toggleLikeUseCase: ToggleLikeUseCase,
         fetchClothTagsUseCase: FetchClothTagsUseCase,
-        historyRepository: HistoryRepository,
+        deleteHistoryUseCase: DeleteHistoryUseCase,
+        toggleBlockUseCase: ToggleBlockUseCase,
         navigationRouter: NavigationRouter
     ) {
         self.feedId = feedId
@@ -59,7 +63,8 @@ final class FeedDetailViewModel: ObservableObject {
         self.fetchLikersUseCase = fetchLikersUseCase
         self.toggleLikeUseCase = toggleLikeUseCase
         self.fetchClothTagsUseCase = fetchClothTagsUseCase
-        self.historyRepository = historyRepository
+        self.deleteHistoryUseCase = deleteHistoryUseCase
+        self.toggleBlockUseCase = toggleBlockUseCase
         self.navigationRouter = navigationRouter
     }
 
@@ -250,7 +255,7 @@ final class FeedDetailViewModel: ObservableObject {
             do {
                 print("🗑️ Deleting history with ID: \(feed.id)")
                 isLoading = true
-                try await historyRepository.deleteHistory(historyId: Int64(feed.id))
+                try await deleteHistoryUseCase.execute(historyId: Int64(feed.id))
                 print("✅ Delete API success")
                 isLoading = false
                 navigationRouter.navigateBack()
@@ -275,8 +280,10 @@ final class FeedDetailViewModel: ObservableObject {
 
     func confirmBlock() {
         guard let feed = feed,
-              let userId = Int64(feed.author.id) else {
+              let userId = Int(feed.author.id) else {
             print("❌ Invalid user ID")
+            blockErrorMessage = "잘못된 사용자 정보입니다."
+            showBlockFailureAlert = true
             return
         }
 
@@ -284,18 +291,16 @@ final class FeedDetailViewModel: ObservableObject {
             do {
                 isLoading = true
                 print("🔒 Blocking user with ID: \(userId)")
-                // 차단 API 호출
-                // try await memberRepository.blockUser(userId: userId)
-                isLoading = false
+                try await toggleBlockUseCase.execute(memberId: userId)
                 print("✅ Block successful")
-                navigationRouter.successMessage = "사용자를 차단했습니다."
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    self.navigationRouter.navigateBack()
-                }
+                isLoading = false
+                // 성공 시 바로 뒤로가기
+                navigationRouter.navigateBack()
             } catch {
                 isLoading = false
                 print("❌ Block error: \(error.localizedDescription)")
-                errorMessage = "차단에 실패했습니다: \(error.localizedDescription)"
+                blockErrorMessage = "차단에 실패했습니다: \(error.localizedDescription)"
+                showBlockFailureAlert = true
             }
         }
     }

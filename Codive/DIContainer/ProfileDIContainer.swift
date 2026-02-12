@@ -74,6 +74,10 @@ final class ProfileDIContainer {
         return DefaultToggleFollowUseCase(repository: otherProfileRepository)
     }
 
+    func makeToggleBlockUseCase() -> ToggleBlockUseCase {
+        return DefaultToggleBlockUseCase(repository: otherProfileRepository)
+    }
+
     // MARK: - ViewModels
     private lazy var profileViewModel: ProfileViewModel = {
         return ProfileViewModel(

@@ -27,7 +27,6 @@ final class OtherProfileRepositoryImpl: OtherProfileRepository {
     }
 
     func toggleBlock(memberId: Int) async throws {
-        // 차단 API는 나중에 구현
-        print("차단 기능은 추후 구현")
+        try await apiService.toggleBlock(memberId: memberId)
     }
 }

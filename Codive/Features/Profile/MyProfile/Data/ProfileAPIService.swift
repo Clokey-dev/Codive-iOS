@@ -21,6 +21,7 @@ protocol ProfileAPIServiceProtocol {
     func fetchMemberInfo(memberId: Int) async throws -> OtherProfileEntity
     func toggleFollow(memberId: Int) async throws
     func togglePendingFollow(memberId: Int) async throws
+    func toggleBlock(memberId: Int) async throws
     func fetchMyFavoriteCoordinate() async throws -> [MyFavoriteLookBookResponseDTO]
     func fetchCoordinatePreview(coordinateId: Int64) async throws -> CoordinatePreviewResponseDTO
     func fetchCoordinateDetail(
@@ -273,6 +274,19 @@ final class ProfileAPIService: ProfileAPIServiceProtocol {
             return
         case .undocumented(statusCode: let code, _):
             throw ProfileAPIError.serverError(statusCode: code, message: "팔로우 요청 실패")
+        }
+    }
+
+    func toggleBlock(memberId: Int) async throws {
+        let response = try await client.Member_toggleBlockStatus(
+            path: Operations.Member_toggleBlockStatus.Input.Path(memberId: Int64(memberId))
+        )
+
+        switch response {
+        case .ok:
+            return
+        case .undocumented(statusCode: let code, _):
+            throw ProfileAPIError.serverError(statusCode: code, message: "차단 처리 실패")
         }
     }
 

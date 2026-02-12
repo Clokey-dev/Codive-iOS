@@ -48,6 +48,10 @@ final class FeedDIContainer {
         return HistoryRepositoryImpl(historyAPIService: HistoryAPIService())
     }()
 
+    private lazy var otherProfileRepository: OtherProfileRepository = {
+        return OtherProfileRepositoryImpl(apiService: ProfileAPIService())
+    }()
+
     // MARK: - UseCases
 
     func makeCreateRecordUseCase() -> CreateRecordUseCase {
@@ -61,7 +65,7 @@ final class FeedDIContainer {
     func makeFetchFeedDetailUseCase() -> FetchFeedDetailUseCase {
         return DefaultFetchFeedDetailUseCase(repository: feedRepository)
     }
-    
+
     func makeFetchFeedLikersUseCase() -> FetchFeedLikersUseCase {
         return DefaultFetchFeedLikersUseCase(feedRepository: feedRepository)
     }
@@ -72,6 +76,14 @@ final class FeedDIContainer {
 
     func makeFetchClothTagsUseCase() -> FetchClothTagsUseCase {
         return DefaultFetchClothTagsUseCase(feedRepository: feedRepository)
+    }
+
+    func makeDeleteHistoryUseCase() -> DeleteHistoryUseCase {
+        return DefaultDeleteHistoryUseCase(repository: historyRepository)
+    }
+
+    func makeToggleBlockUseCase() -> ToggleBlockUseCase {
+        return DefaultToggleBlockUseCase(repository: otherProfileRepository)
     }
 
     // MARK: - ViewModels
@@ -91,7 +103,8 @@ final class FeedDIContainer {
             fetchLikersUseCase: makeFetchFeedLikersUseCase(),
             toggleLikeUseCase: makeToggleLikeUseCase(),
             fetchClothTagsUseCase: makeFetchClothTagsUseCase(),
-            historyRepository: historyRepository,
+            deleteHistoryUseCase: makeDeleteHistoryUseCase(),
+            toggleBlockUseCase: makeToggleBlockUseCase(),
             navigationRouter: navigationRouter
         )
     }
@@ -129,13 +142,17 @@ extension FeedDIContainer {
         let toggleLikeUseCase = DefaultToggleLikeUseCase(feedRepository: repository)
         let clothTagsUseCase = DefaultFetchClothTagsUseCase(feedRepository: repository)
         let mockHistoryRepository = HistoryRepositoryImpl()
+        let mockOtherProfileRepository = OtherProfileRepositoryImpl(apiService: ProfileAPIService())
+        let deleteHistoryUseCase = DefaultDeleteHistoryUseCase(repository: mockHistoryRepository)
+        let toggleBlockUseCase = DefaultToggleBlockUseCase(repository: mockOtherProfileRepository)
         return FeedDetailViewModel(
             feedId: feedId,
             fetchFeedDetailUseCase: detailUseCase,
             fetchLikersUseCase: likersUseCase,
             toggleLikeUseCase: toggleLikeUseCase,
             fetchClothTagsUseCase: clothTagsUseCase,
-            historyRepository: mockHistoryRepository,
+            deleteHistoryUseCase: deleteHistoryUseCase,
+            toggleBlockUseCase: toggleBlockUseCase,
             navigationRouter: navigationRouter
         )
     }

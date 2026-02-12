@@ -33,6 +33,16 @@ struct FeedDetailView: View {
     // MARK: - Body
     var body: some View {
         ZStack {
+            // 로딩 인디케이터
+            if viewModel.isLoading {
+                Color.black.opacity(0.3)
+                    .ignoresSafeArea()
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    .scaleEffect(1.5)
+                    .zIndex(100)
+            }
+
             VStack(spacing: 0) {
                 HStack {
                     Button(action: {
@@ -216,6 +226,11 @@ struct FeedDetailView: View {
             if let feed = viewModel.feed {
                 Text("\(feed.author.nickname)님을 차단하시겠습니까?\n차단된 사용자의 기록을 더 이상 볼 수 없습니다.")
             }
+        }
+        .alert("차단 실패", isPresented: $viewModel.showBlockFailureAlert) {
+            Button("확인", role: .cancel) { }
+        } message: {
+            Text(viewModel.blockErrorMessage)
         }
     }
 
