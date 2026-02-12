@@ -62,12 +62,13 @@ struct SettingDTOMapper {
     static func mapBlockedMemberDTOToBlockedUser(_ dto: BlockedMemberDTO, with dateFormatter: DateFormatter) -> BlockedUser {
         let avatarURL = dto.profileImageUrl.flatMap { URL(string: $0) }
         let author = SimpleUser(
-            userId: UserID(Int(dto.userId)),
+            userId: UserID(Int(dto.memberId)),
             nickname: dto.nickname,
-            handle: "",
+            handle: dto.nickname,
             avatarURL: avatarURL
         )
-        let blockedDate = dateFormatter.date(from: dto.blockedAt) ?? Date()
+        // API에서 blockedAt을 제공하지 않으므로 현재 시간 사용
+        let blockedDate = Date()
 
         return BlockedUser(user: author, blockedAt: blockedDate)
     }

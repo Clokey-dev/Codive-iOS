@@ -74,18 +74,11 @@ struct CustomUserRow: View {
             .frame(width: 40, height: 40)
             .clipShape(Circle())
 
-            // 닉네임 / 아이디
-            VStack(alignment: .leading, spacing: 2) {
-                Text(user.nickname)
-                    .font(.codive_body1_medium)
-                    .foregroundStyle(Color.Codive.grayscale1)
-                if !user.handle.isEmpty {
-                    Text(user.handle)
-                        .font(.codive_body3_medium)
-                        .foregroundStyle(Color.Codive.grayscale3)
-                }
-            }
-            .padding(.leading, 8)
+            // 닉네임
+            Text(user.nickname)
+                .font(.codive_body1_medium)
+                .foregroundStyle(Color.Codive.grayscale1)
+                .padding(.leading, 8)
 
             Spacer()
 
@@ -114,7 +107,7 @@ struct CustomUserRow: View {
     let dummyUser = SimpleUser(
         userId: 0,
         nickname: "닉네임",
-        handle: "아이디",
+        handle: "",
         avatarURL: nil
     )
 
