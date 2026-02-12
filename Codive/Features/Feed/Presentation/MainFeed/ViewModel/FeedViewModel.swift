@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 /// Feed 목록 화면의 ViewModel
 @MainActor
@@ -39,6 +40,7 @@ final class FeedViewModel: ObservableObject {
     private let pageSize: Int = 20
     private var nextCursor: String?
     private var hasMorePages: Bool = true
+    private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Initialization
 
@@ -50,6 +52,21 @@ final class FeedViewModel: ObservableObject {
         self.navigationRouter = navigationRouter
         self.fetchFeedsUseCase = fetchFeedsUseCase
         self.toggleLikeUseCase = toggleLikeUseCase
+        setupUserBlockObserver()
+    }
+
+    // MARK: - Setup
+
+    private func setupUserBlockObserver() {
+        NotificationCenter.default.publisher(for: .userDidBlock)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                Task { @MainActor in
+                    await self.refresh()
+                }
+            }
+            .store(in: &cancellables)
     }
 
     // MARK: - Public Methods
