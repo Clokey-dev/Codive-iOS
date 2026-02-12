@@ -99,6 +99,12 @@ struct FeedView: View {
                 await viewModel.loadFeeds()
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .userDidBlock)) { _ in
+            // 차단 성공 시 Feed 새로고침
+            Task {
+                await viewModel.refresh()
+            }
+        }
     }
     
     // MARK: - Subviews

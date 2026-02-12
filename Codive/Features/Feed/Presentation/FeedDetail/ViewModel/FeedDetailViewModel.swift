@@ -294,6 +294,10 @@ final class FeedDetailViewModel: ObservableObject {
                 try await toggleBlockUseCase.execute(memberId: userId)
                 print("✅ Block successful")
                 isLoading = false
+
+                // 차단 성공 알림 발송
+                NotificationCenter.default.post(name: .userDidBlock, object: nil)
+
                 // 성공 시 바로 뒤로가기
                 navigationRouter.navigateBack()
             } catch {
