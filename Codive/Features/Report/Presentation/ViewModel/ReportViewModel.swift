@@ -82,14 +82,14 @@ final class ReportViewModel: ObservableObject {
             let ctx = try await getContextUseCase.fetchContext(for: target)
             self.context = ctx
         } catch {
-            self.errorMessage = "신고 대상을 불러오지 못했습니다."
+            self.errorMessage = TextLiteral.Report.loadContextFailure
         }
         isLoading = false
     }
 
     // 제출
     @discardableResult
-    func submit(reporterId: UserID) async -> String? {
+    func submit(reporterId: ReporterID) async -> String? {
         guard !isSubmitting else { return nil }
         isSubmitting = true
         defer { isSubmitting = false }
@@ -100,15 +100,15 @@ final class ReportViewModel: ObservableObject {
         } catch let ReportError.invalidDraft(failure) {
             switch failure {
             case .missingReason:
-                errorMessage = "신고 사유를 선택해 주세요."
+                errorMessage = TextLiteral.Report.selectReason
             case .detailTooLong(let limit):
-                errorMessage = "상세 내용은 \(limit)자 이내로 입력해 주세요."
+                errorMessage = TextLiteral.Report.detailTooLong(limit)
             case .detailRequiredForEtc:
                 break
             }
             return nil
         } catch {
-            errorMessage = "신고 제출에 실패했습니다. 잠시 후 다시 시도해 주세요."
+            errorMessage = TextLiteral.Report.submitFailure
             return nil
         }
     }

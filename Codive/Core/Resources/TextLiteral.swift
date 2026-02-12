@@ -62,20 +62,20 @@ enum TextLiteral {
     enum Add {
         static let title = "추가"
         static let question = "추가할 항목은 무엇인가요?"
-        
+
         // Clothes
         static let clothesSectionTitle = "옷 추가"
         static let clothesAiAutoTitle = "AI 자동추가"
         static let clothesAiAutoDescription = "이미지를 업로드하면 옷이 자동으로 등록돼요"
         static let clothesManualTitle = "직접 추가"
         static let clothesManualDescription = "옷을 직접 추가하여 나만의 옷장을 만들어요"
-        
+
         // Record
         static let recordTitle = "기록 추가"
         static let recordDescription = "오늘의 스타일을 기록해요"
         static let recordRecentAlbum = "최근 항목"
         static let recordPhotoSaveFailure = "사진 저장 실패: "
-        
+
         // Photo Edit
         static let photoEditTitle = "사진 편집"
         static let photoEditComplete = "편집 완료"
@@ -92,6 +92,12 @@ enum TextLiteral {
         static let recordDetailCaptionTitle = "캡션을 추가해주세요"
         static let recordDetailCaptionPlaceholder = "나만의 스타일 이야기를 채워보세요.\n#아이템과 #스타일을 자랑해보세요."
         static let recordDetailComplete = "작성 완료"
+
+        // Errors
+        static let noStyleSelected = "스타일을 선택해주세요."
+        static let noSituationSelected = "상황을 선택해주세요."
+        static let recordCreateFailure = "기록 생성에 실패했습니다."
+        static let recordUpdateFailure = "기록 수정에 실패했습니다."
 
         // Style Options
         static let styleCasual = "캐주얼"
@@ -113,7 +119,7 @@ enum TextLiteral {
         static let situationFestival = "축제"
         static let situationWork = "출근룩"
         static let situationParty = "파티"
-        
+
         // Photo Tag
         static let photoTagTitle = "태그하기"
         static let photoTagAnimationText = "오늘 입은 옷을 태그해보세요"
@@ -300,6 +306,14 @@ enum TextLiteral {
         static let detailSection = "문제가 된 부분을 구체적으로 작성해 주세요."
         static let detailPlaceholder = "예시: 욕설을 사용한 특정 문장, 협박성 메시지 등"
 
+        // Errors
+        static let loadContextFailure = "신고 대상을 불러오지 못했습니다."
+        static let submitFailure = "신고 제출에 실패했습니다. 잠시 후 다시 시도해 주세요."
+        static let selectReason = "신고 사유를 선택해 주세요."
+        static func detailTooLong(_ limit: Int) -> String {
+            "상세 내용은 \(limit)자 이내로 입력해 주세요."
+        }
+
         // Reason Details - Violence
         static let violenceDetail1 = "폭력, 학대, 자해, 성매매 등 위험한 행위를 조장"
         static let violenceDetail2 = "불법 행위를 암시하거나 조장하는 게시물 (불법 약물, 도박 등)"
@@ -315,6 +329,13 @@ enum TextLiteral {
         static let notice4 = "신고가 누적 3회 이상일 경우 계정이 정지되며, 허위 신고가 3회 적발될 경우에도 동일하게 제재가 집행됩니다."
     }
 
+    // MARK: - Profile (프로필)
+    enum Profile {
+        static let loadFailure = "프로필을 불러올 수 없습니다."
+        static let followFailure = "팔로우 처리에 실패했습니다."
+        static let monthlyHistoryLoadFailure = "월별 기록 조회에 실패했습니다."
+    }
+
     // MARK: - Feed (피드)
     enum Feed {
         static let detailTitle = "기록 상세"
@@ -325,11 +346,26 @@ enum TextLiteral {
         static let defaultProductName = "Product"
         static let likesListLoadFailed = "좋아요 목록을 불러오는데 실패했습니다."
 
+        // Actions
+        static let likeFailure = "좋아요 처리에 실패했습니다."
+        static let deleteFailure = "삭제에 실패했습니다."
+        static let blockFailure = "차단에 실패했습니다."
+        static let invalidUserInfo = "잘못된 사용자 정보입니다."
+
+        // Alerts
+        static let deleteAlertTitle = "기록 삭제"
+        static let deleteAlertMessage = "이 기록을 삭제하시겠습니까?\n삭제된 기록은 복구할 수 없습니다."
+        static let blockAlertTitle = "사용자 차단"
+        static func blockAlertMessage(_ nickname: String) -> String {
+            "\(nickname)님을 차단하시겠습니까?\n차단된 사용자의 기록을 더 이상 볼 수 없습니다."
+        }
+        static let blockFailureAlertTitle = "차단 실패"
+
         enum Empty {
             static let noFollowingTitle = "팔로잉한 사람이 아직 없어요."
             static let noFollowingSubtitle = "관심있는 사람을 팔로잉하면\n그들의 스타일을 모아볼 수 있어요."
             static let noFollowingButton = "지금 둘러보기"
-            
+
             static let noFeedsTitle = "관련된 스타일 피드가 아직 없어요."
             static let noFeedsSubtitle = "곧 다양한 코디가\n이 스타일 피드에 올려질 예정이에요!"
             static let noFeedsButton = "다른 스타일 보기"

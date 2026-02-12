@@ -15,6 +15,13 @@ import Kingfisher
 @MainActor
 final class RecordDetailViewModel: ObservableObject {
 
+    // MARK: - Constants
+
+    private enum Constants {
+        static let minStyleCount = 1
+        static let maxStyleCount = 3
+    }
+
     // MARK: - Properties
     private var cancellables = Set<AnyCancellable>()
 
@@ -74,7 +81,7 @@ final class RecordDetailViewModel: ObservableObject {
     
     var isCompleteEnabled: Bool {
         // 스타일 최소 1개, 최대 3개 선택 필수
-        return selectedStyles.count >= 1 && selectedStyles.count <= 3
+        return selectedStyles.count >= Constants.minStyleCount && selectedStyles.count <= Constants.maxStyleCount
     }
     
     // MARK: - Initializer
@@ -172,99 +179,79 @@ final class RecordDetailViewModel: ObservableObject {
     }
     
     func completeRecord() {
-        guard !isLoading else {
-            print("❌ Already loading")
-            return
-        }
+        guard !isLoading else { return }
 
-        print("🚀 completeRecord() started - isEditMode: \(isEditMode)")
         isLoading = true
         errorMessage = nil
 
         Task {
             do {
-                print("📝 Step 1: Converting styles...")
-                // 1. 스타일 ID 변환
-                let styleIds = StyleConstants.getIds(from: selectedStyles)
-                guard !styleIds.isEmpty else {
-                    throw RecordError.noStyleSelected
-                }
-                print("✅ Styles: \(styleIds)")
-
-                print("📝 Step 2: Converting situation...")
-                // 2. 상황 ID 변환 (첫 번째 선택)
-                guard let situationId = SituationConstants.getFirstId(from: selectedSituations) else {
-                    throw RecordError.noSituationSelected
-                }
-                print("✅ Situation: \(situationId)")
-
-                print("📝 Step 3: Extracting hashtags...")
-                // 3. 해시태그 추출
-                let hashtags = extractHashtags(from: captionText)
-                print("✅ Hashtags: \(hashtags)")
-
-                print("📝 Step 4: Converting photos...")
-                // 4. 사진 데이터 변환
-                let photos = selectedPhotos.map { photo in
-                    var recordPhoto = RecordPhoto(
-                        image: photo.croppedImage,
-                        clothTags: photo.clothTags.map { tag in
-                            RecordClothTag(
-                                clothId: Int64(tag.clothId),
-                                locationX: Double(tag.locationX),
-                                locationY: Double(tag.locationY)
-                            )
-                        }
-                    )
-                    recordPhoto.imageUrl = photo.imageUrl // 수정 모드: 기존 이미지 URL 전달
-                    print("📸 Photo - imageUrl: \(recordPhoto.imageUrl ?? "nil")")
-                    return recordPhoto
-                }
-                print("✅ Photos converted: \(photos.count) photos")
-
-                print("📝 Step 5: Creating request...")
-                // 5. 요청 생성
-                let request = RecordCreateRequest(
-                    content: captionText.isEmpty ? nil : captionText,
-                    situationId: situationId,
-                    styleIds: styleIds,
-                    hashtags: hashtags,
-                    photos: photos
-                )
-
-                print("📝 Step 6: API call...")
-                print("📋 Request Details:")
-                print("   - Content: \(request.content ?? "nil")")
-                print("   - SituationId: \(request.situationId)")
-                print("   - StyleIds: \(request.styleIds)")
-                print("   - Hashtags: \(request.hashtags)")
-                print("   - Photos count: \(request.photos.count)")
-                for (idx, photo) in request.photos.enumerated() {
-                    print("   - Photo[\(idx)]: imageUrl=\(photo.imageUrl ?? "nil"), clothTags=\(photo.clothTags.count)")
-                }
-
-                // 6. 신규 생성 또는 수정 API 호출
-                if isEditMode, let feedId = editingFeedId {
-                    print("🔄 UPDATE MODE - feedId: \(feedId)")
-                    try await recordDataSource.updateRecord(historyId: Int64(feedId), request: request)
-                    print("✅ Update API success")
-                } else {
-                    print("➕ CREATE MODE")
-                    _ = try await recordDataSource.createRecord(request: request)
-                    print("✅ Create API success")
-                }
-
-                print("📝 Step 7: Navigating back...")
-                // 7. 성공 시 이전 화면으로
+                let request = try buildRecordRequest()
+                try await saveRecord(request)
                 isLoading = false
-                print("✅ completeRecord() SUCCESS - navigating back")
                 navigationRouter.navigateBack()
             } catch {
-                isLoading = false
-                print("❌ completeRecord() ERROR: \(error.localizedDescription)")
-                errorMessage = error.localizedDescription
+                handleRecordError(error)
             }
         }
+    }
+
+    // MARK: - Private Helper Methods
+
+    private func buildRecordRequest() throws -> RecordCreateRequest {
+        // 1. 스타일 ID 변환
+        let styleIds = StyleConstants.getIds(from: selectedStyles)
+        guard !styleIds.isEmpty else {
+            throw RecordError.noStyleSelected
+        }
+
+        // 2. 상황 ID 변환
+        guard let situationId = SituationConstants.getFirstId(from: selectedSituations) else {
+            throw RecordError.noSituationSelected
+        }
+
+        // 3. 해시태그 추출
+        let hashtags = extractHashtags(from: captionText)
+
+        // 4. 사진 데이터 변환
+        let photos = selectedPhotos.map { photo in
+            var recordPhoto = RecordPhoto(
+                image: photo.croppedImage,
+                clothTags: photo.clothTags.map { tag in
+                    RecordClothTag(
+                        clothId: Int64(tag.clothId),
+                        locationX: Double(tag.locationX),
+                        locationY: Double(tag.locationY)
+                    )
+                }
+            )
+            recordPhoto.imageUrl = photo.imageUrl
+            return recordPhoto
+        }
+
+        // 5. 요청 생성
+        return RecordCreateRequest(
+            content: captionText.isEmpty ? nil : captionText,
+            situationId: situationId,
+            styleIds: styleIds,
+            hashtags: hashtags,
+            photos: photos
+        )
+    }
+
+    private func saveRecord(_ request: RecordCreateRequest) async throws {
+        if isEditMode, let feedId = editingFeedId {
+            // API는 Int64를 요구하므로 변환
+            let historyId = Int64(feedId)
+            try await recordDataSource.updateRecord(historyId: historyId, request: request)
+        } else {
+            _ = try await recordDataSource.createRecord(request: request)
+        }
+    }
+
+    private func handleRecordError(_ error: Error) {
+        isLoading = false
+        errorMessage = error.localizedDescription
     }
 
     // MARK: - Helper Methods
@@ -325,9 +312,9 @@ enum RecordError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .noStyleSelected:
-            return "스타일을 선택해주세요."
+            return TextLiteral.Add.noStyleSelected
         case .noSituationSelected:
-            return "상황을 선택해주세요."
+            return TextLiteral.Add.noSituationSelected
         }
     }
 }

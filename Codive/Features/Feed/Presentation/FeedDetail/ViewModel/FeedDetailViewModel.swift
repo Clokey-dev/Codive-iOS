@@ -11,6 +11,12 @@ import Foundation
 @MainActor
 final class FeedDetailViewModel: ObservableObject {
 
+    // MARK: - Constants
+
+    private enum Constants {
+        static let menuDismissDelay: TimeInterval = 0.3
+    }
+
     // MARK: - Published Properties
 
     @Published var feed: Feed?
@@ -115,7 +121,6 @@ final class FeedDetailViewModel: ObservableObject {
                         let clothTags = try await self.fetchClothTagsUseCase.execute(historyImageId: imageId)
                         return (index, clothTags)
                     } catch {
-                        print("Failed to load tags for image \(imageId): \(error)")
                         return (index, [])
                     }
                 }
@@ -171,7 +176,7 @@ final class FeedDetailViewModel: ObservableObject {
         } catch {
             // 실패 시 롤백
             feed = originalFeed
-            errorMessage = "좋아요 처리에 실패했습니다."
+            errorMessage = TextLiteral.Feed.likeFailure
         }
     }
 
@@ -204,19 +209,12 @@ final class FeedDetailViewModel: ObservableObject {
 
     // MARK: - 프로필 이동
     /// 프로필로 이동 (History에서 isMine을 사용해 분기 처리)
-    func navigateToProfile(userId: String, isMine: Bool) {
-        guard let memberId = Int(userId) else {
-            print("❌ Invalid userId: \(userId)")
-            return
-        }
-
-        print("🔍 Profile Navigation - userId: \(userId), isMine: \(isMine)")
-
+    func navigateToProfile(userId: UserID, isMine: Bool) {
         if isMine {
-            print("✓ Navigate to myProfile")
             navigationRouter.navigate(to: .myProfile)
         } else {
-            print("✓ Navigate to otherProfile(userId: \(memberId))")
+            // UserID (String)을 MemberID (Int)로 변환
+            guard let memberId = Int(userId) else { return }
             navigationRouter.navigate(to: .otherProfile(userId: memberId))
         }
     }
@@ -238,31 +236,27 @@ final class FeedDetailViewModel: ObservableObject {
     }
 
     func onDeleteTapped() {
-        dismissMoreMenu()
-        // 메뉴 닫히는 애니메이션 후 Alert 띄우기
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        showAlertAfterDismissingMenu {
             self.showDeleteAlert = true
         }
     }
 
     func confirmDelete() {
         guard let feed = feed else {
-            print("❌ Feed is nil")
             return
         }
 
         Task {
             do {
-                print("🗑️ Deleting history with ID: \(feed.id)")
                 isLoading = true
-                try await deleteHistoryUseCase.execute(historyId: Int64(feed.id))
-                print("✅ Delete API success")
+                // API는 Int64를 요구하므로 변환
+                let historyId = Int64(feed.id)
+                try await deleteHistoryUseCase.execute(historyId: historyId)
                 isLoading = false
                 navigationRouter.navigateBack()
             } catch {
-                print("❌ Delete API error: \(error.localizedDescription)")
                 isLoading = false
-                errorMessage = "삭제에 실패했습니다. (\(error.localizedDescription))"
+                errorMessage = TextLiteral.Feed.deleteFailure
             }
         }
     }
@@ -274,15 +268,30 @@ final class FeedDetailViewModel: ObservableObject {
     }
 
     func onBlockTapped() {
+        showAlertAfterDismissingMenu {
+            self.showBlockAlert = true
+        }
+    }
+
+    // MARK: - Private Helper Methods
+
+    private func showAlertAfterDismissingMenu(completion: @escaping () -> Void) {
         dismissMoreMenu()
-        showBlockAlert = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.menuDismissDelay) {
+            completion()
+        }
     }
 
     func confirmBlock() {
-        guard let feed = feed,
-              let userId = Int(feed.author.id) else {
-            print("❌ Invalid user ID")
-            blockErrorMessage = "잘못된 사용자 정보입니다."
+        guard let feed = feed else {
+            blockErrorMessage = TextLiteral.Feed.invalidUserInfo
+            showBlockFailureAlert = true
+            return
+        }
+
+        // User.id는 String이므로 Int로 변환 필요
+        guard let memberId = Int(feed.author.id) else {
+            blockErrorMessage = TextLiteral.Feed.invalidUserInfo
             showBlockFailureAlert = true
             return
         }
@@ -290,9 +299,7 @@ final class FeedDetailViewModel: ObservableObject {
         Task {
             do {
                 isLoading = true
-                print("🔒 Blocking user with ID: \(userId)")
-                try await toggleBlockUseCase.execute(memberId: userId)
-                print("✅ Block successful")
+                try await toggleBlockUseCase.execute(memberId: memberId)
                 isLoading = false
 
                 // 차단 성공 알림 발송
@@ -302,8 +309,7 @@ final class FeedDetailViewModel: ObservableObject {
                 navigationRouter.navigateBack()
             } catch {
                 isLoading = false
-                print("❌ Block error: \(error.localizedDescription)")
-                blockErrorMessage = "차단에 실패했습니다: \(error.localizedDescription)"
+                blockErrorMessage = TextLiteral.Feed.blockFailure
                 showBlockFailureAlert = true
             }
         }

@@ -87,8 +87,7 @@ final class OtherProfileViewModel: ObservableObject {
             await loadMonthlyHistories()
 
         } catch {
-            self.errorMessage = "프로필을 불러올 수 없습니다."
-            print("❌ 프로필 조회 실패:", error)
+            self.errorMessage = TextLiteral.Profile.loadFailure
         }
 
         isLoading = false
@@ -100,6 +99,7 @@ final class OtherProfileViewModel: ObservableObject {
         guard let year = components.year, let month = components.month else { return }
 
         do {
+            // API는 Int64, Int32를 요구하므로 변환
             let items = try await fetchMonthlyHistoryUseCase.execute(
                 memberId: Int64(memberId),
                 year: Int32(year),
@@ -119,7 +119,7 @@ final class OtherProfileViewModel: ObservableObject {
             self.monthlyHistoryIds = newHistoryIds
 
         } catch {
-            print("❌ 월별 기록 조회 실패:", error)
+            // Silent failure - UI에 영향 없음
         }
     }
 
@@ -145,7 +145,6 @@ final class OtherProfileViewModel: ObservableObject {
 
     func onBlockTapped() {
         dismissBlockMenu()
-        print("Block tapped")
     }
 
     func onFollowerTapped() {
@@ -169,8 +168,7 @@ final class OtherProfileViewModel: ObservableObject {
                 }
 
             } catch {
-                print("❌ 팔로우 토글 실패:", error)
-                errorMessage = "팔로우 처리에 실패했습니다."
+                errorMessage = TextLiteral.Profile.followFailure
             }
         }
     }
