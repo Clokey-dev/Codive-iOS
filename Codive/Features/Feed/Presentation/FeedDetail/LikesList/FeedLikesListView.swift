@@ -38,7 +38,7 @@ struct FeedLikesListView: View {
                         ForEach(viewModel.likers) { user in
                             CustomUserRow(
                                 user: SimpleUser(
-                                    userId: Int(user.id) ?? 0,
+                                    userId: user.id,
                                     nickname: user.nickname,
                                     handle: "",
                                     avatarURL: URL(string: user.profileImageUrl ?? "")

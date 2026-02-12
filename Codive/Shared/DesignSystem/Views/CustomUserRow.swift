@@ -105,7 +105,7 @@ struct CustomUserRow: View {
 
 #Preview {
     let dummyUser = SimpleUser(
-        userId: 0,
+        userId: "0",
         nickname: "닉네임",
         handle: "",
         avatarURL: nil
