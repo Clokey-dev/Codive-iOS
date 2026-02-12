@@ -15,9 +15,14 @@ final class ReportDIContainer {
     private let repository: any ReportRepository
     private let contextProvider: any ReportContextProvider
 
-    // MARK: - ViewModel Cache
-    private var viewModelCache: [String: ReportViewModel] = [:]
-    
+    // MARK: - Current Report ViewModel (신고 플로우 진행 중에만 유지)
+    private var currentReportViewModel: (target: ReportTarget, viewModel: ReportViewModel)?
+
+    // 신고 플로우 종료 시 호출
+    func clearCurrentReport() {
+        currentReportViewModel = nil
+    }
+
     // MARK: - Init
     init(
         appRouter: AppRouter,
@@ -47,12 +52,12 @@ final class ReportDIContainer {
     
     // MARK: - ViewModels
     func makeReportViewModel(target: ReportTarget) -> ReportViewModel {
-        // 같은 target의 ViewModel이 이미 존재하면 재사용
-        let key = target.id
-        if let cachedVM = viewModelCache[key] {
-            return cachedVM
+        // 같은 target의 현재 진행중인 신고가 있으면 재사용 (ReportView → ReportDetailView 이동 시)
+        if let current = currentReportViewModel, current.target == target {
+            return current.viewModel
         }
 
+        // 새로운 신고 플로우 시작
         let vm = ReportViewModel(
             target: target,
             appRouter: appRouter,
@@ -61,26 +66,38 @@ final class ReportDIContainer {
             submitUseCase: makeSubmitReportUseCase()
         )
 
-        // ViewModel을 캐시에 저장
-        viewModelCache[key] = vm
+        // 현재 진행중인 신고로 저장
+        currentReportViewModel = (target, vm)
         return vm
     }
     
     // MARK: - Views
     func makeReportView(target: ReportTarget) -> ReportView {
         let vm = makeReportViewModel(target: target)
-        return ReportView(vm: vm, navigationRouter: navigationRouter) { [weak navigationRouter] in
+        return ReportView(
+            vm: vm,
+            navigationRouter: navigationRouter,
+            onClear: { [weak self] in
+                // 뒤로가기 시 신고 플로우 종료
+                self?.clearCurrentReport()
+            }
+        ) { [weak navigationRouter] in
             navigationRouter?.navigate(to: .reportDetail(target: target))
         }
     }
 
     func makeReportDetailView(target: ReportTarget) -> ReportDetailView {
         let vm = makeReportViewModel(target: target)
-        return ReportDetailView(vm: vm, navigationRouter: navigationRouter) { [weak navigationRouter] in
+        return ReportDetailView(vm: vm, navigationRouter: navigationRouter) { [weak navigationRouter, weak self] in
             Task {
                 // 신고 제출 (reporterId는 현재 사용자 ID로 - 추후 UserService 주입 필요)
                 let result = await vm.submit(reporterId: 1)
                 if result != nil {
+                    // 신고 플로우 종료 - 다음 신고 시 새로운 ViewModel 생성
+                    await MainActor.run {
+                        self?.clearCurrentReport()
+                    }
+
                     // 성공 시: CustomSuccessView 표시 + FeedDetailView로 이동
                     DispatchQueue.main.async {
                         // post id = feedId 이므로 feedId 추출

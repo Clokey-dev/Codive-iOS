@@ -101,10 +101,10 @@ final class ReportViewModel: ObservableObject {
             switch failure {
             case .missingReason:
                 errorMessage = "신고 사유를 선택해 주세요."
-            case .detailRequiredForEtc:
-                errorMessage = "기타 사유를 입력해 주세요."
             case .detailTooLong(let limit):
                 errorMessage = "상세 내용은 \(limit)자 이내로 입력해 주세요."
+            case .detailRequiredForEtc:
+                break
             }
             return nil
         } catch {
@@ -121,4 +121,9 @@ final class ReportViewModel: ObservableObject {
     var authorName: String { context?.author.nickname ?? "닉네임" }
     var authorHandle: String { context?.author.handle ?? "아이디" }
     var contentPreview: String { context?.previewText ?? "" }
+
+    // 상태 리셋
+    func reset() {
+        draft = ReportDraft(target: target)
+    }
 }

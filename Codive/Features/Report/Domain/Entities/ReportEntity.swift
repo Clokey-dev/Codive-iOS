@@ -162,9 +162,6 @@ public struct ReportDraft: Identifiable, Equatable, Hashable, Sendable {
         guard let reason = selectedReason else {
             return .invalid(.missingReason)
         }
-        if reason.isEtc && detail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return .invalid(.detailRequiredForEtc)
-        }
         if detail.count > Self.maxDetailLength {
             return .invalid(.detailTooLong(limit: Self.maxDetailLength))
         }

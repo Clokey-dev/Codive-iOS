@@ -10,6 +10,7 @@ import SwiftUI
 struct ReportView: View {
     @ObservedObject var vm: ReportViewModel
     @ObservedObject var navigationRouter: NavigationRouter
+    var onClear: (() -> Void)?
     var onSubmit: (() -> Void)?
 
     var body: some View {
@@ -28,10 +29,13 @@ struct ReportView: View {
                 }
             }
             .safeAreaInset(edge: .bottom) {
-                CustomButton(text: TextLiteral.Report.next, widthType: .fixed) {
+                CustomButton(
+                    text: TextLiteral.Report.next,
+                    widthType: .fixed,
+                    isEnabled: vm.isNextEnabled && !vm.isSubmitting
+                ) {
                     onSubmit?()
                 }
-                .disabled(!vm.isNextEnabled || vm.isSubmitting)
                 .padding(.horizontal, 20)
                 .padding(.bottom, 48)
             }
@@ -42,6 +46,7 @@ struct ReportView: View {
 
     // MARK: - Navigation
     private func onBackTapped() {
+        onClear?()
         navigationRouter.navigateBack()
     }
 
@@ -135,21 +140,6 @@ struct ReportView: View {
                         .background(Color.Codive.main6)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
-
-                    if reason.isEtc, vm.selectedReason == reason {
-                        TextEditor(
-                            text: Binding(
-                                get: { vm.draftDetail },
-                                set: { vm.updateDetail($0) }
-                            )
-                        )
-                        .frame(minHeight: 88)
-                        .padding(12)
-                        .background(Color.Codive.main6)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                        .font(.codive_body3_regular)
-                        .foregroundStyle(Color.Codive.grayscale1)
-                    }
                 }
             }
         }
@@ -159,13 +149,37 @@ struct ReportView: View {
     private func helperLines(for reason: ReportReason) -> [String]? {
         switch reason {
         case .post(let r):
-            if r == .violence {
+            switch r {
+            case .sexual:
                 return [
-                    "폭력, 학대, 자해, 성매매 등 위험한 행위를 조장",
-                    "불법 행위를 암시하거나 조장하는 게시물 (불법 약물, 도박 등)"
+                    "성적인 묘사, 이미지·영상 포함",
+                    "노출이 과도한 사진 또는 부적절한 설명 포함"
+                ]
+            case .violence:
+                return [
+                    "폭력, 학대, 자해, 살해 협박 등 위험한 행동 조장",
+                    "불법 행위를 암시하거나 조장하는 게시물 (예: 불법 약물, 도박 등)"
+                ]
+            case .harmful:
+                return [
+                    "청소년이 보기에 부적절한 주제 (예: 성인용품, 음주, 흡연 관련 내용)",
+                    "자극적인 장면, 범죄 미화 등 청소년 보호법 위반 가능성이 있는 콘텐츠"
+                ]
+            case .privacy:
+                return [
+                    "본인 또는 타인의 연락처, 주소, 신분증 등 개인정보가 포함된 게시물",
+                    "사적인 대화 내용이 공개된 경우"
+                ]
+            case .hate:
+                return [
+                    "특정 개인이나 집단을 비하하는 내용 (성별, 인종, 종교 차별 등)",
+                    "심한 욕설, 모욕적인 언어, 혐오 표현 포함"
+                ]
+            case .etc:
+                return [
+                    "위 신고 항목에 해당하지 않지만, 부적절하다고 판단되는 게시물"
                 ]
             }
-            return nil
 
         case .comment(let r):
             if r == .discrim {
