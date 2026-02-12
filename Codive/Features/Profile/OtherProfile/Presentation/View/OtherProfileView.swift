@@ -19,24 +19,36 @@ struct OtherProfileView: View {
 
     var body: some View {
         ZStack(alignment: .topTrailing) {
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 0) {
-                    topBar
+            VStack(spacing: 0) {
+                CustomNavigationBar(
+                    title: "",
+                    onBack: { viewModel.onBackTapped() },
+                    rightButton: .menu(
+                        imageName: "more",
+                        isSystemIcon: false,
+                        isEnabled: true
+                    ) {
+                        viewModel.showBlockMenu()
+                    }
+                )
 
-                    profileSection
-                        .padding(.top, 32)
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 0) {
+                        profileSection
+                            .padding(.top, 32)
 
-                    Divider()
-                        .padding(.top, 24)
-                        .foregroundStyle(Color.Codive.grayscale7)
+                        Divider()
+                            .padding(.top, 24)
+                            .foregroundStyle(Color.Codive.grayscale7)
 
-                    favoriteCodiSection
-                        .padding(.top, 24)
+                        favoriteCodiSection
+                            .padding(.top, 24)
 
-                    calendarSection
-                        .padding(.top, 40)
+                        calendarSection
+                            .padding(.top, 40)
 
-                    Spacer(minLength: 40)
+                        Spacer(minLength: 40)
+                    }
                 }
             }
 
@@ -51,8 +63,8 @@ struct OtherProfileView: View {
                 BlockMenuPopup {
                     viewModel.onBlockTapped()
                 }
-                .padding(.trailing, 20)
-                .padding(.top, 44)
+                .padding(.trailing, 10)
+                .padding(.top, 50)
             }
         }
         .background(Color.white)
@@ -65,32 +77,6 @@ struct OtherProfileView: View {
                 await viewModel.loadMonthlyHistories()
             }
         }
-    }
-
-    // MARK: - Top Bar
-    private var topBar: some View {
-        HStack(spacing: 17) {
-            Button {
-                viewModel.onBackTapped()
-            } label: {
-                Image("back")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 24, height: 24)
-            }
-            
-            Spacer(minLength: 0)
-
-            Button {
-                viewModel.showBlockMenu()
-            } label: {
-                Image("more")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 24, height: 24)
-            }
-        }
-        .padding(.horizontal, 20)
     }
 
     // MARK: - Profile
