@@ -7,6 +7,7 @@ final class ReportDIContainer {
     // MARK: - Dependencies
     private let appRouter: AppRouter
     private let navigationRouter: NavigationRouter
+    private let tokenService: TokenServiceProtocol
 
     // ViewFactory
     lazy var reportViewFactory = ReportViewFactory(reportDIContainer: self)
@@ -26,10 +27,12 @@ final class ReportDIContainer {
     // MARK: - Init
     init(
         appRouter: AppRouter,
-        navigationRouter: NavigationRouter
+        navigationRouter: NavigationRouter,
+        tokenService: TokenServiceProtocol = TokenService()
     ) {
         self.appRouter = appRouter
         self.navigationRouter = navigationRouter
+        self.tokenService = tokenService
 
         // HistoryAPIService 생성
         let historyAPIService = HistoryAPIService()
@@ -90,8 +93,12 @@ final class ReportDIContainer {
         let vm = makeReportViewModel(target: target)
         return ReportDetailView(vm: vm, navigationRouter: navigationRouter) { [weak navigationRouter, weak self] in
             Task {
-                // 신고 제출 (reporterId는 현재 사용자 ID로 - 추후 UserService 주입 필요)
-                let result = await vm.submit(reporterId: 1)
+                // 신고 제출 - JWT 토큰에서 현재 사용자 ID 추출
+                guard let reporterId = self?.tokenService.getCurrentUserId() else {
+                    print("❌ 신고 실패: 현재 로그인한 사용자 ID를 가져올 수 없습니다.")
+                    return
+                }
+                let result = await vm.submit(reporterId: reporterId)
                 if result != nil {
                     // 신고 플로우 종료 - 다음 신고 시 새로운 ViewModel 생성
                     await MainActor.run {
