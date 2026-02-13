@@ -41,7 +41,7 @@ struct ClothResponseDTO: Decodable {
 
     enum CodingKeys: String, CodingKey {
         case id
-        case imageUrl = "ImageUrl"
+        case imageUrl = "imageUrl"
         case name
         case brand
         case purchaseUrl = "purchase_url"

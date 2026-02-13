@@ -116,21 +116,43 @@ final class DefaultClothDataSource: ClothDataSource {
         }
 
         let clothIds = try await apiService.createClothes(requests: createRequests)
-        
-        // 결과 변환: clothIds + inputs → Cloth 엔티티
-        return zip(clothIds, zip(inputs, presignedInfos)).map { clothId, pair in
-            let (input, presignedInfo) = pair
-            return Cloth(
-                id: Int(clothId),
-                imageUrl: presignedInfo.finalUrl,
-                name: input.name.isEmpty ? nil : input.name,
-                brand: input.brand.isEmpty ? nil : input.brand,
-                purchaseUrl: input.purchaseUrl.isEmpty ? nil : input.purchaseUrl,
-                mainCategory: nil,
-                subCategory: nil,
-                seasons: input.seasons
-            )
+
+        // Step 4: 생성된 옷의 상세 정보를 조회해서 정확한 카테고리 정보 포함
+        var clothes: [Cloth] = []
+        for (index, clothId) in clothIds.enumerated() {
+            do {
+                // 상세 정보 조회
+                let detail = try await apiService.fetchClothDetails(clothId: clothId)
+
+                // ClothDetailResult → Cloth 변환
+                clothes.append(Cloth(
+                    id: Int(clothId),
+                    imageUrl: detail.clothImageUrl,
+                    name: detail.name,
+                    brand: detail.brand,
+                    purchaseUrl: detail.clothUrl,
+                    mainCategory: detail.parentCategory,
+                    subCategory: detail.category,
+                    seasons: Set(detail.seasons)
+                ))
+            } catch {
+                // 상세 정보 조회 실패 시, 입력 데이터로 fallback
+                let input = inputs[index]
+                let presignedInfo = presignedInfos[index]
+                clothes.append(Cloth(
+                    id: Int(clothId),
+                    imageUrl: presignedInfo.finalUrl,
+                    name: input.name.isEmpty ? nil : input.name,
+                    brand: input.brand.isEmpty ? nil : input.brand,
+                    purchaseUrl: input.purchaseUrl.isEmpty ? nil : input.purchaseUrl,
+                    mainCategory: nil,
+                    subCategory: nil,
+                    seasons: input.seasons
+                ))
+            }
         }
+
+        return clothes
     }
 
     func fetchMyClosetClothItems(
