@@ -41,6 +41,9 @@ final class OtherProfileViewModel: ObservableObject {
         }
     }
     @Published var isBlockMenuPresented: Bool = false
+    @Published var showBlockAlert: Bool = false
+    @Published var showBlockFailureAlert: Bool = false
+    @Published var blockErrorMessage: String = ""
     @Published var monthlyHistories: [String: String] = [:] // "2026-01-21" -> imageUrl
     @Published var monthlyHistoryIds: [String: Int] = [:] // "2026-01-21" -> historyId
 
@@ -50,6 +53,7 @@ final class OtherProfileViewModel: ObservableObject {
     private let fetchMemberInfoUseCase: FetchMemberInfoUseCase
     private let toggleFollowUseCase: ToggleFollowUseCase
     private let fetchMonthlyHistoryUseCase: FetchMonthlyHistoryUseCase
+    private let toggleBlockUseCase: ToggleBlockUseCase
 
     // MARK: - Initializer
     init(
@@ -57,13 +61,15 @@ final class OtherProfileViewModel: ObservableObject {
         navigationRouter: NavigationRouter,
         fetchMemberInfoUseCase: FetchMemberInfoUseCase,
         toggleFollowUseCase: ToggleFollowUseCase,
-        fetchMonthlyHistoryUseCase: FetchMonthlyHistoryUseCase
+        fetchMonthlyHistoryUseCase: FetchMonthlyHistoryUseCase,
+        toggleBlockUseCase: ToggleBlockUseCase
     ) {
         self.memberId = memberId
         self.navigationRouter = navigationRouter
         self.fetchMemberInfoUseCase = fetchMemberInfoUseCase
         self.toggleFollowUseCase = toggleFollowUseCase
         self.fetchMonthlyHistoryUseCase = fetchMonthlyHistoryUseCase
+        self.toggleBlockUseCase = toggleBlockUseCase
     }
 
     // MARK: - Public Methods
@@ -139,6 +145,26 @@ final class OtherProfileViewModel: ObservableObject {
 
     func onBlockTapped() {
         dismissBlockMenu()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.showBlockAlert = true
+        }
+    }
+
+    func confirmBlock() {
+        Task {
+            do {
+                isLoading = true
+                try await toggleBlockUseCase.execute(memberId: memberId)
+                isLoading = false
+
+                NotificationCenter.default.post(name: .userDidBlock, object: nil)
+                navigationRouter.navigateBack()
+            } catch {
+                isLoading = false
+                blockErrorMessage = TextLiteral.Feed.blockFailure
+                showBlockFailureAlert = true
+            }
+        }
     }
 
     func onFollowerTapped() {

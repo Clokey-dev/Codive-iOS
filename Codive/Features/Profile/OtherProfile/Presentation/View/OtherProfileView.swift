@@ -77,6 +77,25 @@ struct OtherProfileView: View {
                 await viewModel.loadMonthlyHistories()
             }
         }
+        .alert(
+            TextLiteral.Feed.blockAlertTitle,
+            isPresented: $viewModel.showBlockAlert
+        ) {
+            Button(TextLiteral.Common.cancel, role: .cancel) {}
+            Button(TextLiteral.Common.confirm, role: .destructive) {
+                viewModel.confirmBlock()
+            }
+        } message: {
+            Text(TextLiteral.Feed.blockAlertMessage(viewModel.displayName))
+        }
+        .alert(
+            TextLiteral.Feed.blockFailureAlertTitle,
+            isPresented: $viewModel.showBlockFailureAlert
+        ) {
+            Button(TextLiteral.Common.confirm, role: .cancel) {}
+        } message: {
+            Text(viewModel.blockErrorMessage)
+        }
     }
 
     // MARK: - Profile

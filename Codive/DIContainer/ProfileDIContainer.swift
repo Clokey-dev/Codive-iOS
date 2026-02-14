@@ -114,7 +114,8 @@ final class ProfileDIContainer {
             navigationRouter: navigationRouter,
             fetchMemberInfoUseCase: makeFetchMemberInfoUseCase(),
             toggleFollowUseCase: makeToggleFollowUseCase(),
-            fetchMonthlyHistoryUseCase: makeFetchMonthlyHistoryUseCase()
+            fetchMonthlyHistoryUseCase: makeFetchMonthlyHistoryUseCase(),
+            toggleBlockUseCase: makeToggleBlockUseCase()
         )
     }
     
