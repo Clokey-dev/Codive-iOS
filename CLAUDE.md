@@ -2,6 +2,18 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Git Commit Rules
+
+When asked to commit, follow this procedure:
+
+1. Check recent commit history to match the existing message format (e.g., `[#issue-number] description`)
+2. Present the commit message(s) and included files to the user for review
+3. Only create the commit after user approval
+
+Commit message format:
+- Write header only, or header + body. Nothing else.
+- NEVER append `Co-Authored-By`, signatures, or any extra metadata
+
 ## Build & Project Setup
 
 **Build system:** Tuist v4.65.4
