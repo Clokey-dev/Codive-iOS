@@ -14,6 +14,7 @@ protocol CommentDataSource {
     func postComment(feedId: Int, content: String) async throws -> Comment
     func fetchReplies(commentId: Int, page: Int) async throws -> (replies: [Comment], hasNext: Bool)
     func postReply(feedId: Int, commentId: Int, content: String) async throws -> Comment
+    func deleteComment(commentId: Int) async throws
 }
 
 // MARK: - Default Implementation (CodiveAPI)
@@ -188,6 +189,19 @@ final class DefaultCommentDataSource: CommentDataSource {
             throw NSError(domain: "CommentDataSource", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to post reply"])
         }
     }
+
+    func deleteComment(commentId: Int) async throws {
+        let response = try await apiClient.Comment_deleteComment(
+            path: Operations.Comment_deleteComment.Input.Path(commentId: Int64(commentId))
+        )
+
+        switch response {
+        case .ok:
+            return
+        default:
+            throw NSError(domain: "CommentDataSource", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to delete comment"])
+        }
+    }
 }
 
 // MARK: - Mock Implementation
@@ -238,5 +252,9 @@ final class MockCommentDataSource: CommentDataSource {
             replyCount: 0
         )
         return newReply
+    }
+
+    func deleteComment(commentId: Int) async throws {
+        try await Task.sleep(nanoseconds: 300_000_000)
     }
 }

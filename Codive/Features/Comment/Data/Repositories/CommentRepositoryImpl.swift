@@ -33,4 +33,8 @@ final class CommentRepositoryImpl: CommentRepository {
     func postReply(feedId: Int, commentId: Int, content: String) async throws -> Comment {
         return try await dataSource.postReply(feedId: feedId, commentId: commentId, content: content)
     }
+
+    func deleteComment(commentId: Int) async throws {
+        try await dataSource.deleteComment(commentId: commentId)
+    }
 }
