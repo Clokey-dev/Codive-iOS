@@ -172,24 +172,38 @@ final class DefaultClothDataSource: ClothDataSource {
         seasons: Set<Season>,
         searchText: String?
     ) async throws -> [Cloth] {
-        let result = try await apiService.fetchClothes(
-            lastClothId: nil,
-            size: 100,
-            categoryId: categoryId.map { Int64($0) },
-            seasons: Array(seasons)
-        )
-
-        var clothes = result.clothes.map(mapToCloth)
-
         if let searchText = searchText, !searchText.isEmpty {
-            clothes = clothes.filter { cloth in
-                let nameMatch = cloth.name?.localizedCaseInsensitiveContains(searchText) ?? false
-                let brandMatch = cloth.brand?.localizedCaseInsensitiveContains(searchText) ?? false
-                return nameMatch || brandMatch
+            // 검색어가 있으면 서버 사이드 검색 API 시도, 실패 시 클라이언트 필터링 fallback
+            do {
+                let result = try await apiService.searchClothes(
+                    keyword: searchText,
+                    size: 100,
+                    categoryId: categoryId.map { Int64($0) },
+                    seasons: Array(seasons)
+                )
+                return result.clothes.map(mapToCloth)
+            } catch {
+                let result = try await apiService.fetchClothes(
+                    lastClothId: nil,
+                    size: 100,
+                    categoryId: categoryId.map { Int64($0) },
+                    seasons: Array(seasons)
+                )
+                return result.clothes.map(mapToCloth).filter { cloth in
+                    let nameMatch = cloth.name?.localizedCaseInsensitiveContains(searchText) ?? false
+                    let brandMatch = cloth.brand?.localizedCaseInsensitiveContains(searchText) ?? false
+                    return nameMatch || brandMatch
+                }
             }
+        } else {
+            let result = try await apiService.fetchClothes(
+                lastClothId: nil,
+                size: 100,
+                categoryId: categoryId.map { Int64($0) },
+                seasons: Array(seasons)
+            )
+            return result.clothes.map(mapToCloth)
         }
-
-        return clothes
     }
 
     func deleteClothItems(_ clothIds: [Int]) async throws {

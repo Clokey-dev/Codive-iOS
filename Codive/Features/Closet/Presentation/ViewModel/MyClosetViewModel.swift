@@ -64,7 +64,7 @@ final class MyClosetViewModel: ObservableObject {
     private func setupFilterObservers() {
         // 필터 변경 시 자동으로 데이터 로드
         Publishers.CombineLatest4(
-            $searchText.debounce(for: 0.3, scheduler: DispatchQueue.main),
+            $searchText.debounce(for: 0.5, scheduler: DispatchQueue.main),
             $selectedMainCategory,
             $selectedSubCategory,
             $selectedSeasons

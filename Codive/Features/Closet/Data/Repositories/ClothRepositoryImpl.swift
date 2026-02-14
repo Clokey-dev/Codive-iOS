@@ -45,12 +45,16 @@ final class ClothRepositoryImpl: ClothRepository {
         // 카테고리 ID 변환 (Repository 레이어에서 처리)
         var categoryId: Int?
         if let subCategory = subCategory {
+            // 하위 카테고리 선택 시 → 하위 카테고리 ID
             for category in CategoryConstants.all {
                 if let sub = category.subcategories.first(where: { $0.name == subCategory }) {
                     categoryId = sub.id
                     break
                 }
             }
+        } else if let mainCategory = mainCategory, mainCategory != "전체" {
+            // 대분류만 선택 시 → 대분류 카테고리 ID
+            categoryId = CategoryConstants.category(byName: mainCategory)?.id
         }
 
         return try await dataSource.fetchMyClosetClothItems(

@@ -17,6 +17,7 @@ protocol ClothAPIServiceProtocol {
     func uploadImageToS3(presignedUrl: String, imageData: Data, contentMD5: String) async throws
     func createClothes(requests: [ClothCreateAPIRequest]) async throws -> [Int64]
     func fetchClothes(lastClothId: Int64?, size: Int32, categoryId: Int64?, seasons: [Season]) async throws -> ClothListResult
+    func searchClothes(keyword: String, size: Int32, categoryId: Int64?, seasons: [Season]) async throws -> ClothListResult
     func fetchClothDetails(clothId: Int64) async throws -> ClothDetailResult
     func updateCloth(clothId: Int64, request: ClothUpdateAPIRequest) async throws
     func deleteCloth(clothId: Int64) async throws
@@ -224,6 +225,38 @@ extension ClothAPIService {
         }
     }
 
+    func searchClothes(keyword: String, size: Int32, categoryId: Int64?, seasons: [Season]) async throws -> ClothListResult {
+        let seasonsParam = seasons.isEmpty ? nil : seasons.map { mapSeasonToSearchQueryParam($0) }
+
+        let input = Operations.Search_searchClothes.Input(
+            query: .init(keyword: keyword, size: size, direction: .DESC, categoryId: categoryId, seasons: seasonsParam)
+        )
+
+        let response = try await client.Search_searchClothes(input)
+
+        switch response {
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseClothListResponse.self, from: data)
+
+            let clothes: [ClothListItem] = decoded.result?.content?.map { item -> ClothListItem in
+                return ClothListItem(
+                    clothId: item.clothId ?? 0,
+                    imageUrl: item.ImageUrl ?? "",
+                    brand: item.brand,
+                    name: item.name,
+                    parentCategory: item.parentCategory,
+                    category: item.category
+                )
+            } ?? []
+
+            return ClothListResult(clothes: clothes, isLast: decoded.result?.isLast ?? true)
+
+        case .undocumented(statusCode: let code, _):
+            throw ClothAPIError.serverError(statusCode: code, message: "옷 검색 실패")
+        }
+    }
+
     func fetchClothDetails(clothId: Int64) async throws -> ClothDetailResult {
         let input = Operations.Cloth_getClothDetails.Input(path: .init(clothId: clothId))
         let response = try await client.Cloth_getClothDetails(input)
@@ -363,6 +396,15 @@ private extension ClothAPIService {
     }
 
     func mapSeasonToQueryParam(_ season: Season) -> Operations.Cloth_getClothes.Input.Query.seasonsPayloadPayload {
+        switch season {
+        case .spring: return .SPRING
+        case .summer: return .SUMMER
+        case .fall: return .FALL
+        case .winter: return .WINTER
+        }
+    }
+
+    func mapSeasonToSearchQueryParam(_ season: Season) -> Operations.Search_searchClothes.Input.Query.seasonsPayloadPayload {
         switch season {
         case .spring: return .SPRING
         case .summer: return .SUMMER
