@@ -61,7 +61,7 @@ class ProfileViewModel: ObservableObject {
         didSet {
             // 선택한 날짜의 기록이 있으면 FeedDetailView로 이동
             if let selectedDate = selectedDate {
-                let dateString = formatDate(selectedDate)
+                let dateString = selectedDate.toDateString()
                 if let historyId = monthlyHistoryIds[dateString] {
                     navigationRouter.navigate(to: .feedDetail(feedId: Int(historyId)))
                 } else {
@@ -153,12 +153,6 @@ class ProfileViewModel: ObservableObject {
         } catch {
             print("월별 기록 로드 실패: \(error.localizedDescription)")
         }
-    }
-
-    func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: date)
     }
 
     // MARK: - Actions

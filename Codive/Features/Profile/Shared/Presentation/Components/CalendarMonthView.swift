@@ -108,7 +108,7 @@ struct CalendarMonthView: View {
                 let isToday = isSameDay(item.date, Date())
                 let weekday = calendar.component(.weekday, from: item.date)
                 let isWeekend = (weekday == 1 || weekday == 7)
-                let dateString = formatDate(item.date)
+                let dateString = item.date.toDateString()
                 let imageUrl = monthlyHistories[dateString]
 
                 // 이미지 배경 (전체 셀을 덮음)
@@ -152,13 +152,6 @@ struct CalendarMonthView: View {
                 selectedDate = item.date
             }
         }
-    }
-
-    // Helper: Date -> "2026-01-21" 형식 변환
-    private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: date)
     }
 
     private func monthTitle(_ date: Date) -> String {
