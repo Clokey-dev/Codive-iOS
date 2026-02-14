@@ -25,7 +25,7 @@ final class SubmitReportUseCase {
 
     // 신고 제출: 검증 → Report 빌드 → 저장소 위임
     @discardableResult
-    func submit(draft: ReportDraft, reporterId: UserID) async throws -> String? {
+    func submit(draft: ReportDraft, reporterId: ReporterID) async throws -> String? {
         let result = draft.validate()
         guard result.isValid else {
             // 도메인 규칙 위반은 그대로 throw

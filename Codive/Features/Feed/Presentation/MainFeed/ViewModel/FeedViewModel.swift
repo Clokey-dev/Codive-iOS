@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 /// Feed 목록 화면의 ViewModel
 @MainActor
@@ -39,6 +40,7 @@ final class FeedViewModel: ObservableObject {
     private let pageSize: Int = 20
     private var nextCursor: String?
     private var hasMorePages: Bool = true
+    private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Initialization
 
@@ -50,6 +52,21 @@ final class FeedViewModel: ObservableObject {
         self.navigationRouter = navigationRouter
         self.fetchFeedsUseCase = fetchFeedsUseCase
         self.toggleLikeUseCase = toggleLikeUseCase
+        setupUserBlockObserver()
+    }
+
+    // MARK: - Setup
+
+    private func setupUserBlockObserver() {
+        NotificationCenter.default.publisher(for: .userDidBlock)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                Task { @MainActor in
+                    await self.refresh()
+                }
+            }
+            .store(in: &cancellables)
     }
 
     // MARK: - Public Methods
@@ -57,6 +74,16 @@ final class FeedViewModel: ObservableObject {
     /// Feed 상세보기로 이동
     func navigateToDetail(feedId: Int) {
         navigationRouter.navigate(to: .feedDetail(feedId: feedId))
+    }
+
+    /// 프로필로 이동 (Feed에서는 항상 다른 사람 프로필로 이동)
+    func navigateToProfile(userId: String) {
+        guard let memberId = Int(userId) else {
+            print("❌ Invalid userId: \(userId)")
+            return
+        }
+
+        navigationRouter.navigate(to: .otherProfile(userId: memberId))
     }
 
     /// 첫 페이지 Feed 로드

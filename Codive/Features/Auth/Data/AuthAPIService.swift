@@ -26,23 +26,16 @@ struct TokenPair {
 final class AuthAPIService: AuthAPIServiceProtocol {
 
     private let client: Client
+    /// 토큰 재발급용 클라이언트 (인증 미들웨어 없음)
+    private let unauthenticatedClient: Client
     private let jsonDecoder: JSONDecoder
 
     init(tokenProvider: TokenProvider = KeychainTokenProvider()) {
         self.client = CodiveAPIProvider.createClient(
             middlewares: [CodiveAuthMiddleware(provider: tokenProvider)]
         )
+        self.unauthenticatedClient = CodiveAPIProvider.createClient()
         self.jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
-        
-        /// 액세스 토큰 확인 하기
-#if DEBUG
-do {
-    let token = try KeychainManager.shared.getAccessToken()
-    print("🔑 Current Access Token:", token)
-} catch {
-    print("❌ Access Token 없음:", error.localizedDescription)
-}
-#endif
     }
 
     func checkAuthStatus() async throws -> RegisterStatus {
@@ -82,7 +75,7 @@ do {
     func reissueTokens(refreshToken: String) async throws -> TokenPair {
         let requestBody = Components.Schemas.TokenReissueRequest(refreshToken: refreshToken)
         let input = Operations.Auth_reissueTokens.Input(body: .json(requestBody))
-        let response = try await client.Auth_reissueTokens(input)
+        let response = try await unauthenticatedClient.Auth_reissueTokens(input)
 
         switch response {
         case .ok(let okResponse):

@@ -68,7 +68,15 @@ final class SearchViewModel: ObservableObject {
         navigationRouter.navigate(to: .searchResult(query: trimmedQuery))
         print("검색 실행: \(trimmedQuery). SearchResultView로 이동 필요.")
     }
-    
+
+    /// 추천 소식 키워드로 검색 실행
+    func searchWithKeyword(_ keyword: String) {
+        let trimmedKeyword = keyword.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedKeyword.isEmpty else { return }
+
+        navigationRouter.navigate(to: .searchResult(query: trimmedKeyword))
+    }
+
     func deleteTag(tag: SearchTagEntity) {
         if let index = recentSearchTags.firstIndex(where: { $0.id == tag.id }) {
             recentSearchTags.remove(at: index)

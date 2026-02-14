@@ -24,6 +24,7 @@ struct MainTabView: View {
     private let lookBookDIContainer: LookBookDIContainer
     private let settingDIContainer: SettingDIContainer
     private let profileDIContainer: ProfileDIContainer
+    private let reportDIContainer: ReportDIContainer
 
     // MARK: - Initializer
     init(appDIContainer: AppDIContainer) {
@@ -38,6 +39,7 @@ struct MainTabView: View {
         self.lookBookDIContainer = appDIContainer.makeLookBookDIContainer()
         self.settingDIContainer = appDIContainer.makeSettingDIContainer()
         self.profileDIContainer = appDIContainer.makeProfileDIContainer()
+        self.reportDIContainer = appDIContainer.makeReportDIContainer()
 
         self._navigationRouter = ObservedObject(wrappedValue: appDIContainer.navigationRouter)
         let viewModel = MainTabViewModel(
@@ -143,10 +145,39 @@ struct MainTabView: View {
                     .zIndex(100)
                     .transition(.opacity)
             }
+
+            // MARK: - Empty History Modal Overlay
+            if viewModel.isEmptyHistoryModalPresented {
+                Color.black
+                    .opacity(0.3)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        viewModel.isEmptyHistoryModalPresented = false
+                        viewModel.emptyHistoryModalDate = nil
+                    }
+                    .zIndex(300)
+
+                EmptyHistoryModalView(
+                    selectedDate: viewModel.emptyHistoryModalDate,
+                    onClose: {
+                        viewModel.isEmptyHistoryModalPresented = false
+                        viewModel.emptyHistoryModalDate = nil
+                    },
+                    onAddRecord: {
+                        viewModel.isEmptyHistoryModalPresented = false
+                        viewModel.emptyHistoryModalDate = nil
+                        navigationRouter.navigate(to: .recordAdd)
+                    }
+                )
+                .frame(height: 310, alignment: .center)
+                .padding(.horizontal, 55)
+                .zIndex(301)
+            }
         }
         .onAppear {
             viewModel.loadNotificationExist()
         }
+        .environmentObject(viewModel)
     }
     
     // MARK: - Computed Properties
@@ -215,6 +246,8 @@ struct MainTabView: View {
             settingDIContainer.makeWithdrawView()
         case .profileSetting:
             profileDIContainer.makeProfileSettingView()
+        case .myProfile:
+            profileDIContainer.makeProfileView()
         case .followList(let mode, let memberId):
             profileDIContainer.makeFollowListView(mode: mode, memberId: memberId)
         case .myCloset:
@@ -223,12 +256,16 @@ struct MainTabView: View {
             closetDIContainer.closetViewFactory.makeView(for: destination)
 
         // Add Flow
-        case .recordAdd, .clothPhotoSelect, .photoEdit, .photoEditForCloth, .recordDetail, .photoTag, .clothAdd:
+        case .recordAdd, .clothPhotoSelect, .photoEdit, .photoEditForCloth, .recordDetail, .recordEdit, .photoTag, .clothAdd:
             addDIContainer.addViewFactory.makeView(for: destination)
 
         // LookBook Flow
         case .lookbook, .specificLookbook, .addCodi, .addCodiDetail, .addBeforeCodi, .codiDetail, .editCodi:
             lookBookDIContainer.lookBookViewFactory.makeView(for: destination)
+
+        // Report Flow
+        case .report, .reportDetail:
+            reportDIContainer.reportViewFactory.makeView(for: destination)
 
         default:
             EmptyView()

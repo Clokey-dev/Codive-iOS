@@ -33,21 +33,25 @@ final class CommentViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
 
     private let feedId: Int
+    private let navigationRouter: NavigationRouter
     private let fetchCommentsUseCase: FetchCommentsUseCase
     private let postCommentUseCase: PostCommentUseCase
     private let fetchRepliesUseCase: FetchRepliesUseCase
     private let postReplyUseCase: PostReplyUseCase
-    
+    var dismissAction: () -> Void = {}
+
     // MARK: - Initializer
 
     init(
         feedId: Int,
+        navigationRouter: NavigationRouter,
         fetchCommentsUseCase: FetchCommentsUseCase,
         postCommentUseCase: PostCommentUseCase,
         fetchRepliesUseCase: FetchRepliesUseCase,
         postReplyUseCase: PostReplyUseCase
     ) {
         self.feedId = feedId
+        self.navigationRouter = navigationRouter
         self.fetchCommentsUseCase = fetchCommentsUseCase
         self.postCommentUseCase = postCommentUseCase
         self.fetchRepliesUseCase = fetchRepliesUseCase
@@ -192,6 +196,23 @@ final class CommentViewModel: ObservableObject {
             } catch {
                 print("Error posting reply: \(error)")
             }
+        }
+    }
+
+    func navigateToProfile(userId: String, isMine: Bool) {
+        guard let memberId = Int(userId) else {
+            print("❌ Invalid userId: \(userId)")
+            return
+        }
+
+        dismissAction()
+
+        if isMine {
+            // 내 댓글이면 내 프로필 뷰로 이동
+            navigationRouter.navigate(to: .myProfile)
+        } else {
+            // 다른 사람 댓글이면 OtherProfileView로 이동
+            navigationRouter.navigate(to: .otherProfile(userId: memberId))
         }
     }
 }

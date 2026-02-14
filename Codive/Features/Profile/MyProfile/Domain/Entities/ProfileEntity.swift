@@ -14,6 +14,7 @@ struct MyProfileInfo {
     let followerCount: Int
     let followingCount: Int
     let email: String?
+    let isPublic: Bool
 }
 
 struct FollowListResult {

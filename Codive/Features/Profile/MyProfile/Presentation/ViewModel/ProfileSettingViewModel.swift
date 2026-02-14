@@ -161,7 +161,7 @@ final class ProfileSettingViewModel: ObservableObject {
             DispatchQueue.main.async {
                 self.nickname = profileInfo.nickname
                 self.intro = profileInfo.introduction ?? ""
-                self.isPublic = true // API에서 공개여부 정보가 있으면 적용
+                self.isPublic = profileInfo.isPublic
                 self.nicknameCheckStatus = .available
 
                 // 프로필 이미지 URL 저장 (null이면 기본 이미지 사용)
@@ -245,7 +245,8 @@ final class ProfileSettingViewModel: ObservableObject {
                 nickname: nickname,
                 bio: intro,
                 isPublic: isPublic,
-                imageData: selectedImageData
+                imageData: selectedImageData,
+                currentImageUrl: currentProfileImageUrl
             )
 
             DispatchQueue.main.async {

@@ -165,9 +165,14 @@ final class SettingsDataSource {
     }
 
     func unblock(userId: UserID) async throws {
+        // UserID (String)를 Int로 변환 후 Int64로 변환
+        guard let userIdInt = Int(userId) else {
+            throw SettingError.invalidUserId
+        }
+
         // API 호출로 차단 해제
         let response = try await apiClient.Member_toggleBlockStatus(
-            path: .init(memberId: Int64(userId))
+            path: .init(memberId: Int64(userIdInt))
         )
 
         switch response {

@@ -74,7 +74,7 @@ struct MyClosetView: View {
                         description: "계절에 맞는 옷을 채워넣어보세요.\n디지털 옷장에서 쉽게 관리할 수 있어요.",
                         buttonText: "옷 추가하기"
                     ) {
-                        // TODO: 옷 추가 네비게이션
+                        viewModel.navigateToAddCloth()
                     }
                     .padding(.top, 150)
                 } else {
@@ -82,8 +82,8 @@ struct MyClosetView: View {
                         ForEach(viewModel.clothItems) { cloth in
                             CustomClothCard(
                                 imageUrl: cloth.imageUrl,
-                                brand: cloth.brand ?? "",
-                                title: cloth.name ?? "",
+                                brand: cloth.brand ?? "No brand",
+                                title: cloth.name ?? cloth.displayCategory,
                                 isEditMode: viewModel.isEditMode,
                                 isSelected: viewModel.selectedItemIds.contains(cloth.id)
                             ) {

@@ -18,6 +18,10 @@ protocol ProfileAPIServiceProtocol {
     func updateProfile(nickname: String, bio: String, isPublic: Bool, currentImageUrl: String?) async throws -> MyProfileInfo
     func checkNicknameDuplicate(nickname: String) async throws -> Bool
     func uploadProfileImage(_ imageData: Data) async throws -> String
+    func fetchMemberInfo(memberId: Int) async throws -> OtherProfileEntity
+    func toggleFollow(memberId: Int) async throws
+    func togglePendingFollow(memberId: Int) async throws
+    func toggleBlock(memberId: Int) async throws
     func fetchMyFavoriteCoordinate() async throws -> [MyFavoriteLookBookResponseDTO]
     func fetchCoordinatePreview(coordinateId: Int64) async throws -> CoordinatePreviewResponseDTO
     func fetchCoordinateDetail(
@@ -82,7 +86,8 @@ final class ProfileAPIService: ProfileAPIServiceProtocol {
                 profileImageUrl: memberInfo.profileImageUrl,
                 followerCount: Int(memberInfo.followerCount ?? 0),
                 followingCount: Int(memberInfo.followingCount ?? 0),
-                email: memberInfo.email
+                email: memberInfo.email,
+                isPublic: memberInfo.isPublic ?? true
             )
 
         case .undocumented(statusCode: let code, _):
@@ -113,7 +118,7 @@ final class ProfileAPIService: ProfileAPIServiceProtocol {
             let followers: [SimpleUser] = members.compactMap { member -> SimpleUser? in
                 guard let userId = member.memberId else { return nil }
                 return SimpleUser(
-                    userId: Int(userId),
+                    userId: String(userId),
                     nickname: member.nickname ?? "",
                     handle: member.nickname ?? "",
                     avatarURL: member.profileImageUrl.flatMap { URL(string: $0) }
@@ -209,6 +214,79 @@ final class ProfileAPIService: ProfileAPIServiceProtocol {
 
         case .undocumented(statusCode: let code, _):
             throw ProfileAPIError.serverError(statusCode: code, message: "이미지 업로드 실패 (상태코드: \(code))")
+        }
+    }
+
+    func fetchMemberInfo(memberId: Int) async throws -> OtherProfileEntity {
+        let response = try await client.Member_getMemberInfo(
+            path: Operations.Member_getMemberInfo.Input.Path(memberId: Int64(memberId))
+        )
+
+        switch response {
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+            let apiResponse = try jsonDecoder.decode(
+                Components.Schemas.BaseResponseMemberInfoResponse.self,
+                from: data
+            )
+
+            guard let result = apiResponse.result else {
+                throw ProfileAPIError.noData
+            }
+
+            return OtherProfileEntity(
+                memberId: Int(result.memberId ?? 0),
+                nickname: result.nickname ?? "",
+                bio: result.bio,
+                followerCount: Int(result.followerCount ?? 0),
+                followingCount: Int(result.followingCount ?? 0),
+                profileImageUrl: result.profileImageUrl,
+                isPublic: result.isPublic ?? true,
+                isFollowing: result.isFollowing ?? false,
+                isMe: result.isMe ?? false
+            )
+
+        case .undocumented(statusCode: let code, _):
+            throw ProfileAPIError.serverError(statusCode: code, message: "회원 정보 조회 실패")
+        }
+    }
+
+    func toggleFollow(memberId: Int) async throws {
+        let response = try await client.Member_toggleFollow(
+            query: Operations.Member_toggleFollow.Input.Query(userId: Int64(memberId))
+        )
+
+        switch response {
+        case .ok:
+            return
+        case .undocumented(statusCode: let code, _):
+            throw ProfileAPIError.serverError(statusCode: code, message: "팔로우 실패")
+        }
+    }
+
+    func togglePendingFollow(memberId: Int) async throws {
+        let response = try await client.Member_togglePendingFollow(
+            query: Operations.Member_togglePendingFollow.Input.Query(userId: Int64(memberId))
+        )
+
+        switch response {
+        case .ok:
+            return
+        case .undocumented(statusCode: let code, _):
+            throw ProfileAPIError.serverError(statusCode: code, message: "팔로우 요청 실패")
+        }
+    }
+
+    func toggleBlock(memberId: Int) async throws {
+        let response = try await client.Member_toggleBlockStatus(
+            path: Operations.Member_toggleBlockStatus.Input.Path(memberId: Int64(memberId))
+        )
+
+        switch response {
+        case .ok:
+            return
+        case .undocumented(statusCode: let code, _):
+            throw ProfileAPIError.serverError(statusCode: code, message: "차단 처리 실패")
         }
     }
 
@@ -360,6 +438,7 @@ enum ProfileAPIError: LocalizedError {
     case invalidResponse
     case invalidUrl
     case s3UploadFailed(statusCode: Int)
+    case noData
 
     var errorDescription: String? {
         switch self {
@@ -371,6 +450,8 @@ enum ProfileAPIError: LocalizedError {
             return "유효하지 않은 URL입니다"
         case .s3UploadFailed(let statusCode):
             return "S3 업로드 실패 (상태 코드: \(statusCode))"
+        case .noData:
+            return "응답 데이터가 없습니다"
         }
     }
 }

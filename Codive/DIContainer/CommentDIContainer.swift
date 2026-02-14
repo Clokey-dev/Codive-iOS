@@ -53,13 +53,15 @@ final class CommentDIContainer {
     // MARK: - ViewModels
 
     func makeCommentViewModel(feedId: Int) -> CommentViewModel {
-        return CommentViewModel(
+        let viewModel = CommentViewModel(
             feedId: feedId,
+            navigationRouter: navigationRouter,
             fetchCommentsUseCase: makeFetchCommentsUseCase(),
             postCommentUseCase: makePostCommentUseCase(),
             fetchRepliesUseCase: makeFetchRepliesUseCase(),
             postReplyUseCase: makePostReplyUseCase()
         )
+        return viewModel
     }
 
     // MARK: - Views

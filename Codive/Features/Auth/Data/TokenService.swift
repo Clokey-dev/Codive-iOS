@@ -22,6 +22,7 @@ protocol TokenServiceProtocol {
     func hasValidTokens() -> Bool
     func getAccessToken() -> String?
     func getRefreshToken() -> String?
+    func getCurrentUserId() -> Int?
 }
 
 // MARK: - Token Service Implementation
@@ -64,6 +65,12 @@ final class TokenService: TokenServiceProtocol {
     /// Refresh Token 가져오기
     func getRefreshToken() -> String? {
         return try? keychainManager.getRefreshToken()
+    }
+
+    /// 현재 로그인한 사용자 ID 가져오기 (Access Token의 memberId 추출)
+    func getCurrentUserId() -> Int? {
+        guard let token = getAccessToken() else { return nil }
+        return extractMemberId(from: token)
     }
 
     // MARK: - Private Methods
@@ -112,5 +119,39 @@ final class TokenService: TokenServiceProtocol {
         }
 
         return Data(base64Encoded: base64)
+    }
+
+    /// JWT에서 memberId 추출
+    private func extractMemberId(from token: String) -> Int? {
+        let parts = token.split(separator: ".")
+        guard parts.count == 3 else { return nil }
+
+        let payloadPart = String(parts[1])
+
+        guard let payloadData = base64URLDecode(payloadPart) else {
+            return nil
+        }
+
+        guard let payload = try? JSONSerialization.jsonObject(with: payloadData) as? [String: Any] else {
+            return nil
+        }
+
+        // memberId 추출 (여러 가능한 키 이름 시도)
+        if let memberId = payload["memberId"] as? Int {
+            return memberId
+        } else if let memberId = payload["member_id"] as? Int {
+            return memberId
+        } else if let memberId = payload["userId"] as? Int {
+            return memberId
+        } else if let memberId = payload["user_id"] as? Int {
+            return memberId
+        } else if let memberId = payload["sub"] as? Int {
+            return memberId
+        } else if let memberIdString = payload["sub"] as? String,
+                  let memberId = Int(memberIdString) {
+            return memberId
+        }
+
+        return nil
     }
 }

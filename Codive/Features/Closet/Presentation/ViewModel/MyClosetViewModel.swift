@@ -163,4 +163,8 @@ final class MyClosetViewModel: ObservableObject {
     func navigateToClothDetail(_ cloth: Cloth) {
         navigationRouter.navigate(to: .clothDetail(cloth: cloth))
     }
+
+    func navigateToAddCloth() {
+        navigationRouter.navigate(to: .clothPhotoSelect)
+    }
 }

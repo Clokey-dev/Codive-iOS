@@ -7,9 +7,13 @@
 
 import Foundation
 
-public struct User: Identifiable, Equatable {
-    
-    public let id: String
+// MARK: - Type Aliases
+public typealias UserID = String
+public typealias MemberID = Int
+
+public struct User: Identifiable, Equatable, Hashable {
+
+    public let id: UserID
     public let nickname: String
     public let profileImageUrl: String?
     
@@ -21,7 +25,7 @@ public struct User: Identifiable, Equatable {
     public let isMe: Bool?
     
     public init(
-        id: String,
+        id: UserID,
         nickname: String,
         profileImageUrl: String? = nil,
         bio: String? = nil,

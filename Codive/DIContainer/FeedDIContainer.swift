@@ -44,6 +44,14 @@ final class FeedDIContainer {
         )
     }()
 
+    private lazy var historyRepository: HistoryRepository = {
+        return HistoryRepositoryImpl(historyAPIService: HistoryAPIService())
+    }()
+
+    private lazy var otherProfileRepository: OtherProfileRepository = {
+        return OtherProfileRepositoryImpl(apiService: ProfileAPIService())
+    }()
+
     // MARK: - UseCases
 
     func makeCreateRecordUseCase() -> CreateRecordUseCase {
@@ -57,7 +65,7 @@ final class FeedDIContainer {
     func makeFetchFeedDetailUseCase() -> FetchFeedDetailUseCase {
         return DefaultFetchFeedDetailUseCase(repository: feedRepository)
     }
-    
+
     func makeFetchFeedLikersUseCase() -> FetchFeedLikersUseCase {
         return DefaultFetchFeedLikersUseCase(feedRepository: feedRepository)
     }
@@ -68,6 +76,14 @@ final class FeedDIContainer {
 
     func makeFetchClothTagsUseCase() -> FetchClothTagsUseCase {
         return DefaultFetchClothTagsUseCase(feedRepository: feedRepository)
+    }
+
+    func makeDeleteHistoryUseCase() -> DeleteHistoryUseCase {
+        return DefaultDeleteHistoryUseCase(repository: historyRepository)
+    }
+
+    func makeToggleBlockUseCase() -> ToggleBlockUseCase {
+        return DefaultToggleBlockUseCase(repository: otherProfileRepository)
     }
 
     // MARK: - ViewModels
@@ -87,6 +103,8 @@ final class FeedDIContainer {
             fetchLikersUseCase: makeFetchFeedLikersUseCase(),
             toggleLikeUseCase: makeToggleLikeUseCase(),
             fetchClothTagsUseCase: makeFetchClothTagsUseCase(),
+            deleteHistoryUseCase: makeDeleteHistoryUseCase(),
+            toggleBlockUseCase: makeToggleBlockUseCase(),
             navigationRouter: navigationRouter
         )
     }
@@ -99,6 +117,15 @@ final class FeedDIContainer {
             navigationRouter: navigationRouter,
             commentDIContainer: commentDIContainer
         )
+    }
+
+    func makeRecordDetailViewForEdit(feed: Feed) -> RecordDetailView {
+        let viewModel = RecordDetailViewModel(
+            feed: feed,
+            navigationRouter: navigationRouter,
+            recordDataSource: DefaultRecordDataSource()
+        )
+        return RecordDetailView(viewModel: viewModel)
     }
 }
 
@@ -114,12 +141,18 @@ extension FeedDIContainer {
         let likersUseCase = DefaultFetchFeedLikersUseCase(feedRepository: repository)
         let toggleLikeUseCase = DefaultToggleLikeUseCase(feedRepository: repository)
         let clothTagsUseCase = DefaultFetchClothTagsUseCase(feedRepository: repository)
+        let mockHistoryRepository = HistoryRepositoryImpl()
+        let mockOtherProfileRepository = OtherProfileRepositoryImpl(apiService: ProfileAPIService())
+        let deleteHistoryUseCase = DefaultDeleteHistoryUseCase(repository: mockHistoryRepository)
+        let toggleBlockUseCase = DefaultToggleBlockUseCase(repository: mockOtherProfileRepository)
         return FeedDetailViewModel(
             feedId: feedId,
             fetchFeedDetailUseCase: detailUseCase,
             fetchLikersUseCase: likersUseCase,
             toggleLikeUseCase: toggleLikeUseCase,
             fetchClothTagsUseCase: clothTagsUseCase,
+            deleteHistoryUseCase: deleteHistoryUseCase,
+            toggleBlockUseCase: toggleBlockUseCase,
             navigationRouter: navigationRouter
         )
     }

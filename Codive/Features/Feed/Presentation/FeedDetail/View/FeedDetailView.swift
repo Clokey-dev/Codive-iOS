@@ -32,37 +32,54 @@ struct FeedDetailView: View {
 
     // MARK: - Body
     var body: some View {
-        VStack(spacing: 0) {
-            HStack {
-                Button(action: {
-                    navigationRouter.navigateBack()
-                }, label: {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 20))
-                        .foregroundStyle(.black)
-                })
-                
-                Spacer()
-                
-                Text(TextLiteral.Feed.detailTitle)
-                    .font(.codive_title2)
-                    .foregroundStyle(.black)
-                
-                Spacer()
-                
-                Color.clear.frame(width: 24, height: 24)
+        ZStack {
+            // 로딩 인디케이터
+            if viewModel.isLoading {
+                Color.black.opacity(0.3)
+                    .ignoresSafeArea()
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    .scaleEffect(1.5)
+                    .zIndex(100)
             }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 12)
-            
-            ScrollView {
-                VStack(spacing: 0) {
-                    if let feed = viewModel.feed {
+
+            VStack(spacing: 0) {
+                HStack {
+                    Button(action: {
+                        navigationRouter.navigateBack()
+                    }, label: {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 20))
+                            .foregroundStyle(.black)
+                    })
+
+                    Spacer()
+
+                    Text(TextLiteral.Feed.detailTitle)
+                        .font(.codive_title2)
+                        .foregroundStyle(.black)
+
+                    Spacer()
+
+                    Color.clear.frame(width: 24, height: 24)
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 12)
+
+                ScrollView {
+                    VStack(spacing: 0) {
+                        if let feed = viewModel.feed {
                         // 프로필
                         ProfileHeaderView(
                             profileImageUrl: feed.author.profileImageUrl ?? "",
-                            nickname: feed.author.nickname
-                        ) { }
+                            nickname: feed.author.nickname,
+                            onMoreTap: {
+                                viewModel.showMoreMenu()
+                            },
+                            onProfileTap: {
+                                viewModel.navigateToProfile(userId: feed.author.id, isMine: feed.author.isMe ?? false)
+                            }
+                        )
                         
                         // 이미지 슬라이더
                         FeedImageSlider(
@@ -119,11 +136,58 @@ struct FeedDetailView: View {
                     } else {
                         Text(viewModel.errorMessage ?? TextLiteral.Feed.genericLoadFailed)
                             .padding(.top, 50)
+                        }
                     }
                 }
+            .background(Color.white)
+            }
+
+            // 더보기 메뉴 오버레이
+            if viewModel.isMoreMenuPresented, let feed = viewModel.feed {
+                ZStack(alignment: .topTrailing) {
+                    Color.black
+                        .opacity(0.001)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            viewModel.dismissMoreMenu()
+                        }
+
+                    if feed.author.isMe ?? false {
+                        // 내 피드: 수정하기, 삭제하기
+                        CustomOverflowMenu(
+                            menuType: .closet,
+                            menuActions: [
+                                { viewModel.onEditTapped() },
+                                { viewModel.onDeleteTapped() }
+                            ],
+                            isExpanded: viewModel.isMoreMenuPresented,
+                            showButton: false
+                        ) {
+                            viewModel.dismissMoreMenu()
+                        }
+                        .padding(.trailing, 20)
+                        .padding(.top, 80)
+                    } else {
+                        // 다른 사람 피드: 신고하기, 차단하기
+                        CustomOverflowMenu(
+                            menuType: .report,
+                            menuActions: [
+                                { viewModel.onReportTapped() },
+                                { viewModel.onBlockTapped() }
+                            ],
+                            isExpanded: viewModel.isMoreMenuPresented,
+                            showButton: false
+                        ) {
+                            viewModel.dismissMoreMenu()
+                        }
+                        .padding(.trailing, 20)
+                        .padding(.top, 80)
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .zIndex(10)
             }
         }
-        .background(Color.white)
         .navigationBarHidden(true)
         .onAppear {
             Task {
@@ -144,6 +208,29 @@ struct FeedDetailView: View {
                 commentDIContainer.commentViewFactory.makeView(for: .comment(feedId: feedId))
                     .presentationDetents([.fraction(0.7), .large])
             }
+        }
+        .alert("기록 삭제", isPresented: $viewModel.showDeleteAlert) {
+            Button("취소", role: .cancel) { }
+            Button("삭제", role: .destructive) {
+                viewModel.confirmDelete()
+            }
+        } message: {
+            Text("이 기록을 삭제하시겠습니까?\n삭제된 기록은 복구할 수 없습니다.")
+        }
+        .alert("사용자 차단", isPresented: $viewModel.showBlockAlert) {
+            Button("취소", role: .cancel) { }
+            Button("차단", role: .destructive) {
+                viewModel.confirmBlock()
+            }
+        } message: {
+            if let feed = viewModel.feed {
+                Text("\(feed.author.nickname)님을 차단하시겠습니까?\n차단된 사용자의 기록을 더 이상 볼 수 없습니다.")
+            }
+        }
+        .alert("차단 실패", isPresented: $viewModel.showBlockFailureAlert) {
+            Button("확인", role: .cancel) { }
+        } message: {
+            Text(viewModel.blockErrorMessage)
         }
     }
 

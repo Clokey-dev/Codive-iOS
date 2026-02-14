@@ -57,17 +57,34 @@ class ProfileViewModel: ObservableObject {
             }
         }
     }
-    @Published var selectedDate: Date? = Date()        // 선택된 날짜
+    @Published var selectedDate: Date? = Date() {
+        didSet {
+            // 선택한 날짜의 기록이 있으면 FeedDetailView로 이동
+            if let selectedDate = selectedDate {
+                let dateString = selectedDate.toDateString()
+                if let historyId = monthlyHistoryIds[dateString] {
+                    navigationRouter.navigate(to: .feedDetail(feedId: Int(historyId)))
+                } else {
+                    // 기록이 없으면 콜백 호출
+                    onEmptyHistoryDateSelected?(selectedDate)
+                }
+            }
+        }
+    }
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     @Published var monthlyHistories: [String: String] = [:] // "2026-01-21" -> imageUrl
-    
+    @Published var monthlyHistoryIds: [String: Int] = [:] // "2026-01-21" -> historyId
+
     // MARK: - Dependencies
     private let navigationRouter: NavigationRouter
     private let fetchMyProfileUseCase: FetchMyProfileUseCase
     private let fetchMonthlyHistoryUseCase: FetchMonthlyHistoryUseCase
     private let fetchMyFavoriteLookBookUseCase: FetchMyFavoriteLookBookUseCase
-    
+
+    // MARK: - Callbacks
+    var onEmptyHistoryDateSelected: ((Date) -> Void)?
+
     // MARK: - Initializer
     init(
         navigationRouter: NavigationRouter,
@@ -125,16 +142,19 @@ class ProfileViewModel: ObservableObject {
             
             // 같은 날짜에 여러 기록이 있으면 첫 번째만 사용
             var historyMap: [String: String] = [:]
+            var historyIdMap: [String: Int] = [:]
             for item in items where historyMap[item.historyDate] == nil {
                 historyMap[item.historyDate] = item.firstImageUrl
+                historyIdMap[item.historyDate] = Int(item.historyId)
             }
             
             self.monthlyHistories = historyMap
+            self.monthlyHistoryIds = historyIdMap
         } catch {
             print("월별 기록 로드 실패: \(error.localizedDescription)")
         }
     }
-    
+
     // MARK: - Actions
     func onEditProfileTapped() {
         navigationRouter.navigate(to: .profileSetting)

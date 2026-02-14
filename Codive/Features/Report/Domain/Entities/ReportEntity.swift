@@ -8,7 +8,7 @@
 import Foundation
 
 // MARK: - Typealiases
-public typealias UserID = Int
+public typealias ReporterID = Int
 public typealias PostID = Int
 public typealias CommentID = Int
 
@@ -27,12 +27,12 @@ public enum ReportTarget: Identifiable, Equatable, Hashable, Sendable, Codable {
 
 // 작성자 표시용 스냅샷
 public struct AuthorSnapshot: Sendable, Equatable, Hashable {
-    public let userId: UserID
+    public let userId: ReporterID
     public let nickname: String
     public let handle: String
     public let avatarURL: URL?
 
-    public init(userId: UserID, nickname: String, handle: String, avatarURL: URL?) {
+    public init(userId: ReporterID, nickname: String, handle: String, avatarURL: URL?) {
         self.userId = userId
         self.nickname = nickname
         self.handle = handle
@@ -162,9 +162,6 @@ public struct ReportDraft: Identifiable, Equatable, Hashable, Sendable {
         guard let reason = selectedReason else {
             return .invalid(.missingReason)
         }
-        if reason.isEtc && detail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return .invalid(.detailRequiredForEtc)
-        }
         if detail.count > Self.maxDetailLength {
             return .invalid(.detailTooLong(limit: Self.maxDetailLength))
         }
@@ -178,13 +175,13 @@ public struct Report: Identifiable, Equatable, Hashable, Codable, Sendable {
     public let target: ReportTarget
     public let reason: ReportReason
     public let detail: String?
-    public let reporterId: UserID
+    public let reporterId: ReporterID
     public let createdAt: Date
 
     public init(target: ReportTarget,
                 reason: ReportReason,
                 detail: String?,
-                reporterId: UserID,
+                reporterId: ReporterID,
                 createdAt: Date = Date()) {
         self.target = target
         self.reason = reason
@@ -209,7 +206,7 @@ private extension String {
 
 // Draft → Report 변환 extension
 public extension ReportDraft {
-    func build(reporterId: UserID, now: Date = Date()) throws -> Report {
+    func build(reporterId: ReporterID, now: Date = Date()) throws -> Report {
         let v = validate()
         guard v.isValid else {
             throw ReportError.invalidDraft(v.failure!)

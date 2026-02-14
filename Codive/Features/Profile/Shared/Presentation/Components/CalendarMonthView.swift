@@ -105,10 +105,10 @@ struct CalendarMonthView: View {
             if item.isPlaceholder {
                 Color.clear
             } else {
-                let isSelected = isSameDay(item.date, selectedDate)
+                let isToday = isSameDay(item.date, Date())
                 let weekday = calendar.component(.weekday, from: item.date)
                 let isWeekend = (weekday == 1 || weekday == 7)
-                let dateString = formatDate(item.date)
+                let dateString = item.date.toDateString()
                 let imageUrl = monthlyHistories[dateString]
 
                 // 이미지 배경 (전체 셀을 덮음)
@@ -132,9 +132,9 @@ struct CalendarMonthView: View {
                 if imageUrl == nil {
                     Text("\(item.dayNumber)")
                         .font(.codive_body2_regular)
-                        .foregroundStyle(isSelected ? Color.white : (isWeekend ? Color.Codive.grayscale3 : Color.Codive.grayscale1))
+                        .foregroundStyle(isToday ? Color.white : (isWeekend ? Color.Codive.grayscale3 : Color.Codive.grayscale1))
                         .background {
-                            if isSelected {
+                            if isToday {
                                 Circle()
                                     .fill(Color.Codive.point1)
                                     .frame(width: 20, height: 20)
@@ -147,17 +147,11 @@ struct CalendarMonthView: View {
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .contentShape(Rectangle())
         .onTapGesture {
+            // 모든 날짜 선택 가능
             if !item.isPlaceholder {
                 selectedDate = item.date
             }
         }
-    }
-
-    // Helper: Date -> "2026-01-21" 형식 변환
-    private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: date)
     }
 
     private func monthTitle(_ date: Date) -> String {

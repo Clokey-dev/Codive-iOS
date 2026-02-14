@@ -120,7 +120,10 @@ struct SearchView: View {
                                 NewsCard(
                                     imageUrl: news.imageUrl,
                                     title: news.title,
-                                    subTitle: news.subTitle
+                                    subTitle: news.subTitle,
+                                    onTap: {
+                                        viewModel.searchWithKeyword(news.subTitle)
+                                    }
                                 )
                             }
                         }

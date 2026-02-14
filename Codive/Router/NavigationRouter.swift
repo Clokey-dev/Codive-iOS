@@ -15,6 +15,9 @@ final class NavigationRouter: ObservableObject {
     @Published var path = NavigationPath()
     @Published var currentDestination: AppDestination?
     @Published var sheetDestination: AppDestination?
+
+    /// NavigationPath와 동기화되는 shadow stack (스택 내용 조회용)
+    private(set) var destinationStack: [AppDestination] = []
     
     /// 탭 전환 요청 (MainTabView에서 구독)
     @Published var pendingTabSwitch: TabBarType?
@@ -27,6 +30,7 @@ final class NavigationRouter: ObservableObject {
     /// 새로운 화면으로 이동 (스택에 추가)
     func navigate(to destination: AppDestination) {
         currentDestination = destination
+        destinationStack.append(destination)
         path.append(destination)
     }
 
@@ -36,18 +40,20 @@ final class NavigationRouter: ObservableObject {
             dismissSheet()
             return
         }
-        
+
         guard !path.isEmpty else { return }
         path.removeLast()
-
-        if path.isEmpty {
-            currentDestination = nil
+        if !destinationStack.isEmpty {
+            destinationStack.removeLast()
         }
+
+        currentDestination = destinationStack.last
     }
     
     /// 루트 화면으로 돌아가기 (모든 스택 제거)
     func navigateToRoot() {
         path = NavigationPath()
+        destinationStack.removeAll()
         currentDestination = nil
         dismissSheet()
     }
@@ -55,6 +61,7 @@ final class NavigationRouter: ObservableObject {
     /// 특정 화면으로 교체 (현재 스택을 모두 비우고 새로운 화면으로)
     func navigateAndReplace(to destination: AppDestination) {
         path = NavigationPath()
+        destinationStack = [destination]
         currentDestination = destination
         path.append(destination)
     }
@@ -62,6 +69,7 @@ final class NavigationRouter: ObservableObject {
     /// 탭 전환 후 특정 화면으로 이동
     func switchTabAndNavigate(to tab: TabBarType, destination: AppDestination? = nil) {
         path = NavigationPath()
+        destinationStack.removeAll()
         currentDestination = nil
         pendingTabSwitch = tab
 
@@ -91,6 +99,20 @@ final class NavigationRouter: ObservableObject {
         }
     }
     
+    /// 조건에 맞는 화면까지 pop (무한 스택 방지)
+    func popTo(where predicate: (AppDestination) -> Bool) -> Bool {
+        guard let targetIndex = destinationStack.lastIndex(where: predicate) else {
+            return false
+        }
+        let itemsToRemove = destinationStack.count - targetIndex - 1
+        guard itemsToRemove > 0 else { return false }
+
+        destinationStack.removeLast(itemsToRemove)
+        path.removeLast(itemsToRemove)
+        currentDestination = destinationStack.last
+        return true
+    }
+
     // MARK: - Sheet Presentation Methods
     
     /// 시트를 표시합니다.

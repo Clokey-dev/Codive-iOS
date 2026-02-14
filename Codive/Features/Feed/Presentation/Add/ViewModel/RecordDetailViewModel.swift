@@ -9,10 +9,18 @@ import Foundation
 import UIKit
 import SwiftUI
 import Combine
+import Kingfisher
 
 // MARK: - RecordDetailViewModel
 @MainActor
 final class RecordDetailViewModel: ObservableObject {
+
+    // MARK: - Constants
+
+    private enum Constants {
+        static let minStyleCount = 1
+        static let maxStyleCount = 3
+    }
 
     // MARK: - Properties
     private var cancellables = Set<AnyCancellable>()
@@ -33,6 +41,11 @@ final class RecordDetailViewModel: ObservableObject {
     // Loading & Error State
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
+
+    // Edit Mode
+    @Published var isEditMode: Bool = false
+    private var editingFeedId: Int?
+    private var editingFeedData: Feed?
 
     private let navigationRouter: NavigationRouter
     private let recordDataSource: RecordDataSource
@@ -68,7 +81,7 @@ final class RecordDetailViewModel: ObservableObject {
     
     var isCompleteEnabled: Bool {
         // 스타일 최소 1개, 최대 3개 선택 필수
-        return selectedStyles.count >= 1 && selectedStyles.count <= 3
+        return selectedStyles.count >= Constants.minStyleCount && selectedStyles.count <= Constants.maxStyleCount
     }
     
     // MARK: - Initializer
@@ -80,6 +93,42 @@ final class RecordDetailViewModel: ObservableObject {
         self.selectedPhotos = selectedPhotos
         self.navigationRouter = navigationRouter
         self.recordDataSource = recordDataSource
+        self.isEditMode = false
+
+        // 태그 업데이트 구독
+        setupPhotoTagSubscription()
+    }
+
+    /// 수정 모드 Initializer
+    init(
+        feed: Feed,
+        navigationRouter: NavigationRouter,
+        recordDataSource: RecordDataSource = DefaultRecordDataSource()
+    ) {
+        self.navigationRouter = navigationRouter
+        self.recordDataSource = recordDataSource
+        self.isEditMode = true
+        self.editingFeedId = feed.id
+        self.editingFeedData = feed
+
+        // 이미지 데이터 로드
+        self.selectedPhotos = []
+
+        // 상태 초기화
+        self.selectedStyles = Set(feed.styleNames ?? [])
+        self.captionText = feed.content ?? ""
+
+        // 상황 설정 (첫 번째만)
+        if let situationId = feed.situationId {
+            if let situationItem = SituationConstants.find(byId: Int64(situationId)) {
+                self.selectedSituations.insert(situationItem.name)
+            }
+        }
+
+        // 이미지 로드
+        Task {
+            await self.loadImagesFromFeed(feed)
+        }
 
         // 태그 업데이트 구독
         setupPhotoTagSubscription()
@@ -88,6 +137,45 @@ final class RecordDetailViewModel: ObservableObject {
     // MARK: - Methods
     func updateCurrentPhotoIndex(_ index: Int) {
         currentPhotoIndex = index
+    }
+
+    /// Feed의 이미지들을 SelectedPhoto로 변환하여 로드
+    private func loadImagesFromFeed(_ feed: Feed) async {
+        var loadedPhotos: [SelectedPhoto] = []
+
+        for (index, feedImage) in feed.images.enumerated() {
+            if let image = await downloadImage(from: feedImage.imageUrl) {
+                var selectedPhoto = SelectedPhoto(
+                    id: UUID().uuidString,
+                    originalImage: image,
+                    croppedImage: image,
+                    order: index,
+                    clothTags: [] // 기존 태그는 나중에 로드됨
+                )
+                selectedPhoto.imageUrl = feedImage.imageUrl // 기존 이미지 URL 저장
+                loadedPhotos.append(selectedPhoto)
+            }
+        }
+
+        DispatchQueue.main.async {
+            self.selectedPhotos = loadedPhotos
+        }
+    }
+
+    /// URL에서 이미지를 다운로드
+    private func downloadImage(from urlString: String) async -> UIImage? {
+        guard let url = URL(string: urlString) else { return nil }
+
+        return await withCheckedContinuation { continuation in
+            KingfisherManager.shared.retrieveImage(with: url) { result in
+                switch result {
+                case .success(let imageResult):
+                    continuation.resume(returning: imageResult.image)
+                case .failure:
+                    continuation.resume(returning: nil)
+                }
+            }
+        }
     }
     
     func completeRecord() {
@@ -98,54 +186,72 @@ final class RecordDetailViewModel: ObservableObject {
 
         Task {
             do {
-                // 1. 스타일 ID 변환
-                let styleIds = StyleConstants.getIds(from: selectedStyles)
-                guard !styleIds.isEmpty else {
-                    throw RecordError.noStyleSelected
-                }
-
-                // 2. 상황 ID 변환 (첫 번째 선택)
-                guard let situationId = SituationConstants.getFirstId(from: selectedSituations) else {
-                    throw RecordError.noSituationSelected
-                }
-
-                // 3. 해시태그 추출
-                let hashtags = extractHashtags(from: captionText)
-
-                // 4. 사진 데이터 변환
-                let photos = selectedPhotos.map { photo in
-                    RecordPhoto(
-                        image: photo.croppedImage,
-                        clothTags: photo.clothTags.map { tag in
-                            RecordClothTag(
-                                clothId: Int64(tag.clothId),
-                                locationX: Double(tag.locationX),
-                                locationY: Double(tag.locationY)
-                            )
-                        }
-                    )
-                }
-
-                // 5. 요청 생성
-                let request = RecordCreateRequest(
-                    content: captionText.isEmpty ? nil : captionText,
-                    situationId: situationId,
-                    styleIds: styleIds,
-                    hashtags: hashtags,
-                    photos: photos
-                )
-
-                // 6. API 호출
-                _ = try await recordDataSource.createRecord(request: request)
-
-                // 7. 성공 시 메인으로
+                let request = try buildRecordRequest()
+                try await saveRecord(request)
                 isLoading = false
-                navigationRouter.navigateToRoot()
+                navigationRouter.navigateBack()
             } catch {
-                isLoading = false
-                errorMessage = error.localizedDescription
+                handleRecordError(error)
             }
         }
+    }
+
+    // MARK: - Private Helper Methods
+
+    private func buildRecordRequest() throws -> RecordCreateRequest {
+        // 1. 스타일 ID 변환
+        let styleIds = StyleConstants.getIds(from: selectedStyles)
+        guard !styleIds.isEmpty else {
+            throw RecordError.noStyleSelected
+        }
+
+        // 2. 상황 ID 변환
+        guard let situationId = SituationConstants.getFirstId(from: selectedSituations) else {
+            throw RecordError.noSituationSelected
+        }
+
+        // 3. 해시태그 추출
+        let hashtags = extractHashtags(from: captionText)
+
+        // 4. 사진 데이터 변환
+        let photos = selectedPhotos.map { photo in
+            var recordPhoto = RecordPhoto(
+                image: photo.croppedImage,
+                clothTags: photo.clothTags.map { tag in
+                    RecordClothTag(
+                        clothId: Int64(tag.clothId),
+                        locationX: Double(tag.locationX),
+                        locationY: Double(tag.locationY)
+                    )
+                }
+            )
+            recordPhoto.imageUrl = photo.imageUrl
+            return recordPhoto
+        }
+
+        // 5. 요청 생성
+        return RecordCreateRequest(
+            content: captionText.isEmpty ? nil : captionText,
+            situationId: situationId,
+            styleIds: styleIds,
+            hashtags: hashtags,
+            photos: photos
+        )
+    }
+
+    private func saveRecord(_ request: RecordCreateRequest) async throws {
+        if isEditMode, let feedId = editingFeedId {
+            // API는 Int64를 요구하므로 변환
+            let historyId = Int64(feedId)
+            try await recordDataSource.updateRecord(historyId: historyId, request: request)
+        } else {
+            _ = try await recordDataSource.createRecord(request: request)
+        }
+    }
+
+    private func handleRecordError(_ error: Error) {
+        isLoading = false
+        errorMessage = error.localizedDescription
     }
 
     // MARK: - Helper Methods
@@ -206,9 +312,9 @@ enum RecordError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .noStyleSelected:
-            return "스타일을 선택해주세요."
+            return TextLiteral.Add.noStyleSelected
         case .noSituationSelected:
-            return "상황을 선택해주세요."
+            return TextLiteral.Add.noSituationSelected
         }
     }
 }

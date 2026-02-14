@@ -54,7 +54,7 @@ struct MyClosetSectionView: View {
                     description: "옷을 추가해보세요",
                     buttonText: "옷 추가하기"
                 ) {
-                    // TODO: 옷 추가 네비게이션
+                    viewModel.navigateToAddCloth()
                 }
                 .frame(height: 200)
             } else {
@@ -123,7 +123,7 @@ struct MyClosetSectionView: View {
         ClothingCardView(
             imageUrl: cloth.imageUrl,
             brand: cloth.brand ?? "No brand",
-            name: cloth.name ?? "이름 없음"
+            name: cloth.name ?? cloth.displayCategory
         )
         .onTapGesture {
             viewModel.navigateToClothDetail(cloth)

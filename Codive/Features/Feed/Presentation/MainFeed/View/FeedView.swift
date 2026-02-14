@@ -163,7 +163,10 @@ private struct FeedCellView: View {
                             await viewModel.toggleLike(feedId: feed.id)
                         }
                     }
-                )
+                ),
+                onProfileTap: {
+                    viewModel.navigateToProfile(userId: feed.author.id)
+                }
             )
         }
         .buttonStyle(PlainButtonStyle())

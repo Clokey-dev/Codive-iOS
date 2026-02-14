@@ -13,9 +13,11 @@ import OpenAPIRuntime
 
 protocol HistoryAPIServiceProtocol {
     func createHistory(request: HistoryCreateAPIRequest) async throws -> Int64
+    func updateHistory(historyId: Int64, request: HistoryCreateAPIRequest) async throws
     func fetchHistoryDetail(historyId: Int64) async throws -> HistoryDetailDTO
     func fetchClothTags(historyImageId: Int64) async throws -> [ClothTagDTO]
     func fetchMonthlyHistory(memberId: Int64, year: Int32, month: Int32) async throws -> [MonthlyHistoryItemDTO]
+    func deleteHistory(historyId: Int64) async throws
 }
 
 // MARK: - History Detail DTO
@@ -24,6 +26,7 @@ struct HistoryDetailDTO {
     let memberId: Int64
     let profileImageUrl: String?
     let nickname: String?
+    let isMine: Bool
     let images: [HistoryImageDTO]
     let likeCount: Int64
     let commentCount: Int64
@@ -84,7 +87,7 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
         self.jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
     }
 
-    // MARK: - Create History
+    // MARK: - Create & Update History
 
     func createHistory(request: HistoryCreateAPIRequest) async throws -> Int64 {
         let payloads = request.payloads.map { payload in
@@ -127,8 +130,54 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
 
             return historyId
 
-        case .undocumented(statusCode: let code, _):
-            throw HistoryAPIError.serverError(statusCode: code)
+        case .undocumented(statusCode: let code, let body):
+            let errorDetail = await extractErrorDetail(from: body)
+            print("❌ Create API Error - Status: \(code), Detail: \(errorDetail)")
+            throw HistoryAPIError.serverError(statusCode: code, detail: errorDetail)
+        }
+    }
+
+    func updateHistory(historyId: Int64, request: HistoryCreateAPIRequest) async throws {
+        let payloads = request.payloads.map { payload in
+            Components.Schemas.HistoryUpdatePayload(
+                imageUrl: payload.imageUrl,
+                clothTags: payload.clothTags.map { tag in
+                    Components.Schemas.ClothTag(
+                        clothId: tag.clothId,
+                        locationX: tag.locationX,
+                        locationY: tag.locationY
+                    )
+                }
+            )
+        }
+
+        let hashtagContainers: [OpenAPIRuntime.OpenAPIValueContainer]? = request.hashtags.isEmpty
+            ? nil
+            : request.hashtags.compactMap { try? OpenAPIRuntime.OpenAPIValueContainer(unvalidatedValue: $0) }
+
+        let requestBody = Components.Schemas.HistoryUpdateRequest(
+            content: request.content,
+            situationId: request.situationId,
+            styleIds: request.styleIds,
+            hashtags: hashtagContainers,
+            payloads: payloads
+        )
+
+        let input = Operations.History_updateHistory.Input(
+            path: .init(historyId: historyId),
+            body: .json(requestBody)
+        )
+        let response = try await client.History_updateHistory(input)
+
+        switch response {
+        case .ok:
+            return
+
+        case .undocumented(statusCode: let code, let body):
+            // Try to extract error details from response body
+            let errorDetail = await extractErrorDetail(from: body)
+            print("❌ Update API Error - Status: \(code), Detail: \(errorDetail)")
+            throw HistoryAPIError.serverError(statusCode: code, detail: errorDetail)
         }
     }
 
@@ -158,6 +207,7 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
                 memberId: result.memberId ?? 0,
                 profileImageUrl: result.profileImageUrl,
                 nickname: result.nickname,
+                isMine: result.isMine ?? false,
                 images: result.images?.compactMap { img in
                     guard let imageUrl = img.imageUrl else { return nil }
                     return HistoryImageDTO(
@@ -261,6 +311,35 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
             throw HistoryAPIError.serverError(statusCode: code)
         }
     }
+
+    // MARK: - Helper Methods
+
+    private func extractErrorDetail(from payload: UndocumentedPayload) async -> String {
+        // The payload contains the error response from the server
+        // For now, return a generic message to help with debugging
+        // In a real scenario, we would parse the response body for more details
+        return "서버에서 요청을 처리할 수 없습니다. 네트워크 상태를 확인해주세요."
+    }
+
+    // MARK: - Delete History
+
+    func deleteHistory(historyId: Int64) async throws {
+        let input = Operations.History_deleteHistory.Input(
+            path: .init(historyId: historyId)
+        )
+
+        let response = try await client.History_deleteHistory(input)
+
+        switch response {
+        case .ok:
+            return
+
+        case .undocumented(statusCode: let code, let body):
+            let errorDetail = await extractErrorDetail(from: body)
+            print("❌ Delete API Error - Status: \(code), Detail: \(errorDetail)")
+            throw HistoryAPIError.serverError(statusCode: code, detail: errorDetail)
+        }
+    }
 }
 
 // MARK: - Response Types
@@ -280,13 +359,16 @@ private struct HistoryCreateResponse: Decodable {
 
 enum HistoryAPIError: LocalizedError {
     case noData
-    case serverError(statusCode: Int)
+    case serverError(statusCode: Int, detail: String? = nil)
 
     var errorDescription: String? {
         switch self {
         case .noData:
             return "응답 데이터가 없습니다."
-        case .serverError(let code):
+        case .serverError(let code, let detail):
+            if let detail = detail, !detail.isEmpty {
+                return "서버 오류 (\(code)): \(detail)"
+            }
             return "서버 오류 (\(code))"
         }
     }

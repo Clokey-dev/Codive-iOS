@@ -100,7 +100,7 @@ extension SearchAPIService {
             let users: [SimpleUser] = members.compactMap { member -> SimpleUser? in
                 guard let userId = member.memberId else { return nil }
                 return SimpleUser(
-                    userId: Int(userId),
+                    userId: String(userId),
                     nickname: member.nickname ?? "",
                     handle: member.nickname ?? "",
                     avatarURL: member.profileImageUrl.flatMap { URL(string: $0) }

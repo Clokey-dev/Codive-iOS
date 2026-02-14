@@ -11,7 +11,8 @@ struct NewsCard: View {
     let imageUrl: String
     let title: String
     let subTitle: String
-    
+    let onTap: () -> Void
+
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             // 배경 이미지
@@ -37,7 +38,7 @@ struct NewsCard: View {
             }
             .frame(width: 273, height: 300)
             .clipped()
-            
+
             // 그라데이션 오버레이
             LinearGradient(
                 gradient: Gradient(colors: [
@@ -47,7 +48,7 @@ struct NewsCard: View {
                 startPoint: .leading,
                 endPoint: .bottom
             )
-            
+
             // 텍스트
             VStack(alignment: .leading) {
                 Text(title)
@@ -65,6 +66,9 @@ struct NewsCard: View {
         }
         .frame(width: 273, height: 300)
         .cornerRadius(16)
+        .onTapGesture {
+            onTap()
+        }
     }
 }
 
@@ -75,13 +79,15 @@ struct NewsCard: View {
             NewsCard(
                 imageUrl: "https://picsum.photos/273/300",
                 title: "개강룩!",
-                subTitle: "첫 인상 잡수 올리기"
+                subTitle: "첫 인상 잡수 올리기",
+                onTap: { print("첫 번째 카드 탭") }
             )
-            
+
             NewsCard(
                 imageUrl: "https://picsum.photos/273/301",
                 title: "가을 자켓",
-                subTitle: "오늘의 코디"
+                subTitle: "오늘의 코디",
+                onTap: { print("두 번째 카드 탭") }
             )
         }
         .padding(.horizontal, 20)

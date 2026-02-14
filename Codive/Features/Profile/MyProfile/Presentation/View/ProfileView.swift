@@ -11,7 +11,8 @@ import SwiftUI
 struct ProfileView: View {
     @ObservedObject private var navigationRouter: NavigationRouter
     @ObservedObject private var viewModel: ProfileViewModel
-    
+    @EnvironmentObject private var mainTabViewModel: MainTabViewModel
+
     init(viewModel: ProfileViewModel, navigationRouter: NavigationRouter) {
         self._viewModel = ObservedObject(wrappedValue: viewModel)
         self._navigationRouter = ObservedObject(wrappedValue: navigationRouter)
@@ -43,7 +44,7 @@ struct ProfileView: View {
             .task {
                 await viewModel.loadMyProfile()
             }
-            
+
             if viewModel.isShowingPopup, let preview = viewModel.selectedCoordinatePreview {
                 FavoriteLookBookPopUp(
                     imageUrl: preview.imageUrl,
@@ -56,12 +57,32 @@ struct ProfileView: View {
                 .zIndex(1)
             }
         }
+        .background(Color.white)
+        .navigationBarBackButtonHidden(!navigationRouter.path.isEmpty)
+        .task {
+            // 콜백 설정: 기록이 없는 날짜가 선택되면 모달 표시
+            viewModel.onEmptyHistoryDateSelected = { [weak mainTabViewModel] date in
+                mainTabViewModel?.emptyHistoryModalDate = date
+                mainTabViewModel?.isEmptyHistoryModalPresented = true
+            }
+        }
     }
     
     // MARK: - Top Bar
     private var topBar: some View {
         HStack(spacing: 12) {
-            
+            // 뒤로가기 버튼: 네비게이션으로 들어왔을 때만 표시
+            if !navigationRouter.path.isEmpty {
+                Button {
+                    navigationRouter.navigateBack()
+                } label: {
+                    Image("back")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24, height: 24)
+                }
+            }
+
             Spacer(minLength: 0)
             
             Button {

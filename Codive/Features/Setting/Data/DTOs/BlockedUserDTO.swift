@@ -21,9 +21,8 @@ struct BlockedMembersAPIResponse: Decodable {
 
 // MARK: - Blocked Member DTO
 struct BlockedMemberDTO: Decodable {
-    let userId: Int64
+    let blockId: Int64
+    let memberId: Int64
     let nickname: String
-    let handle: String
     let profileImageUrl: String?
-    let blockedAt: String
 }

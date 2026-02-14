@@ -19,24 +19,36 @@ struct OtherProfileView: View {
 
     var body: some View {
         ZStack(alignment: .topTrailing) {
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 0) {
-                    topBar
+            VStack(spacing: 0) {
+                CustomNavigationBar(
+                    title: "",
+                    onBack: { viewModel.onBackTapped() },
+                    rightButton: .menu(
+                        imageName: "more",
+                        isSystemIcon: false,
+                        isEnabled: true
+                    ) {
+                        viewModel.showBlockMenu()
+                    }
+                )
 
-                    profileSection
-                        .padding(.top, 32)
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 0) {
+                        profileSection
+                            .padding(.top, 32)
 
-                    Divider()
-                        .padding(.top, 24)
-                        .foregroundStyle(Color.Codive.grayscale7)
+                        Divider()
+                            .padding(.top, 24)
+                            .foregroundStyle(Color.Codive.grayscale7)
 
-                    favoriteCodiSection
-                        .padding(.top, 24)
+                        favoriteCodiSection
+                            .padding(.top, 24)
 
-                    calendarSection
-                        .padding(.top, 40)
+                        calendarSection
+                            .padding(.top, 40)
 
-                    Spacer(minLength: 40)
+                        Spacer(minLength: 40)
+                    }
                 }
             }
 
@@ -51,47 +63,68 @@ struct OtherProfileView: View {
                 BlockMenuPopup {
                     viewModel.onBlockTapped()
                 }
-                .padding(.trailing, 20)
-                .padding(.top, 44)
+                .padding(.trailing, 10)
+                .padding(.top, 50)
             }
         }
         .background(Color.white)
-    }
-
-    // MARK: - Top Bar
-    private var topBar: some View {
-        HStack(spacing: 17) {
-            Button {
-                viewModel.onBackTapped()
-            } label: {
-                Image("back")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 24, height: 24)
-            }
-            
-            Spacer(minLength: 0)
-
-            Button {
-                viewModel.showBlockMenu()
-            } label: {
-                Image("more")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 24, height: 24)
+        .navigationBarBackButtonHidden(true)
+        .task {
+            await viewModel.loadProfile()
+        }
+        .onChange(of: viewModel.month) { _ in
+            Task {
+                await viewModel.loadMonthlyHistories()
             }
         }
-        .padding(.horizontal, 20)
+        .alert(
+            TextLiteral.Feed.blockAlertTitle,
+            isPresented: $viewModel.showBlockAlert
+        ) {
+            Button(TextLiteral.Common.cancel, role: .cancel) {}
+            Button(TextLiteral.Common.confirm, role: .destructive) {
+                viewModel.confirmBlock()
+            }
+        } message: {
+            Text(TextLiteral.Feed.blockAlertMessage(viewModel.displayName))
+        }
+        .alert(
+            TextLiteral.Feed.blockFailureAlertTitle,
+            isPresented: $viewModel.showBlockFailureAlert
+        ) {
+            Button(TextLiteral.Common.confirm, role: .cancel) {}
+        } message: {
+            Text(viewModel.blockErrorMessage)
+        }
     }
 
     // MARK: - Profile
     private var profileSection: some View {
         VStack {
-            Image("Profile")
-                .resizable()
-                .scaledToFill()
+            if let urlString = viewModel.profileImageUrl, !urlString.isEmpty {
+                AsyncImage(url: URL(string: urlString)) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                    case .failure, .empty:
+                        Image("Profile")
+                            .resizable()
+                            .scaledToFill()
+                    @unknown default:
+                        EmptyView()
+                    }
+                }
                 .frame(width: 80, height: 80)
                 .clipShape(Circle())
+            } else {
+                Image("Profile")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 80, height: 80)
+                    .clipShape(Circle())
+            }
 
             Text(viewModel.displayName)
                 .font(.codive_title2)
@@ -139,15 +172,20 @@ struct OtherProfileView: View {
     }
 
     private var followButton: some View {
-        Button {
+        let isFollowing = viewModel.isFollowing
+        return Button {
             viewModel.onFollowButtonTapped()
         } label: {
-            Text(viewModel.isFollowing ? "팔로잉" : "팔로우")
+            Text(isFollowing ? "팔로잉" : "팔로우")
                 .font(.codive_body2_medium)
-                .foregroundStyle(Color.white)
+                .foregroundStyle(isFollowing ? Color.Codive.main0 : .white)
                 .frame(width: 76, height: 32)
-                .background(viewModel.isFollowing ? Color.Codive.main0 : Color.Codive.main4)
+                .background(isFollowing ? .white : Color.Codive.main0)
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .stroke(isFollowing ? Color.Codive.main0 : .clear, lineWidth: 1)
+                )
         }
         .buttonStyle(.plain)
     }

@@ -46,7 +46,8 @@ struct CommentView: View {
                             replyingToCommentId: viewModel.replyingToCommentId,
                             onReplyTap: { viewModel.setReplyingTo(commentId: $0) },
                             onFetchRepliesTap: { viewModel.fetchReplies(for: $0) },
-                            onFetchAllRepliesTap: { viewModel.fetchAllReplies(for: $0) }
+                            onFetchAllRepliesTap: { viewModel.fetchAllReplies(for: $0) },
+                            onProfileImageTap: { viewModel.navigateToProfile(userId: $0, isMine: $1) }
                         )
                     }
                     if viewModel.isLoading {
@@ -69,6 +70,9 @@ struct CommentView: View {
                     }
             )
             .onAppear {
+                viewModel.dismissAction = {
+                    dismiss()
+                }
                 viewModel.fetchFirstPage()
             }
 
@@ -166,6 +170,7 @@ struct CommentRow: View {
     let onReplyTap: (Int) -> Void
     let onFetchRepliesTap: (Int) -> Void
     let onFetchAllRepliesTap: (Int) -> Void
+    let onProfileImageTap: (String, Bool) -> Void
 
     @State private var isExpanded: Bool = false
 
@@ -183,6 +188,9 @@ struct CommentRow: View {
                 }
                 .frame(width: isReply ? 28 : 36, height: isReply ? 28 : 36)
                 .clipShape(Circle())
+                .onTapGesture {
+                    onProfileImageTap(comment.author.id, comment.isMine)
+                }
 
                 VStack(alignment: .leading, spacing: 4) {
                     // 닉네임
@@ -264,7 +272,8 @@ struct CommentRow: View {
                             replyingToCommentId: replyingToCommentId,
                             onReplyTap: onReplyTap,
                             onFetchRepliesTap: onFetchRepliesTap,
-                            onFetchAllRepliesTap: onFetchAllRepliesTap
+                            onFetchAllRepliesTap: onFetchAllRepliesTap,
+                            onProfileImageTap: onProfileImageTap
                         )
                     }
 
@@ -299,6 +308,7 @@ struct CommentView_Previews: PreviewProvider {
 
         let viewModel = CommentViewModel(
             feedId: 1,
+            navigationRouter: NavigationRouter(),
             fetchCommentsUseCase: fetchUseCase,
             postCommentUseCase: postUseCase,
             fetchRepliesUseCase: fetchRepliesUseCase,
@@ -345,7 +355,8 @@ struct CommentRow_Previews: PreviewProvider {
             replyingToCommentId: nil,
             onReplyTap: { _ in },
             onFetchRepliesTap: { _ in },
-            onFetchAllRepliesTap: { _ in }
+            onFetchAllRepliesTap: { _ in },
+            onProfileImageTap: { _, _ in }
         )
         .previewDisplayName("댓글 아이템")
     }

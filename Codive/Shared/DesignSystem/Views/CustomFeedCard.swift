@@ -12,8 +12,10 @@ struct CustomFeedCard: View {
     let imageUrl: String
     let profileImageUrl: String
     let nickname: String
-    
+
     @Binding var isLiked: Bool
+
+    let onProfileTap: () -> Void
     
     // MARK: - Body
     var body: some View {
@@ -66,34 +68,37 @@ struct CustomFeedCard: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             // 프로필 정보
-            HStack(spacing: 8) {
-                // 프로필 이미지
-                AsyncImage(url: URL(string: profileImageUrl)) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .scaledToFill()
-                    case .failure, .empty:
-                        Image("Profile")
-                            .resizable()
-                            .scaledToFill()
-                    @unknown default:
-                        EmptyView()
+            Button(action: onProfileTap) {
+                HStack(spacing: 8) {
+                    // 프로필 이미지
+                    AsyncImage(url: URL(string: profileImageUrl)) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .scaledToFill()
+                        case .failure, .empty:
+                            Image("Profile")
+                                .resizable()
+                                .scaledToFill()
+                        @unknown default:
+                            EmptyView()
+                        }
                     }
-                }
-                .frame(width: 28, height: 28)
-                .clipShape(Circle())
+                    .frame(width: 28, height: 28)
+                    .clipShape(Circle())
 
-                // 닉네임
-                Text(nickname)
-                    .font(.codive_body2_medium)
-                    .foregroundStyle(.white)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
+                    // 닉네임
+                    Text(nickname)
+                        .font(.codive_body2_medium)
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                }
+                .padding(.leading, 15)
+                .padding(.bottom, 15)
             }
-            .padding(.leading, 15)
-            .padding(.bottom, 15)
+            .buttonStyle(.plain)
         }
         // 카드 전체 스타일
         .aspectRatio(3/4, contentMode: .fit)
@@ -109,7 +114,8 @@ struct CustomFeedCard: View {
             imageUrl: "sample_feed_image",
             profileImageUrl: "sample_profile",
             nickname: "닉네임",
-            isLiked: .constant(true)
+            isLiked: .constant(true),
+            onProfileTap: {}
         )
         .frame(width: 160)
     }

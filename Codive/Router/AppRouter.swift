@@ -22,12 +22,35 @@ final class AppRouter: ObservableObject {
 
     @Published var currentAppState: AppState
     @Published var isLoading: Bool = false  // 로딩 상태
+    @Published var showSessionExpiredAlert: Bool = false
 
     private weak var navigationRouter: NavigationRouter?
 
     init() {
         // 앱 시작시 스플래시부터 시작
         self.currentAppState = .splash
+        observeTokenRefreshFailure()
+    }
+
+    // MARK: - Token Refresh Failure
+
+    /// 런타임 중 토큰 재발급 실패 시 Alert 표시 후 로그아웃
+    private func observeTokenRefreshFailure() {
+        NotificationCenter.default.addObserver(
+            forName: .tokenRefreshFailed,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                guard let self, self.currentAppState == .main else { return }
+                self.showSessionExpiredAlert = true
+            }
+        }
+    }
+
+    /// 세션 만료 Alert 확인 후 로그아웃 실행
+    func handleSessionExpiredConfirm() {
+        logout()
     }
 
     /// NavigationRouter 등록 (AppDIContainer에서 호출)
