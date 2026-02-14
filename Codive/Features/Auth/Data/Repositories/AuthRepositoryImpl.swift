@@ -43,7 +43,20 @@ final class AuthRepositoryImpl: AuthRepository {
     }
 
     func logout() async {
+        // 서버에 로그아웃 요청 (Redis 리프레시 토큰 삭제)
+        try? await authAPIService.logoutUser()
+        // 소셜 로그아웃 (카카오/애플)
         await socialAuthService.logout()
+        // 로컬 키체인 토큰 삭제
+        try? KeychainManager.shared.clearAllTokens()
+    }
+
+    func deactivateAccount() async throws {
+        // 서버에 비활성화 요청 (15일 뒤 자동 탈퇴)
+        try await authAPIService.deactivateAccount()
+        // 소셜 로그아웃
+        await socialAuthService.logout()
+        // 로컬 키체인 토큰 삭제
         try? KeychainManager.shared.clearAllTokens()
     }
 

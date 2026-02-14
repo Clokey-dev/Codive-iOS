@@ -205,8 +205,4 @@ final class SettingsDataSource {
     func getWithdrawNotices() async throws -> [WithdrawNotice] {
         withdrawNoticesStore
     }
-
-    func withdrawAccount() async throws {
-        // 실제 구현 시 서버 요청/토큰 폐기/캐시 정리 등 수행
-    }
 }

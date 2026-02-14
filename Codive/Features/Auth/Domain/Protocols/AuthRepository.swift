@@ -12,5 +12,6 @@ protocol AuthRepository {
     func socialLogin(provider: AuthProvider) async -> AuthResult
     func checkAuthStatus() async throws -> RegisterStatus
     func logout() async
+    func deactivateAccount() async throws
     func saveTokens(accessToken: String, refreshToken: String) async throws
 }
