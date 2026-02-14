@@ -208,14 +208,21 @@ final class FeedDetailViewModel: ObservableObject {
     }
 
     // MARK: - 프로필 이동
-    /// 프로필로 이동 (History에서 isMine을 사용해 분기 처리)
+    /// 프로필로 이동 (스택에 같은 유저의 OtherProfile이 있으면 pop back)
     func navigateToProfile(userId: UserID, isMine: Bool) {
         if isMine {
             navigationRouter.navigate(to: .myProfile)
         } else {
-            // UserID (String)을 MemberID (Int)로 변환
             guard let memberId = Int(userId) else { return }
-            navigationRouter.navigate(to: .otherProfile(userId: memberId))
+            let found = navigationRouter.popTo { destination in
+                if case .otherProfile(let existingId) = destination {
+                    return existingId == memberId
+                }
+                return false
+            }
+            if !found {
+                navigationRouter.navigate(to: .otherProfile(userId: memberId))
+            }
         }
     }
 
