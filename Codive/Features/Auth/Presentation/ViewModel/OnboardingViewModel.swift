@@ -35,16 +35,16 @@ final class OnboardingViewModel: ObservableObject {
     func kakaoLoginButtonTapped() async {
         isLoading = true
         errorMessage = nil
-        
+
         let result = await authRepository.socialLogin(provider: .kakao)
-        
+
         isLoading = false
-        
+
         switch result {
         case .success(let user):
             print("카카오 로그인 성공: \(user.name ?? "Unknown") (\(user.id))")
-            appRouter.navigateToMain()
-            
+            await proceedAfterLogin()
+
         case .failure(let error):
             switch error {
             case .cancelled:
@@ -55,20 +55,20 @@ final class OnboardingViewModel: ObservableObject {
             }
         }
     }
-    
+
     func appleLoginButtonTapped() async {
         isLoading = true
         errorMessage = nil
-        
+
         let result = await authRepository.socialLogin(provider: .apple)
-        
+
         isLoading = false
-        
+
         switch result {
         case .success(let user):
             print("애플 로그인 성공: \(user.name ?? "Unknown") (\(user.id))")
-            appRouter.navigateToMain()
-            
+            await proceedAfterLogin()
+
         case .failure(let error):
             switch error {
             case .cancelled:
@@ -77,6 +77,22 @@ final class OnboardingViewModel: ObservableObject {
             default:
                 errorMessage = error.localizedDescription
             }
+        }
+    }
+
+    // MARK: - Private Methods
+    private func proceedAfterLogin() async {
+        do {
+            let status = try await authRepository.checkAuthStatus()
+
+            switch status {
+            case .notAgreed:
+                appRouter.navigateToTerms()
+            case .registered:
+                appRouter.navigateToMain()
+            }
+        } catch {
+            errorMessage = "회원 상태 확인에 실패했습니다."
         }
     }
     
