@@ -232,6 +232,16 @@ struct FeedDetailView: View {
         } message: {
             Text(viewModel.blockErrorMessage)
         }
+        .onReceive(NotificationCenter.default.publisher(for: .userDidBlock)) { _ in
+            // 댓글에서 차단한 경우: 피드 상세 다시 로드 시도
+            // 기록 주인이 차단된 경우 API 에러 → 뒤로가기
+            Task {
+                await viewModel.loadFeedDetail()
+                if viewModel.feed == nil {
+                    navigationRouter.navigateBack()
+                }
+            }
+        }
     }
 
     // MARK: - Helper Methods
