@@ -24,6 +24,8 @@ final class ReportViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var isSubmitting: Bool = false
     @Published var errorMessage: String?
+    @Published var showDuplicateAlert: Bool = false
+    @Published var duplicateAlertMessage: String = ""
 
     // 초기화
     init(target: ReportTarget,
@@ -90,14 +92,21 @@ final class ReportViewModel: ObservableObject {
     // 제출
     @discardableResult
     func submit(reporterId: ReporterID) async -> String? {
-        guard !isSubmitting else { return nil }
+        guard !isSubmitting else {
+            print("⚠️ [Report] 이미 제출 중 - 중복 호출 무시")
+            return nil
+        }
         isSubmitting = true
         defer { isSubmitting = false }
 
+        print("📤 [Report] 제출 시작 - reporterId: \(reporterId), target: \(target), reason: \(String(describing: draft.selectedReason))")
+
         do {
             let id = try await submitUseCase.submit(draft: draft, reporterId: reporterId)
+            print("✅ [Report] 제출 성공 - reportId: \(String(describing: id))")
             return id
         } catch let ReportError.invalidDraft(failure) {
+            print("❌ [Report] 유효성 검사 실패: \(failure)")
             switch failure {
             case .missingReason:
                 errorMessage = TextLiteral.Report.selectReason
@@ -107,7 +116,13 @@ final class ReportViewModel: ObservableObject {
                 break
             }
             return nil
+        } catch let ReportSubmitError.duplicateReport(message) {
+            print("⚠️ [Report] 중복 신고: \(message)")
+            duplicateAlertMessage = message
+            showDuplicateAlert = true
+            return nil
         } catch {
+            print("❌ [Report] 제출 실패: \(error)")
             errorMessage = TextLiteral.Report.submitFailure
             return nil
         }

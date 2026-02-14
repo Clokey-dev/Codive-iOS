@@ -11,6 +11,7 @@ struct ReportDetailView: View {
     @ObservedObject var vm: ReportViewModel
     @ObservedObject var navigationRouter: NavigationRouter
     var onSubmit: (() -> Void)?
+    var onDuplicateDismiss: (() -> Void)?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -83,15 +84,31 @@ struct ReportDetailView: View {
                 }
             }
             .safeAreaInset(edge: .bottom) {
-                CustomButton(text: TextLiteral.Report.submit, widthType: .fixed) {
-                    onSubmit?()
+                VStack(spacing: 8) {
+                    if let errorMessage = vm.errorMessage {
+                        Text(errorMessage)
+                            .font(.codive_body3_regular)
+                            .foregroundStyle(.red)
+                            .padding(.horizontal, 20)
+                    }
+
+                    CustomButton(text: TextLiteral.Report.submit, widthType: .fixed) {
+                        onSubmit?()
+                    }
+                    .disabled(!vm.isNextEnabled || vm.isSubmitting)
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 48)
                 }
-                .disabled(!vm.isNextEnabled || vm.isSubmitting)
-                .padding(.horizontal, 20)
-                .padding(.bottom, 48)
             }
         }
         .navigationBarHidden(true)
+        .alert("신고 안내", isPresented: $vm.showDuplicateAlert) {
+            Button("확인") {
+                onDuplicateDismiss?()
+            }
+        } message: {
+            Text(vm.duplicateAlertMessage)
+        }
     }
 
     // MARK: - Navigation

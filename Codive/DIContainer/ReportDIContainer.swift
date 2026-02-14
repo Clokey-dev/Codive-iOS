@@ -91,40 +91,56 @@ final class ReportDIContainer {
 
     func makeReportDetailView(target: ReportTarget) -> ReportDetailView {
         let vm = makeReportViewModel(target: target)
-        return ReportDetailView(vm: vm, navigationRouter: navigationRouter) { [weak navigationRouter, weak self] in
-            Task {
-                // 신고 제출 - JWT 토큰에서 현재 사용자 ID 추출
-                guard let reporterId = self?.tokenService.getCurrentUserId() else {
-                    print("❌ 신고 실패: 현재 로그인한 사용자 ID를 가져올 수 없습니다.")
-                    return
-                }
-                let result = await vm.submit(reporterId: reporterId)
-                if result != nil {
-                    // 신고 플로우 종료 - 다음 신고 시 새로운 ViewModel 생성
-                    await MainActor.run {
-                        self?.clearCurrentReport()
-                    }
+        let router = navigationRouter
 
-                    // 성공 시: CustomSuccessView 표시 + FeedDetailView로 이동
-                    DispatchQueue.main.async {
-                        // post id = feedId 이므로 feedId 추출
-                        let feedId: Int
-                        switch target {
-                        case .post(let id):
-                            feedId = id
-                        case .comment:
-                            feedId = 0  // 댓글 신고는 아직 미구현
-                        }
+        // 신고 완료/중복 후 원래 화면으로 돌아가는 공통 로직
+        let navigateBack: () -> Void = { [weak self] in
+            self?.clearCurrentReport()
 
-                        navigationRouter?.showSuccessAndNavigate(
-                            message: "신고가 접수되었습니다",
-                            to: .feed,
-                            destination: .feedDetail(feedId: feedId),
-                            duration: 2.0
-                        )
-                    }
+            switch target {
+            case .post(let id):
+                router.showSuccessAndNavigate(
+                    message: "신고가 접수되었습니다",
+                    to: .feed,
+                    destination: .feedDetail(feedId: id),
+                    duration: 2.0
+                )
+            case .comment:
+                let feedId = ReportDataSource.pendingCommentReportInfo?.feedId ?? 0
+                ReportDataSource.pendingCommentReportInfo = nil
+
+                router.showSuccessAndNavigate(
+                    message: "신고가 접수되었습니다",
+                    to: .feed,
+                    destination: .feedDetail(feedId: feedId),
+                    duration: 2.0
+                )
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                    router.presentSheet(for: .comment(feedId: feedId))
                 }
             }
         }
+
+        let tokenService = tokenService
+        return ReportDetailView(
+            vm: vm,
+            navigationRouter: navigationRouter,
+            onSubmit: {
+                Task { @MainActor in
+                    guard let reporterId = tokenService.getCurrentUserId() else {
+                        vm.errorMessage = "로그인 정보를 가져올 수 없습니다. 다시 로그인해주세요."
+                        return
+                    }
+                    let result = await vm.submit(reporterId: reporterId)
+                    if result != nil {
+                        navigateBack()
+                    }
+                }
+            },
+            onDuplicateDismiss: {
+                navigateBack()
+            }
+        )
     }
 }
