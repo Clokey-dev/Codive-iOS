@@ -56,6 +56,13 @@ struct AppRootView: View {
         .onOpenURL { url in
             handleDeepLink(url: url)
         }
+        .alert("로그인 만료", isPresented: $appRouter.showSessionExpiredAlert) {
+            Button("확인") {
+                appRouter.handleSessionExpiredConfirm()
+            }
+        } message: {
+            Text("로그인이 만료되었습니다.\n다시 로그인해주세요.")
+        }
     }
     
     // MARK: - Deep Link Handler
