@@ -251,6 +251,7 @@ extension HomeViewModel {
             
             let captureView = CodiCompositeView(clothes: items, loadedImages: loadedImages)
                 .frame(width: 260, height: 260)
+                .background(Color.white)
             
             let renderer = ImageRenderer(content: captureView)
             renderer.scale = UIScreen.main.scale
@@ -381,6 +382,7 @@ extension HomeViewModel {
     private func captureCompletedCodiImage() -> UIImage {
         let view = CodiCompositeView(clothes: selectedCodiClothes)
             .frame(width: 260, height: 260)
+            .background(Color.white)
         
         let controller = UIHostingController(rootView: view)
         let uiView = controller.view!
