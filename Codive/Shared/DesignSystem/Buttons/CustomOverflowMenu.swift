@@ -14,6 +14,7 @@ enum MenuType {
     case closet
     case feed
     case report
+    case commentDelete
 
     var items: [MenuItem] {
         switch self {
@@ -42,6 +43,10 @@ enum MenuType {
             return [
                 .init(icon: .system(name: "exclamationmark.circle"), text: "신고하기"),
                 .init(icon: .asset(name: "ic_block"), text: "차단하기")
+            ]
+        case .commentDelete:
+            return [
+                .init(icon: .system(name: "trash"), text: "삭제하기")
             ]
         }
     }

@@ -32,6 +32,10 @@ final class CommentDIContainer {
         return CommentRepositoryImpl(dataSource: commentDataSource)
     }()
 
+    private lazy var otherProfileRepository: OtherProfileRepository = {
+        return OtherProfileRepositoryImpl(apiService: ProfileAPIService())
+    }()
+
     // MARK: - UseCases
 
     func makeFetchCommentsUseCase() -> FetchCommentsUseCase {
@@ -50,6 +54,10 @@ final class CommentDIContainer {
         return DefaultPostReplyUseCase(commentRepository: commentRepository)
     }
 
+    func makeToggleBlockUseCase() -> ToggleBlockUseCase {
+        return DefaultToggleBlockUseCase(repository: otherProfileRepository)
+    }
+
     // MARK: - ViewModels
 
     func makeCommentViewModel(feedId: Int) -> CommentViewModel {
@@ -59,7 +67,9 @@ final class CommentDIContainer {
             fetchCommentsUseCase: makeFetchCommentsUseCase(),
             postCommentUseCase: makePostCommentUseCase(),
             fetchRepliesUseCase: makeFetchRepliesUseCase(),
-            postReplyUseCase: makePostReplyUseCase()
+            postReplyUseCase: makePostReplyUseCase(),
+            commentRepository: commentRepository,
+            toggleBlockUseCase: makeToggleBlockUseCase()
         )
         return viewModel
     }
