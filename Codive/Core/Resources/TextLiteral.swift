@@ -261,6 +261,10 @@ enum TextLiteral {
         // Blocked Users
         static let blockedUsersEmpty = "차단한 계정이 없어요"
         static let unblock = "차단 해제"
+        static let unblockAlertTitle = "차단 해제"
+        static func unblockAlertMessage(_ nickname: String) -> String {
+            "\(nickname)님의 차단을 해제하시겠습니까?"
+        }
 
         // Common
         static let loadFailed = "불러오지 못했어요"

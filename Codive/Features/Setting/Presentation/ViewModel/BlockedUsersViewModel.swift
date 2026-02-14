@@ -13,6 +13,8 @@ final class BlockedUsersViewModel: ObservableObject {
     @Published private(set) var items: [BlockedUser] = []
     @Published private(set) var isLoading = false
     @Published private(set) var error: Error?
+    @Published var showUnblockAlert = false
+    @Published var pendingUnblockUser: BlockedUser?
 
     private let navigationRouter: NavigationRouter
     private let getBlockedUC: GetBlockedUsersUseCase
@@ -44,10 +46,18 @@ final class BlockedUsersViewModel: ObservableObject {
     }
 
     @MainActor
-    func tapUnblock(userId: UserID) async {
+    func requestUnblock(user: BlockedUser) {
+        pendingUnblockUser = user
+        showUnblockAlert = true
+    }
+
+    @MainActor
+    func confirmUnblock() async {
+        guard let user = pendingUnblockUser else { return }
+        pendingUnblockUser = nil
         do {
-            try await unblockUC.execute(userId: userId)
-            items.removeAll { $0.id == userId }
+            try await unblockUC.execute(userId: user.id)
+            items.removeAll { $0.id == user.id }
         } catch {
             self.error = error
         }

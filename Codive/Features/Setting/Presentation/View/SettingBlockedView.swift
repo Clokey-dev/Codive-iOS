@@ -16,6 +16,21 @@ struct SettingBlockedView: View {
             .navigationBarTitleDisplayMode(.inline)
             .task { await vm.refresh() }
             .refreshable { await vm.refresh() }
+            .alert(
+                TextLiteral.Setting.unblockAlertTitle,
+                isPresented: $vm.showUnblockAlert
+            ) {
+                Button(TextLiteral.Common.cancel, role: .cancel) {
+                    vm.pendingUnblockUser = nil
+                }
+                Button(TextLiteral.Common.confirm, role: .destructive) {
+                    Task { await vm.confirmUnblock() }
+                }
+            } message: {
+                if let user = vm.pendingUnblockUser {
+                    Text(TextLiteral.Setting.unblockAlertMessage(user.user.nickname))
+                }
+            }
     }
 
     @ViewBuilder
@@ -51,7 +66,7 @@ struct SettingBlockedView: View {
                     buttonTitle: TextLiteral.Setting.unblock,
                     buttonStyle: .secondary
                 ) {
-                    Task { await vm.tapUnblock(userId: bu.id) }
+                    vm.requestUnblock(user: bu)
                 }
                 .listRowSeparator(.hidden)
                 .listRowInsets(EdgeInsets())
