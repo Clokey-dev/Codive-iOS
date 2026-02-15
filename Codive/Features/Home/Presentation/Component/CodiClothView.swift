@@ -10,6 +10,7 @@ import SwiftUI
 struct ClothCardView: View {
     let item: HomeClothEntity
     let width: CGFloat
+    @State private var reloadKey = UUID()
     
     var body: some View {
         VStack {
@@ -26,20 +27,51 @@ struct ClothCardView: View {
                     .frame(height: 124)
                     .frame(width: 124)
                     .overlay {
-                        if let url = URL(string: item.imageUrl), !item.imageUrl.isEmpty {
-                            AsyncImage(url: url) { phase in
+                        if let url = URL(string: item.imageUrl),
+                           !item.imageUrl.isEmpty {
+
+                            AsyncImage(url: url, transaction: Transaction(animation: .easeInOut)) { phase in
                                 switch phase {
                                 case .empty:
-                                    ProgressView()
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 15)
+                                            .fill(Color.Codive.grayscale7)
+                                        ProgressView()
+                                    }
+
                                 case .success(let image):
-                                    image.resizable().scaledToFit()
-                                case .failure:
-                                    Image(systemName: "exclamationmark.triangle")
-                                        .foregroundColor(.gray)
+                                    image
+                                        .resizable()
+                                        .scaledToFit()
+                                        .transition(.opacity)
+
+                                case .failure(let error):
+                                    if let urlError = error as? URLError, urlError.code == .cancelled {
+                                        // Retry automatically on next runloop
+                                        Color.clear
+                                            .onAppear {
+                                                DispatchQueue.main.async {
+                                                    reloadKey = UUID()
+                                                }
+                                            }
+                                    } else {
+                                        ZStack {
+                                            RoundedRectangle(cornerRadius: 15)
+                                                .fill(Color.Codive.grayscale7)
+                                            Image(systemName: "exclamationmark.triangle")
+                                                .foregroundColor(.gray)
+                                        }
+                                        .onAppear {
+                                            print("Image load failed:", item.imageUrl)
+                                            print("Error:", error.localizedDescription)
+                                        }
+                                    }
+
                                 @unknown default:
                                     EmptyView()
                                 }
                             }
+                            .id(reloadKey)
                             .clipShape(RoundedRectangle(cornerRadius: 15))
                         } else {
                             Image(item.imageUrl)
@@ -177,6 +209,11 @@ struct CodiClothCarouselView: View {
                 .onAppear {
                     proxy.scrollTo(currentIndex, anchor: .center)
                 }
+                .onChange(of: items.count) { _ in
+                    withAnimation(.spring()) {
+                        proxy.scrollTo(currentIndex, anchor: .center)
+                    }
+                }
             }
             .clipShape(RoundedRectangle(cornerRadius: 20))
             .background {
@@ -196,21 +233,18 @@ struct CodiClothView: View {
     let spacing: CGFloat = 12
     let activeScale: CGFloat = 1.0
     let inactiveScale: CGFloat = 0.85
-    let selectedIndex: Int
-    var onIndexChanged: ((Int) -> Void)?
+    @Binding var currentIndex: Int
     
-    @State private var currentIndex: Int
-    
-    init(title: String, items: [HomeClothEntity], selectedIndex: Int = 0, isEmptyState: Bool, onIndexChanged: ((Int) -> Void)? = nil) {
+    init(
+        title: String,
+        items: [HomeClothEntity],
+        isEmptyState: Bool,
+        currentIndex: Binding<Int>
+    ) {
         self.title = title
         self.items = items
         self.isEmptyState = isEmptyState
-        self.selectedIndex = selectedIndex
-        self.onIndexChanged = onIndexChanged
-        
-        // 초기값 설정: 비어있으면 1(중앙), 아니면 전달받은 selectedIndex 사용
-        let initialIndex = isEmptyState ? 1 : selectedIndex
-        _currentIndex = State(initialValue: initialIndex)
+        self._currentIndex = currentIndex
     }
     
     var body: some View {
@@ -224,21 +258,6 @@ struct CodiClothView: View {
                     inactiveScale: inactiveScale,
                     isEmptyState: isEmptyState
                 )
-                .onChange(of: currentIndex) { newValue in
-                    onIndexChanged?(newValue)
-                }
-                // 중요: 부모가 준 selectedIndex가 바뀌면(수정 버튼 클릭 시) 내부 currentIndex도 동기화
-                .onChange(of: selectedIndex) { newValue in
-                    withAnimation(.spring()) {
-                        self.currentIndex = newValue
-                    }
-                }
-                .onAppear {
-                    // 비어있는 상태가 아닐 때만 0번(또는 초기값)을 전달
-                    if !isEmptyState {
-                        onIndexChanged?(currentIndex)
-                    }
-                }
                 
                 // 카테고리 태그
                 Text(title)

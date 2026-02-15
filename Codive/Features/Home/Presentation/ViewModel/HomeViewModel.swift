@@ -141,8 +141,8 @@ extension HomeViewModel {
 
 extension HomeViewModel {
     func loadRecommendCategoryClothList(seasons: Set<Season>) async {
-        self.activeCategories = []
-        self.clothItemsByCategory = [:]
+//        self.activeCategories = []
+//        self.clothItemsByCategory = [:]
         
         let allCategories = categoryUseCase.loadCategories()
         let filteredCategories = allCategories.filter { $0.itemCount > 0 }
@@ -159,7 +159,9 @@ extension HomeViewModel {
                     categoryId: Int64(category.id),
                     season: seasons // 전달받은 seasons 사용
                 )
-                resultMap[category.id] = result.content
+                resultMap[category.id] = result.content.sorted {
+                    $0.clothId < $1.clothId   // 또는 createdAt 기준
+                }
             } catch {
                 print("Failed to load items for category \(category.id): \(error)")
                 resultMap[category.id] = []
