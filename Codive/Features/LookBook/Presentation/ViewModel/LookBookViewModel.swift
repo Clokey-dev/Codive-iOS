@@ -27,6 +27,7 @@ final class LookBookViewModel: ObservableObject {
     // MARK: - Published State (Editing)
     
     @Published var isEditing: Bool = false
+    @Published var isOverflowMenuExpanded: Bool = false
     @Published var selectedLookBookId: Int64?
     
     // MARK: - Published State (Dialog / Alert)
@@ -99,6 +100,7 @@ final class LookBookViewModel: ObservableObject {
     
     // MARK: - 룩북 삭제 동작
     func handleDeleteAction() {
+        isOverflowMenuExpanded = false
         toggleDeleteMode()
     }
     
@@ -149,6 +151,7 @@ final class LookBookViewModel: ObservableObject {
     }
     
     func toggleAddDialog() {
+        isOverflowMenuExpanded = false
         isShowingAddDialog.toggle()
     }
     
@@ -186,6 +189,14 @@ final class LookBookViewModel: ObservableObject {
             }
             isLoading = false
         }
+    }
+    
+    func toggleOverflowMenu() {
+        isOverflowMenuExpanded.toggle()
+    }
+    
+    func closeOverflowMenu() {
+        isOverflowMenuExpanded = false
     }
     
     // MARK: - Navigation

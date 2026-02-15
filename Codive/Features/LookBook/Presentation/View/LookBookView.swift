@@ -24,6 +24,12 @@ struct LookBookView: View {
     var body: some View {
         ZStack {
             mainLayout
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    if viewModel.isOverflowMenuExpanded {
+                        viewModel.closeOverflowMenu()
+                    }
+                }
             addLookBookDialogOverlay
             
             if viewModel.isLoading {
@@ -85,7 +91,10 @@ struct LookBookView: View {
                 menuActions: [
                     viewModel.toggleAddDialog,
                     viewModel.handleDeleteAction
-                ]
+                ],
+                isExpanded: viewModel.isOverflowMenuExpanded,
+                onToggle: viewModel.toggleOverflowMenu,
+                onClose: viewModel.closeOverflowMenu
             )
         )
         .zIndex(10)
