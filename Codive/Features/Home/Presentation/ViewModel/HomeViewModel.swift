@@ -27,6 +27,7 @@ final class HomeViewModel: ObservableObject {
     @Published var capturedImageURL: String?
     
     @Published var isEditingExistingCodi: Bool = false
+    @Published var isOverflowMenuExpanded: Bool = false
     
     // MARK: - Properties (Data)
     
