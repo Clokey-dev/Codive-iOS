@@ -102,6 +102,7 @@ struct ReportDetailView: View {
             }
         }
         .navigationBarHidden(true)
+        .enableSwipeBack()
         .alert("신고 안내", isPresented: $vm.showDuplicateAlert) {
             Button("확인") {
                 onDuplicateDismiss?()

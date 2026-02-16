@@ -59,6 +59,7 @@ struct FavoriteCodiView: View {
         }
         .background(Color.white)
         .navigationBarHidden(true)
+        .enableSwipeBack()
         .task {
             await viewModel.loadFavoriteCoordinates()
         }

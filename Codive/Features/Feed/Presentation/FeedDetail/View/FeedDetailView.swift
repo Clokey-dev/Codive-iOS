@@ -189,6 +189,7 @@ struct FeedDetailView: View {
             }
         }
         .navigationBarHidden(true)
+        .enableSwipeBack()
         .onAppear {
             Task {
                 await viewModel.loadFeedDetail()

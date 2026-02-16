@@ -96,6 +96,7 @@ struct SpecificLookBookView: View {
             }
         }
         .navigationBarHidden(true)
+        .enableSwipeBack()
         .background(Color.white)
         .alert(
             TextLiteral.LookBook.alertDeleteTitle,

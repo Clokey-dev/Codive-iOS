@@ -73,6 +73,7 @@ struct ClothAddView: View {
             }
         }
         .navigationBarHidden(true)
+        .enableSwipeBack()
         .background(Color.white)
         .sheet(isPresented: $viewModel.isCategorySheetPresented) {
             CustomCategoryBottomSheet(

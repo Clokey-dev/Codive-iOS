@@ -44,6 +44,7 @@ struct FollowListView: View {
         }
         .background(Color.white)
         .navigationBarBackButtonHidden(true)
+        .enableSwipeBack()
         .task {
             await viewModel.load()
         }

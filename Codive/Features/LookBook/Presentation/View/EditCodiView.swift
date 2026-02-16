@@ -36,6 +36,7 @@ struct EditCodiView: View {
             completeButton
         }
         .navigationBarHidden(true)
+        .enableSwipeBack()
         .background(Color.white)
     }
 }

@@ -37,6 +37,7 @@ struct CodiDetailView: View {
             }
         }
         .navigationBarHidden(true)
+        .enableSwipeBack()
         .background(Color.white)
         .onAppear {
             viewModel.fetchCoordinatePreview()
