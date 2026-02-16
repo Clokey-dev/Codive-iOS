@@ -58,13 +58,14 @@ let project = Project(
     targets: [
         .target(
             name: "Codive",
-            destinations: .iOS,
+            destinations: [.iPhone],
             product: .app,
             bundleId: "com.codive.app",
             deploymentTargets: .iOS("16.0"),
             infoPlist: .extendingDefault(
                 with: [
                     "UILaunchScreen": [:],
+                    "UISupportedInterfaceOrientations": ["UIInterfaceOrientationPortrait"],
                     "CFBundleDevelopmentRegion": "ko",
                     "CFBundleLocalizations": ["ko", "en"],
                     "UIAppFonts": [
@@ -165,7 +166,7 @@ let project = Project(
         ),
         .target(
             name: "CodiveTests",
-            destinations: .iOS,
+            destinations: [.iPhone],
             product: .unitTests,
             bundleId: "com.codive.app.tests",
             deploymentTargets: .iOS("16.0"),

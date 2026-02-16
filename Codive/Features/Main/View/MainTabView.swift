@@ -213,62 +213,108 @@ struct MainTabView: View {
     
     @ViewBuilder
     private func destinationView(for destination: AppDestination) -> some View {
+        if let view = searchDestination(for: destination) {
+            view
+        } else if let view = feedDestination(for: destination) {
+            view
+        } else if let view = homeDestination(for: destination) {
+            view
+        } else if let view = profileDestination(for: destination) {
+            view
+        } else if let view = closetDestination(for: destination) {
+            view
+        } else if let view = flowDestination(for: destination) {
+            view
+        } else {
+            EmptyView()
+        }
+    }
+
+    private func searchDestination(for destination: AppDestination) -> AnyView? {
         switch destination {
         case .search:
-            searchDIContainer.makeSearchView()
+            AnyView(searchDIContainer.makeSearchView())
         case .searchResult(let query):
-            searchDIContainer.makeSearchResultView(initialQuery: query)
+            AnyView(searchDIContainer.makeSearchResultView(initialQuery: query))
         case .recentlySearchResult:
-            searchDIContainer.makeRecentlySearchResultView()
+            AnyView(searchDIContainer.makeRecentlySearchResultView())
         case .notification:
-            notificationDIContainer.makeNotificationView()
-        case .feedDetail(let feedId):
-            feedDIContainer.makeFeedDetailView(feedId: feedId)
-        case .otherProfile:
-            feedDIContainer.feedViewFactory.makeView(for: destination)
-        case .comment(let feedId):
-            commentDIContainer.makeCommentView(feedId: feedId)
-        case .editCategory:
-            homeDIContainer.makeEditCategoryView()
-        case .codiBoard:
-            homeDIContainer.makeCodiBoardView()
-        case .favoriteCodiList(let showHeart):
-            profileDIContainer.makeFavoriteCodiView(showHeart: showHeart)
-        case .settings:
-            settingDIContainer.makeSettingView()
-        case .settingLikedRecords:
-            settingDIContainer.makeSettingLikedView()
-        case .settingMyComments:
-            settingDIContainer.makeSettingCommentView()
-        case .settingBlockedUsers:
-            settingDIContainer.makeSettingBlockedView()
-        case .settingWithdraw:
-            settingDIContainer.makeWithdrawView()
-        case .profileSetting:
-            profileDIContainer.makeProfileSettingView()
-        case .myProfile:
-            profileDIContainer.makeProfileView()
-        case .followList(let mode, let memberId):
-            profileDIContainer.makeFollowListView(mode: mode, memberId: memberId)
-        case .myCloset:
-            closetDIContainer.makeMyClosetView()
-        case .clothDetail, .clothEdit:
-            closetDIContainer.closetViewFactory.makeView(for: destination)
-
-        // Add Flow
-        case .recordAdd, .clothPhotoSelect, .photoEdit, .photoEditForCloth, .recordDetail, .recordEdit, .photoTag, .clothAdd:
-            addDIContainer.addViewFactory.makeView(for: destination)
-
-        // LookBook Flow
-        case .lookbook, .specificLookbook, .addCodi, .addCodiDetail, .addBeforeCodi, .codiDetail, .editCodi:
-            lookBookDIContainer.lookBookViewFactory.makeView(for: destination)
-
-        // Report Flow
-        case .report, .reportDetail:
-            reportDIContainer.reportViewFactory.makeView(for: destination)
-
+            AnyView(notificationDIContainer.makeNotificationView())
         default:
-            EmptyView()
+            nil
+        }
+    }
+
+    private func feedDestination(for destination: AppDestination) -> AnyView? {
+        switch destination {
+        case .feedDetail(let feedId):
+            AnyView(feedDIContainer.makeFeedDetailView(feedId: feedId))
+        case .otherProfile:
+            AnyView(feedDIContainer.feedViewFactory.makeView(for: destination))
+        case .comment(let feedId):
+            AnyView(commentDIContainer.makeCommentView(feedId: feedId))
+        default:
+            nil
+        }
+    }
+
+    private func homeDestination(for destination: AppDestination) -> AnyView? {
+        switch destination {
+        case .editCategory:
+            AnyView(homeDIContainer.makeEditCategoryView())
+        case .codiBoard:
+            AnyView(homeDIContainer.makeCodiBoardView())
+        default:
+            nil
+        }
+    }
+
+    private func profileDestination(for destination: AppDestination) -> AnyView? {
+        switch destination {
+        case .favoriteCodiList(let showHeart):
+            AnyView(profileDIContainer.makeFavoriteCodiView(showHeart: showHeart))
+        case .settings:
+            AnyView(settingDIContainer.makeSettingView())
+        case .settingLikedRecords:
+            AnyView(settingDIContainer.makeSettingLikedView())
+        case .settingMyComments:
+            AnyView(settingDIContainer.makeSettingCommentView())
+        case .settingBlockedUsers:
+            AnyView(settingDIContainer.makeSettingBlockedView())
+        case .settingWithdraw:
+            AnyView(settingDIContainer.makeWithdrawView())
+        case .profileSetting:
+            AnyView(profileDIContainer.makeProfileSettingView())
+        case .myProfile:
+            AnyView(profileDIContainer.makeProfileView())
+        case .followList(let mode, let memberId):
+            AnyView(profileDIContainer.makeFollowListView(mode: mode, memberId: memberId))
+        default:
+            nil
+        }
+    }
+
+    private func closetDestination(for destination: AppDestination) -> AnyView? {
+        switch destination {
+        case .myCloset:
+            AnyView(closetDIContainer.makeMyClosetView())
+        case .clothDetail, .clothEdit:
+            AnyView(closetDIContainer.closetViewFactory.makeView(for: destination))
+        default:
+            nil
+        }
+    }
+
+    private func flowDestination(for destination: AppDestination) -> AnyView? {
+        switch destination {
+        case .recordAdd, .clothPhotoSelect, .photoEdit, .photoEditForCloth, .recordDetail, .recordEdit, .photoTag, .clothAdd:
+            AnyView(addDIContainer.addViewFactory.makeView(for: destination))
+        case .lookbook, .specificLookbook, .addCodi, .addCodiDetail, .addBeforeCodi, .codiDetail, .editCodi:
+            AnyView(lookBookDIContainer.lookBookViewFactory.makeView(for: destination))
+        case .report, .reportDetail:
+            AnyView(reportDIContainer.reportViewFactory.makeView(for: destination))
+        default:
+            nil
         }
     }
 }

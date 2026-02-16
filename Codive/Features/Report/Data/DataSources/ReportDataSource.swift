@@ -7,6 +7,7 @@
 
 import Foundation
 import CodiveAPI
+import OpenAPIRuntime
 
 // MARK: - 신고 API 에러
 enum ReportSubmitError: Error {
@@ -40,39 +41,8 @@ final class ReportDataSource {
     }
 
     func submit(_ report: Report) async throws -> String? {
-        let targetId: Int64
-        let targetType: Components.Schemas.ReportCreateRequest.targetTypePayload
-        let reportReason: Components.Schemas.ReportCreateRequest.reportReasonPayload
-
-        switch report.target {
-        case .post(let id):
-            targetId = Int64(id)
-            targetType = .HISTORY
-        case .comment(let id):
-            targetId = Int64(id)
-            targetType = .COMMENT
-        }
-
-        switch report.reason {
-        case .comment(let reason):
-            switch reason {
-            case .abuse:   reportReason = .SWEARING_AND_CURSING
-            case .discrim: reportReason = .DISCRIMINATORY_AND_HATEFUL
-            case .spam:    reportReason = .SPAM_OR_PROMOTION
-            case .privacy: reportReason = .PRIVATE_INFO
-            case .hate:    reportReason = .ANNOYING_COMMENT
-            case .etc:     reportReason = .ETC_COMMENT
-            }
-        case .post(let reason):
-            switch reason {
-            case .sexual:   reportReason = .SEXUAL
-            case .violence: reportReason = .VIOLENT
-            case .harmful:  reportReason = .HARMFUL_TO_MINORS
-            case .privacy:  reportReason = .PRIVACY_EXPOSURE
-            case .hate:     reportReason = .ANNOYING_HISTORY
-            case .etc:      reportReason = .ETC_HISTORY
-            }
-        }
+        let (targetId, targetType) = mapTarget(report.target)
+        let reportReason = mapReason(report.reason)
 
         let body = Components.Schemas.ReportCreateRequest(
             targetId: targetId,
@@ -83,48 +53,93 @@ final class ReportDataSource {
 
         print("📡 [ReportAPI] 요청 - targetId: \(targetId), targetType: \(targetType), reason: \(reportReason), detail: \(report.detail ?? "없음")")
 
-        let response = try await apiClient.Report_createNewReport(
-            body: .json(body)
-        )
+        let response = try await apiClient.Report_createNewReport(body: .json(body))
 
         switch response {
         case .ok(let okResponse):
-            print("📡 [ReportAPI] 응답: OK")
-            let httpBody = try okResponse.body.any
-            let data = try await Data(collecting: httpBody, upTo: .max)
-            print("📡 [ReportAPI] 응답 데이터: \(String(data: data, encoding: .utf8) ?? "파싱 불가")")
-            let jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
-            let apiResponse = try jsonDecoder.decode(
-                Components.Schemas.BaseResponseReportCreateResponse.self,
-                from: data
-            )
-            if let reportId = apiResponse.result?.reportId {
-                print("📡 [ReportAPI] reportId: \(reportId)")
-                return String(reportId)
-            }
-            print("⚠️ [ReportAPI] 응답 OK이지만 reportId가 nil")
-            return nil
+            return try await parseOkResponse(okResponse)
         case .undocumented(statusCode: let statusCode, let payload):
-            if let body = payload.body {
-                let data = try await Data(collecting: body, upTo: .max)
-                let bodyString = String(data: data, encoding: .utf8) ?? "파싱 불가"
-                print("❌ [ReportAPI] 실패 응답 (\(statusCode)): \(bodyString)")
-
-                // JSON 파싱하여 서버 에러 코드 확인
-                if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                   let code = json["code"] as? String,
-                   let message = json["message"] as? String {
-                    if code == "REPORT_4001" {
-                        throw ReportSubmitError.duplicateReport(message: message)
-                    }
-                    throw ReportSubmitError.serverError(message: message)
-                }
-
-                throw NSError(domain: "ReportDataSource", code: statusCode, userInfo: [NSLocalizedDescriptionKey: bodyString])
-            }
-            print("❌ [ReportAPI] 실패 응답 (\(statusCode)): 본문 없음")
-            throw NSError(domain: "ReportDataSource", code: statusCode, userInfo: [NSLocalizedDescriptionKey: "Failed to submit report (status: \(statusCode))"])
+            return try await handleUndocumentedResponse(statusCode: statusCode, payload: payload)
         }
+    }
+
+    // MARK: - Private Helpers
+
+    private func mapTarget(
+        _ target: ReportTarget
+    ) -> (Int64, Components.Schemas.ReportCreateRequest.targetTypePayload) {
+        switch target {
+        case .post(let id): return (Int64(id), .HISTORY)
+        case .comment(let id): return (Int64(id), .COMMENT)
+        }
+    }
+
+    private func mapReason(
+        _ reason: ReportReason
+    ) -> Components.Schemas.ReportCreateRequest.reportReasonPayload {
+        switch reason {
+        case .comment(let r):
+            switch r {
+            case .abuse:   return .SWEARING_AND_CURSING
+            case .discrim: return .DISCRIMINATORY_AND_HATEFUL
+            case .spam:    return .SPAM_OR_PROMOTION
+            case .privacy: return .PRIVATE_INFO
+            case .hate:    return .ANNOYING_COMMENT
+            case .etc:     return .ETC_COMMENT
+            }
+        case .post(let r):
+            switch r {
+            case .sexual:   return .SEXUAL
+            case .violence: return .VIOLENT
+            case .harmful:  return .HARMFUL_TO_MINORS
+            case .privacy:  return .PRIVACY_EXPOSURE
+            case .hate:     return .ANNOYING_HISTORY
+            case .etc:      return .ETC_HISTORY
+            }
+        }
+    }
+
+    private func parseOkResponse(
+        _ okResponse: Operations.Report_createNewReport.Output.Ok
+    ) async throws -> String? {
+        print("📡 [ReportAPI] 응답: OK")
+        let httpBody = try okResponse.body.any
+        let data = try await Data(collecting: httpBody, upTo: .max)
+        print("📡 [ReportAPI] 응답 데이터: \(String(data: data, encoding: .utf8) ?? "파싱 불가")")
+        let jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
+        let apiResponse = try jsonDecoder.decode(
+            Components.Schemas.BaseResponseReportCreateResponse.self,
+            from: data
+        )
+        if let reportId = apiResponse.result?.reportId {
+            print("📡 [ReportAPI] reportId: \(reportId)")
+            return String(reportId)
+        }
+        print("⚠️ [ReportAPI] 응답 OK이지만 reportId가 nil")
+        return nil
+    }
+
+    private func handleUndocumentedResponse(
+        statusCode: Int, payload: UndocumentedPayload
+    ) async throws -> String? {
+        if let body = payload.body {
+            let data = try await Data(collecting: body, upTo: .max)
+            let bodyString = String(data: data, encoding: .utf8) ?? "파싱 불가"
+            print("❌ [ReportAPI] 실패 응답 (\(statusCode)): \(bodyString)")
+
+            if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let code = json["code"] as? String,
+               let message = json["message"] as? String {
+                if code == "REPORT_4001" {
+                    throw ReportSubmitError.duplicateReport(message: message)
+                }
+                throw ReportSubmitError.serverError(message: message)
+            }
+
+            throw NSError(domain: "ReportDataSource", code: statusCode, userInfo: [NSLocalizedDescriptionKey: bodyString])
+        }
+        print("❌ [ReportAPI] 실패 응답 (\(statusCode)): 본문 없음")
+        throw NSError(domain: "ReportDataSource", code: statusCode, userInfo: [NSLocalizedDescriptionKey: "Failed to submit report (status: \(statusCode))"])
     }
 
     // 신고 컨텍스트 조회 - 실제 History API에서 데이터 가져오기

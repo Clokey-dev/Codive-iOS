@@ -194,7 +194,33 @@ extension HomeViewModel {
             selectedItemID = id
         }
     }
-    
+
+    func captureCompletedCodiImage() -> UIImage {
+        let view = CodiCompositeView(clothes: selectedCodiClothes)
+            .frame(width: 260, height: 260)
+
+        let controller = UIHostingController(rootView: view)
+        let uiView = controller.view!
+        uiView.bounds = CGRect(origin: .zero, size: CGSize(width: 260, height: 260))
+        uiView.backgroundColor = .clear
+
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 260, height: 260))
+        return renderer.image { _ in
+            uiView.drawHierarchy(in: uiView.bounds, afterScreenUpdates: true)
+        }
+    }
+
+    func downloadUIImage(from urlString: String) async -> UIImage? {
+        guard let url = URL(string: urlString) else { return nil }
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            return UIImage(data: data)
+        } catch {
+            print("❌ 이미지 다운로드 실패 (\(urlString)): \(error)")
+            return nil
+        }
+    }
+
     /// 드래그를 통해 태그의 상대 위치를 업데이트
     func updateTagPosition(tagId: UUID, x: CGFloat, y: CGFloat, imageSize: CGSize) {
         if let index = selectedItemTags.firstIndex(where: { $0.id == tagId }) {

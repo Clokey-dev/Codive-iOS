@@ -165,63 +165,83 @@ struct CustomAIRecommendationView: View {
     private func mainImageView(for item: ClothingItem) -> some View {
         GeometryReader { geometry in
             ZStack(alignment: .topTrailing) {
-                if let image = item.image {
-                    Image(uiImage: image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: geometry.size.width)
-                        .background(Color.Codive.grayscale6)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                } else if let imageUrl = item.imageUrl, !imageUrl.isEmpty, let url = URL(string: imageUrl) {
-                    AsyncImage(url: url) { phase in
-                        switch phase {
-                        case .empty:
-                            Rectangle()
-                                .fill(Color.Codive.grayscale6)
-                                .overlay(ProgressView())
-                        case .success(let image):
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                        case .failure:
-                            Rectangle()
-                                .fill(Color.Codive.grayscale6)
-                                .overlay(
-                                    Image(systemName: "photo")
-                                        .foregroundStyle(Color.Codive.grayscale4)
-                                )
-                        @unknown default:
-                            EmptyView()
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: geometry.size.width)
-                    .background(Color.Codive.grayscale6)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                } else if let imageName = item.imageName, !imageName.isEmpty {
-                    Image(imageName)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: geometry.size.width)
-                        .background(Color.Codive.grayscale6)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                } else {
-                    Rectangle()
-                        .fill(Color.Codive.grayscale6)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: geometry.size.width)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                }
+                mainImageContent(for: item, size: geometry.size.width)
 
-                // Edit button (조건부 표시)
                 if showEditButton {
                     editButton
                 }
             }
         }
         .aspectRatio(1, contentMode: .fit)
+    }
+
+    @ViewBuilder
+    private func mainImageContent(for item: ClothingItem, size: CGFloat) -> some View {
+        if let image = item.image {
+            uiImageView(image, size: size)
+        } else if let imageUrl = item.imageUrl, !imageUrl.isEmpty, let url = URL(string: imageUrl) {
+            asyncImageView(url: url, size: size)
+        } else if let imageName = item.imageName, !imageName.isEmpty {
+            assetImageView(imageName, size: size)
+        } else {
+            placeholderImageView(size: size)
+        }
+    }
+
+    private func uiImageView(_ image: UIImage, size: CGFloat) -> some View {
+        Image(uiImage: image)
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(maxWidth: .infinity)
+            .frame(height: size)
+            .background(Color.Codive.grayscale6)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    private func asyncImageView(url: URL, size: CGFloat) -> some View {
+        AsyncImage(url: url) { phase in
+            switch phase {
+            case .empty:
+                Rectangle()
+                    .fill(Color.Codive.grayscale6)
+                    .overlay(ProgressView())
+            case .success(let image):
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            case .failure:
+                Rectangle()
+                    .fill(Color.Codive.grayscale6)
+                    .overlay(
+                        Image(systemName: "photo")
+                            .foregroundStyle(Color.Codive.grayscale4)
+                    )
+            @unknown default:
+                EmptyView()
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: size)
+        .background(Color.Codive.grayscale6)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    private func assetImageView(_ name: String, size: CGFloat) -> some View {
+        Image(name)
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(maxWidth: .infinity)
+            .frame(height: size)
+            .background(Color.Codive.grayscale6)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    private func placeholderImageView(size: CGFloat) -> some View {
+        Rectangle()
+            .fill(Color.Codive.grayscale6)
+            .frame(maxWidth: .infinity)
+            .frame(height: size)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
     }
     
     private var editButton: some View {
@@ -345,69 +365,5 @@ struct CustomAIRecommendationView: View {
         .frame(maxWidth: .infinity)
         .frame(height: 300)
         .padding(.top, 20)
-    }
-}
-
-// MARK: - CustomTextFieldButton
-struct CustomTextFieldButton: View {
-    let title: String
-    let value: String
-    let placeholder: String
-    let showRequiredMark: Bool
-    let action: () -> Void
-
-    init(
-        title: String,
-        value: String,
-        placeholder: String = "",
-        showRequiredMark: Bool = false,
-        action: @escaping () -> Void
-    ) {
-        self.title = title
-        self.value = value
-        self.placeholder = placeholder
-        self.showRequiredMark = showRequiredMark
-        self.action = action
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // Title
-            HStack(alignment: .top, spacing: 4) {
-                Text(title)
-                    .font(.codive_title2)
-                    .foregroundStyle(Color.Codive.grayscale1)
-
-                if showRequiredMark {
-                    Text("*")
-                        .font(.codive_title2)
-                        .foregroundStyle(Color.Codive.point1)
-                        .offset(x: -4, y: -4)
-                }
-            }
-
-            // Button (TextField 스타일)
-            Button(action: action) {
-                HStack {
-                    Text(value.isEmpty ? placeholder : value)
-                        .font(.codive_body1_regular)
-                        .foregroundStyle(value.isEmpty ? Color.Codive.grayscale4 : Color.Codive.grayscale1)
-
-                    Spacer()
-
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 14))
-                        .foregroundStyle(Color.Codive.grayscale3)
-                }
-                .padding(.horizontal, 16)
-                .frame(height: 54)
-                .background(Color.white)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.Codive.grayscale5, lineWidth: 1)
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-            }
-        }
     }
 }

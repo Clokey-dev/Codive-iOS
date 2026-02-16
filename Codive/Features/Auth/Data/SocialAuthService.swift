@@ -37,64 +37,42 @@ final class SocialAuthService: NSObject, SocialAuthServiceProtocol {
                 url: authURL,
                 callbackURLScheme: "codive"
             ) { callbackURL, error in
-                // 에러 처리
-                if let error = error {
-                    if let authError = error as? ASWebAuthenticationSessionError {
-                        switch authError.code {
-                        case .canceledLogin:
-                            continuation.resume(returning: .failure(.cancelled))
-                        default:
-                            continuation.resume(returning: .failure(.networkError(error.localizedDescription)))
-                        }
-                    } else {
-                        continuation.resume(returning: .failure(.networkError(error.localizedDescription)))
-                    }
-                    return
-                }
-
-                // 콜백 URL에서 토큰 파싱
-                guard let callbackURL = callbackURL else {
-                    continuation.resume(returning: .failure(.tokenParsingError))
-                    return
-                }
-
-                // URL 파라미터에서 토큰 추출
-                guard let components = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false),
-                      let queryItems = components.queryItems else {
-                    continuation.resume(returning: .failure(.tokenParsingError))
-                    return
-                }
-
-                let accessToken = queryItems.first { $0.name == "accessToken" }?.value
-                let refreshToken = queryItems.first { $0.name == "refreshToken" }?.value
-
-                guard let accessToken = accessToken,
-                      let refreshToken = refreshToken else {
-                    continuation.resume(returning: .failure(.tokenParsingError))
-                    return
-                }
-
-                // Keychain에 토큰 저장
-                do {
-                    try KeychainManager.shared.saveAccessToken(accessToken)
-                    try KeychainManager.shared.saveRefreshToken(refreshToken)
-
-                    // 성공 시 임시 사용자 정보 반환 (나중에 서버에서 받아야 함)
-                    let authUser = AuthUser(
-                        id: "temp_kakao_user",
-                        email: nil,
-                        name: nil,
-                        provider: .kakao
-                    )
-                    continuation.resume(returning: .success(authUser))
-                } catch {
-                    continuation.resume(returning: .failure(.keychainError(error.localizedDescription)))
-                }
+                let result = Self.handleKakaoCallback(callbackURL: callbackURL, error: error)
+                continuation.resume(returning: result)
             }
 
             session.presentationContextProvider = self
             session.prefersEphemeralWebBrowserSession = false
             session.start()
+        }
+    }
+
+    private static func handleKakaoCallback(callbackURL: URL?, error: Error?) -> AuthResult {
+        if let error = error {
+            if let authError = error as? ASWebAuthenticationSessionError, authError.code == .canceledLogin {
+                return .failure(.cancelled)
+            }
+            return .failure(.networkError(error.localizedDescription))
+        }
+
+        guard let callbackURL = callbackURL,
+              let components = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false),
+              let queryItems = components.queryItems else {
+            return .failure(.tokenParsingError)
+        }
+
+        guard let accessToken = queryItems.first(where: { $0.name == "accessToken" })?.value,
+              let refreshToken = queryItems.first(where: { $0.name == "refreshToken" })?.value else {
+            return .failure(.tokenParsingError)
+        }
+
+        do {
+            try KeychainManager.shared.saveAccessToken(accessToken)
+            try KeychainManager.shared.saveRefreshToken(refreshToken)
+            let authUser = AuthUser(id: "temp_kakao_user", email: nil, name: nil, provider: .kakao)
+            return .success(authUser)
+        } catch {
+            return .failure(.keychainError(error.localizedDescription))
         }
     }
     
