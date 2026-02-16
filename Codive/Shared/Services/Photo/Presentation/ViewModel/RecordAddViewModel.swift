@@ -23,6 +23,7 @@ final class RecordAddViewModel: ObservableObject {
     @Published var isCameraPresented = false
     @Published var authorizationStatus: PHAuthorizationStatus = .notDetermined
     @Published var isCompletingSelection = false
+    @Published var isClothInfoPresented = false
 
     private let fetchPhotosUseCase: FetchPhotosUseCase
     private let processImageUseCase: ProcessImageUseCase
@@ -71,6 +72,10 @@ final class RecordAddViewModel: ObservableObject {
         
         if authorizationStatus == .authorized || authorizationStatus == .limited {
             await loadAlbums()
+
+            if flowType == .cloth {
+                isClothInfoPresented = true
+            }
         }
     }
 

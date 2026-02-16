@@ -115,6 +115,37 @@ struct RecordAddView: View {
             }
             .ignoresSafeArea()
         }
+        .overlay {
+            if viewModel.isClothInfoPresented {
+                Color.black.opacity(0.5)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation {
+                            viewModel.isClothInfoPresented = false
+                        }
+                    }
+
+                Image("Cloth_info")
+                    .resizable()
+                    .scaledToFit()
+                    .padding(.horizontal, 40)
+                    .overlay(alignment: .topTrailing) {
+                        Button {
+                            withAnimation {
+                                viewModel.isClothInfoPresented = false
+                            }
+                        } label: {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundStyle(Color.Codive.grayscale3)
+                                .padding(12)
+                        }
+                        .padding(.horizontal, 40)
+                    }
+                    .transition(.opacity)
+            }
+        }
+        .animation(.easeInOut(duration: 0.25), value: viewModel.isClothInfoPresented)
         .task {
             await viewModel.requestAuthorization()
         }
