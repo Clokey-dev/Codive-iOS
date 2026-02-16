@@ -79,16 +79,14 @@ struct NewsCard: View {
             NewsCard(
                 imageUrl: "https://picsum.photos/273/300",
                 title: "개강룩!",
-                subTitle: "첫 인상 잡수 올리기",
-                onTap: { print("첫 번째 카드 탭") }
-            )
+                subTitle: "첫 인상 잡수 올리기"
+            ) { print("첫 번째 카드 탭") }
 
             NewsCard(
                 imageUrl: "https://picsum.photos/273/301",
                 title: "가을 자켓",
-                subTitle: "오늘의 코디",
-                onTap: { print("두 번째 카드 탭") }
-            )
+                subTitle: "오늘의 코디"
+            ) { print("두 번째 카드 탭") }
         }
         .padding(.horizontal, 20)
     }

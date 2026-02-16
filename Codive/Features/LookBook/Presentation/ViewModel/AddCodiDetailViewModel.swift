@@ -39,7 +39,7 @@ final class AddCodiDetailViewModel: ObservableObject {
     private let productUseCase: ProductUseCase
     
     var codiPayloads: [Payloads] {
-        return images.enumerated().map { (index, entity) in
+        return images.enumerated().map { index, entity in
             let normalizedX = (entity.position.x + (boardSize / 2)) / boardSize
             let normalizedY = (entity.position.y + (boardSize / 2)) / boardSize
             

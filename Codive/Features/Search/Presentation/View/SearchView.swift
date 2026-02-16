@@ -67,37 +67,32 @@ struct SearchView: View {
                     } else {
                         VStack {
                             RecentlySearchResultRow(
-                                type: .hashTag(title: "드뮤어룩"),
-                                onDelete: { print("해시태그 삭제 클릭") }
-                            )
-                            
+                                type: .hashTag(title: "드뮤어룩")
+                            ) { print("해시태그 삭제 클릭") }
+
                             RecentlySearchResultRow(
                                 type: .member(
                                     imageUrl: "https://example.com/profile.jpg",
                                     title: "피크닉좋아",
                                     subtitle: "hamster12"
-                                ),
-                                onDelete: { print("Delete clicked") }
-                            )
-                            
+                                )
+                            ) { print("Delete clicked") }
+
                             RecentlySearchResultRow(
-                                type: .hashTag(title: "드뮤어룩"),
-                                onDelete: { print("해시태그 삭제 클릭") }
-                            )
-                            
+                                type: .hashTag(title: "드뮤어룩")
+                            ) { print("해시태그 삭제 클릭") }
+
                             RecentlySearchResultRow(
                                 type: .member(
                                     imageUrl: "https://example.com/profile.jpg",
                                     title: "피크닉좋아",
                                     subtitle: "hamster12"
-                                ),
-                                onDelete: { print("Delete clicked") }
-                            )
-                            
+                                )
+                            ) { print("Delete clicked") }
+
                             RecentlySearchResultRow(
-                                type: .hashTag(title: "드뮤어룩"),
-                                onDelete: { print("해시태그 삭제 클릭") }
-                            )
+                                type: .hashTag(title: "드뮤어룩")
+                            ) { print("해시태그 삭제 클릭") }
                         }
                         .padding(.top, 8)
                     }
@@ -120,11 +115,10 @@ struct SearchView: View {
                                 NewsCard(
                                     imageUrl: news.imageUrl,
                                     title: news.title,
-                                    subTitle: news.subTitle,
-                                    onTap: {
-                                        viewModel.searchWithKeyword(news.subTitle)
-                                    }
-                                )
+                                    subTitle: news.subTitle
+                                ) {
+                                    viewModel.searchWithKeyword(news.subTitle)
+                                }
                             }
                         }
                     }.padding(.top, 8)

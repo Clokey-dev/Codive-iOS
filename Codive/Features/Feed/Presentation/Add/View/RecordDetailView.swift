@@ -29,7 +29,7 @@ struct RecordDetailView: View {
                     rightButton: .text(
                         title: "완료",
                         isEnabled: viewModel.isCompleteEnabled && !viewModel.isLoading,
-                        action: { viewModel.completeRecord() }
+                        action: viewModel.completeRecord
                     )
                 )
 
@@ -192,5 +192,4 @@ private extension RecordDetailView {
         .padding(.horizontal, 20)
         .padding(.bottom, 40)
     }
-    
 }

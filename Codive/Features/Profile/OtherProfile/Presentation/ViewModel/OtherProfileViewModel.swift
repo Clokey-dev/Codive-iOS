@@ -91,11 +91,9 @@ final class OtherProfileViewModel: ObservableObject {
             self.isMe = profile.isMe
 
             await loadMonthlyHistories()
-
         } catch {
             self.errorMessage = TextLiteral.Profile.loadFailure
         }
-
         isLoading = false
     }
 
@@ -114,16 +112,13 @@ final class OtherProfileViewModel: ObservableObject {
 
             var newHistories: [String: String] = [:]
             var newHistoryIds: [String: Int] = [:]
-            for item in items {
-                if newHistories[item.historyDate] == nil {
-                    newHistories[item.historyDate] = item.firstImageUrl
-                    newHistoryIds[item.historyDate] = Int(item.historyId)
-                }
+            for item in items where newHistories[item.historyDate] == nil {
+                newHistories[item.historyDate] = item.firstImageUrl
+                newHistoryIds[item.historyDate] = Int(item.historyId)
             }
 
             self.monthlyHistories = newHistories
             self.monthlyHistoryIds = newHistoryIds
-
         } catch {
             // Silent failure - UI에 영향 없음
         }
@@ -186,13 +181,11 @@ final class OtherProfileViewModel: ObservableObject {
                 } else {
                     followerCount -= 1
                 }
-
             } catch {
                 errorMessage = TextLiteral.Profile.followFailure
             }
         }
     }
-
     func onMoreFavoriteCodiTapped() {
         navigationRouter.navigate(to: .favoriteCodiList(showHeart: false))
     }

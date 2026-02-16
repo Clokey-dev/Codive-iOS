@@ -83,10 +83,11 @@ final class ReportDIContainer {
             onClear: { [weak self] in
                 // 뒤로가기 시 신고 플로우 종료
                 self?.clearCurrentReport()
+            },
+            onSubmit: { [weak navigationRouter] in
+                navigationRouter?.navigate(to: .reportDetail(target: target))
             }
-        ) { [weak navigationRouter] in
-            navigationRouter?.navigate(to: .reportDetail(target: target))
-        }
+        )
     }
 
     func makeReportDetailView(target: ReportTarget) -> ReportDetailView {

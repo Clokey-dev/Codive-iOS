@@ -163,7 +163,7 @@ final class DefaultClothDataSource: ClothDataSource {
                 results.append(result)
             }
 
-            return results.sorted(by: { $0.0 < $1.0 }).map { $0.1 }
+            return results.sorted { $0.0 < $1.0 }.map { $0.1 }
         }
     }
 

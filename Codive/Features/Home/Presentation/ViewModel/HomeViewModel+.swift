@@ -130,7 +130,7 @@ extension HomeViewModel {
                     lookBookId: entity.lookbookId
                 )
                 
-                let result = try await addToLookBookUseCase.createAutoDailyCoordinate(request: request)
+                _ = try await addToLookBookUseCase.createAutoDailyCoordinate(request: request)
                 
                 await MainActor.run {
                     self.showLookBookSheet = false

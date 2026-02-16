@@ -179,9 +179,7 @@ struct CommentView: View {
                             ],
                             isExpanded: true,
                             showButton: false
-                        ) {
-                            viewModel.dismissMenu()
-                        }
+                        ) { viewModel.dismissMenu() }
                         .padding(.trailing, 20)
                         .padding(.top, 80)
                     } else {
@@ -193,9 +191,7 @@ struct CommentView: View {
                             ],
                             isExpanded: true,
                             showButton: false
-                        ) {
-                            viewModel.dismissMenu()
-                        }
+                        ) { viewModel.dismissMenu() }
                         .padding(.trailing, 20)
                         .padding(.top, 80)
                     }

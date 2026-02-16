@@ -41,14 +41,13 @@ struct FavoriteCodiView: View {
                             CodiCard(
                                 imageURL: URL(string: coordinate.imageUrl),
                                 title: coordinate.coordinateName,
-                                icon: .heart(isSelected: true, onTap: {}),
+                                icon: .heart(isSelected: true) {},
                                 cardWidth: 160,
                                 imageSize: 160,
                                 cornerRadius: 16,
                                 iconPadding: 14,
-                                iconSize: 20,
-                                onCardTap: {}
-                            )
+                                iconSize: 20
+                            ) {}
                         }
                     }
                     .padding(.horizontal, 20)

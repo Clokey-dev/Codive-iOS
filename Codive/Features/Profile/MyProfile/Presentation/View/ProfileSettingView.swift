@@ -34,7 +34,7 @@ struct ProfileSettingView: View {
                     rightButton: .text(
                         title: "완료",
                         isEnabled: viewModel.canComplete && !viewModel.isLoading,
-                        action: { viewModel.onCompleteTapped() }
+                        action: viewModel.onCompleteTapped
                     )
                 )
 
@@ -242,7 +242,6 @@ struct ProfileSettingView: View {
         }
         .buttonStyle(.plain)
     }
-
 }
 
 #Preview {

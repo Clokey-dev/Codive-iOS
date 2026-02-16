@@ -159,7 +159,7 @@ public struct ReportDraft: Identifiable, Equatable, Hashable, Sendable {
 
     // 순수 규칙 평가 결과만 반환
     public func validate() -> ReportValidation {
-        guard let reason = selectedReason else {
+        guard selectedReason != nil else {
             return .invalid(.missingReason)
         }
         if detail.count > Self.maxDetailLength {

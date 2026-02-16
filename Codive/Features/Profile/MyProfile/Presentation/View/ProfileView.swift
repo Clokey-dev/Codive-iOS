@@ -19,7 +19,7 @@ struct ProfileView: View {
     }
     
     var body: some View {
-        GeometryReader { geometry in
+        GeometryReader { _ in
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 0) {
                     topBar
@@ -219,16 +219,15 @@ struct ProfileView: View {
                             CodiCard(
                                 imageURL: URL(string: codi.imageUrl),
                                 title: nil,
-                                icon: .heart(isSelected: true, onTap: {}),
+                                icon: .heart(isSelected: true) {},
                                 cardWidth: 160,
                                 imageSize: 160,
                                 cornerRadius: 16,
                                 iconPadding: 14,
-                                iconSize: 20,
-                                onCardTap: {
-                                    viewModel.onCodiCardTapped(coordinateId: Int64(codi.coordinateId))
-                                }
-                            )
+                                iconSize: 20
+                            ) {
+                                viewModel.onCodiCardTapped(coordinateId: Int64(codi.coordinateId))
+                            }
                         }
                     }
                     .padding(.top, 12)

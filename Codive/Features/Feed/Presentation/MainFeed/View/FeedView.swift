@@ -164,10 +164,9 @@ private struct FeedCellView: View {
                         }
                     }
                 ),
-                onProfileTap: {
-                    viewModel.navigateToProfile(userId: feed.author.id)
-                }
-            )
+            ) {
+                viewModel.navigateToProfile(userId: feed.author.id)
+            }
         }
         .buttonStyle(PlainButtonStyle())
         .onAppear {

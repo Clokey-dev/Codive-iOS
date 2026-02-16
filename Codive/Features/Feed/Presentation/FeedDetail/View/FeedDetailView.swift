@@ -161,9 +161,7 @@ struct FeedDetailView: View {
                             ],
                             isExpanded: viewModel.isMoreMenuPresented,
                             showButton: false
-                        ) {
-                            viewModel.dismissMoreMenu()
-                        }
+                        ) { viewModel.dismissMoreMenu() }
                         .padding(.trailing, 20)
                         .padding(.top, 80)
                     } else {
@@ -176,9 +174,7 @@ struct FeedDetailView: View {
                             ],
                             isExpanded: viewModel.isMoreMenuPresented,
                             showButton: false
-                        ) {
-                            viewModel.dismissMoreMenu()
-                        }
+                        ) { viewModel.dismissMoreMenu() }
                         .padding(.trailing, 20)
                         .padding(.top, 80)
                     }

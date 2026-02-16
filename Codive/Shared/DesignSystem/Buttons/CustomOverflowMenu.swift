@@ -90,7 +90,9 @@ struct CustomOverflowMenu: View {
     var body: some View {
         ZStack {
             if showButton {
-                Button(action: { onToggle?() }) {
+                Button {
+                    onToggle?()
+                } label: {
                     Image(systemName: "ellipsis")
                         .rotationEffect(.degrees(90))
                         .font(.title2)

@@ -21,7 +21,7 @@ struct RecordCreateRequest {
 struct RecordPhoto {
     let image: UIImage
     let clothTags: [RecordClothTag]
-    var imageUrl: String? = nil // 수정 모드에서 기존 이미지 URL 저장
+    var imageUrl: String? // 수정 모드에서 기존 이미지 URL 저장
 }
 
 struct RecordClothTag {
