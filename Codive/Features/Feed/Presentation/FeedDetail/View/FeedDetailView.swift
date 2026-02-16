@@ -33,15 +33,7 @@ struct FeedDetailView: View {
     // MARK: - Body
     var body: some View {
         ZStack {
-            // 로딩 인디케이터
-            if viewModel.isLoading {
-                Color.black.opacity(0.3)
-                    .ignoresSafeArea()
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                    .scaleEffect(1.5)
-                    .zIndex(100)
-            }
+            Color.white.ignoresSafeArea()
 
             VStack(spacing: 0) {
                 HStack {
@@ -139,7 +131,14 @@ struct FeedDetailView: View {
                         }
                     }
                 }
-            .background(Color.white)
+            }
+
+            // 로딩 인디케이터
+            if viewModel.isLoading {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .gray))
+                    .scaleEffect(1.5)
+                    .zIndex(100)
             }
 
             // 더보기 메뉴 오버레이
@@ -188,6 +187,7 @@ struct FeedDetailView: View {
                 .zIndex(10)
             }
         }
+        .background(Color.white)
         .navigationBarHidden(true)
         .enableSwipeBack()
         .onAppear {
