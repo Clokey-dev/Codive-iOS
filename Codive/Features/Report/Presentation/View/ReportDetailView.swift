@@ -17,7 +17,13 @@ struct ReportDetailView: View {
         VStack(spacing: 0) {
             CustomNavigationBar(
                 title: vm.navTitle,
-                onBack: onBackTapped
+                onBack: onBackTapped,
+                rightButton: .text(
+                    title: TextLiteral.Report.submit,
+                    isEnabled: vm.isNextEnabled && !vm.isSubmitting
+                ) {
+                    onSubmit?()
+                }
             )
 
             ScrollView {
@@ -71,6 +77,12 @@ struct ReportDetailView: View {
                             }
                         }
 
+                        if let errorMessage = vm.errorMessage {
+                            Text(errorMessage)
+                                .font(.codive_body3_regular)
+                                .foregroundStyle(.red)
+                        }
+
                         // 안내 문구
                         VStack(alignment: .leading, spacing: 16) {
                             NoticeRow(text: "신고 접수 후 패널티 조치까지 영업일 기준 최소 3영업일에서 최대 5영업일 소요될 수 있습니다.")
@@ -81,23 +93,6 @@ struct ReportDetailView: View {
                         .padding(.top, 12)
                     }
                     .padding(.horizontal, 20)
-                }
-            }
-            .safeAreaInset(edge: .bottom) {
-                VStack(spacing: 8) {
-                    if let errorMessage = vm.errorMessage {
-                        Text(errorMessage)
-                            .font(.codive_body3_regular)
-                            .foregroundStyle(.red)
-                            .padding(.horizontal, 20)
-                    }
-
-                    CustomButton(text: TextLiteral.Report.submit, widthType: .fixed) {
-                        onSubmit?()
-                    }
-                    .disabled(!vm.isNextEnabled || vm.isSubmitting)
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 48)
                 }
             }
         }
