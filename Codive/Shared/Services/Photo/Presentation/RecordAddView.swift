@@ -66,7 +66,7 @@ struct RecordAddView: View {
                         ) {
                             viewModel.showCamera()
                         }
-                        
+
                         if viewModel.photos.isEmpty {
                             // 스켈레톤 셀들
                             ForEach(0..<40, id: \.self) { _ in
@@ -88,6 +88,11 @@ struct RecordAddView: View {
                             }
                         }
                     }
+                }
+
+                // AI 추가 토글 (옷 추가 플로우 전용)
+                if viewModel.flowType == .cloth {
+                    aiAddToggleBar
                 }
             }
             // 로딩 오버레이
@@ -149,5 +154,33 @@ struct RecordAddView: View {
         .task {
             await viewModel.requestAuthorization()
         }
+    }
+
+    // MARK: - AI Add Toggle Bar
+    private var aiAddToggleBar: some View {
+        VStack(spacing: 0) {
+            Divider()
+
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("AI로 추가하기")
+                        .font(.codive_body1_bold)
+                        .foregroundStyle(Color.Codive.grayscale1)
+
+                    Text("AI가 옷을 분류하고, 카테고리를 구별해요.")
+                        .font(.codive_body2_medium)
+                        .foregroundStyle(Color.Codive.grayscale4)
+                }
+
+                Spacer()
+
+                Toggle("", isOn: $viewModel.isAIAddEnabled)
+                    .labelsHidden()
+                    .tint(Color.Codive.point1)
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+        }
+        .background(Color.white)
     }
 }

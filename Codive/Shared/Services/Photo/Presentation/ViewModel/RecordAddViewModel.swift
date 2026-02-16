@@ -24,11 +24,12 @@ final class RecordAddViewModel: ObservableObject {
     @Published var authorizationStatus: PHAuthorizationStatus = .notDetermined
     @Published var isCompletingSelection = false
     @Published var isClothInfoPresented = false
+    @Published var isAIAddEnabled = false
 
     private let fetchPhotosUseCase: FetchPhotosUseCase
     private let processImageUseCase: ProcessImageUseCase
     private let navigationRouter: NavigationRouter
-    private let flowType: PhotoEditFlowType
+    let flowType: PhotoEditFlowType
     
     // MARK: - Computed Properties
     var isCompleteEnabled: Bool {
