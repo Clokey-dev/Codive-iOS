@@ -65,7 +65,6 @@ enum TextLiteral {
 
         // Clothes
         static let clothesSectionTitle = "옷 추가"
-        static let clothesAiAutoTitle = "AI 자동추가"
         static let clothesAiAutoDescription = "이미지를 업로드하면 옷이 자동으로 등록돼요"
         static let clothesManualTitle = "직접 추가"
         static let clothesManualDescription = "옷을 직접 추가하여 나만의 옷장을 만들어요"

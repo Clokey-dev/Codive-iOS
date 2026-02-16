@@ -43,15 +43,6 @@ struct AddView: View {
                             .padding(.horizontal, 20)
                         
                         VStack(spacing: 12) {
-                            // AI Auto Add
-                            AddOptionButton(
-                                iconName: "ai_icon",
-                                title: TextLiteral.Add.clothesAiAutoTitle,
-                                description: TextLiteral.Add.clothesAiAutoDescription
-                            ) {
-                                // TODO: AI 자동추가 액션
-                            }
-                            
                             // Manual Add
                             AddOptionButton(
                                 iconName: "cloth_icon",
