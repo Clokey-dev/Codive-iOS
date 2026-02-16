@@ -160,14 +160,14 @@ private extension CustomOverflowMenu {
                         .resizable()
                         .scaledToFit()
                         .aspectRatio(1, contentMode: .fit)
-                        .frame(width: 20, height: 20)
+                        .frame(width: 15, height: 15)
 
                 case .asset(let name):
                     Image(name)
                         .resizable()
                         .scaledToFit()
                         .aspectRatio(1, contentMode: .fit)
-                        .frame(width: 18, height: 18)
+                        .frame(width: 15, height: 15)
                         .padding(1)
                 }
             }
@@ -179,7 +179,6 @@ private extension CustomOverflowMenu {
         .font(.codive_body2_medium)
         .padding(.horizontal, 20)
         .padding(.vertical, 8)
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
@@ -194,55 +193,73 @@ private extension CustomOverflowMenu {
     }
 }
 
+private struct OverflowMenuPreviewWrapper: View {
+    let menuType: MenuType
+    let menuActions: [() -> Void]
+    @State private var isExpanded = false
+
+    var body: some View {
+        CustomOverflowMenu(
+            menuType: menuType,
+            menuActions: menuActions,
+            isExpanded: isExpanded,
+            onToggle: { isExpanded.toggle() },
+            onClose: { isExpanded = false }
+        )
+    }
+}
+
 #Preview {
-    CustomOverflowMenu(
-        menuType: .coordination,
-        menuActions: [
-            { print("코디 수정 tapped") },
-            { print("룩북에 추가 tapped") },
-            { print("코디 공유 tapped") }
-        ]
-    )
-    
-    Spacer()
-    
-    CustomOverflowMenu(
-        menuType: .lookbook,
-        menuActions: [
-            { print("룩북 만들기 tapped") },
-            { print("삭제하기 tapped") }
-        ]
-    )
-    
-    Spacer()
-    
-    CustomOverflowMenu(
-        menuType: .closet,
-        menuActions: [
-            { print("수정하기 tapped") },
-            { print("삭제하기 tapped") }
-        ]
-    )
-    
-    Spacer()
-    
-    CustomOverflowMenu(
-        menuType: .feed,
-        menuActions: [
-            { print("코디 추가하기 tapped") },
-            { print("편집하기 tapped") }
-        ]
-    )
-    
-    Spacer()
-    
-    CustomOverflowMenu(
-        menuType: .report,
-        menuActions: [
-            { print("신고하기 tapped") },
-            { print("차단하기 tapped") }
-        ]
-    )
-    
-    Spacer()
+    VStack {
+        OverflowMenuPreviewWrapper(
+            menuType: .coordination,
+            menuActions: [
+                { print("코디 수정 tapped") },
+                { print("룩북에 추가 tapped") },
+                { print("코디 공유 tapped") }
+            ]
+        )
+
+        Spacer()
+
+        OverflowMenuPreviewWrapper(
+            menuType: .lookbook,
+            menuActions: [
+                { print("룩북 만들기 tapped") },
+                { print("삭제하기 tapped") }
+            ]
+        )
+
+        Spacer()
+
+        OverflowMenuPreviewWrapper(
+            menuType: .closet,
+            menuActions: [
+                { print("수정하기 tapped") },
+                { print("삭제하기 tapped") }
+            ]
+        )
+
+        Spacer()
+
+        OverflowMenuPreviewWrapper(
+            menuType: .feed,
+            menuActions: [
+                { print("코디 추가하기 tapped") },
+                { print("편집하기 tapped") }
+            ]
+        )
+
+        Spacer()
+
+        OverflowMenuPreviewWrapper(
+            menuType: .report,
+            menuActions: [
+                { print("신고하기 tapped") },
+                { print("차단하기 tapped") }
+            ]
+        )
+
+        Spacer()
+    }
 }
