@@ -57,6 +57,12 @@ struct ClothAddView: View {
                         },
                         onPurchaseUrlChanged: { url in
                             viewModel.updatePurchaseUrl(url)
+                        },
+                        showCategoryError: viewModel.categoryError,
+                        showSeasonError: viewModel.seasonError,
+                        completedItemIndices: viewModel.completedItemIndices,
+                        onThumbnailTap: { index in
+                            viewModel.trySelectItem(at: index)
                         }
                     )
                 }
@@ -75,6 +81,10 @@ struct ClothAddView: View {
         .navigationBarHidden(true)
         .enableSwipeBack()
         .background(Color.white)
+        .customToast(
+            isPresented: $viewModel.showValidationError,
+            message: "필수정보를 모두 입력해주세요"
+        )
         .sheet(isPresented: $viewModel.isCategorySheetPresented) {
             CustomCategoryBottomSheet(
                 allCategories: CategoryConstants.all,

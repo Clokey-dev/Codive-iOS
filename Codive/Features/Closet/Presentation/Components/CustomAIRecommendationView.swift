@@ -67,6 +67,16 @@ struct CustomAIRecommendationView: View {
     let onBrandChanged: ((String) -> Void)?
     let onPurchaseUrlChanged: ((String) -> Void)?
 
+    // 유효성 검증 에러 (옵션)
+    let showCategoryError: Bool
+    let showSeasonError: Bool
+
+    // 완료된 아이템 인덱스 (썸네일 흐림 효과용)
+    let completedItemIndices: Set<Int>
+
+    // 썸네일 탭 콜백 (옵션 - 유효성 검증용)
+    let onThumbnailTap: ((Int) -> Void)?
+
     // UI 표시 제어 (옵션)
     let showTitle: Bool
     let showEditButton: Bool
@@ -88,6 +98,10 @@ struct CustomAIRecommendationView: View {
         onNameChanged: ((String) -> Void)? = nil,
         onBrandChanged: ((String) -> Void)? = nil,
         onPurchaseUrlChanged: ((String) -> Void)? = nil,
+        showCategoryError: Bool = false,
+        showSeasonError: Bool = false,
+        completedItemIndices: Set<Int> = [],
+        onThumbnailTap: ((Int) -> Void)? = nil,
         showTitle: Bool = true,
         showEditButton: Bool = true
     ) {
@@ -106,6 +120,10 @@ struct CustomAIRecommendationView: View {
         self.onNameChanged = onNameChanged
         self.onBrandChanged = onBrandChanged
         self.onPurchaseUrlChanged = onPurchaseUrlChanged
+        self.showCategoryError = showCategoryError
+        self.showSeasonError = showSeasonError
+        self.completedItemIndices = completedItemIndices
+        self.onThumbnailTap = onThumbnailTap
         self.showTitle = showTitle
         self.showEditButton = showEditButton
     }
@@ -248,10 +266,10 @@ struct CustomAIRecommendationView: View {
         Button {
             // action
         } label: {
-            Image(systemName: "pencil")
+            Image(systemName: "eraser")
                 .font(.system(size: 16))
                 .foregroundStyle(Color.Codive.grayscale2)
-                .frame(width: 32, height: 32)
+                .frame(width: 30, height: 30)
                 .background(Color.white)
                 .clipShape(Circle())
                 .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
@@ -272,8 +290,12 @@ struct CustomAIRecommendationView: View {
     
     private func thumbnailButton(for item: ClothingItem, at index: Int) -> some View {
         Button {
-            withAnimation {
-                selectedItemIndex = index
+            if let onThumbnailTap {
+                onThumbnailTap(index)
+            } else {
+                withAnimation {
+                    selectedItemIndex = index
+                }
             }
         } label: {
             Group {
@@ -297,6 +319,12 @@ struct CustomAIRecommendationView: View {
                         lineWidth: selectedItemIndex == index ? 2 : 1
                     )
             )
+            .overlay {
+                if completedItemIndices.contains(index) && selectedItemIndex != index {
+                    RoundedRectangle(cornerRadius: 5)
+                        .fill(Color.Codive.grayscale5.opacity(0.6))
+                }
+            }
         }
     }
     
@@ -309,6 +337,7 @@ struct CustomAIRecommendationView: View {
                 value: item.category.isEmpty ? "" : "\(item.category) > \(item.subcategory)",
                 placeholder: TextLiteral.Closet.categoryPlaceholder,
                 showRequiredMark: true,
+                showError: showCategoryError,
                 action: onCategoryTap
             )
 
@@ -317,6 +346,7 @@ struct CustomAIRecommendationView: View {
                 value: item.season,
                 placeholder: TextLiteral.Closet.seasonPlaceholder,
                 showRequiredMark: true,
+                showError: showSeasonError,
                 action: onSeasonTap
             )
 

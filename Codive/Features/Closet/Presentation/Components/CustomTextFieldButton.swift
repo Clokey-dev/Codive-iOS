@@ -13,6 +13,7 @@ struct CustomTextFieldButton: View {
     let value: String
     let placeholder: String
     let showRequiredMark: Bool
+    let showError: Bool
     let action: () -> Void
 
     init(
@@ -20,12 +21,14 @@ struct CustomTextFieldButton: View {
         value: String,
         placeholder: String = "",
         showRequiredMark: Bool = false,
+        showError: Bool = false,
         action: @escaping () -> Void
     ) {
         self.title = title
         self.value = value
         self.placeholder = placeholder
         self.showRequiredMark = showRequiredMark
+        self.showError = showError
         self.action = action
     }
 
@@ -54,16 +57,25 @@ struct CustomTextFieldButton: View {
 
                     Spacer()
 
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 14))
-                        .foregroundStyle(Color.Codive.grayscale3)
+                    if showError {
+                        Image(systemName: "exclamationmark.circle.fill")
+                            .font(.system(size: 18))
+                            .foregroundStyle(.red)
+                    } else {
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 14))
+                            .foregroundStyle(Color.Codive.grayscale3)
+                    }
                 }
                 .padding(.horizontal, 16)
                 .frame(height: 54)
                 .background(Color.white)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.Codive.grayscale5, lineWidth: 1)
+                        .stroke(
+                            showError ? .red : Color.Codive.grayscale5,
+                            lineWidth: showError ? 1.5 : 1
+                        )
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             }

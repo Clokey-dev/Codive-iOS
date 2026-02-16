@@ -73,6 +73,11 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
     // 완료 상태
     @Published var isLoading = false
 
+    // 유효성 검증 상태
+    @Published var showValidationError = false
+    @Published var categoryError = false
+    @Published var seasonError = false
+
     // MARK: - Dependencies
     private let navigationRouter: NavigationRouter
     private let addClothUseCase: AddClothUseCase
@@ -171,11 +176,13 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
     func selectCategory(_ category: CategoryItem, subcategory: SubcategoryItem) {
         clothForms[currentIndex].category = category
         clothForms[currentIndex].subcategory = subcategory
+        categoryError = false
         isCategorySheetPresented = false
     }
 
     func selectSeasons(_ seasons: Set<Season>) {
         clothForms[currentIndex].selectedSeasons = seasons
+        seasonError = false
         isSeasonSheetPresented = false
     }
 
@@ -189,6 +196,46 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
         if currentIndex < selectedPhotos.count - 1 {
             currentIndex += 1
         }
+    }
+
+    var completedItemIndices: Set<Int> {
+        Set(clothForms.indices.filter { index in
+            clothForms[index].category != nil && !clothForms[index].selectedSeasons.isEmpty
+        })
+    }
+
+    func trySelectItem(at index: Int) {
+        guard index != currentIndex else { return }
+
+        // 이미 완료된 아이템으로의 이동은 자유롭게 허용
+        let targetForm = clothForms[index]
+        let isTargetCompleted = targetForm.category != nil && !targetForm.selectedSeasons.isEmpty
+        if isTargetCompleted {
+            clearValidationErrors()
+            currentIndex = index
+            return
+        }
+
+        // 새로운(미완료) 아이템으로 이동 시 현재 아이템 유효성 검증
+        let form = clothForms[currentIndex]
+        let isCategoryMissing = form.category == nil
+        let isSeasonMissing = form.selectedSeasons.isEmpty
+
+        if isCategoryMissing || isSeasonMissing {
+            categoryError = isCategoryMissing
+            seasonError = isSeasonMissing
+            showValidationError = true
+            return
+        }
+
+        clearValidationErrors()
+        currentIndex = index
+    }
+
+    func clearValidationErrors() {
+        categoryError = false
+        seasonError = false
+        showValidationError = false
     }
 
     func dismissView() {
