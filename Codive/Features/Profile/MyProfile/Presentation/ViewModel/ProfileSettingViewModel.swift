@@ -25,34 +25,17 @@ final class ProfileSettingViewModel: ObservableObject {
     // MARK: - Published Properties
     @Published var nickname: String = "" {
         didSet {
-            if nickname.count > nicknameMaxCount {
-                let trimmed = String(nickname.prefix(nicknameMaxCount))
-                if trimmed != nickname {
-                    nickname = trimmed
-                    return
-                }
-            }
-
             if nickname != oldValue {
                 if nicknameCheckStatus == .available || nicknameCheckStatus == .duplicated {
                     nicknameCheckStatus = .none
                 }
             }
-
             updateCanComplete()
         }
     }
 
     @Published var intro: String = "" {
         didSet {
-            if intro.count > introMaxCount {
-                let trimmed = String(intro.prefix(introMaxCount))
-                if trimmed != intro {
-                    intro = trimmed
-                    return
-                }
-            }
-
             updateCanComplete()
         }
     }
@@ -75,6 +58,7 @@ final class ProfileSettingViewModel: ObservableObject {
     @Published var isLoadingProfile: Bool = false
 
     private var selectedImageData: Data?
+    private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Initializer
     init(navigationRouter: NavigationRouter, updateProfileUseCase: UpdateProfileUseCase, profileRepository: ProfileRepository) {
@@ -82,6 +66,27 @@ final class ProfileSettingViewModel: ObservableObject {
         self.updateProfileUseCase = updateProfileUseCase
         self.profileRepository = profileRepository
         updateCanComplete()
+        setupTextLimits()
+    }
+
+    private func setupTextLimits() {
+        $nickname
+            .removeDuplicates()
+            .filter { $0.count > self.nicknameMaxCount }
+            .sink { [weak self] _ in
+                guard let self else { return }
+                self.nickname = String(self.nickname.prefix(self.nicknameMaxCount))
+            }
+            .store(in: &cancellables)
+
+        $intro
+            .removeDuplicates()
+            .filter { $0.count > self.introMaxCount }
+            .sink { [weak self] _ in
+                guard let self else { return }
+                self.intro = String(self.intro.prefix(self.introMaxCount))
+            }
+            .store(in: &cancellables)
     }
 
     enum NicknameCheckStatus: Equatable {
@@ -93,8 +98,26 @@ final class ProfileSettingViewModel: ObservableObject {
 
     var nicknameErrorText: String? {
         if nickname.isEmpty { return nil }
-        if nickname.count > nicknameMaxCount { return "\(nicknameMaxCount)글자 이내로 입력해주세요" }
-        if nicknameCheckStatus == .duplicated { return "이미 사용중인 아이디입니다." }
+        if nickname.count > nicknameMaxCount {
+            return "20자 이내로 아이디를 입력해주세요."
+        }
+        if nicknameCheckStatus == .duplicated {
+            return "이미 사용중인 아이디입니다."
+        }
+
+        let hasUppercase = nickname.range(of: "[A-Z]", options: .regularExpression) != nil
+        let hasInvalidSpecialChars = nickname.range(of: "[^a-zA-Z0-9가-힣ㄱ-ㅎㅏ-ㅣ_.]", options: .regularExpression) != nil
+
+        if hasUppercase && hasInvalidSpecialChars {
+            return "숫자,소문자,한글, 밑줄 및 마침표로 작성해주세요."
+        }
+        if hasUppercase {
+            return "대문자는 입력이 불가해요. 소문자로 작성해주세요."
+        }
+        if hasInvalidSpecialChars {
+            return "문자는 밑줄 및 마침표만 사용할 수 있어요."
+        }
+
         return nil
     }
 
@@ -115,20 +138,30 @@ final class ProfileSettingViewModel: ObservableObject {
     }
 
     var canTryNicknameCheck: Bool {
-        if nickname.isEmpty { return false }
-        if nicknameErrorText != nil { return false }
-        if nicknameCheckStatus == .checking { return false }
+        guard isNicknameRegexValid else { return false }
+        guard nicknameCheckStatus != .checking else { return false }
         return true
     }
 
     var introErrorText: String? {
+        if intro.isEmpty { return nil }
+        if intro.count > introMaxCount {
+            return "20자 이내로 입력해주세요."
+        }
         return nil
     }
 
     // MARK: - Private Methods
 
+    private var isNicknameRegexValid: Bool {
+        guard !nickname.isEmpty else { return false }
+        guard nickname.count <= nicknameMaxCount else { return false }
+        let pattern = "^[a-z0-9가-힣ㄱ-ㅎㅏ-ㅣ_.]+$"
+        return nickname.range(of: pattern, options: .regularExpression) != nil
+    }
+
     private func updateCanComplete() {
-        let isNicknameValid = !nickname.isEmpty && nickname.count <= nicknameMaxCount
+        let isNicknameValid = isNicknameRegexValid
         let isNicknameChecked = nicknameCheckStatus == .available
         let isIntroValid = intro.count <= introMaxCount
 

@@ -50,17 +50,6 @@ struct ProfileSettingView: View {
                 } else {
                     ScrollView(showsIndicators: false) {
                         VStack(spacing: 0) {
-                            if let errorMessage = viewModel.errorMessage {
-                                Text(errorMessage)
-                                    .font(.codive_body3_medium)
-                                    .foregroundStyle(Color.Codive.point1)
-                                    .padding(.horizontal, 20)
-                                    .padding(.vertical, 12)
-                                    .background(Color.Codive.point4)
-                                    .cornerRadius(8)
-                                    .padding(.top, 16)
-                            }
-
                             profileImageSection
                                 .padding(.top, 32)
 

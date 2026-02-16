@@ -90,7 +90,6 @@ struct UnderlineField<Trailing: View>: View {
 
                 trailing
             }
-            .padding(.bottom, helperErrorText != nil && !(helperErrorText ?? "").isEmpty ? 5 : 0)
 
             Rectangle()
                 .fill(Color.Codive.grayscale5)
@@ -129,11 +128,14 @@ struct UnderlineField<Trailing: View>: View {
         return Group {
             if let message, !message.isEmpty {
                 Text(message)
-                    .font(.codive_body2_medium)
+                    .font(.codive_body2_regular)
                     .foregroundStyle(isError ? Color.Codive.point1 : Color.Codive.grayscale4)
-                    .padding(.top, isError ? 5 : 2)
+                    .padding(.top, 2)
             } else {
-                Color.clear.frame(height: 0)
+                Text(" ")
+                    .font(.codive_body2_regular)
+                    .padding(.top, 2)
+                    .hidden()
             }
         }
     }
