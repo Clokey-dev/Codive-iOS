@@ -97,6 +97,11 @@ struct ClothAddView: View {
         } message: {
             Text(viewModel.aiResultMessage)
         }
+        .alert("오류", isPresented: $viewModel.showErrorAlert) {
+            Button("확인", role: .cancel) { }
+        } message: {
+            Text(viewModel.errorAlertMessage)
+        }
         .sheet(isPresented: $viewModel.isCategorySheetPresented) {
             CustomCategoryBottomSheet(
                 allCategories: CategoryConstants.all,

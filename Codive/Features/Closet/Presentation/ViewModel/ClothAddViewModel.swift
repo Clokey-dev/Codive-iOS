@@ -78,6 +78,10 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
     @Published var showAIResultAlert = false
     @Published var aiResultMessage = ""
 
+    // 에러 상태
+    @Published var showErrorAlert = false
+    @Published var errorAlertMessage = ""
+
     // 유효성 검증 상태
     @Published var showValidationError = false
     @Published var categoryError = false
@@ -366,25 +370,39 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
                     )
                 }
 
-                // AI 이미지 URL이 있으면 재업로드 없이 바로 저장
-                let hasAIImages = selectedPhotos.contains { $0.aiImageUrl != nil }
-                if isAIEnabled && hasAIImages {
-                    let imageUrls = selectedPhotos.map { $0.aiImageUrl ?? "" }
-                    _ = try await clothAIUseCase.createClothesWithUrls(
-                        inputs: inputs,
-                        imageUrls: imageUrls
-                    )
-                } else {
-                    // 기존 방식: UIImage → Data 변환 후 업로드
-                    let imageDatas = try selectedPhotos.map { photo -> Data in
+                // AI URL이 있는 사진과 없는 사진을 분리하여 각각 처리
+                var aiInputs: [ClothInput] = []
+                var aiImageUrls: [String] = []
+                var normalInputs: [ClothInput] = []
+                var normalImageDatas: [Data] = []
+
+                for (index, photo) in selectedPhotos.enumerated() {
+                    let input = inputs[index]
+                    if isAIEnabled, let aiUrl = photo.aiImageUrl {
+                        aiInputs.append(input)
+                        aiImageUrls.append(aiUrl)
+                    } else {
                         guard let data = photo.croppedImage.jpegData(compressionQuality: 0.8) else {
                             throw ClothAddError.imageConversionFailed
                         }
-                        return data
+                        normalInputs.append(input)
+                        normalImageDatas.append(data)
                     }
+                }
+
+                // AI URL이 있는 사진 처리
+                if !aiInputs.isEmpty {
+                    _ = try await clothAIUseCase.createClothesWithUrls(
+                        inputs: aiInputs,
+                        imageUrls: aiImageUrls
+                    )
+                }
+
+                // 기존 방식 처리
+                if !normalInputs.isEmpty {
                     _ = try await addClothUseCase.execute(
-                        inputs: inputs,
-                        images: imageDatas
+                        inputs: normalInputs,
+                        images: normalImageDatas
                     )
                 }
 
@@ -397,6 +415,8 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
                 )
             } catch {
                 isLoading = false
+                errorAlertMessage = "저장에 실패했습니다. 다시 시도해주세요."
+                showErrorAlert = true
             }
         }
     }
