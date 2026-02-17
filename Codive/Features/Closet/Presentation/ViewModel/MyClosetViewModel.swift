@@ -27,6 +27,7 @@ final class MyClosetViewModel: ObservableObject {
     // 편집 모드 관련
     @Published var isEditMode: Bool = false
     @Published var selectedItemIds: Set<Int> = []
+    @Published var showDeleteAlert: Bool = false
 
     // MARK: - Computed Properties
 

@@ -39,9 +39,7 @@ struct MyClosetView: View {
                         title: "삭제",
                         isEnabled: viewModel.isDeleteEnabled
                     ) {
-                        Task {
-                            await viewModel.deleteSelectedItems()
-                        }
+                        viewModel.showDeleteAlert = true
                     } : .none
                 )
                 CustomSearchBar(
@@ -117,6 +115,19 @@ struct MyClosetView: View {
         }
         .task {
             await viewModel.loadClothItems()
+        }
+        .alert(
+            "옷 삭제",
+            isPresented: $viewModel.showDeleteAlert
+        ) {
+            Button("취소", role: .cancel) {}
+            Button("삭제", role: .destructive) {
+                Task {
+                    await viewModel.deleteSelectedItems()
+                }
+            }
+        } message: {
+            Text("선택한 \(viewModel.selectedItemIds.count)벌의 옷을 삭제하시겠습니까?")
         }
     }
     
