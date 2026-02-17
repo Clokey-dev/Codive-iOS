@@ -32,7 +32,7 @@ struct ClothAddView: View {
                     },
                     rightButton: .text(
                         title: TextLiteral.Common.complete,
-                        isEnabled: viewModel.isAllFormsValid && !viewModel.isLoading
+                        isEnabled: viewModel.isAllFormsValid && !viewModel.isLoading && !viewModel.isAIProcessing
                     ) {
                         viewModel.completeAdding()
                     }
@@ -70,12 +70,19 @@ struct ClothAddView: View {
             }
 
             // 로딩 인디케이터
-            if viewModel.isLoading {
+            if viewModel.isLoading || viewModel.isAIProcessing {
                 Color.black.opacity(0.3)
                     .ignoresSafeArea()
-                ProgressView()
-                    .scaleEffect(1.5)
-                    .tint(.white)
+                VStack(spacing: 12) {
+                    ProgressView()
+                        .scaleEffect(1.5)
+                        .tint(.white)
+                    if viewModel.isAIProcessing {
+                        Text("AI가 옷을 분석하고 있어요")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.white)
+                    }
+                }
             }
         }
         .navigationBarHidden(true)
@@ -85,6 +92,11 @@ struct ClothAddView: View {
             isPresented: $viewModel.showValidationError,
             message: "필수정보를 모두 입력해주세요"
         )
+        .alert("AI 분석 결과", isPresented: $viewModel.showAIResultAlert) {
+            Button("확인", role: .cancel) { }
+        } message: {
+            Text(viewModel.aiResultMessage)
+        }
         .sheet(isPresented: $viewModel.isCategorySheetPresented) {
             CustomCategoryBottomSheet(
                 allCategories: CategoryConstants.all,
@@ -129,8 +141,8 @@ struct ClothAddView: View {
 
             return ClothingItem(
                 imageName: nil,
-                image: photo.croppedImage,
-                imageUrl: nil,
+                image: photo.aiImageUrl == nil ? photo.croppedImage : nil,
+                imageUrl: photo.aiImageUrl,
                 category: form.category?.name ?? "",
                 subcategory: form.subcategory?.name ?? "",
                 season: seasonText,

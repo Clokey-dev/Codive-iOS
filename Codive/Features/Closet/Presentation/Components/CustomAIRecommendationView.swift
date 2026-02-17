@@ -303,6 +303,17 @@ struct CustomAIRecommendationView: View {
                     Image(uiImage: image)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
+                } else if let imageUrl = item.imageUrl, !imageUrl.isEmpty, let url = URL(string: imageUrl) {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                        default:
+                            Color.Codive.grayscale6
+                        }
+                    }
                 } else if let imageName = item.imageName {
                     Image(imageName)
                         .resizable()

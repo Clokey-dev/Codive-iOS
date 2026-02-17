@@ -72,6 +72,11 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
 
     // 완료 상태
     @Published var isLoading = false
+    @Published var isAIProcessing = false
+
+    // AI 결과 알림
+    @Published var showAIResultAlert = false
+    @Published var aiResultMessage = ""
 
     // 유효성 검증 상태
     @Published var showValidationError = false
@@ -81,6 +86,8 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
     // MARK: - Dependencies
     private let navigationRouter: NavigationRouter
     private let addClothUseCase: AddClothUseCase
+    private let clothAIUseCase: ClothAIUseCase
+    let isAIEnabled: Bool
 
     // MARK: - Computed Properties
     var currentPhoto: SelectedPhoto? {
@@ -140,14 +147,22 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
     init(
         selectedPhotos: [SelectedPhoto],
         navigationRouter: NavigationRouter,
-        addClothUseCase: AddClothUseCase
+        addClothUseCase: AddClothUseCase,
+        clothAIUseCase: ClothAIUseCase,
+        isAIEnabled: Bool = false
     ) {
         self.selectedPhotos = selectedPhotos
         self.navigationRouter = navigationRouter
         self.addClothUseCase = addClothUseCase
+        self.clothAIUseCase = clothAIUseCase
+        self.isAIEnabled = isAIEnabled
 
         // 각 사진마다 빈 폼 데이터 초기화
         self.clothForms = Array(repeating: ClothFormData(), count: selectedPhotos.count)
+
+        if isAIEnabled {
+            processAI()
+        }
     }
 
     // MARK: - Input Methods
@@ -238,6 +253,98 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
         showValidationError = false
     }
 
+    // MARK: - AI Processing
+
+    func processAI() {
+        isAIProcessing = true
+
+        Task {
+            do {
+                let imageDatas = selectedPhotos.compactMap { $0.croppedImage.jpegData(compressionQuality: 0.8) }
+                guard !imageDatas.isEmpty else {
+                    isAIProcessing = false
+                    return
+                }
+
+                let imageUrls = try await clothAIUseCase.uploadImages(images: imageDatas)
+                guard !imageUrls.isEmpty else {
+                    isAIProcessing = false
+                    return
+                }
+
+                var aiInfos: [ClothAIInfo] = []
+                do {
+                    aiInfos = try await clothAIUseCase.extractClothInfo(clothImageUrls: imageUrls)
+                } catch { }
+
+                applyAIResults(imageUrls: imageUrls, aiInfos: aiInfos)
+
+                let totalCount = selectedPhotos.count
+                let imageSuccessCount = selectedPhotos.filter { $0.aiImageUrl != nil }.count
+
+                var messages: [String] = []
+
+                if imageSuccessCount == totalCount {
+                    messages.append("배경 제거: \(imageSuccessCount)장 성공")
+                } else if imageSuccessCount == 0 {
+                    messages.append("배경 제거: 실패")
+                } else {
+                    let failCount = totalCount - imageSuccessCount
+                    messages.append("배경 제거: \(imageSuccessCount)장 성공, \(failCount)장 실패")
+                }
+
+                if aiInfos.isEmpty {
+                    messages.append("정보 추출: 실패")
+                } else {
+                    let hasCategoryCount = aiInfos.filter { $0.categoryId != nil }.count
+                    let hasSeasonCount = aiInfos.filter { !$0.seasons.isEmpty }.count
+                    messages.append("정보 추출: 카테고리 \(hasCategoryCount)건, 계절 \(hasSeasonCount)건 자동 입력")
+                }
+
+                aiResultMessage = messages.joined(separator: "\n")
+                showAIResultAlert = true
+
+                isAIProcessing = false
+            } catch {
+                isAIProcessing = false
+            }
+        }
+    }
+
+    private func applyAIResults(imageUrls: [String], aiInfos: [ClothAIInfo]) {
+        let resultCount = aiInfos.count
+        guard resultCount > 0 else { return }
+
+        // AI 정보 반영
+        for (index, aiInfo) in aiInfos.enumerated() {
+            guard clothForms.indices.contains(index),
+                  selectedPhotos.indices.contains(index) else { continue }
+
+            // 누끼 이미지 URL 반영
+            if !aiInfo.clothImageUrl.isEmpty {
+                selectedPhotos[index].aiImageUrl = aiInfo.clothImageUrl
+            }
+
+            // 카테고리 매칭
+            if let categoryId = aiInfo.categoryId,
+               let subcategory = CategoryConstants.subcategory(byId: categoryId),
+               let parentCategory = CategoryConstants.category(bySubcategoryId: categoryId) {
+                clothForms[index].category = parentCategory
+                clothForms[index].subcategory = subcategory
+            } else if let parentCategoryId = aiInfo.parentCategoryId,
+                      let parentCategory = CategoryConstants.category(byId: parentCategoryId) {
+                clothForms[index].category = parentCategory
+            }
+
+            // 계절 반영
+            if !aiInfo.seasons.isEmpty {
+                clothForms[index].selectedSeasons = aiInfo.seasons
+            }
+        }
+
+        currentIndex = 0
+    }
+
     func dismissView() {
         navigationRouter.navigateBack()
     }
@@ -248,32 +355,39 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
 
         Task {
             do {
-                // UIImage → Data 변환
-                let imageDatas = try selectedPhotos.map { photo -> Data in
-                    guard let data = photo.croppedImage.jpegData(compressionQuality: 0.8) else {
-                        throw ClothAddError.imageConversionFailed
-                    }
-                    return data
-                }
-
                 // ClothFormData → ClothInput 변환
                 let inputs = clothForms.map { form in
                     ClothInput(
                         name: form.name,
                         brand: form.brand,
                         purchaseUrl: form.purchaseUrl,
-                        categoryId: form.subcategory?.id,  // 하위 카테고리 ID 사용!
+                        categoryId: form.subcategory?.id,
                         seasons: form.selectedSeasons
                     )
                 }
 
-                // UseCase 실행
-                _ = try await addClothUseCase.execute(
-                    inputs: inputs,
-                    images: imageDatas
-                )
+                // AI 이미지 URL이 있으면 재업로드 없이 바로 저장
+                let hasAIImages = selectedPhotos.contains { $0.aiImageUrl != nil }
+                if isAIEnabled && hasAIImages {
+                    let imageUrls = selectedPhotos.map { $0.aiImageUrl ?? "" }
+                    _ = try await clothAIUseCase.createClothesWithUrls(
+                        inputs: inputs,
+                        imageUrls: imageUrls
+                    )
+                } else {
+                    // 기존 방식: UIImage → Data 변환 후 업로드
+                    let imageDatas = try selectedPhotos.map { photo -> Data in
+                        guard let data = photo.croppedImage.jpegData(compressionQuality: 0.8) else {
+                            throw ClothAddError.imageConversionFailed
+                        }
+                        return data
+                    }
+                    _ = try await addClothUseCase.execute(
+                        inputs: inputs,
+                        images: imageDatas
+                    )
+                }
 
-                // 성공: 성공 오버레이 표시 + 뒤에서 탭 전환/네비게이션
                 isLoading = false
                 navigationRouter.showSuccessAndNavigate(
                     message: "옷장에 옷을 보관했어요!",
@@ -283,7 +397,6 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
                 )
             } catch {
                 isLoading = false
-                // TODO: 에러 메시지를 UI에 표시 (errorMessage 프로퍼티 추가 필요)
             }
         }
     }
