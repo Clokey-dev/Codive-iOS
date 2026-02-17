@@ -28,6 +28,9 @@ protocol ClothAPIServiceProtocol {
         size: Int32,
         direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
     ) async throws -> LookBookListResponseDTO
+
+    /// AI 옷 정보 추출 (누끼/카테고리/계절)
+    func extractClothInfo(clothImageUrls: [String]) async throws -> [ClothAIInfo]
 }
 
 // MARK: - Supporting Types
@@ -69,6 +72,15 @@ struct ClothDetailResult {
     let brand: String?
     let clothUrl: String?
     let seasons: [Season]
+}
+
+struct ClothAIInfo {
+    let clothImageUrl: String
+    let seasons: Set<Season>
+    let parentCategoryId: Int?
+    let parentCategoryName: String?
+    let categoryId: Int?
+    let categoryName: String?
 }
 
 struct ClothUpdateAPIRequest {
@@ -355,6 +367,50 @@ extension ClothAPIService {
             
         case .undocumented(statusCode: let code, _):
             throw LookBookAPIError.serverError(statusCode: code, message: "룩북 목록 조회 실패")
+        }
+    }
+}
+
+// MARK: - AI Cloth Detection & Extraction
+
+extension ClothAPIService {
+
+    func extractClothInfo(clothImageUrls: [String]) async throws -> [ClothAIInfo] {
+        let requestBody = Components.Schemas.ClothInfoExtractRequest(clothImageUrls: clothImageUrls)
+        let input = Operations.ClothAi_extractClothInfo.Input(body: .json(requestBody))
+
+        do {
+            let response = try await client.ClothAi_extractClothInfo(input)
+
+            switch response {
+            case .ok(let okResponse):
+                let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+                let decoded = try jsonDecoder.decode(
+                    Components.Schemas.BaseResponseClothInfoExtractResponse.self,
+                    from: data
+                )
+
+                let results: [ClothAIInfo] = decoded.result?.payloads?.map { payload -> ClothAIInfo in
+                    let seasons: Set<Season> = Set(
+                        payload.seasons?.compactMap { Season(rawValue: $0.rawValue) } ?? []
+                    )
+                    return ClothAIInfo(
+                        clothImageUrl: payload.clothImageUrl ?? "",
+                        seasons: seasons,
+                        parentCategoryId: payload.parentCategoryId.map { Int($0) },
+                        parentCategoryName: payload.parentCategoryName,
+                        categoryId: payload.categoryId.map { Int($0) },
+                        categoryName: payload.categoryName
+                    )
+                } ?? []
+
+                return results
+
+            case .undocumented(statusCode: let code, _):
+                throw ClothAPIError.serverError(statusCode: code, message: "AI 옷 정보 추출 실패")
+            }
+        } catch let error as ClothAPIError {
+            throw error
         }
     }
 }
