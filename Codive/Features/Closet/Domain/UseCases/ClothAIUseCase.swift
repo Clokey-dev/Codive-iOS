@@ -2,7 +2,7 @@
 //  ClothAIUseCase.swift
 //  Codive
 //
-//  Created by Claude on 2/17/26.
+//  Created by 황상환 on 2/17/26.
 //
 
 import Foundation
@@ -25,31 +25,21 @@ protocol ClothAIUseCase {
 final class DefaultClothAIUseCase: ClothAIUseCase {
 
     // MARK: - Properties
-    private let apiService: ClothAPIServiceProtocol
+    private let repository: ClothAIRepository
 
     // MARK: - Initializer
-    init(apiService: ClothAPIServiceProtocol) {
-        self.apiService = apiService
+    init(repository: ClothAIRepository) {
+        self.repository = repository
     }
 
     // MARK: - Methods
 
     func uploadImages(images: [Data]) async throws -> [String] {
-        let presignedInfos = try await apiService.getPresignedUrls(for: images)
-
-        for (imageData, presignedInfo) in zip(images, presignedInfos) {
-            try await apiService.uploadImageToS3(
-                presignedUrl: presignedInfo.presignedUrl,
-                imageData: imageData,
-                contentMD5: presignedInfo.md5Hash
-            )
-        }
-
-        return presignedInfos.map { $0.finalUrl }
+        return try await repository.uploadImages(images: images)
     }
 
     func extractClothInfo(clothImageUrls: [String]) async throws -> [ClothAIInfo] {
-        return try await apiService.extractClothInfo(clothImageUrls: clothImageUrls)
+        return try await repository.extractClothInfo(clothImageUrls: clothImageUrls)
     }
 
     func createClothesWithUrls(inputs: [ClothInput], imageUrls: [String]) async throws -> [Int64] {
@@ -63,6 +53,6 @@ final class DefaultClothAIUseCase: ClothAIUseCase {
                 categoryId: Int64(input.categoryId ?? 0)
             )
         }
-        return try await apiService.createClothes(requests: requests)
+        return try await repository.createClothesWithUrls(requests: requests)
     }
 }
