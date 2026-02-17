@@ -8,7 +8,6 @@
 import Foundation
 import CodiveAPI
 import OpenAPIRuntime
-import CryptoKit
 
 // MARK: - Profile API Service Protocol
 
@@ -184,7 +183,7 @@ final class ProfileAPIService: ProfileAPIServiceProtocol {
     }
 
     func uploadProfileImage(_ imageData: Data) async throws -> String {
-        let md5Hash = calculateMD5(from: imageData)
+        let md5Hash = S3UploadHelpers.calculateMD5(from: imageData)
         let uploadPayload = Components.Schemas.ClothImagesUploadRequestPayload(fileExtension: .JPEG, md5Hashes: md5Hash)
         let requestBody = Components.Schemas.ClothImagesUploadRequest(payloads: [uploadPayload])
 
@@ -208,9 +207,9 @@ final class ProfileAPIService: ProfileAPIServiceProtocol {
             let presignedUrl = urls[0]
 
             // S3에 직접 업로드
-            try await uploadImageToS3(presignedUrl: presignedUrl, imageData: imageData, contentMD5: md5Hash)
+            try await S3UploadHelpers.uploadToS3(presignedUrl: presignedUrl, imageData: imageData, contentMD5: md5Hash)
 
-            return extractFinalUrl(from: presignedUrl)
+            return S3UploadHelpers.extractFinalUrl(from: presignedUrl)
 
         case .undocumented(statusCode: let code, _):
             throw ProfileAPIError.serverError(statusCode: code, message: "이미지 업로드 실패 (상태코드: \(code))")
@@ -290,25 +289,4 @@ final class ProfileAPIService: ProfileAPIServiceProtocol {
         }
     }
 
-    func uploadImageToS3(presignedUrl: String, imageData: Data, contentMD5: String) async throws {
-        guard let url = URL(string: presignedUrl) else {
-            throw ProfileAPIError.invalidUrl
-        }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "PUT"
-        request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type")
-        request.setValue(contentMD5, forHTTPHeaderField: "Content-MD5")
-        request.httpBody = imageData
-
-        let (_, response) = try await URLSession.shared.data(for: request)
-
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw ProfileAPIError.invalidResponse
-        }
-
-        guard (200...299).contains(httpResponse.statusCode) else {
-            throw ProfileAPIError.s3UploadFailed(statusCode: httpResponse.statusCode)
-        }
-    }
 }

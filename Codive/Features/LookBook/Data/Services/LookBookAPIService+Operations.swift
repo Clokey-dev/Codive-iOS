@@ -8,7 +8,6 @@
 import Foundation
 import CodiveAPI
 import OpenAPIRuntime
-import CryptoKit
 
 // MARK: - Create Operations
 
@@ -204,7 +203,7 @@ extension LookBookAPIService {
 extension LookBookAPIService {
     func getPresignedUrls(for images: [Data]) async throws -> [PresignedUrlInfo] {
         let payloads = images.map { imageData in
-            let md5Hash = calculateMD5(from: imageData)
+            let md5Hash = S3UploadHelpers.calculateMD5(from: imageData)
             return (
                 payload: Components.Schemas.ClothImagesUploadRequestPayload(fileExtension: .JPEG, md5Hashes: md5Hash),
                 md5Hash: md5Hash
@@ -225,7 +224,7 @@ extension LookBookAPIService {
             }
 
             return zip(urls, payloads).map { url, payloadInfo in
-                PresignedUrlInfo(presignedUrl: url, finalUrl: extractFinalUrl(from: url), md5Hash: payloadInfo.md5Hash)
+                PresignedUrlInfo(presignedUrl: url, finalUrl: S3UploadHelpers.extractFinalUrl(from: url), md5Hash: payloadInfo.md5Hash)
             }
 
         case .undocumented(statusCode: let code, _):
@@ -260,20 +259,6 @@ extension LookBookAPIService {
         case .fall: return .FALL
         case .winter: return .WINTER
         }
-    }
-
-    func calculateMD5(from data: Data) -> String {
-        let digest = Insecure.MD5.hash(data: data)
-        return Data(digest).base64EncodedString()
-    }
-
-    func extractFinalUrl(from presignedUrl: String) -> String {
-        guard let url = URL(string: presignedUrl),
-              var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
-            return presignedUrl
-        }
-        components.query = nil
-        return components.string ?? presignedUrl
     }
 
     func makeCustomDecoder() -> JSONDecoder {

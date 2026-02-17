@@ -7,7 +7,6 @@
 
 import Foundation
 import CodiveAPI
-import CryptoKit
 
 // MARK: - Coordinate Operations
 
@@ -106,23 +105,6 @@ extension ProfileAPIService {
     }
 }
 
-// MARK: - Private Helpers
-
-extension ProfileAPIService {
-    func calculateMD5(from data: Data) -> String {
-        let digest = Insecure.MD5.hash(data: data)
-        return Data(digest).base64EncodedString()
-    }
-
-    func extractFinalUrl(from presignedUrl: String) -> String {
-        guard let url = URL(string: presignedUrl),
-              var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
-            return presignedUrl
-        }
-        components.query = nil
-        return components.string ?? presignedUrl
-    }
-}
 
 // MARK: - Profile API Error
 

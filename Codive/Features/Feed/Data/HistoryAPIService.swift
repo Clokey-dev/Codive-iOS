@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import CryptoKit
 import CodiveAPI
 import OpenAPIRuntime
 
@@ -135,7 +134,9 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
 
         case .undocumented(statusCode: let code, let body):
             let errorDetail = await extractErrorDetail(from: body)
-            print("❌ Create API Error - Status: \(code), Detail: \(errorDetail)")
+            #if DEBUG
+            print("[History] Create API Error - Status: \(code), Detail: \(errorDetail)")
+            #endif
             throw HistoryAPIError.serverError(statusCode: code, detail: errorDetail)
         }
     }
@@ -179,7 +180,9 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
         case .undocumented(statusCode: let code, let body):
             // Try to extract error details from response body
             let errorDetail = await extractErrorDetail(from: body)
-            print("❌ Update API Error - Status: \(code), Detail: \(errorDetail)")
+            #if DEBUG
+            print("[History] Update API Error - Status: \(code), Detail: \(errorDetail)")
+            #endif
             throw HistoryAPIError.serverError(statusCode: code, detail: errorDetail)
         }
     }
@@ -339,7 +342,9 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
 
         case .undocumented(statusCode: let code, let body):
             let errorDetail = await extractErrorDetail(from: body)
-            print("❌ Delete API Error - Status: \(code), Detail: \(errorDetail)")
+            #if DEBUG
+            print("[History] Delete API Error - Status: \(code), Detail: \(errorDetail)")
+            #endif
             throw HistoryAPIError.serverError(statusCode: code, detail: errorDetail)
         }
     }
@@ -355,5 +360,24 @@ private struct HistoryCreateResponse: Decodable {
 
     struct HistoryResult: Decodable {
         let historyId: Int64?
+    }
+}
+
+// MARK: - Error
+
+enum HistoryAPIError: LocalizedError {
+    case noData
+    case serverError(statusCode: Int, detail: String? = nil)
+
+    var errorDescription: String? {
+        switch self {
+        case .noData:
+            return "응답 데이터가 없습니다."
+        case .serverError(let code, let detail):
+            if let detail = detail, !detail.isEmpty {
+                return "서버 오류 (\(code)): \(detail)"
+            }
+            return "서버 오류 (\(code))"
+        }
     }
 }

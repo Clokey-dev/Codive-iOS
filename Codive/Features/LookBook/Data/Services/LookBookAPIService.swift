@@ -8,7 +8,6 @@
 import Foundation
 import CodiveAPI
 import OpenAPIRuntime
-import CryptoKit
 
 // MARK: - HomeCategoryAPIService Protocol
 
