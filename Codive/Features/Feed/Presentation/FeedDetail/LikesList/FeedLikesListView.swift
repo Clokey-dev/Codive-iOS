@@ -47,7 +47,6 @@ struct FeedLikesListView: View {
                                 buttonStyle: (user.isFollowing ?? false) ? .secondary : .primary
                             ) {
                                 // TODO: 팔로우/언팔로우 액션 구현
-                                print("팔로우/언팔로우 \(user.nickname)")
                             }
                         }
                     }

@@ -88,7 +88,7 @@ struct WardrobeReportView: View {
                 }
                 
                 CustomButton(text: "분석 결과 보기", widthType: .fixed) {
-                    print("분석 결과 보기 클릭")
+                    // TODO: 분석 결과 화면 연결
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 20)

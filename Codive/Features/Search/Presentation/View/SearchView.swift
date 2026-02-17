@@ -66,33 +66,13 @@ struct SearchView: View {
                         .padding(.top, 8)
                     } else {
                         VStack {
-                            RecentlySearchResultRow(
-                                type: .hashTag(title: "드뮤어룩")
-                            ) { print("해시태그 삭제 클릭") }
-
-                            RecentlySearchResultRow(
-                                type: .member(
-                                    imageUrl: "https://example.com/profile.jpg",
-                                    title: "피크닉좋아",
-                                    subtitle: "hamster12"
-                                )
-                            ) { print("Delete clicked") }
-
-                            RecentlySearchResultRow(
-                                type: .hashTag(title: "드뮤어룩")
-                            ) { print("해시태그 삭제 클릭") }
-
-                            RecentlySearchResultRow(
-                                type: .member(
-                                    imageUrl: "https://example.com/profile.jpg",
-                                    title: "피크닉좋아",
-                                    subtitle: "hamster12"
-                                )
-                            ) { print("Delete clicked") }
-
-                            RecentlySearchResultRow(
-                                type: .hashTag(title: "드뮤어룩")
-                            ) { print("해시태그 삭제 클릭") }
+                            ForEach(viewModel.recentSearchTags) { tag in
+                                RecentlySearchResultRow(
+                                    type: .hashTag(title: tag.text)
+                                ) {
+                                    viewModel.deleteTag(tag: tag)
+                                }
+                            }
                         }
                         .padding(.top, 8)
                     }
