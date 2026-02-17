@@ -26,12 +26,12 @@ final class AddViewFactory {
             addDIContainer?.makeRecordAddView(flowType: .record)
         case .clothPhotoSelect:
             addDIContainer?.makeRecordAddView(flowType: .cloth)
-        case .clothAdd(let photos):
-            addDIContainer?.makeClothAddView(selectedPhotos: photos)
+        case .clothAdd(let photos, let isAIEnabled):
+            addDIContainer?.makeClothAddView(selectedPhotos: photos, isAIEnabled: isAIEnabled)
         case .photoEdit(let photos):
             addDIContainer?.makePhotoEditView(selectedPhotos: photos, flowType: .record)
-        case .photoEditForCloth(let photos):
-            addDIContainer?.makePhotoEditView(selectedPhotos: photos, flowType: .cloth)
+        case .photoEditForCloth(let photos, let isAIEnabled):
+            addDIContainer?.makePhotoEditView(selectedPhotos: photos, flowType: .cloth, isAIEnabled: isAIEnabled)
         case .recordDetail(let photos):
             addDIContainer?.makeRecordDetailView(selectedPhotos: photos)
         case .recordEdit(let feed):

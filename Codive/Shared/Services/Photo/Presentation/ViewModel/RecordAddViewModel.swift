@@ -191,7 +191,7 @@ final class RecordAddViewModel: ObservableObject {
             case .record:
                 navigationRouter.navigate(to: .photoEdit(photos: selectedPhotoItems))
             case .cloth:
-                navigationRouter.navigate(to: .photoEditForCloth(photos: selectedPhotoItems))
+                navigationRouter.navigate(to: .photoEditForCloth(photos: selectedPhotoItems, isAIEnabled: isAIAddEnabled))
             }
                     
             resetSelection()

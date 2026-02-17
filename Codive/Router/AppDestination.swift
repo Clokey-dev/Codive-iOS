@@ -14,9 +14,9 @@ enum AppDestination: Hashable, Identifiable {
     case main
     case recordAdd
     case clothPhotoSelect
-    case clothAdd(photos: [SelectedPhoto])
+    case clothAdd(photos: [SelectedPhoto], isAIEnabled: Bool = false)
     case photoEdit(photos: [SelectedPhoto])
-    case photoEditForCloth(photos: [SelectedPhoto])
+    case photoEditForCloth(photos: [SelectedPhoto], isAIEnabled: Bool = false)
     case recordDetail(photos: [SelectedPhoto])
     case recordEdit(feed: Feed)
     case photoTag(photo: SelectedPhoto, allPhotos: [SelectedPhoto])

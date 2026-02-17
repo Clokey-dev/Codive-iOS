@@ -64,19 +64,22 @@ final class AddDIContainer {
         )
     }
     
-    func makePhotoEditViewModel(selectedPhotos: [SelectedPhoto], flowType: PhotoEditFlowType = .record) -> PhotoEditViewModel {
+    func makePhotoEditViewModel(selectedPhotos: [SelectedPhoto], flowType: PhotoEditFlowType = .record, isAIEnabled: Bool = false) -> PhotoEditViewModel {
         return PhotoEditViewModel(
             selectedPhotos: selectedPhotos,
             navigationRouter: navigationRouter,
-            flowType: flowType
+            flowType: flowType,
+            isAIEnabled: isAIEnabled
         )
     }
 
-    func makeClothAddViewModel(selectedPhotos: [SelectedPhoto]) -> ClothAddViewModel {
+    func makeClothAddViewModel(selectedPhotos: [SelectedPhoto], isAIEnabled: Bool = false) -> ClothAddViewModel {
         return ClothAddViewModel(
             selectedPhotos: selectedPhotos,
             navigationRouter: navigationRouter,
-            addClothUseCase: closetDIContainer.makeAddClothUseCase()
+            addClothUseCase: closetDIContainer.makeAddClothUseCase(),
+            clothAIUseCase: closetDIContainer.makeClothAIUseCase(),
+            isAIEnabled: isAIEnabled
         )
     }
     
@@ -102,15 +105,15 @@ final class AddDIContainer {
         return PhotoTagView(viewModel: viewModel)
     }
     
-    func makePhotoEditView(selectedPhotos: [SelectedPhoto], flowType: PhotoEditFlowType = .record) -> PhotoEditView {
+    func makePhotoEditView(selectedPhotos: [SelectedPhoto], flowType: PhotoEditFlowType = .record, isAIEnabled: Bool = false) -> PhotoEditView {
         return PhotoEditView(
-            viewModel: makePhotoEditViewModel(selectedPhotos: selectedPhotos, flowType: flowType)
+            viewModel: makePhotoEditViewModel(selectedPhotos: selectedPhotos, flowType: flowType, isAIEnabled: isAIEnabled)
         )
     }
 
-    func makeClothAddView(selectedPhotos: [SelectedPhoto]) -> ClothAddView {
+    func makeClothAddView(selectedPhotos: [SelectedPhoto], isAIEnabled: Bool = false) -> ClothAddView {
         return ClothAddView(
-            viewModel: makeClothAddViewModel(selectedPhotos: selectedPhotos)
+            viewModel: makeClothAddViewModel(selectedPhotos: selectedPhotos, isAIEnabled: isAIEnabled)
         )
     }
 }

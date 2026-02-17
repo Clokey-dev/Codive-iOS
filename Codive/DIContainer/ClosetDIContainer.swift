@@ -56,6 +56,10 @@ final class ClosetDIContainer {
         return FetchMyLookBookListUseCase(repository: clothRepository)
     }
 
+    func makeClothAIUseCase() -> ClothAIUseCase {
+        return DefaultClothAIUseCase(apiService: clothAPIService)
+    }
+
     // MARK: - ViewModels
     func makeMyClosetViewModel() -> MyClosetViewModel {
         return MyClosetViewModel(

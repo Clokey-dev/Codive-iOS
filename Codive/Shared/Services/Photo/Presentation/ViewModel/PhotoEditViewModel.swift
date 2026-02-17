@@ -27,6 +27,7 @@ final class PhotoEditViewModel: ObservableObject {
 
     private let navigationRouter: NavigationRouter
     private let flowType: PhotoEditFlowType
+    private let isAIEnabled: Bool
     private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Computed Properties
@@ -56,11 +57,13 @@ final class PhotoEditViewModel: ObservableObject {
     init(
         selectedPhotos: [SelectedPhoto],
         navigationRouter: NavigationRouter,
-        flowType: PhotoEditFlowType = .record
+        flowType: PhotoEditFlowType = .record,
+        isAIEnabled: Bool = false
     ) {
         self.selectedPhotos = selectedPhotos.sorted { $0.order < $1.order }
         self.navigationRouter = navigationRouter
         self.flowType = flowType
+        self.isAIEnabled = isAIEnabled
     }
     
     // MARK: - Methods
@@ -102,7 +105,7 @@ final class PhotoEditViewModel: ObservableObject {
         case .record:
             navigationRouter.navigate(to: .recordDetail(photos: selectedPhotos))
         case .cloth:
-            navigationRouter.navigate(to: .clothAdd(photos: selectedPhotos))
+            navigationRouter.navigate(to: .clothAdd(photos: selectedPhotos, isAIEnabled: isAIEnabled))
         }
     }
     
