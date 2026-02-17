@@ -124,7 +124,9 @@ extension HomeViewModel {
             try await fetchWeatherUseCase.postTodayTemp(request: request)
         } catch {
             weatherErrorMessage = TextLiteral.Home.failWeather
-            print("Weather load or post failed:", error)
+            #if DEBUG
+            print("[Home] Weather load or post failed:", error)
+            #endif
         }
     }
     
@@ -161,7 +163,9 @@ extension HomeViewModel {
                 )
                 resultMap[category.id] = result.content
             } catch {
-                print("Failed to load items for category \(category.id): \(error)")
+                #if DEBUG
+                print("[Home] Failed to load items for category \(category.id): \(error)")
+                #endif
                 resultMap[category.id] = []
             }
         }
@@ -267,10 +271,11 @@ extension HomeViewModel {
                 await MainActor.run {
                     self.capturedImageURL = uploadedURL
                     self.showCompletePopUp = true
-                    print("🚀 [Home Success] 최종 이미지 URL: \(uploadedURL)")
                 }
             } catch {
-                print("❌ [Home Capture] 서버 에러: \(error.localizedDescription)")
+                #if DEBUG
+                print("[Home] 서버 에러: \(error.localizedDescription)")
+                #endif
             }
         }
     }
@@ -325,14 +330,18 @@ extension HomeViewModel {
                         payloads: finalPayloads
                     )
                     let result = try await todayCodiUseCase.createTodayCoordinate(request: createRequest)
-                    print("✅ 오늘의 코디 신규 생성 성공 (ID: \(result.coordinateId))")
+                    #if DEBUG
+                    print("[Home] 오늘의 코디 신규 생성 성공 (ID: \(result.coordinateId))")
+                    #endif
                 }
                 
                 await MainActor.run {
                     self.completeProcess()
                 }
             } catch {
-                print("- 에러 타입: \(error)")
+                #if DEBUG
+                print("[Home] 코디 저장 에러: \(error)")
+                #endif
             }
         }
     }

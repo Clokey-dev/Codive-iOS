@@ -99,7 +99,9 @@ extension EditCodiViewModel {
                     request: request
                 )
                 
-                print("✅ 코디 수정 완료: \(coordinateId)")
+                #if DEBUG
+                print("[Codi] 수정 완료: \(coordinateId)")
+                #endif
                 
                 self.originalName = codiName
                 self.originalMemo = memo
@@ -107,7 +109,9 @@ extension EditCodiViewModel {
                 
                 navigationRouter.navigateBack()
             } catch {
-                print("❌ 코디 수정 실패: \(error.localizedDescription)")
+                #if DEBUG
+                print("[Codi] 수정 실패: \(error.localizedDescription)")
+                #endif
             }
         }
     }

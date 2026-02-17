@@ -93,7 +93,9 @@ final class MyClosetViewModel: ObservableObject {
             )
         } catch {
             errorMessage = "옷 목록을 불러오는데 실패했습니다."
-            print("Error loading cloth items: \(error)")
+            #if DEBUG
+            print("[Closet] Error loading cloth items: \(error)")
+            #endif
         }
 
         isLoading = false
@@ -132,7 +134,9 @@ final class MyClosetViewModel: ObservableObject {
             selectedItemIds.removeAll()
         } catch {
             errorMessage = "옷 삭제에 실패했습니다."
-            print("Error deleting cloth items: \(error)")
+            #if DEBUG
+            print("[Closet] Error deleting cloth items: \(error)")
+            #endif
         }
     }
 

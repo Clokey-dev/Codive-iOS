@@ -35,7 +35,7 @@ final class KeychainManager {
         do {
             try save(token, forKey: accessTokenKey)
             print("----------------------------------------")
-            print("🔑 Access Token Saved:")
+            print("Access Token Saved:")
             print(token)
             print("----------------------------------------")
         } catch {

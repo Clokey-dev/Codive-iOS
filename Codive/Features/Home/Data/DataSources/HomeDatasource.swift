@@ -101,7 +101,9 @@ final class HomeDatasource: HomeDatasourceProtocol {
                 return "현재 위치"
             }
         } catch {
-            print("Geocoding failed:", error.localizedDescription)
+            #if DEBUG
+            print("[Home] Geocoding failed:", error.localizedDescription)
+            #endif
             return "위치 정보 오류"
         }
     }
@@ -249,7 +251,9 @@ final class HomeDatasource: HomeDatasourceProtocol {
             throw LookBookAPIError.uploadFailed(message: "S3 업로드 실패 (Status: \((response as? HTTPURLResponse)?.statusCode ?? -1))")
         }
         
-        print("✅ S3 이미지 업로드 성공")
+        #if DEBUG
+        print("[Home] S3 이미지 업로드 성공")
+        #endif
     }
 }
 
@@ -278,8 +282,9 @@ extension HomeDatasource {
         if let encoded = try? JSONEncoder().encode(categories) {
             UserDefaults.standard.set(encoded, forKey: "SavedCategories")
         }
-        print("저장 완료:")
-        categories.forEach { print("\($0.id): \($0.title): \($0.itemCount)") }
+        #if DEBUG
+        print("[Home] 카테고리 저장 완료: \(categories.count)개")
+        #endif
     }
     
     // MARK: - 코디가 있는 경우의 Home 관련

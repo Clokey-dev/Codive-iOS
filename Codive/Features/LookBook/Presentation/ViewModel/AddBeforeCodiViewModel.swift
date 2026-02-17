@@ -75,7 +75,9 @@ final class AddBeforeCodiViewModel: ObservableObject {
 
 private extension AddBeforeCodiViewModel {
     func handleError(_ error: Error) {
-        print("DEBUG: 이전 코디 목록 로드 실패 - \(error.localizedDescription)")
+        #if DEBUG
+        print("[Codi] 이전 코디 목록 로드 실패: \(error.localizedDescription)")
+        #endif
         self.errorMessage = "데이터 로드에 실패했습니다. 다시 시도해주세요."
     }
 }

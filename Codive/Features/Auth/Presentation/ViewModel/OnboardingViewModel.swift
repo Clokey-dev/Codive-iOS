@@ -42,13 +42,14 @@ final class OnboardingViewModel: ObservableObject {
 
         switch result {
         case .success(let user):
-            print("카카오 로그인 성공: \(user.name ?? "Unknown") (\(user.id))")
+            #if DEBUG
+            print("[Auth] 카카오 로그인 성공: \(user.name ?? "Unknown") (\(user.id))")
+            #endif
             await proceedAfterLogin()
 
         case .failure(let error):
             switch error {
             case .cancelled:
-                print("카카오 로그인 취소됨")
                 return
             default:
                 errorMessage = error.localizedDescription
@@ -66,13 +67,14 @@ final class OnboardingViewModel: ObservableObject {
 
         switch result {
         case .success(let user):
-            print("애플 로그인 성공: \(user.name ?? "Unknown") (\(user.id))")
+            #if DEBUG
+            print("[Auth] 애플 로그인 성공: \(user.name ?? "Unknown") (\(user.id))")
+            #endif
             await proceedAfterLogin()
 
         case .failure(let error):
             switch error {
             case .cancelled:
-                print("애플 로그인 취소됨")
                 return
             default:
                 errorMessage = error.localizedDescription

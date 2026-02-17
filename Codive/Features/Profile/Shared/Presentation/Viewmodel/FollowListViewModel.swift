@@ -41,7 +41,9 @@ final class FollowListViewModel: ObservableObject {
             }
         } catch {
             self.errorMessage = error.localizedDescription
-            print("팔로우 목록 로드 실패: \(error.localizedDescription)")
+            #if DEBUG
+            print("[Follow] 팔로우 목록 로드 실패: \(error.localizedDescription)")
+            #endif
         }
 
         isLoading = false

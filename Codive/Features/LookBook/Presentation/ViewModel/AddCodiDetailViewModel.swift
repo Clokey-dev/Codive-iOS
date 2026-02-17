@@ -155,7 +155,9 @@ final class AddCodiDetailViewModel: ObservableObject {
             let uploadedURL = try await productUseCase.execute(jpgData: jpgData)
             self.capturedImageString = uploadedURL
         } catch {
-            print("❌ 이미지 업로드 실패: \(error.localizedDescription)")
+            #if DEBUG
+            print("[Codi] 이미지 업로드 실패: \(error.localizedDescription)")
+            #endif
         }
     }
     

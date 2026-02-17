@@ -128,7 +128,9 @@ final class CodiBoardViewModel: ObservableObject {
                     }
                 }
             } catch {
-                print("❌ 에러: \(error.localizedDescription)")
+                #if DEBUG
+                print("[CodiBoard] 에러: \(error.localizedDescription)")
+                #endif
             }
         }
     }
@@ -141,7 +143,9 @@ final class CodiBoardViewModel: ObservableObject {
     }
     
     private func handleError(_ error: Error) {
-        print("코디 저장 실패: \(error.localizedDescription)")
+        #if DEBUG
+        print("[CodiBoard] 코디 저장 실패: \(error.localizedDescription)")
+        #endif
     }
     
     // MARK: - DraggableImageViewModelProtocol Implementation

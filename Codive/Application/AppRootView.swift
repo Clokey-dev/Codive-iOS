@@ -70,13 +70,17 @@ struct AppRootView: View {
         guard url.scheme == "codive",
               url.host == "oauth",
               url.path == "/callback" else {
-            print("Invalid deep link format: \(url)")
+            #if DEBUG
+            print("[DeepLink] Invalid format: \(url)")
+            #endif
             return
         }
 
         guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
               let queryItems = components.queryItems else {
-            print("Failed to parse URL components or query items.")
+            #if DEBUG
+            print("[DeepLink] Failed to parse URL components or query items.")
+            #endif
             return
         }
 
@@ -85,7 +89,9 @@ struct AppRootView: View {
 
         guard let unwrappedAccessToken = accessToken,
               let unwrappedRefreshToken = refreshToken else {
-            print("Access token or refresh token missing in deep link.")
+            #if DEBUG
+            print("[DeepLink] Access token or refresh token missing.")
+            #endif
             // Potentially show an error to the user or log
             return
         }

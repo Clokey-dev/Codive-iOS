@@ -95,11 +95,13 @@ final class SocialAuthService: NSObject, SocialAuthServiceProtocol {
         // 카카오 로그아웃
         await withCheckedContinuation { continuation in
             UserApi.shared.logout { error in
+                #if DEBUG
                 if let error = error {
-                    print("카카오 로그아웃 실패: \(error)")
+                    print("[Auth] 카카오 로그아웃 실패: \(error)")
                 } else {
-                    print("카카오 로그아웃 성공")
+                    print("[Auth] 카카오 로그아웃 성공")
                 }
+                #endif
                 continuation.resume()
             }
         }

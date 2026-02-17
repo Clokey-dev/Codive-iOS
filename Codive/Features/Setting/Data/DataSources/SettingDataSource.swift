@@ -75,7 +75,9 @@ final class SettingsDataSource {
                 if let body = payload.body {
                     let data = try await Data(collecting: body, upTo: .max)
                     if let responseBody = String(data: data, encoding: .utf8) {
-                        print("fetchLikedRecords error response [\(statusCode)]: \(responseBody)")
+                        #if DEBUG
+                        print("[Setting] fetchLikedRecords error [\(statusCode)]: \(responseBody)")
+                        #endif
                     }
                 }
             }
@@ -116,7 +118,9 @@ final class SettingsDataSource {
                 if let body = payload.body {
                     let data = try await Data(collecting: body, upTo: .max)
                     if let responseBody = String(data: data, encoding: .utf8) {
-                        print("fetchMyComments error response [\(statusCode)]: \(responseBody)")
+                        #if DEBUG
+                        print("[Setting] fetchMyComments error [\(statusCode)]: \(responseBody)")
+                        #endif
                     }
                 }
             }
@@ -156,7 +160,9 @@ final class SettingsDataSource {
                 if let body = payload.body {
                     let data = try await Data(collecting: body, upTo: .max)
                     if let responseBody = String(data: data, encoding: .utf8) {
-                        print("fetchBlockedUsers error response [\(statusCode)]: \(responseBody)")
+                        #if DEBUG
+                        print("[Setting] fetchBlockedUsers error [\(statusCode)]: \(responseBody)")
+                        #endif
                     }
                 }
             }
@@ -184,7 +190,9 @@ final class SettingsDataSource {
                 if let body = payload.body {
                     let data = try await Data(collecting: body, upTo: .max)
                     if let responseBody = String(data: data, encoding: .utf8) {
-                        print("unblock error response [\(statusCode)]: \(responseBody)")
+                        #if DEBUG
+                        print("[Setting] unblock error [\(statusCode)]: \(responseBody)")
+                        #endif
                     }
                 }
             }

@@ -347,7 +347,9 @@ final class MockFeedDataSource: FeedDataSource {
 
         mockFeeds[index] = newFeed
 
-        print("Toggled like for feed \(feedId): isLiked=\(newIsLiked), likeCount=\(newLikeCount)")
+        #if DEBUG
+        print("[MockFeed] Toggled like for feed \(feedId): isLiked=\(newIsLiked), likeCount=\(newLikeCount)")
+        #endif
     }
     
     func fetchLikers(feedId: Int) async throws -> [User] {

@@ -79,7 +79,9 @@ final class FeedViewModel: ObservableObject {
     /// 프로필로 이동 (Feed에서는 항상 다른 사람 프로필로 이동)
     func navigateToProfile(userId: String) {
         guard let memberId = Int(userId) else {
-            print("❌ Invalid userId: \(userId)")
+            #if DEBUG
+            print("[Feed] Invalid userId: \(userId)")
+            #endif
             return
         }
 

@@ -65,7 +65,9 @@ final class SystemLocationService: NSObject, LocationService, CLLocationManagerD
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         locationContinuation?.resume(throwing: error)
         locationContinuation = nil
-        print("Location Manager failed:", error.localizedDescription)
+        #if DEBUG
+        print("[Location] Manager failed:", error.localizedDescription)
+        #endif
     }
     
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {

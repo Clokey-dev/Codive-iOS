@@ -47,9 +47,13 @@ final class MainTabViewModel: ObservableObject {
                 let response = try await notificationUsecase.fetchNotificationExist()
                 self.hasUnreadNotification = response.existsUnreadNotification
 
-                print("🔔 unread notification:", response.existsUnreadNotification)
+                #if DEBUG
+                print("[MainTab] unread notification:", response.existsUnreadNotification)
+                #endif
             } catch {
-                print("❌ fetchNotificationExist failed:", error)
+                #if DEBUG
+                print("[MainTab] fetchNotificationExist failed:", error)
+                #endif
                 self.hasUnreadNotification = false
             }
         }

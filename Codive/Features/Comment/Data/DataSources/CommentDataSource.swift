@@ -68,15 +68,16 @@ final class DefaultCommentDataSource: CommentDataSource {
 
             return (comments: comments, hasNext: hasNext)
         default:
+            #if DEBUG
             if case .undocumented(let statusCode, let payload) = response {
                 if let body = payload.body {
                     let data = try await Data(collecting: body, upTo: .max)
                     if let responseBody = String(data: data, encoding: .utf8) {
-                        print("fetchComments error response [\(statusCode)]: \(responseBody)")
+                        print("[Comment] fetchComments error [\(statusCode)]: \(responseBody)")
                     }
                 }
             }
-            print("fetchComments response: \(response)")
+            #endif
             throw NSError(domain: "CommentDataSource", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to fetch comments"])
         }
     }
@@ -185,7 +186,6 @@ final class DefaultCommentDataSource: CommentDataSource {
 
             return newReply
         default:
-            print("postReply response: \(response)")
             throw NSError(domain: "CommentDataSource", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to post reply"])
         }
     }

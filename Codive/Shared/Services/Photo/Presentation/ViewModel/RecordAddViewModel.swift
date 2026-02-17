@@ -151,7 +151,9 @@ final class RecordAddViewModel: ObservableObject {
                 PHAssetChangeRequest.creationRequestForAsset(from: image)
             }
         } catch {
-            print("사진 저장 실패: \(error)")
+            #if DEBUG
+            print("[Photo] 사진 저장 실패: \(error)")
+            #endif
         }
     }
     

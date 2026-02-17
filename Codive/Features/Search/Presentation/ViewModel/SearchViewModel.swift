@@ -52,7 +52,9 @@ final class SearchViewModel: ObservableObject {
                     )
                 }
             } catch {
-                print("❌ 추천 검색 로딩 실패:", error)
+                #if DEBUG
+                print("[Search] 추천 검색 로딩 실패:", error)
+                #endif
                 self.recommendedNews = []
             }
         }
@@ -60,13 +62,9 @@ final class SearchViewModel: ObservableObject {
     
     func executeSearch(query: String) {
         let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        if trimmedQuery.isEmpty {
-            print("검색어를 입력해 주세요.")
-            return
-        }
+        if trimmedQuery.isEmpty { return }
 
         navigationRouter.navigate(to: .searchResult(query: trimmedQuery))
-        print("검색 실행: \(trimmedQuery). SearchResultView로 이동 필요.")
     }
 
     /// 추천 소식 키워드로 검색 실행
@@ -80,7 +78,6 @@ final class SearchViewModel: ObservableObject {
     func deleteTag(tag: SearchTagEntity) {
         if let index = recentSearchTags.firstIndex(where: { $0.id == tag.id }) {
             recentSearchTags.remove(at: index)
-            print("태그 삭제 완료: \(tag.text)")
         }
     }
     
