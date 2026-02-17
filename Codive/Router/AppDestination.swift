@@ -25,8 +25,8 @@ enum AppDestination: Hashable, Identifiable {
     case settingMyComments
     case settingBlockedUsers
     case settingWithdraw
-    case report(target: ReportTarget)
-    case reportDetail(target: ReportTarget)
+    case report(target: ReportTarget, commentInfo: CommentReportInfo? = nil)
+    case reportDetail(target: ReportTarget, commentInfo: CommentReportInfo? = nil)
     case editCategory
     case codiBoard
     case search

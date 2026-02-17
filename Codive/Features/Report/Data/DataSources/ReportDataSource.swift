@@ -16,7 +16,7 @@ enum ReportSubmitError: Error {
 }
 
 // MARK: - 댓글 신고 시 컨텍스트 전달용 임시 저장소
-struct CommentReportInfo {
+struct CommentReportInfo: Hashable {
     let feedId: Int
     let commentId: Int
     let authorNickname: String
@@ -26,9 +26,6 @@ struct CommentReportInfo {
 }
 
 final class ReportDataSource {
-
-    // 댓글 신고 시 CommentViewModel에서 세팅
-    static var pendingCommentReportInfo: CommentReportInfo?
 
     private let historyAPIService: HistoryAPIServiceProtocol
     private let apiClient: Client
@@ -51,7 +48,9 @@ final class ReportDataSource {
             content: report.detail
         )
 
-        print("📡 [ReportAPI] 요청 - targetId: \(targetId), targetType: \(targetType), reason: \(reportReason), detail: \(report.detail ?? "없음")")
+        #if DEBUG
+        print("[ReportAPI] 요청 - targetId: \(targetId), targetType: \(targetType), reason: \(reportReason), detail: \(report.detail ?? "없음")")
+        #endif
 
         let response = try await apiClient.Report_createNewReport(body: .json(body))
 
@@ -102,20 +101,28 @@ final class ReportDataSource {
     private func parseOkResponse(
         _ okResponse: Operations.Report_createNewReport.Output.Ok
     ) async throws -> String? {
-        print("📡 [ReportAPI] 응답: OK")
+        #if DEBUG
+        print("[ReportAPI] 응답: OK")
+        #endif
         let httpBody = try okResponse.body.any
         let data = try await Data(collecting: httpBody, upTo: .max)
-        print("📡 [ReportAPI] 응답 데이터: \(String(data: data, encoding: .utf8) ?? "파싱 불가")")
+        #if DEBUG
+        print("[ReportAPI] 응답 데이터: \(String(data: data, encoding: .utf8) ?? "파싱 불가")")
+        #endif
         let jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
         let apiResponse = try jsonDecoder.decode(
             Components.Schemas.BaseResponseReportCreateResponse.self,
             from: data
         )
         if let reportId = apiResponse.result?.reportId {
-            print("📡 [ReportAPI] reportId: \(reportId)")
+            #if DEBUG
+            print("[ReportAPI] reportId: \(reportId)")
+            #endif
             return String(reportId)
         }
-        print("⚠️ [ReportAPI] 응답 OK이지만 reportId가 nil")
+        #if DEBUG
+        print("[ReportAPI] 응답 OK이지만 reportId가 nil")
+        #endif
         return nil
     }
 
@@ -125,7 +132,9 @@ final class ReportDataSource {
         if let body = payload.body {
             let data = try await Data(collecting: body, upTo: .max)
             let bodyString = String(data: data, encoding: .utf8) ?? "파싱 불가"
-            print("❌ [ReportAPI] 실패 응답 (\(statusCode)): \(bodyString)")
+            #if DEBUG
+            print("[ReportAPI] 실패 응답 (\(statusCode)): \(bodyString)")
+            #endif
 
             if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                let code = json["code"] as? String,
@@ -138,12 +147,14 @@ final class ReportDataSource {
 
             throw NSError(domain: "ReportDataSource", code: statusCode, userInfo: [NSLocalizedDescriptionKey: bodyString])
         }
-        print("❌ [ReportAPI] 실패 응답 (\(statusCode)): 본문 없음")
+        #if DEBUG
+        print("[ReportAPI] 실패 응답 (\(statusCode)): 본문 없음")
+        #endif
         throw NSError(domain: "ReportDataSource", code: statusCode, userInfo: [NSLocalizedDescriptionKey: "Failed to submit report (status: \(statusCode))"])
     }
 
     // 신고 컨텍스트 조회 - 실제 History API에서 데이터 가져오기
-    func fetchContext(for target: ReportTarget) async throws -> ReportContext {
+    func fetchContext(for target: ReportTarget, commentInfo: CommentReportInfo? = nil) async throws -> ReportContext {
         switch target {
         case .post(let postId):
             // History ID로 상세 정보 조회
@@ -163,7 +174,7 @@ final class ReportDataSource {
             return ReportContext(target: target, author: author, previewText: previewText)
 
         case .comment:
-            if let info = ReportDataSource.pendingCommentReportInfo {
+            if let info = commentInfo {
                 let author = AuthorSnapshot(
                     userId: info.authorId,
                     nickname: info.authorNickname,

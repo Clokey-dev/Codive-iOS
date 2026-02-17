@@ -17,6 +17,7 @@ final class ReportViewModel: ObservableObject {
 
     // 대상
     let target: ReportTarget
+    let commentInfo: CommentReportInfo?
 
     // 화면 상태
     @Published private(set) var draft: ReportDraft
@@ -29,11 +30,13 @@ final class ReportViewModel: ObservableObject {
 
     // 초기화
     init(target: ReportTarget,
+         commentInfo: CommentReportInfo? = nil,
          appRouter: AppRouter,
          navigationRouter: NavigationRouter,
          getContextUseCase: GetReportContextUseCase,
          submitUseCase: SubmitReportUseCase) {
         self.target = target
+        self.commentInfo = commentInfo
         self.appRouter = appRouter
         self.navigationRouter = navigationRouter
         self.getContextUseCase = getContextUseCase
@@ -81,7 +84,7 @@ final class ReportViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
         do {
-            let ctx = try await getContextUseCase.fetchContext(for: target)
+            let ctx = try await getContextUseCase.fetchContext(for: target, commentInfo: commentInfo)
             self.context = ctx
         } catch {
             self.errorMessage = TextLiteral.Report.loadContextFailure
@@ -93,20 +96,28 @@ final class ReportViewModel: ObservableObject {
     @discardableResult
     func submit(reporterId: ReporterID) async -> String? {
         guard !isSubmitting else {
-            print("⚠️ [Report] 이미 제출 중 - 중복 호출 무시")
+            #if DEBUG
+            print("[Report] 이미 제출 중 - 중복 호출 무시")
+            #endif
             return nil
         }
         isSubmitting = true
         defer { isSubmitting = false }
 
-        print("📤 [Report] 제출 시작 - reporterId: \(reporterId), target: \(target), reason: \(String(describing: draft.selectedReason))")
+        #if DEBUG
+        print("[Report] 제출 시작 - target: \(target), reason: \(String(describing: draft.selectedReason))")
+        #endif
 
         do {
             let id = try await submitUseCase.submit(draft: draft, reporterId: reporterId)
-            print("✅ [Report] 제출 성공 - reportId: \(String(describing: id))")
+            #if DEBUG
+            print("[Report] 제출 성공 - reportId: \(String(describing: id))")
+            #endif
             return id
         } catch let ReportError.invalidDraft(failure) {
-            print("❌ [Report] 유효성 검사 실패: \(failure)")
+            #if DEBUG
+            print("[Report] 유효성 검사 실패: \(failure)")
+            #endif
             switch failure {
             case .missingReason:
                 errorMessage = TextLiteral.Report.selectReason
@@ -117,12 +128,16 @@ final class ReportViewModel: ObservableObject {
             }
             return nil
         } catch let ReportSubmitError.duplicateReport(message) {
-            print("⚠️ [Report] 중복 신고: \(message)")
+            #if DEBUG
+            print("[Report] 중복 신고: \(message)")
+            #endif
             duplicateAlertMessage = message
             showDuplicateAlert = true
             return nil
         } catch {
-            print("❌ [Report] 제출 실패: \(error)")
+            #if DEBUG
+            print("[Report] 제출 실패: \(error)")
+            #endif
             errorMessage = TextLiteral.Report.submitFailure
             return nil
         }

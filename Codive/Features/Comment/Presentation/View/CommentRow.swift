@@ -111,7 +111,7 @@ struct CommentRow: View {
             // MARK: 답글 리스트
             if isExpanded, let replies = comment.replies {
                 VStack(alignment: .leading, spacing: 20) {
-                    ForEach(Array(replies.enumerated()), id: \.offset) { _, reply in
+                    ForEach(replies, id: \.id) { reply in
                         CommentRow(
                             comment: reply,
                             isReply: true,

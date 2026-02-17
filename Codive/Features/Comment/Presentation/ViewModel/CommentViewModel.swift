@@ -84,7 +84,9 @@ final class CommentViewModel: ObservableObject {
                 self.hasNextPage = result.hasNext
             } catch {
                 // TODO: 에러 처리
+                #if DEBUG
                 print("Error fetching comments: \(error)")
+                #endif
             }
             self.isLoading = false
         }
@@ -99,7 +101,9 @@ final class CommentViewModel: ObservableObject {
                 self.comments = result.comments
                 self.hasNextPage = result.hasNext
             } catch {
+                #if DEBUG
                 print("Error reloading comments: \(error)")
+                #endif
             }
             self.isLoading = false
         }
@@ -120,7 +124,9 @@ final class CommentViewModel: ObservableObject {
                 // 새 댓글을 맨 위에 추가 (전체 리로드 대신)
                 self.comments.insert(newComment, at: 0)
             } catch {
+                #if DEBUG
                 print("Error posting comment: \(error)")
+                #endif
             }
         }
     }
@@ -155,7 +161,9 @@ final class CommentViewModel: ObservableObject {
                     self.comments = updatedComments
                 }
             } catch {
+                #if DEBUG
                 print("Error fetching replies: \(error)")
+                #endif
             }
             self.isReplyLoading = false
         }
@@ -177,7 +185,9 @@ final class CommentViewModel: ObservableObject {
                     self.comments = updatedComments
                 }
             } catch {
-                print("Error fetching all replies: \(error)")
+                #if DEBUG
+                print("[Comment] Error fetching all replies: \(error)")
+                #endif
             }
             self.isReplyLoading = false
         }
@@ -207,7 +217,9 @@ final class CommentViewModel: ObservableObject {
                     self.comments = updatedComments
                 }
             } catch {
+                #if DEBUG
                 print("Error posting reply: \(error)")
+                #endif
             }
         }
     }
@@ -243,7 +255,9 @@ final class CommentViewModel: ObservableObject {
                 try await commentRepository.deleteComment(commentId: commentId)
                 removeComment(id: commentId)
             } catch {
+                #if DEBUG
                 print("Error deleting comment: \(error)")
+                #endif
             }
         }
     }
@@ -251,9 +265,10 @@ final class CommentViewModel: ObservableObject {
     func onReportTapped(commentId: Int) {
         dismissMenu()
 
-        // 댓글 정보를 Report 플로우에 전달
+        // 댓글 정보를 Report 플로우에 라우팅 파라미터로 전달
+        var info: CommentReportInfo?
         if let comment = findComment(by: commentId) {
-            ReportDataSource.pendingCommentReportInfo = CommentReportInfo(
+            info = CommentReportInfo(
                 feedId: feedId,
                 commentId: commentId,
                 authorNickname: comment.author.nickname,
@@ -264,8 +279,9 @@ final class CommentViewModel: ObservableObject {
         }
 
         dismissAction()
+        let capturedInfo = info
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            self.navigationRouter.navigate(to: .report(target: .comment(id: commentId)))
+            self.navigationRouter.navigate(to: .report(target: .comment(id: commentId), commentInfo: capturedInfo))
         }
     }
 
@@ -290,7 +306,9 @@ final class CommentViewModel: ObservableObject {
                 // 차단 후 댓글 시트 닫기 (FeedDetailView가 userDidBlock을 받아 처리)
                 dismissAction()
             } catch {
+                #if DEBUG
                 print("Error blocking user: \(error)")
+                #endif
             }
         }
     }
@@ -309,7 +327,9 @@ final class CommentViewModel: ObservableObject {
 
     func navigateToProfile(userId: String, isMine: Bool) {
         guard let memberId = Int(userId) else {
-            print("❌ Invalid userId: \(userId)")
+            #if DEBUG
+            print("[Comment] Invalid userId: \(userId)")
+            #endif
             return
         }
 

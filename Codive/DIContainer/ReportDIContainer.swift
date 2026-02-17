@@ -54,7 +54,7 @@ final class ReportDIContainer {
     }
     
     // MARK: - ViewModels
-    func makeReportViewModel(target: ReportTarget) -> ReportViewModel {
+    func makeReportViewModel(target: ReportTarget, commentInfo: CommentReportInfo? = nil) -> ReportViewModel {
         // 같은 target의 현재 진행중인 신고가 있으면 재사용 (ReportView → ReportDetailView 이동 시)
         if let current = currentReportViewModel, current.target == target {
             return current.viewModel
@@ -63,6 +63,7 @@ final class ReportDIContainer {
         // 새로운 신고 플로우 시작
         let vm = ReportViewModel(
             target: target,
+            commentInfo: commentInfo,
             appRouter: appRouter,
             navigationRouter: navigationRouter,
             getContextUseCase: makeGetReportContextUseCase(),
@@ -75,8 +76,8 @@ final class ReportDIContainer {
     }
     
     // MARK: - Views
-    func makeReportView(target: ReportTarget) -> ReportView {
-        let vm = makeReportViewModel(target: target)
+    func makeReportView(target: ReportTarget, commentInfo: CommentReportInfo? = nil) -> ReportView {
+        let vm = makeReportViewModel(target: target, commentInfo: commentInfo)
         return ReportView(
             vm: vm,
             navigationRouter: navigationRouter,
@@ -85,14 +86,15 @@ final class ReportDIContainer {
                 self?.clearCurrentReport()
             },
             onSubmit: { [weak navigationRouter] in
-                navigationRouter?.navigate(to: .reportDetail(target: target))
+                navigationRouter?.navigate(to: .reportDetail(target: target, commentInfo: commentInfo))
             }
         )
     }
 
-    func makeReportDetailView(target: ReportTarget) -> ReportDetailView {
-        let vm = makeReportViewModel(target: target)
+    func makeReportDetailView(target: ReportTarget, commentInfo: CommentReportInfo? = nil) -> ReportDetailView {
+        let vm = makeReportViewModel(target: target, commentInfo: commentInfo)
         let router = navigationRouter
+        let capturedCommentInfo = commentInfo
 
         // 신고 완료/중복 후 원래 화면으로 돌아가는 공통 로직
         let navigateBack: () -> Void = { [weak self] in
@@ -107,8 +109,8 @@ final class ReportDIContainer {
                     duration: 2.0
                 )
             case .comment:
-                let feedId = ReportDataSource.pendingCommentReportInfo?.feedId ?? 0
-                ReportDataSource.pendingCommentReportInfo = nil
+                let feedId = capturedCommentInfo?.feedId ?? 0
+                guard feedId > 0 else { return }
 
                 router.showSuccessAndNavigate(
                     message: "신고가 접수되었습니다",
