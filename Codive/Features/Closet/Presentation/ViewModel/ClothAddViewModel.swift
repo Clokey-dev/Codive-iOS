@@ -263,86 +263,97 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
         isAIProcessing = true
 
         Task {
-            do {
-                let imageDatas = selectedPhotos.compactMap { $0.croppedImage.jpegData(compressionQuality: 0.8) }
-                guard !imageDatas.isEmpty else {
-                    isAIProcessing = false
-                    return
-                }
-
-                let imageUrls = try await clothAIUseCase.uploadImages(images: imageDatas)
-                guard !imageUrls.isEmpty else {
-                    isAIProcessing = false
-                    return
-                }
-
-                var aiInfos: [ClothAIInfo] = []
-                do {
-                    aiInfos = try await clothAIUseCase.extractClothInfo(clothImageUrls: imageUrls)
-                } catch { }
-
-                applyAIResults(imageUrls: imageUrls, aiInfos: aiInfos)
-
-                let totalCount = selectedPhotos.count
-                let imageSuccessCount = selectedPhotos.filter { $0.aiImageUrl != nil }.count
-
-                var messages: [String] = []
-
-                if imageSuccessCount == totalCount {
-                    messages.append("배경 제거: \(imageSuccessCount)장 성공")
-                } else if imageSuccessCount == 0 {
-                    messages.append("배경 제거: 실패")
-                } else {
-                    let failCount = totalCount - imageSuccessCount
-                    messages.append("배경 제거: \(imageSuccessCount)장 성공, \(failCount)장 실패")
-                }
-
-                if aiInfos.isEmpty {
-                    messages.append("정보 추출: 실패")
-                } else {
-                    let hasCategoryCount = aiInfos.filter { $0.categoryId != nil }.count
-                    let hasSeasonCount = aiInfos.filter { !$0.seasons.isEmpty }.count
-                    messages.append("정보 추출: 카테고리 \(hasCategoryCount)건, 계절 \(hasSeasonCount)건 자동 입력")
-                }
-
-                aiResultMessage = messages.joined(separator: "\n")
-                showAIResultAlert = true
-
+            let imageDatas = selectedPhotos.compactMap { $0.croppedImage.jpegData(compressionQuality: 0.8) }
+            guard !imageDatas.isEmpty else {
                 isAIProcessing = false
-            } catch {
-                isAIProcessing = false
+                return
             }
+
+            // 1. S3 병렬 업로드 (개별 실패 허용)
+            let uploadResults = await clothAIUseCase.uploadImages(images: imageDatas)
+            let successUrls = uploadResults.compactMap { $0 }
+
+            guard !successUrls.isEmpty else {
+                isAIProcessing = false
+                errorAlertMessage = "이미지 업로드에 실패했습니다."
+                showErrorAlert = true
+                return
+            }
+
+            // 2. 성공한 이미지만 AI 정보 추출
+            var aiInfos: [ClothAIInfo] = []
+            do {
+                aiInfos = try await clothAIUseCase.extractClothInfo(clothImageUrls: successUrls)
+            } catch {
+                #if DEBUG
+                print("[ClothAI] 정보 추출 실패: \(error)")
+                #endif
+            }
+
+            // 3. 결과 반영 (업로드 성공한 인덱스만)
+            applyAIResults(uploadResults: uploadResults, aiInfos: aiInfos)
+
+            // 4. 결과 메시지
+            let totalCount = selectedPhotos.count
+            let uploadSuccessCount = successUrls.count
+            var messages: [String] = []
+
+            if uploadSuccessCount == totalCount {
+                messages.append("배경 제거: \(uploadSuccessCount)장 성공")
+            } else if uploadSuccessCount == 0 {
+                messages.append("배경 제거: 실패")
+            } else {
+                let failCount = totalCount - uploadSuccessCount
+                messages.append("배경 제거: \(uploadSuccessCount)장 성공, \(failCount)장 실패")
+            }
+
+            if aiInfos.isEmpty {
+                messages.append("정보 추출: 실패")
+            } else {
+                let hasCategoryCount = aiInfos.filter { $0.categoryId != nil }.count
+                let hasSeasonCount = aiInfos.filter { !$0.seasons.isEmpty }.count
+                messages.append("정보 추출: 카테고리 \(hasCategoryCount)건, 계절 \(hasSeasonCount)건 자동 입력")
+            }
+
+            aiResultMessage = messages.joined(separator: "\n")
+            showAIResultAlert = true
+            isAIProcessing = false
         }
     }
 
-    private func applyAIResults(imageUrls: [String], aiInfos: [ClothAIInfo]) {
-        let resultCount = aiInfos.count
-        guard resultCount > 0 else { return }
+    private func applyAIResults(uploadResults: [String?], aiInfos: [ClothAIInfo]) {
+        // 업로드 성공한 원본 인덱스 매핑
+        let successIndices = uploadResults.enumerated().compactMap { index, url in
+            url != nil ? index : nil
+        }
 
-        // AI 정보 반영
-        for (index, aiInfo) in aiInfos.enumerated() {
-            guard clothForms.indices.contains(index),
-                  selectedPhotos.indices.contains(index) else { continue }
+        // AI 정보 반영 (aiInfos는 성공한 URL 순서대로 반환됨)
+        for (aiIndex, aiInfo) in aiInfos.enumerated() {
+            guard aiIndex < successIndices.count else { break }
+            let originalIndex = successIndices[aiIndex]
+
+            guard clothForms.indices.contains(originalIndex),
+                  selectedPhotos.indices.contains(originalIndex) else { continue }
 
             // 누끼 이미지 URL 반영
             if !aiInfo.clothImageUrl.isEmpty {
-                selectedPhotos[index].aiImageUrl = aiInfo.clothImageUrl
+                selectedPhotos[originalIndex].aiImageUrl = aiInfo.clothImageUrl
             }
 
             // 카테고리 매칭
             if let categoryId = aiInfo.categoryId,
                let subcategory = CategoryConstants.subcategory(byId: categoryId),
                let parentCategory = CategoryConstants.category(bySubcategoryId: categoryId) {
-                clothForms[index].category = parentCategory
-                clothForms[index].subcategory = subcategory
+                clothForms[originalIndex].category = parentCategory
+                clothForms[originalIndex].subcategory = subcategory
             } else if let parentCategoryId = aiInfo.parentCategoryId,
                       let parentCategory = CategoryConstants.category(byId: parentCategoryId) {
-                clothForms[index].category = parentCategory
+                clothForms[originalIndex].category = parentCategory
             }
 
             // 계절 반영
             if !aiInfo.seasons.isEmpty {
-                clothForms[index].selectedSeasons = aiInfo.seasons
+                clothForms[originalIndex].selectedSeasons = aiInfo.seasons
             }
         }
 

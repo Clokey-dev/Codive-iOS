@@ -15,18 +15,44 @@ final class ClothAIRepositoryImpl: ClothAIRepository {
         self.apiService = apiService
     }
 
-    func uploadImages(images: [Data]) async throws -> [String] {
-        let presignedInfos = try await apiService.getPresignedUrls(for: images)
-
-        for (imageData, presignedInfo) in zip(images, presignedInfos) {
-            try await apiService.uploadImageToS3(
-                presignedUrl: presignedInfo.presignedUrl,
-                imageData: imageData,
-                contentMD5: presignedInfo.md5Hash
-            )
+    func uploadImages(images: [Data]) async -> [String?] {
+        // 1. Presigned URL 발급 (한번에 요청)
+        let presignedInfos: [PresignedUrlInfo]
+        do {
+            presignedInfos = try await apiService.getPresignedUrls(for: images)
+        } catch {
+            #if DEBUG
+            print("[ClothAI] Presigned URL 발급 실패: \(error)")
+            #endif
+            return Array(repeating: nil, count: images.count)
         }
 
-        return presignedInfos.map { $0.finalUrl }
+        // 2. S3 병렬 업로드 (개별 실패 허용)
+        return await withTaskGroup(of: (Int, String?).self, returning: [String?].self) { group in
+            for (index, (imageData, presignedInfo)) in zip(images, presignedInfos).enumerated() {
+                group.addTask {
+                    do {
+                        try await self.apiService.uploadImageToS3(
+                            presignedUrl: presignedInfo.presignedUrl,
+                            imageData: imageData,
+                            contentMD5: presignedInfo.md5Hash
+                        )
+                        return (index, presignedInfo.finalUrl)
+                    } catch {
+                        #if DEBUG
+                        print("[ClothAI] S3 업로드 실패 (index: \(index)): \(error)")
+                        #endif
+                        return (index, nil)
+                    }
+                }
+            }
+
+            var results = Array<String?>(repeating: nil, count: images.count)
+            for await (index, url) in group {
+                results[index] = url
+            }
+            return results
+        }
     }
 
     func extractClothInfo(clothImageUrls: [String]) async throws -> [ClothAIInfo] {

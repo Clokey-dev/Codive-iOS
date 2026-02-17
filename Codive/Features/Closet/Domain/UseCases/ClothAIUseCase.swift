@@ -10,8 +10,8 @@ import Foundation
 // MARK: - ClothAIUseCase Protocol
 
 protocol ClothAIUseCase {
-    /// 이미지를 S3에 업로드합니다.
-    func uploadImages(images: [Data]) async throws -> [String]
+    /// 이미지를 S3에 병렬 업로드합니다. 실패한 이미지는 nil로 반환합니다.
+    func uploadImages(images: [Data]) async -> [String?]
 
     /// 이미지에서 옷 정보(누끼/카테고리/계절)를 추출합니다.
     func extractClothInfo(clothImageUrls: [String]) async throws -> [ClothAIInfo]
@@ -34,8 +34,8 @@ final class DefaultClothAIUseCase: ClothAIUseCase {
 
     // MARK: - Methods
 
-    func uploadImages(images: [Data]) async throws -> [String] {
-        return try await repository.uploadImages(images: images)
+    func uploadImages(images: [Data]) async -> [String?] {
+        return await repository.uploadImages(images: images)
     }
 
     func extractClothInfo(clothImageUrls: [String]) async throws -> [ClothAIInfo] {
