@@ -44,6 +44,7 @@ final class OtherProfileViewModel: ObservableObject {
     @Published var showBlockAlert: Bool = false
     @Published var showBlockFailureAlert: Bool = false
     @Published var blockErrorMessage: String = ""
+    @Published var showHistoryErrorAlert: Bool = false
     @Published var monthlyHistories: [String: String] = [:] // "2026-01-21" -> imageUrl
     @Published var monthlyHistoryIds: [String: Int] = [:] // "2026-01-21" -> historyId
 
@@ -120,7 +121,7 @@ final class OtherProfileViewModel: ObservableObject {
             self.monthlyHistories = newHistories
             self.monthlyHistoryIds = newHistoryIds
         } catch {
-            // Silent failure - UI에 영향 없음
+            showHistoryErrorAlert = true
         }
     }
 
