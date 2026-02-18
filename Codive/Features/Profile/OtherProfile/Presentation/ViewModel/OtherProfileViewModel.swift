@@ -164,11 +164,11 @@ final class OtherProfileViewModel: ObservableObject {
     }
 
     func onFollowerTapped() {
-        navigationRouter.navigate(to: .followList(mode: .followers, memberId: memberId))
+        navigationRouter.navigate(to: .followList(mode: .followers, memberId: memberId, isMe: false))
     }
 
     func onFollowingTapped() {
-        navigationRouter.navigate(to: .followList(mode: .followings, memberId: memberId))
+        navigationRouter.navigate(to: .followList(mode: .followings, memberId: memberId, isMe: false))
     }
 
     func onFollowButtonTapped() {

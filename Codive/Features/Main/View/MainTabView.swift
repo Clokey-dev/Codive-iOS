@@ -255,8 +255,8 @@ struct MainTabView: View {
             profileDIContainer.makeProfileSettingView()
         case .myProfile:
             profileDIContainer.makeProfileView()
-        case .followList(let mode, let memberId):
-            profileDIContainer.makeFollowListView(mode: mode, memberId: memberId)
+        case .followList(let mode, let memberId, let isMe):
+            profileDIContainer.makeFollowListView(mode: mode, memberId: memberId, isMe: isMe)
 
         // MARK: - Closet
         case .myCloset:

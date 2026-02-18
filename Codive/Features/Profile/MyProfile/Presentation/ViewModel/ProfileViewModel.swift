@@ -169,11 +169,11 @@ class ProfileViewModel: ObservableObject {
     }
     
     func onFollowerTapped() {
-        navigationRouter.navigate(to: .followList(mode: .followers, memberId: userId))
+        navigationRouter.navigate(to: .followList(mode: .followers, memberId: userId, isMe: true))
     }
-    
+
     func onFollowingTapped() {
-        navigationRouter.navigate(to: .followList(mode: .followings, memberId: userId))
+        navigationRouter.navigate(to: .followList(mode: .followings, memberId: userId, isMe: true))
     }
     
     func onMoreFavoriteCodiTapped() {
