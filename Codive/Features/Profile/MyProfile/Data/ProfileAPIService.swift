@@ -159,7 +159,7 @@ final class ProfileAPIService: ProfileAPIServiceProtocol {
     }
 
     func checkNicknameDuplicate(nickname: String) async throws -> Bool {
-        let requestBody = Components.Schemas.DuplicatedIdCheckRequest(nickname: nickname)
+        let requestBody = Components.Schemas.DuplicatedNicknameCheckRequest(nickname: nickname)
 
         let response = try await client.Member_checkDuplicateNickname(
             .init(body: .json(requestBody))
