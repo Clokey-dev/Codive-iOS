@@ -88,7 +88,7 @@ let project = Project(
                     "NSCameraUsageDescription": "사진을 촬영하기 위해 카메라 권한이 필요합니다.",
                     
                     // 위치 권한 추가
-                    "NSLocationWhenInUseUsageDescription": "위치한 지역의 날씨 정보를 제공하기 위해 현재 위치를 확인합니다.",
+                    "NSLocationWhenInUseUsageDescription": "위치한 지역의 날씨 정보를 통해 옷을 추천해드리기 위해 현재 위치를 확인합니다.",
                     
                     // 카카오 SDK 설정
                     "KAKAO_APP_KEY": "$(KAKAO_APP_KEY)",
