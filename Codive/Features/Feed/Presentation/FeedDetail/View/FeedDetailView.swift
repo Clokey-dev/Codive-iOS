@@ -161,7 +161,7 @@ struct FeedDetailView: View {
                             ],
                             isExpanded: viewModel.isMoreMenuPresented,
                             showButton: false
-                        ) { viewModel.dismissMoreMenu() }
+                        , onClose: { viewModel.dismissMoreMenu() })
                         .padding(.trailing, 20)
                         .padding(.top, 80)
                     } else {
@@ -173,8 +173,8 @@ struct FeedDetailView: View {
                                 { viewModel.onBlockTapped() }
                             ],
                             isExpanded: viewModel.isMoreMenuPresented,
-                            showButton: false
-                        ) { viewModel.dismissMoreMenu() }
+                            showButton: false,
+                            onClose: { viewModel.dismissMoreMenu() })
                         .padding(.trailing, 20)
                         .padding(.top, 80)
                     }
@@ -252,6 +252,7 @@ struct FeedDetailView: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview {
 
@@ -269,3 +270,4 @@ struct FeedDetailView: View {
         commentDIContainer: CommentDIContainer(navigationRouter: navigationRouter)
     )
 }
+#endif
