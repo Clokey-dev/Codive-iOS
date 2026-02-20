@@ -138,6 +138,17 @@ struct MainTabView: View {
                 }
             }
 
+            // MARK: - Confirm Loading Overlay
+            if homeViewModel.isConfirmLoading {
+                ZStack {
+                    Color.black.opacity(0.3)
+                        .ignoresSafeArea()
+                    ProgressView()
+                        .tint(.white)
+                }
+                .zIndex(400)
+            }
+
             // MARK: - Success Overlay
             if let message = navigationRouter.successMessage {
                 CustomSuccessView(message: message)

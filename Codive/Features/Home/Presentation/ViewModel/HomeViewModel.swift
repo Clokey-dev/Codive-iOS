@@ -27,6 +27,7 @@ final class HomeViewModel: ObservableObject {
     @Published var capturedImageURL: String?
     
     @Published var isEditingExistingCodi: Bool = false
+    @Published var isConfirmLoading: Bool = false
     
     // MARK: - Properties (Data)
     
@@ -44,6 +45,7 @@ final class HomeViewModel: ObservableObject {
     @Published var todayCodiPreview: FetchTodayCoordinatePreviewResponseDTO?
     
     @Published var boardPayloads: [Payloads] = []
+    @Published var needsScrollReset: Bool = false
     
     // MARK: - Dependencies
     
@@ -186,6 +188,14 @@ extension HomeViewModel {
 }
 
 extension HomeViewModel {
+    func refreshAfterCategoryEdit() {
+        loadActiveCategories()
+        needsScrollReset = true
+        Task {
+            await loadRecommendCategoryClothList(seasons: currentSeasons)
+        }
+    }
+
     func handleEditCategory() {
         navigationRouter.navigate(to: .editCategory)
     }
@@ -238,8 +248,11 @@ extension HomeViewModel {
             }
         
         self.selectedCodiClothes = items
-        
+        self.isConfirmLoading = true
+
         Task {
+            defer { self.isConfirmLoading = false }
+
             var loadedImages: [Int64: UIImage] = [:]
             await withTaskGroup(of: (Int64, UIImage?).self) { group in
                 for cloth in items {
@@ -252,26 +265,24 @@ extension HomeViewModel {
                     if let img = image { loadedImages[id] = img }
                 }
             }
-            
+
             let captureView = CodiCompositeView(clothes: items, loadedImages: loadedImages)
                 .frame(width: 260, height: 260)
-            
+
             let renderer = ImageRenderer(content: captureView)
             renderer.scale = UIScreen.main.scale
-            
+
             guard let uiImage = renderer.uiImage else {
                 return
             }
-            
+
             guard let jpgData = uiImage.jpegData(compressionQuality: 0.8) else { return }
-            
+
             do {
                 let uploadedURL = try await todayCodiUseCase.execute(jpgData: jpgData)
-                
-                await MainActor.run {
-                    self.capturedImageURL = uploadedURL
-                    self.showCompletePopUp = true
-                }
+
+                self.capturedImageURL = uploadedURL
+                self.showCompletePopUp = true
             } catch {
                 #if DEBUG
                 print("[Home] 서버 에러: \(error.localizedDescription)")
@@ -298,9 +309,9 @@ extension HomeViewModel {
         Task {
             do {
                 guard let imageURL = self.capturedImageURL else { return }
-                
+
                 let rawPayloads = boardPayloads.isEmpty ? createPayloadsFromCurrentList() : boardPayloads
-                
+
                 let finalPayloads = rawPayloads.map { p in
                     Payloads(
                         clothId: p.clothId,
@@ -311,7 +322,7 @@ extension HomeViewModel {
                         order: Int32(p.order)
                     )
                 }
-                
+
                 if isEditingExistingCodi, let coordinateId = todayCodiPreview?.coordinateId {
                     let editRequest = EditCoordinateRequestDTO(
                         coordinateImageUrl: imageURL,
@@ -319,7 +330,7 @@ extension HomeViewModel {
                         memo: nil,
                         payloads: finalPayloads
                     )
-                    
+
                     try await todayCodiUseCase.patchUpdateCoordinates(
                         coordinateId: coordinateId,
                         request: editRequest
@@ -334,10 +345,29 @@ extension HomeViewModel {
                     print("[Home] 오늘의 코디 신규 생성 성공 (ID: \(result.coordinateId))")
                     #endif
                 }
-                
-                await MainActor.run {
+
+                // 코디 이미지를 다운로드하여 SelectedPhoto로 변환
+                guard let codiImage = await downloadUIImage(from: imageURL) else {
                     self.completeProcess()
+                    return
                 }
+
+                let selectedPhoto = SelectedPhoto(
+                    id: UUID().uuidString,
+                    originalImage: codiImage,
+                    croppedImage: codiImage,
+                    order: 1
+                )
+
+                // 상태 정리 후 기록 플로우로 이동
+                self.isEditingExistingCodi = false
+                self.showCompletePopUp = false
+                self.hasCodi = true
+                self.boardPayloads = []
+                self.capturedImageURL = nil
+                self.fetchTodayCodiData()
+
+                self.navigationRouter.navigate(to: .recordDetail(photos: [selectedPhoto]))
             } catch {
                 #if DEBUG
                 print("[Home] 코디 저장 에러: \(error)")
