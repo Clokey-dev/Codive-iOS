@@ -11,7 +11,7 @@ import SwiftUI
 enum NavigationBarRightButton {
     case none
     case text(title: String, isEnabled: Bool, action: () -> Void)
-    case overflow(menuType: MenuType, menuActions: [() -> Void])
+    case overflow(menuType: MenuType, menuActions: [() -> Void], isExpanded: Bool = false, onToggle: (() -> Void)? = nil, onClose: (() -> Void)? = nil)
     case icon(imageName: String, isSystemIcon: Bool = true, isEnabled: Bool, action: () -> Void)
     case menu(imageName: String, isSystemIcon: Bool = true, isEnabled: Bool, action: () -> Void)
 }
@@ -131,8 +131,15 @@ struct CustomNavigationBar: View {
             }
             .disabled(!isEnabled)
             
-        case .overflow(let menuType, let menuActions):
-            CustomOverflowMenu(menuType: menuType, menuActions: menuActions)
+        case .overflow(let menuType, let menuActions, let isExpanded, let onToggle, let onClose):
+            CustomOverflowMenu(
+                menuType: menuType,
+                menuActions: menuActions,
+                isExpanded: isExpanded,
+                showButton: true,
+                onToggle: onToggle,
+                onClose: onClose
+            )
         }
     }
     

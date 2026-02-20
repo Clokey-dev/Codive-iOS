@@ -42,7 +42,10 @@ struct SpecificLookBookView: View {
                         menuActions: [
                             { viewModel.navigateToAddCodi() },
                             { viewModel.handleEditAction() }
-                        ]
+                        ],
+                        isExpanded: viewModel.isOverflowMenuExpanded,
+                        onToggle: viewModel.toggleOverflowMenu,
+                        onClose: viewModel.closeOverflowMenu
                     )
                 )
                 .zIndex(10)
@@ -83,6 +86,12 @@ struct SpecificLookBookView: View {
                     }
                     .padding(.horizontal, 16)
                     .padding(.top, 16)
+                }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    if viewModel.isOverflowMenuExpanded {
+                        viewModel.closeOverflowMenu()
+                    }
                 }
                 .onAppear {
                     if viewModel.specificLookBookCodiList.isEmpty {

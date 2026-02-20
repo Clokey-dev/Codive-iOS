@@ -10,8 +10,17 @@ import Photos
 
 // MARK: - LookBook Actions
 extension HomeViewModel {
+    func toggleOverflowMenu() {
+        isOverflowMenuExpanded.toggle()
+    }
+    
+    func closeOverflowMenu() {
+        isOverflowMenuExpanded = false
+    }
+    
     /// 오늘의 코디 수정
     func selectEditCodi() {
+        isOverflowMenuExpanded = false
         
         // 2. 수정 모드 플래그 활성화 및 화면 전환
         self.isEditingExistingCodi = true
@@ -48,6 +57,7 @@ extension HomeViewModel {
     }
     
     func sharedCodi() {
+        isOverflowMenuExpanded = false
         // 1. 저장할 이미지 URL 확인
         guard let imageUrlString = todayCodiPreview?.imageUrl,
               let url = URL(string: imageUrlString) else {
@@ -101,6 +111,8 @@ extension HomeViewModel {
     }
     /// 내 룩북 리스트를 불러와 바텀시트를 표시
     func addLookbook() {
+        isOverflowMenuExpanded = false
+        
         Task {
             do {
                 let (content, _) = try await addToLookBookUseCase.fetchLookBookList(

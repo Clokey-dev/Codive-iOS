@@ -12,6 +12,8 @@ final class SpecificLookBookViewModel: ObservableObject {
     private let navigationRouter: NavigationRouter
     private let specificLookBookUseCase: SpecificLookBookUseCase
     
+    @Published var isOverflowMenuExpanded: Bool = false
+    
     private let lookbookId: Int64
     @Published var name: String
     @Published var isEditingTitle = false
@@ -109,6 +111,7 @@ final class SpecificLookBookViewModel: ObservableObject {
     
     // MARK: - 코디 편집 모드 전환
     func handleEditAction() {
+        isOverflowMenuExpanded = false
         isEditing = true
     }
     
@@ -201,7 +204,16 @@ final class SpecificLookBookViewModel: ObservableObject {
         isEditingTitle = false
     }
     
+    func toggleOverflowMenu() {
+        isOverflowMenuExpanded.toggle()
+    }
+    
+    func closeOverflowMenu() {
+        isOverflowMenuExpanded = false
+    }
+    
     func navigateToAddCodi() {
+        isOverflowMenuExpanded = false
         navigationRouter.navigate(to: .addCodi(lookBookId: lookbookId))
     }
     

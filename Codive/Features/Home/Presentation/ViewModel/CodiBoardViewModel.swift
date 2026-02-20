@@ -87,6 +87,7 @@ final class CodiBoardViewModel: ObservableObject {
             }
                 .frame(width: actualSize, height: actualSize)
                 .clipShape(RoundedRectangle(cornerRadius: 15))
+                .background(Color.white)
             
             let renderer = ImageRenderer(content: captureView)
             renderer.scale = UIScreen.main.scale

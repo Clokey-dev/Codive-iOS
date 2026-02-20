@@ -31,6 +31,7 @@ struct DraggableImageView<T: DraggableImageProtocol>: View {
                             .resizable()
                             .scaledToFit()
                             .frame(width: 180, height: 180)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                 )
             }
