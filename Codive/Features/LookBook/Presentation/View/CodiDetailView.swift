@@ -34,6 +34,12 @@ struct CodiDetailView: View {
                         infoSection
                     }
                 }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    if viewModel.isOverflowMenuExpanded {
+                        viewModel.closeOverflowMenu()
+                    }
+                }
             }
         }
         .navigationBarHidden(true)
@@ -60,7 +66,10 @@ private extension CodiDetailView {
                 menuActions: [
                     { viewModel.navigateToEditCodi() },
                     { viewModel.requestDelete() }
-                ]
+                ],
+                isExpanded: viewModel.isOverflowMenuExpanded,
+                onToggle: viewModel.toggleOverflowMenu,
+                onClose: viewModel.closeOverflowMenu
             )
         )
         .zIndex(10)

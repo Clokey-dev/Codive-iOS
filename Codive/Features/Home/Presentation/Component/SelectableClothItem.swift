@@ -15,19 +15,20 @@ struct SelectableClothItem: View {
         ZStack {
             AsyncImage(url: URL(string: entity.imageUrl)) { phase in
                 if let image = phase.image {
-                    image.resizable().scaledToFill()
+                    image
+                        .resizable()
+                        .scaledToFill()
                 } else {
                     Color.gray.opacity(0.2)
                 }
             }
-            .frame(width: 68, height: 68)
-            .clipped()
-            .cornerRadius(8)
+            .frame(width: 72, height: 72)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
         }
-        .frame(width: 72, height: 72)
         .overlay {
             RoundedRectangle(cornerRadius: 8)
-                .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2)
+                .inset(by: 1)
+                .stroke(isSelected ? Color.Codive.main3 : Color.Codive.grayscale6, lineWidth: 1.5)
         }
         .onTapGesture {
             isSelected.toggle()

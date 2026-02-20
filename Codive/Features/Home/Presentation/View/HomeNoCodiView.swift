@@ -69,16 +69,17 @@ private extension HomeNoCodiView {
             VStack(spacing: 16) {
                 ForEach(viewModel.activeCategories, id: \.id) { category in
                     let items: [HomeClothEntity] = viewModel.clothItemsByCategory[category.id] ?? []
-                    let selectedIdx: Int = viewModel.selectedIndicesByCategory[category.id] ?? 0
+                    let selectedIdx = Binding(
+                        get: { viewModel.selectedIndicesByCategory[category.id] ?? 0 },
+                        set: { viewModel.selectedIndicesByCategory[category.id] = $0 }
+                    )
                     
                     CodiClothView(
                         title: category.title,
                         items: items,
-                        selectedIndex: selectedIdx,
-                        isEmptyState: items.isEmpty
-                    ) { newIndex in
-                        viewModel.updateSelectedIndex(for: category.id, index: newIndex)
-                    }
+                        isEmptyState: items.isEmpty,
+                        currentIndex: selectedIdx
+                    )
                     .id(category.id)
                     .background(Color.white)
                     .cornerRadius(15)

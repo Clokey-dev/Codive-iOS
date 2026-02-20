@@ -42,6 +42,13 @@ struct HomeHasCodiView: View {
                 
                 bottomBanner
             }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                // 2. 메뉴가 열려있을 때 바탕을 누르면 닫기
+                if viewModel.isOverflowMenuExpanded {
+                    viewModel.closeOverflowMenu()
+                }
+            }
             
             overflowMenu
         }
@@ -73,7 +80,11 @@ private extension HomeHasCodiView {
                 { viewModel.selectEditCodi() },
                 { viewModel.addLookbook() },
                 { viewModel.sharedCodi() }
-            ]
+            ],
+            isExpanded: viewModel.isOverflowMenuExpanded,
+            showButton: true,
+            onToggle: viewModel.toggleOverflowMenu,
+            onClose: viewModel.closeOverflowMenu
         )
         .zIndex(9999)
     }

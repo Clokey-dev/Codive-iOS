@@ -138,7 +138,7 @@ private extension CustomOverflowMenu {
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .shadow(color: .gray.opacity(0.2), radius: 10, x: 0, y: 2)
             .fixedSize(horizontal: true, vertical: false)
-            .offset(x: -15, y: 0)
+            .offset(x: -20, y: 40)
             .transition(.scale(scale: 0.8, anchor: .topTrailing).combined(with: .opacity))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

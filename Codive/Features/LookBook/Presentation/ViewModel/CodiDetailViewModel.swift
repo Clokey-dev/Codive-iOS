@@ -16,6 +16,7 @@ final class CodiDetailViewModel: ObservableObject {
     @Published var showClothSelector: Bool = false
     @Published var selectedIndex: Int?
     @Published var showDeleteAlert: Bool = false
+    @Published var isOverflowMenuExpanded: Bool = false
     
     private let navigationRouter: NavigationRouter
     private let codiUseCase: CodiUseCase
@@ -107,11 +108,20 @@ extension CodiDetailViewModel {
 }
 
 extension CodiDetailViewModel {
+    func toggleOverflowMenu() {
+        isOverflowMenuExpanded.toggle()
+    }
+    
+    func closeOverflowMenu() {
+        isOverflowMenuExpanded = false
+    }
+    
     func handleBackTap() {
         navigationRouter.navigateBack()
     }
     
     func navigateToEditCodi() {
+        isOverflowMenuExpanded = false
         guard let preview = coordinatePreview else { return }
         
         let payloads: [Payloads] = coordinateDetails.map { detail in
@@ -142,6 +152,7 @@ extension CodiDetailViewModel {
     }
     
     func requestDelete() {
+        isOverflowMenuExpanded = false
         showDeleteAlert = true
     }
     
