@@ -32,60 +32,31 @@ final class KeychainManager {
     // MARK: - Access Token
 
     func saveAccessToken(_ token: String) throws {
-        do {
-            try save(token, forKey: accessTokenKey)
-            print("----------------------------------------")
-            print("Access Token Saved:")
-            print(token)
-            print("----------------------------------------")
-        } catch {
-            print("Keychain: Failed to save access token: \(error.localizedDescription)")
-            throw error
-        }
+        try save(token, forKey: accessTokenKey)
+        #if DEBUG
+        print("----------------------------------------")
+        print("[Keychain] Access Token Saved:")
+        print(token)
+        print("----------------------------------------")
+        #endif
     }
 
     func getAccessToken() throws -> String {
-        do {
-            let token = try get(forKey: accessTokenKey)
-            print("Keychain: Access token retrieved successfully.")
-            return token
-        } catch {
-            print("Keychain: Failed to retrieve access token: \(error.localizedDescription)")
-            throw error
-        }
+        return try get(forKey: accessTokenKey)
     }
 
     func deleteAccessToken() throws {
-        do {
-            try delete(forKey: accessTokenKey)
-            print("Keychain: Access token deleted successfully.")
-        } catch {
-            print("Keychain: Failed to delete access token: \(error.localizedDescription)")
-            throw error
-        }
+        try delete(forKey: accessTokenKey)
     }
 
     // MARK: - Refresh Token
 
     func saveRefreshToken(_ token: String) throws {
-        do {
-            try save(token, forKey: refreshTokenKey)
-            print("Keychain: Refresh token saved successfully.")
-        } catch {
-            print("Keychain: Failed to save refresh token: \(error.localizedDescription)")
-            throw error
-        }
+        try save(token, forKey: refreshTokenKey)
     }
 
     func getRefreshToken() throws -> String {
-        do {
-            let token = try get(forKey: refreshTokenKey)
-            print("Keychain: Refresh token retrieved successfully.")
-            return token
-        } catch {
-            print("Keychain: Failed to retrieve refresh token: \(error.localizedDescription)")
-            throw error
-        }
+        return try get(forKey: refreshTokenKey)
     }
 
     func deleteRefreshToken() throws {

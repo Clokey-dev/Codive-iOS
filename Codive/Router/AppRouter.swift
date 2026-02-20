@@ -72,6 +72,14 @@ final class AppRouter: ObservableObject {
     func navigateToMain() {
         isLoading = false
         currentAppState = .main
+        #if DEBUG
+        if let token = try? KeychainManager.shared.getAccessToken() {
+            print("----------------------------------------")
+            print("[App] Access Token:")
+            print(token)
+            print("----------------------------------------")
+        }
+        #endif
     }
 
     func showLoading() {
