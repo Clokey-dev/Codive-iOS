@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct ClothCardView: View {
     let item: HomeClothEntity
@@ -27,20 +28,13 @@ struct ClothCardView: View {
                     .frame(width: 124)
                     .overlay {
                         if let url = URL(string: item.imageUrl), !item.imageUrl.isEmpty {
-                            AsyncImage(url: url) { phase in
-                                switch phase {
-                                case .empty:
+                            KFImage(url)
+                                .placeholder {
                                     ProgressView()
-                                case .success(let image):
-                                    image.resizable().scaledToFit()
-                                case .failure:
-                                    Image(systemName: "exclamationmark.triangle")
-                                        .foregroundColor(.gray)
-                                @unknown default:
-                                    EmptyView()
                                 }
-                            }
-                            .clipShape(RoundedRectangle(cornerRadius: 15))
+                                .resizable()
+                                .scaledToFit()
+                                .clipShape(RoundedRectangle(cornerRadius: 15))
                         } else {
                             Image(item.imageUrl)
                                 .resizable()

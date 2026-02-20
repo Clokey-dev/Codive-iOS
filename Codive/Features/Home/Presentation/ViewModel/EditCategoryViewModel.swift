@@ -23,6 +23,7 @@ final class EditCategoryViewModel: ObservableObject {
     // MARK: - Properties (Constants & Dependencies)
     
     private let navigationRouter: NavigationRouter
+    private let onApply: (() -> Void)?
     
     /// 전체 카테고리 아이템의 최대 합계
     private let maxTotalCount = 7
@@ -60,8 +61,9 @@ final class EditCategoryViewModel: ObservableObject {
     
     // MARK: - Initializer
     
-    init(navigationRouter: NavigationRouter) {
+    init(navigationRouter: NavigationRouter, onApply: (() -> Void)? = nil) {
         self.navigationRouter = navigationRouter
+        self.onApply = onApply
         loadInitialData()
     }
     
@@ -130,6 +132,7 @@ final class EditCategoryViewModel: ObservableObject {
     /// 변경 사항을 저장하고 이전 화면으로 이동
     func applyChanges() {
         saveToStorage(categories: categories)
+        onApply?()
         navigationRouter.navigateBack()
     }
     

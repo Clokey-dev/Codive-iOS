@@ -194,7 +194,9 @@ extension HomeViewModel {
             } catch {
                 self.hasCodi = false
                 #if DEBUG
-                print("[Home] 데이터 로드 실패: \(error)")
+                if case HomeAPIError.serverError(statusCode: 404, _) = error { } else {
+                    print("[Home] 데이터 로드 실패: \(error)")
+                }
                 #endif
             }
         }

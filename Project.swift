@@ -64,6 +64,7 @@ let project = Project(
             deploymentTargets: .iOS("16.0"),
             infoPlist: .extendingDefault(
                 with: [
+                    "UIUserInterfaceStyle": "Light",
                     "UILaunchScreen": [:],
                     "UISupportedInterfaceOrientations": ["UIInterfaceOrientationPortrait"],
                     "CFBundleDevelopmentRegion": "ko",

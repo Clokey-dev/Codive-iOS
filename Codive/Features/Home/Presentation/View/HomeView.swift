@@ -67,12 +67,10 @@ struct HomeView: View {
                     viewModel.fetchTodayCodiData()
                 }
             }
-            .onChange(of: navigationRouter.currentDestination) { newDestination in
-                if newDestination == nil {
-                    if viewModel.todayCodiPreview == nil {
-                        viewModel.loadActiveCategories()
-                    }
+            .onReceive(viewModel.$needsScrollReset) { needsReset in
+                if needsReset {
                     scrollViewID = UUID()
+                    viewModel.needsScrollReset = false
                 }
             }
         }
