@@ -121,6 +121,11 @@ final class ClothEditViewModel: ObservableObject, ClothEditViewModelInput, Cloth
                 }
             }
 
+            // 계절 업데이트
+            if clothForm.selectedSeasons.isEmpty && !detail.seasons.isEmpty {
+                clothForm.selectedSeasons = Set(detail.seasons)
+            }
+
             // 이름, 브랜드, URL 업데이트 (기존 값이 없으면)
             if clothForm.name.isEmpty, let name = detail.name {
                 clothForm.name = name
