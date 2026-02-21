@@ -8,7 +8,8 @@ When asked to commit, follow this procedure:
 
 1. Check recent commit history to match the existing message format (e.g., `[#issue-number] description`)
 2. Present the commit message(s) and included files to the user for review
-3. Only create the commit after user approval
+3. **MUST wait for explicit user approval before creating each commit** — never batch-execute multiple commits without approval per commit
+4. Only create the commit after user approval
 
 Commit message format:
 - Write header only, or header + body. Nothing else.
