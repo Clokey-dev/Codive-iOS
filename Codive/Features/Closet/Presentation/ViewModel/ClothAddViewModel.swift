@@ -263,10 +263,13 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
     func processAI() {
         isAIProcessing = true
 
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
+
+            defer { self.isAIProcessing = false }
+
             let imageDatas = selectedPhotos.compactMap { $0.croppedImage.jpegData(compressionQuality: 0.8) }
             guard !imageDatas.isEmpty else {
-                isAIProcessing = false
                 return
             }
 
@@ -280,20 +283,21 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
             let successUrls = uploadResults.compactMap { $0 }
 
             guard !successUrls.isEmpty else {
-                isAIProcessing = false
                 errorAlertMessage = "이미지 업로드에 실패했습니다."
                 showErrorAlert = true
                 return
             }
 
             // 2. 성공한 이미지만 AI 정보 추출 (3장씩 청크 분할)
-            var aiInfos: [ClothAIInfo] = []
+            var aiInfos: [(urlIndex: Int, info: ClothAIInfo)] = []
             for chunkStart in stride(from: 0, to: successUrls.count, by: chunkSize) {
                 let chunkEnd = min(chunkStart + chunkSize, successUrls.count)
                 let chunk = Array(successUrls[chunkStart..<chunkEnd])
                 do {
                     let chunkInfos = try await clothAIUseCase.extractClothInfo(clothImageUrls: chunk)
-                    aiInfos.append(contentsOf: chunkInfos)
+                    for (i, info) in chunkInfos.enumerated() {
+                        aiInfos.append((urlIndex: chunkStart + i, info: info))
+                    }
                 } catch {
                     #if DEBUG
                     print("[ClothAI] 정보 추출 실패 (chunk \(chunkStart/chunkSize + 1)): \(error)")
@@ -321,27 +325,27 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
             if aiInfos.isEmpty {
                 messages.append("정보 추출: 실패")
             } else {
-                let hasCategoryCount = aiInfos.filter { $0.categoryId != nil }.count
-                let hasSeasonCount = aiInfos.filter { !$0.seasons.isEmpty }.count
+                let hasCategoryCount = aiInfos.filter { $0.info.categoryId != nil }.count
+                let hasSeasonCount = aiInfos.filter { !$0.info.seasons.isEmpty }.count
                 messages.append("정보 추출: 카테고리 \(hasCategoryCount)건, 계절 \(hasSeasonCount)건 자동 입력")
             }
 
             aiResultMessage = messages.joined(separator: "\n")
             showAIResultAlert = true
-            isAIProcessing = false
         }
     }
 
-    private func applyAIResults(uploadResults: [String?], aiInfos: [ClothAIInfo]) {
+    private func applyAIResults(uploadResults: [String?], aiInfos: [(urlIndex: Int, info: ClothAIInfo)]) {
         // 업로드 성공한 원본 인덱스 매핑
         let successIndices = uploadResults.enumerated().compactMap { index, url in
             url != nil ? index : nil
         }
 
-        // AI 정보 반영 (aiInfos는 성공한 URL 순서대로 반환됨)
-        for (aiIndex, aiInfo) in aiInfos.enumerated() {
-            guard aiIndex < successIndices.count else { break }
-            let originalIndex = successIndices[aiIndex]
+        // AI 정보 반영 (urlIndex로 정확한 위치 매핑)
+        for aiEntry in aiInfos {
+            guard aiEntry.urlIndex < successIndices.count else { continue }
+            let originalIndex = successIndices[aiEntry.urlIndex]
+            let aiInfo = aiEntry.info
 
             guard clothForms.indices.contains(originalIndex),
                   selectedPhotos.indices.contains(originalIndex) else { continue }
@@ -379,7 +383,8 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
         guard !isLoading else { return }
         isLoading = true
 
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             do {
                 // ClothFormData → ClothInput 변환
                 let inputs = clothForms.map { form in
