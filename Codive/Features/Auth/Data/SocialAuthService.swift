@@ -22,12 +22,26 @@ protocol SocialAuthServiceProtocol {
 // MARK: - Social Auth Service Implementation
 @MainActor
 final class SocialAuthService: NSObject, SocialAuthServiceProtocol {
-    
-    private var appleContinuation: CheckedContinuation<AuthResult, Never>?
-    
+
     // MARK: - Kakao Login (OIDC via ASWebAuthenticationSession)
     func kakaoLogin() async -> AuthResult {
-        guard let urlString = Bundle.main.object(forInfoDictionaryKey: "KAKAO_AUTH_URL") as? String,
+        return await socialLogin(
+            urlKey: "KAKAO_AUTH_URL",
+            provider: .kakao
+        )
+    }
+
+    // MARK: - Apple Login (OIDC via ASWebAuthenticationSession)
+    func appleLogin() async -> AuthResult {
+        return await socialLogin(
+            urlKey: "APPLE_AUTH_URL",
+            provider: .apple
+        )
+    }
+
+    // MARK: - Common OAuth Login
+    private func socialLogin(urlKey: String, provider: AuthProvider) async -> AuthResult {
+        guard let urlString = Bundle.main.object(forInfoDictionaryKey: urlKey) as? String,
               let authURL = URL(string: urlString) else {
             return .failure(.unknown("Invalid auth URL configuration"))
         }
@@ -37,7 +51,11 @@ final class SocialAuthService: NSObject, SocialAuthServiceProtocol {
                 url: authURL,
                 callbackURLScheme: "codive"
             ) { callbackURL, error in
-                let result = Self.handleKakaoCallback(callbackURL: callbackURL, error: error)
+                let result = Self.handleOAuthCallback(
+                    callbackURL: callbackURL,
+                    error: error,
+                    provider: provider
+                )
                 continuation.resume(returning: result)
             }
 
@@ -47,7 +65,11 @@ final class SocialAuthService: NSObject, SocialAuthServiceProtocol {
         }
     }
 
-    private static func handleKakaoCallback(callbackURL: URL?, error: Error?) -> AuthResult {
+    private static func handleOAuthCallback(
+        callbackURL: URL?,
+        error: Error?,
+        provider: AuthProvider
+    ) -> AuthResult {
         if let error = error {
             if let authError = error as? ASWebAuthenticationSessionError, authError.code == .canceledLogin {
                 return .failure(.cancelled)
@@ -69,24 +91,10 @@ final class SocialAuthService: NSObject, SocialAuthServiceProtocol {
         do {
             try KeychainManager.shared.saveAccessToken(accessToken)
             try KeychainManager.shared.saveRefreshToken(refreshToken)
-            let authUser = AuthUser(id: "temp_kakao_user", email: nil, name: nil, provider: .kakao)
+            let authUser = AuthUser(id: "temp_\(provider.rawValue)_user", email: nil, name: nil, provider: provider)
             return .success(authUser)
         } catch {
             return .failure(.keychainError(error.localizedDescription))
-        }
-    }
-    
-    // MARK: - Apple Login
-    func appleLogin() async -> AuthResult {
-        return await withCheckedContinuation { continuation in
-            self.appleContinuation = continuation
-            
-            let request = ASAuthorizationAppleIDProvider().createRequest()
-            request.requestedScopes = [.fullName, .email]
-            
-            let authController = ASAuthorizationController(authorizationRequests: [request])
-            authController.delegate = self
-            authController.performRequests()
         }
     }
     
@@ -104,51 +112,6 @@ final class SocialAuthService: NSObject, SocialAuthServiceProtocol {
                 #endif
                 continuation.resume()
             }
-        }
-    }
-}
-
-// MARK: - Apple Sign In Delegate
-extension SocialAuthService: ASAuthorizationControllerDelegate {
-
-    func authorizationController(
-        controller: ASAuthorizationController,
-        didCompleteWithAuthorization authorization: ASAuthorization
-    ) {
-        defer { appleContinuation = nil }
-
-        guard let appleContinuation = appleContinuation else { return }
-
-        if let credential = authorization.credential as? ASAuthorizationAppleIDCredential {
-            let authUser = AuthUser(
-                id: credential.user,
-                email: credential.email,
-                name: credential.fullName?.formatted(),
-                provider: .apple
-            )
-            appleContinuation.resume(returning: .success(authUser))
-        } else {
-            appleContinuation.resume(returning: .failure(.userInfoError))
-        }
-    }
-
-    func authorizationController(
-        controller: ASAuthorizationController,
-        didCompleteWithError error: Error
-    ) {
-        defer { appleContinuation = nil }
-
-        guard let appleContinuation = appleContinuation else { return }
-
-        if let authError = error as? ASAuthorizationError {
-            switch authError.code {
-            case .canceled:
-                appleContinuation.resume(returning: .failure(.cancelled))
-            default:
-                appleContinuation.resume(returning: .failure(.unknown(error.localizedDescription)))
-            }
-        } else {
-            appleContinuation.resume(returning: .failure(.unknown(error.localizedDescription)))
         }
     }
 }
