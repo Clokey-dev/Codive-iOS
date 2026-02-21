@@ -109,6 +109,7 @@ struct ClothEditView: View {
         }
 
         return ClothingItem(
+            id: viewModel.cloth.id,
             imageName: nil,
             image: nil,
             imageUrl: viewModel.imageUrl,
