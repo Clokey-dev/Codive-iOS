@@ -227,21 +227,22 @@ extension HomeViewModel {
         }
     }
 
-    func captureCompletedCodiImage() -> UIImage {
+    private func captureCompletedCodiImage() -> UIImage {
         let view = CodiCompositeView(clothes: selectedCodiClothes)
             .frame(width: 260, height: 260)
-
+            .background(Color.white)
+        
         let controller = UIHostingController(rootView: view)
         let uiView = controller.view!
         uiView.bounds = CGRect(origin: .zero, size: CGSize(width: 260, height: 260))
         uiView.backgroundColor = .clear
-
+        
         let renderer = UIGraphicsImageRenderer(size: CGSize(width: 260, height: 260))
         return renderer.image { _ in
             uiView.drawHierarchy(in: uiView.bounds, afterScreenUpdates: true)
         }
     }
-
+    
     func downloadUIImage(from urlString: String) async -> UIImage? {
         guard let url = URL(string: urlString) else { return nil }
         do {
