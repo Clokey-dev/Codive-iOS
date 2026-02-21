@@ -220,7 +220,7 @@ extension LookBookAPIService {
             let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseClothImagesPresignedUrlResponse.self, from: data)
 
             guard let urls = decoded.result?.urls, urls.count == images.count else {
-                throw ClothAPIError.presignedUrlMismatch
+                throw LookBookAPIError.presignedUrlMismatch
             }
 
             return zip(urls, payloads).map { url, payloadInfo in

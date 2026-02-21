@@ -50,7 +50,7 @@ extension ProfileAPIService {
             let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseCoordinatePreviewResponse.self, from: data)
 
             guard let item = decoded.result else {
-                throw LookBookAPIError.invalidResponse
+                throw ProfileAPIError.invalidResponse
             }
 
             return CoordinatePreviewResponseDTO(
