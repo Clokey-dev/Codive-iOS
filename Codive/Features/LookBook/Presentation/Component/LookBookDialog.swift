@@ -34,7 +34,7 @@ struct LookBookDialog: View {
                         .multilineTextAlignment(.center)
                         .font(Font.codive_body2_medium)
                         .foregroundStyle(.black)
-                        .padding(.vertical, 8)
+                        .frame(height: 36)
                         .overlay(
                             VStack {
                                 Spacer()
@@ -52,8 +52,6 @@ struct LookBookDialog: View {
                 .padding(.horizontal, 24)
                 .padding(.top, 30)
                 .padding(.bottom, 24)
-                
-                Spacer(minLength: 0)
             }
             .frame(width: 311, height: 202)
             .background(Color.white)
