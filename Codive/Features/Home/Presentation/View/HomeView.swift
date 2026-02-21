@@ -67,6 +67,14 @@ struct HomeView: View {
                     viewModel.fetchTodayCodiData()
                 }
             }
+            .onAppear {
+                // 다른 탭에서 돌아올 때 옷 목록 갱신 (날씨가 이미 로드된 경우만)
+                if viewModel.weatherData != nil {
+                    Task {
+                        await viewModel.loadRecommendCategoryClothList(seasons: viewModel.currentSeasons)
+                    }
+                }
+            }
             .onReceive(viewModel.$needsScrollReset) { needsReset in
                 if needsReset {
                     scrollViewID = UUID()

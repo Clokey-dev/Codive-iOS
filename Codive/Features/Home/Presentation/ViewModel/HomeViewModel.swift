@@ -93,6 +93,10 @@ final class HomeViewModel: ObservableObject {
         loadActiveCategories()
         fetchTodayCodiData()
     }
+
+    func navigateToAddCloth() {
+        navigationRouter.navigate(to: .clothPhotoSelect)
+    }
 }
 
 extension HomeViewModel {
@@ -146,35 +150,48 @@ extension HomeViewModel {
 
 extension HomeViewModel {
     func loadRecommendCategoryClothList(seasons: Set<Season>) async {
-//        self.activeCategories = []
-//        self.clothItemsByCategory = [:]
-        
         let allCategories = categoryUseCase.loadCategories()
         let filteredCategories = allCategories.filter { $0.itemCount > 0 }
-        
+
+        #if DEBUG
+        print("[Home] ========== 카테고리별 옷 로드 시작 ==========")
+        print("[Home] 전달된 계절: \(seasons.map { $0.rawValue })")
+        print("[Home] 활성 카테고리: \(filteredCategories.map { "\($0.title)(id:\($0.id), count:\($0.itemCount))" })")
+        #endif
+
         self.activeCategories = filteredCategories
-        
+
         var resultMap: [Int: [HomeClothEntity]] = [:]
-        
+
         for category in filteredCategories {
             do {
                 let result = try await categoryUseCase.loadClothItems(
                     lastClothId: nil,
                     size: 10,
                     categoryId: Int64(category.id),
-                    season: seasons // 전달받은 seasons 사용
+                    season: seasons
                 )
-                resultMap[category.id] = result.content.sorted {
-                    $0.clothId < $1.clothId   // 또는 createdAt 기준
+                let sorted = result.content.sorted { $0.clothId < $1.clothId }
+                resultMap[category.id] = sorted
+
+                #if DEBUG
+                print("[Home] 카테고리 '\(category.title)' (id:\(category.id)) → API 결과 \(sorted.count)개")
+                for item in sorted {
+                    print("[Home]   - clothId: \(item.clothId), imageUrl: \(item.imageUrl)")
                 }
+                #endif
             } catch {
                 #if DEBUG
-                print("[Home] Failed to load items for category \(category.id): \(error)")
+                print("[Home] 카테고리 '\(category.title)' (id:\(category.id)) → 로드 실패: \(error)")
                 #endif
                 resultMap[category.id] = []
             }
         }
-        
+
+        #if DEBUG
+        print("[Home] ========== 카테고리별 옷 로드 완료 ==========")
+        #endif
+
         self.clothItemsByCategory = resultMap
     }
     
