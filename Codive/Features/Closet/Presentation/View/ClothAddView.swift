@@ -78,15 +78,9 @@ struct ClothAddView: View {
                         .scaleEffect(1.5)
                         .tint(.white)
                     if viewModel.isAIProcessing {
-                        if viewModel.aiTotalCount > 1 {
-                            Text("AI가 옷을 분석하고 있어요 (\(viewModel.aiProcessedCount)/\(viewModel.aiTotalCount))")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.white)
-                        } else {
-                            Text("AI가 옷을 분석하고 있어요")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.white)
-                        }
+                        Text(viewModel.aiProcessingMessage)
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.white)
                     }
                 }
             }

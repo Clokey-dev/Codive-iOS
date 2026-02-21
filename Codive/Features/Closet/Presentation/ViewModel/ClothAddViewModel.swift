@@ -73,8 +73,7 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
     // 완료 상태
     @Published var isLoading = false
     @Published var isAIProcessing = false
-    @Published var aiProcessedCount = 0
-    @Published var aiTotalCount = 0
+    @Published var aiProcessingMessage = ""
 
     // AI 결과 알림
     @Published var showAIResultAlert = false
@@ -263,7 +262,6 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
 
     func processAI() {
         isAIProcessing = true
-        aiProcessedCount = 0
 
         Task {
             let imageDatas = selectedPhotos.compactMap { $0.croppedImage.jpegData(compressionQuality: 0.8) }
@@ -272,7 +270,10 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
                 return
             }
 
-            aiTotalCount = imageDatas.count
+            let totalCount = imageDatas.count
+            let chunkSize = 3
+
+            aiProcessingMessage = "AI가 옷을 분석하고 배경을 제거하고 있어요 (0/\(totalCount))"
 
             // 1. S3 병렬 업로드 (개별 실패 허용)
             let uploadResults = await clothAIUseCase.uploadImages(images: imageDatas)
@@ -287,7 +288,6 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
 
             // 2. 성공한 이미지만 AI 정보 추출 (3장씩 청크 분할)
             var aiInfos: [ClothAIInfo] = []
-            let chunkSize = 3
             for chunkStart in stride(from: 0, to: successUrls.count, by: chunkSize) {
                 let chunkEnd = min(chunkStart + chunkSize, successUrls.count)
                 let chunk = Array(successUrls[chunkStart..<chunkEnd])
@@ -299,14 +299,13 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
                     print("[ClothAI] 정보 추출 실패 (chunk \(chunkStart/chunkSize + 1)): \(error)")
                     #endif
                 }
-                aiProcessedCount = min(chunkEnd, aiTotalCount)
+                aiProcessingMessage = "AI가 옷을 분석하고 배경을 제거하고 있어요 (\(min(chunkEnd, totalCount))/\(totalCount))"
             }
 
             // 3. 결과 반영 (업로드 성공한 인덱스만)
             applyAIResults(uploadResults: uploadResults, aiInfos: aiInfos)
 
             // 4. 결과 메시지
-            let totalCount = selectedPhotos.count
             let uploadSuccessCount = successUrls.count
             var messages: [String] = []
 
