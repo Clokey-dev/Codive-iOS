@@ -109,8 +109,10 @@ final class ReportDIContainer {
                     duration: 2.0
                 )
             case .comment:
-                let feedId = capturedCommentInfo?.feedId ?? 0
-                guard feedId > 0 else { return }
+                guard let feedId = capturedCommentInfo?.feedId, feedId > 0 else {
+                    router.navigateToRoot()
+                    return
+                }
 
                 router.showSuccessAndNavigate(
                     message: "신고가 접수되었습니다",
