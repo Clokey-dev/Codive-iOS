@@ -233,7 +233,9 @@ extension HomeViewModel {
             .background(Color.white)
         
         let controller = UIHostingController(rootView: view)
-        let uiView = controller.view!
+        guard let uiView = controller.view else {
+            return UIImage()
+        }
         uiView.bounds = CGRect(origin: .zero, size: CGSize(width: 260, height: 260))
         uiView.backgroundColor = .clear
         
