@@ -78,9 +78,15 @@ struct ClothAddView: View {
                         .scaleEffect(1.5)
                         .tint(.white)
                     if viewModel.isAIProcessing {
-                        Text("AI가 옷을 분석하고 있어요")
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.white)
+                        if viewModel.aiTotalCount > 1 {
+                            Text("AI가 옷을 분석하고 있어요 (\(viewModel.aiProcessedCount)/\(viewModel.aiTotalCount))")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.white)
+                        } else {
+                            Text("AI가 옷을 분석하고 있어요")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.white)
+                        }
                     }
                 }
             }
@@ -145,6 +151,7 @@ struct ClothAddView: View {
             }
 
             return ClothingItem(
+                id: index,
                 imageName: nil,
                 image: photo.aiImageUrl == nil ? photo.croppedImage : nil,
                 imageUrl: photo.aiImageUrl,

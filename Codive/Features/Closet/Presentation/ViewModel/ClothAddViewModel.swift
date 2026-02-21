@@ -73,6 +73,8 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
     // 완료 상태
     @Published var isLoading = false
     @Published var isAIProcessing = false
+    @Published var aiProcessedCount = 0
+    @Published var aiTotalCount = 0
 
     // AI 결과 알림
     @Published var showAIResultAlert = false
@@ -261,6 +263,7 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
 
     func processAI() {
         isAIProcessing = true
+        aiProcessedCount = 0
 
         Task {
             let imageDatas = selectedPhotos.compactMap { $0.croppedImage.jpegData(compressionQuality: 0.8) }
@@ -268,6 +271,8 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
                 isAIProcessing = false
                 return
             }
+
+            aiTotalCount = imageDatas.count
 
             // 1. S3 병렬 업로드 (개별 실패 허용)
             let uploadResults = await clothAIUseCase.uploadImages(images: imageDatas)
@@ -280,14 +285,21 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
                 return
             }
 
-            // 2. 성공한 이미지만 AI 정보 추출
+            // 2. 성공한 이미지만 AI 정보 추출 (3장씩 청크 분할)
             var aiInfos: [ClothAIInfo] = []
-            do {
-                aiInfos = try await clothAIUseCase.extractClothInfo(clothImageUrls: successUrls)
-            } catch {
-                #if DEBUG
-                print("[ClothAI] 정보 추출 실패: \(error)")
-                #endif
+            let chunkSize = 3
+            for chunkStart in stride(from: 0, to: successUrls.count, by: chunkSize) {
+                let chunkEnd = min(chunkStart + chunkSize, successUrls.count)
+                let chunk = Array(successUrls[chunkStart..<chunkEnd])
+                do {
+                    let chunkInfos = try await clothAIUseCase.extractClothInfo(clothImageUrls: chunk)
+                    aiInfos.append(contentsOf: chunkInfos)
+                } catch {
+                    #if DEBUG
+                    print("[ClothAI] 정보 추출 실패 (chunk \(chunkStart/chunkSize + 1)): \(error)")
+                    #endif
+                }
+                aiProcessedCount = min(chunkEnd, aiTotalCount)
             }
 
             // 3. 결과 반영 (업로드 성공한 인덱스만)
