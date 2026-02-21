@@ -9,7 +9,7 @@ import SwiftUI
 
 // MARK: - 옷 정보 모델
 struct ClothingItem: Identifiable {
-    let id = UUID()
+    let id: Int
     let imageName: String?
     let image: UIImage?
     let imageUrl: String?
@@ -21,6 +21,7 @@ struct ClothingItem: Identifiable {
     let purchaseUrl: String
 
     init(
+        id: Int = 0,
         imageName: String? = nil,
         image: UIImage? = nil,
         imageUrl: String? = nil,
@@ -31,6 +32,7 @@ struct ClothingItem: Identifiable {
         brand: String,
         purchaseUrl: String
     ) {
+        self.id = id
         self.imageName = imageName
         self.image = image
         self.imageUrl = imageUrl
