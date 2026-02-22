@@ -60,7 +60,7 @@ final class SocialAuthService: NSObject, SocialAuthServiceProtocol {
             }
 
             session.presentationContextProvider = self
-            session.prefersEphemeralWebBrowserSession = false
+            session.prefersEphemeralWebBrowserSession = true
             session.start()
         }
     }
