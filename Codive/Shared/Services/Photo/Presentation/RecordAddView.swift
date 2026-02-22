@@ -66,7 +66,7 @@ struct RecordAddView: View {
                         ) {
                             viewModel.showCamera()
                         }
-                        
+
                         if viewModel.photos.isEmpty {
                             // 스켈레톤 셀들
                             ForEach(0..<40, id: \.self) { _ in
@@ -89,6 +89,11 @@ struct RecordAddView: View {
                         }
                     }
                 }
+
+                // AI 추가 토글 (옷 추가 플로우 전용)
+                if viewModel.flowType == .cloth {
+                    aiAddToggleBar
+                }
             }
             // 로딩 오버레이
             if viewModel.isCompletingSelection {
@@ -96,6 +101,7 @@ struct RecordAddView: View {
             }
         }
         .navigationBarHidden(true)
+        .enableSwipeBack()
         .background(Color.white)
         .sheet(isPresented: $viewModel.isAlbumSheetPresented) {
             AlbumBottomSheet(
@@ -114,8 +120,67 @@ struct RecordAddView: View {
             }
             .ignoresSafeArea()
         }
+        .overlay {
+            if viewModel.isClothInfoPresented {
+                Color.black.opacity(0.5)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation {
+                            viewModel.isClothInfoPresented = false
+                        }
+                    }
+
+                Image("Cloth_info")
+                    .resizable()
+                    .scaledToFit()
+                    .padding(.horizontal, 40)
+                    .overlay(alignment: .topTrailing) {
+                        Button {
+                            withAnimation {
+                                viewModel.isClothInfoPresented = false
+                            }
+                        } label: {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundStyle(Color.Codive.grayscale3)
+                                .padding(12)
+                        }
+                        .padding(.horizontal, 40)
+                    }
+                    .transition(.opacity)
+            }
+        }
+        .animation(.easeInOut(duration: 0.25), value: viewModel.isClothInfoPresented)
         .task {
             await viewModel.requestAuthorization()
         }
+    }
+
+    // MARK: - AI Add Toggle Bar
+    private var aiAddToggleBar: some View {
+        VStack(spacing: 0) {
+            Divider()
+
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("AI로 추가하기")
+                        .font(.codive_body1_bold)
+                        .foregroundStyle(Color.Codive.grayscale1)
+
+                    Text("AI가 옷을 분류하고, 카테고리를 구별해요.")
+                        .font(.codive_body2_medium)
+                        .foregroundStyle(Color.Codive.grayscale4)
+                }
+
+                Spacer()
+
+                Toggle("", isOn: $viewModel.isAIAddEnabled)
+                    .labelsHidden()
+                    .tint(Color.Codive.point1)
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+        }
+        .background(Color.white)
     }
 }

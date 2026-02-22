@@ -90,7 +90,11 @@ final class HomeDIContainer {
     
     func makeEditCategoryViewModel() -> EditCategoryViewModel {
         return EditCategoryViewModel(
-            navigationRouter: navigationRouter
+            navigationRouter: navigationRouter,
+            onApply: { [weak self] in
+                guard let self, let homeViewModel = self.homeViewModel else { return }
+                homeViewModel.refreshAfterCategoryEdit()
+            }
         )
     }
     

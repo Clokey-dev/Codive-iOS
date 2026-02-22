@@ -235,6 +235,8 @@ extension LookBookDataSource {
             throw LookBookAPIError.uploadFailed(message: "S3 업로드 실패 (Status: \((response as? HTTPURLResponse)?.statusCode ?? -1))")
         }
         
-        print("✅ S3 이미지 업로드 성공")
+        #if DEBUG
+        print("[LookBook] S3 이미지 업로드 성공")
+        #endif
     }
 }

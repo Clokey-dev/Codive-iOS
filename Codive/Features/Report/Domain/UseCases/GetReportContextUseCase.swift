@@ -19,7 +19,7 @@ final class GetReportContextUseCase {
     }
     
     // 대상별 컨텍스트 단건 조회
-    func fetchContext(for target: ReportTarget) async throws -> ReportContext {
-        try await provider.fetchContext(for: target)
+    func fetchContext(for target: ReportTarget, commentInfo: CommentReportInfo? = nil) async throws -> ReportContext {
+        try await provider.fetchContext(for: target, commentInfo: commentInfo)
     }
 }

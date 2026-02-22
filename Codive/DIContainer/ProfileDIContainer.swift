@@ -92,10 +92,12 @@ final class ProfileDIContainer {
         return profileViewModel
     }
 
-    func makeFollowListViewModel(mode: FollowListMode, memberId: Int) -> FollowListViewModel {
+    func makeFollowListViewModel(mode: FollowListMode, memberId: Int, isMe: Bool) -> FollowListViewModel {
         return FollowListViewModel(
             mode: mode,
             memberId: memberId,
+            isMe: isMe,
+            navigationRouter: navigationRouter,
             fetchFollowsUseCase: makeFetchFollowsUseCase()
         )
     }
@@ -131,9 +133,9 @@ final class ProfileDIContainer {
         return ProfileView(viewModel: makeProfileViewModel(), navigationRouter: navigationRouter)
     }
 
-    func makeFollowListView(mode: FollowListMode, memberId: Int) -> FollowListView {
+    func makeFollowListView(mode: FollowListMode, memberId: Int, isMe: Bool) -> FollowListView {
         return FollowListView(
-            viewModel: makeFollowListViewModel(mode: mode, memberId: memberId),
+            viewModel: makeFollowListViewModel(mode: mode, memberId: memberId, isMe: isMe),
             navigationRouter: navigationRouter
         )
     }

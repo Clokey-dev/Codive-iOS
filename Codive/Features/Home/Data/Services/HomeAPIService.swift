@@ -63,26 +63,46 @@ extension HomeAPIService {
             throw HomeAPIError.invalidResponse
         }
         let seasonPayload = mapSeasonToQueryParam(firstSeason)
-        
+
+        #if DEBUG
+        print("[HomeAPI] 카테고리 옷 추천 요청 - categoryId: \(categoryId), season: \(firstSeason.rawValue), size: \(size), lastClothId: \(String(describing: lastClothId))")
+        #endif
+
         let input = Operations.Cloth_recommendCategoryClothes.Input(
             query: .init(lastClothId: lastClothId, size: size, categoryId: categoryId, season: seasonPayload)
         )
-        
+
         let response = try await client.Cloth_recommendCategoryClothes(input)
-        
+
         switch response {
         case .ok(let okResponse):
             let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            
+
+            #if DEBUG
+            if let rawJSON = String(data: data, encoding: .utf8) {
+                print("[HomeAPI] 카테고리 옷 추천 응답 (categoryId: \(categoryId)) RAW: \(rawJSON)")
+            }
+            #endif
+
             let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseClothRecommendListResponse.self, from: data)
-            
+
             let content: [HomeCategoryResponseItem] = decoded.result?.content?.map { item -> HomeCategoryResponseItem in
+                #if DEBUG
+                print("[HomeAPI] 카테고리 옷 아이템 - clothId: \(item.clothId ?? 0), imageUrl: \(item.ImageUrl ?? "nil")")
+                #endif
                 return HomeCategoryResponseItem(clothId: item.clothId ?? 0, ImageUrl: item.ImageUrl ?? "")
             } ?? []
-            
+
+            #if DEBUG
+            print("[HomeAPI] 카테고리 옷 추천 결과 (categoryId: \(categoryId)) - 총 \(content.count)개, isLast: \(decoded.result?.isLast ?? true)")
+            #endif
+
             return HomeCategoryResponseDTO(content: content, isLast: decoded.result?.isLast ?? true)
-            
+
         case .undocumented(statusCode: let code, _):
+            #if DEBUG
+            print("[HomeAPI] 카테고리 옷 추천 실패 (categoryId: \(categoryId)) - statusCode: \(code)")
+            #endif
             throw HomeAPIError.serverError(statusCode: code, message: "옷 목록 조회 실패")
         }
     }

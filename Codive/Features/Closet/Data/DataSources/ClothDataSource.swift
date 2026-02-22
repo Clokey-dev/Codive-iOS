@@ -91,10 +91,18 @@ final class DefaultClothDataSource: ClothDataSource {
             throw ClothDataSourceError.inputImageCountMismatch
         }
 
-        // Step 1: Presigned URL 발급
         let presignedInfos = try await apiService.getPresignedUrls(for: images)
+        try await uploadImagesToS3(images: images, presignedInfos: presignedInfos)
 
-        // Step 2: S3에 이미지 업로드
+        let createRequests = buildCreateRequests(inputs: inputs, presignedInfos: presignedInfos)
+        let clothIds = try await apiService.createClothes(requests: createRequests)
+
+        return try await fetchCreatedClothDetails(
+            clothIds: clothIds, inputs: inputs, presignedInfos: presignedInfos
+        )
+    }
+
+    private func uploadImagesToS3(images: [Data], presignedInfos: [PresignedUrlInfo]) async throws {
         for (imageData, presignedInfo) in zip(images, presignedInfos) {
             try await apiService.uploadImageToS3(
                 presignedUrl: presignedInfo.presignedUrl,
@@ -102,9 +110,10 @@ final class DefaultClothDataSource: ClothDataSource {
                 contentMD5: presignedInfo.md5Hash
             )
         }
+    }
 
-        // Step 3: 옷 생성 API 호출
-        let createRequests = zip(inputs, presignedInfos).map { input, presignedInfo in
+    private func buildCreateRequests(inputs: [ClothInput], presignedInfos: [PresignedUrlInfo]) -> [ClothCreateAPIRequest] {
+        zip(inputs, presignedInfos).map { input, presignedInfo in
             ClothCreateAPIRequest(
                 clothImageUrl: presignedInfo.finalUrl,
                 clothUrl: input.purchaseUrl.isEmpty ? nil : input.purchaseUrl,
@@ -114,56 +123,51 @@ final class DefaultClothDataSource: ClothDataSource {
                 categoryId: Int64(input.categoryId ?? 0)
             )
         }
+    }
 
-        let clothIds = try await apiService.createClothes(requests: createRequests)
-
-        // Step 4: 생성된 옷의 상세 정보를 병렬로 조회해서 정확한 카테고리 정보 포함
-        return try await withThrowingTaskGroup(of: (Int, Cloth).self) { group in
-            // 각 옷의 상세 정보를 병렬로 조회
+    private func fetchCreatedClothDetails(
+        clothIds: [Int64], inputs: [ClothInput], presignedInfos: [PresignedUrlInfo]
+    ) async throws -> [Cloth] {
+        try await withThrowingTaskGroup(of: (Int, Cloth).self) { group in
             for (index, clothId) in clothIds.enumerated() {
                 group.addTask {
-                    do {
-                        // 상세 정보 조회
-                        let detail = try await self.apiService.fetchClothDetails(clothId: clothId)
-
-                        // ClothDetailResult → Cloth 변환
-                        let cloth = Cloth(
-                            id: Int(clothId),
-                            imageUrl: detail.clothImageUrl,
-                            name: detail.name,
-                            brand: detail.brand,
-                            purchaseUrl: detail.clothUrl,
-                            mainCategory: detail.parentCategory,
-                            subCategory: detail.category,
-                            seasons: Set(detail.seasons)
-                        )
-                        return (index, cloth)
-                    } catch {
-                        // 상세 정보 조회 실패 시, 입력 데이터로 fallback
-                        let input = inputs[index]
-                        let presignedInfo = presignedInfos[index]
-                        let cloth = Cloth(
-                            id: Int(clothId),
-                            imageUrl: presignedInfo.finalUrl,
-                            name: input.name.isEmpty ? nil : input.name,
-                            brand: input.brand.isEmpty ? nil : input.brand,
-                            purchaseUrl: input.purchaseUrl.isEmpty ? nil : input.purchaseUrl,
-                            mainCategory: nil,
-                            subCategory: nil,
-                            seasons: input.seasons
-                        )
-                        return (index, cloth)
-                    }
+                    await self.fetchOrFallback(
+                        clothId: clothId, index: index,
+                        input: inputs[index], presignedInfo: presignedInfos[index]
+                    )
                 }
             }
 
-            // 결과를 순서대로 정렬
             var results: [(Int, Cloth)] = []
             for try await result in group {
                 results.append(result)
             }
+            return results.sorted { $0.0 < $1.0 }.map { $0.1 }
+        }
+    }
 
-            return results.sorted(by: { $0.0 < $1.0 }).map { $0.1 }
+    private func fetchOrFallback(
+        clothId: Int64, index: Int, input: ClothInput, presignedInfo: PresignedUrlInfo
+    ) async -> (Int, Cloth) {
+        do {
+            let detail = try await apiService.fetchClothDetails(clothId: clothId)
+            let cloth = Cloth(
+                id: Int(clothId), imageUrl: detail.clothImageUrl,
+                name: detail.name, brand: detail.brand,
+                purchaseUrl: detail.clothUrl,
+                mainCategory: detail.parentCategory, subCategory: detail.category,
+                seasons: Set(detail.seasons)
+            )
+            return (index, cloth)
+        } catch {
+            let cloth = Cloth(
+                id: Int(clothId), imageUrl: presignedInfo.finalUrl,
+                name: input.name.isEmpty ? nil : input.name,
+                brand: input.brand.isEmpty ? nil : input.brand,
+                purchaseUrl: input.purchaseUrl.isEmpty ? nil : input.purchaseUrl,
+                mainCategory: nil, subCategory: nil, seasons: input.seasons
+            )
+            return (index, cloth)
         }
     }
 
@@ -172,24 +176,38 @@ final class DefaultClothDataSource: ClothDataSource {
         seasons: Set<Season>,
         searchText: String?
     ) async throws -> [Cloth] {
-        let result = try await apiService.fetchClothes(
-            lastClothId: nil,
-            size: 100,
-            categoryId: categoryId.map { Int64($0) },
-            seasons: Array(seasons)
-        )
-
-        var clothes = result.clothes.map(mapToCloth)
-
         if let searchText = searchText, !searchText.isEmpty {
-            clothes = clothes.filter { cloth in
-                let nameMatch = cloth.name?.localizedCaseInsensitiveContains(searchText) ?? false
-                let brandMatch = cloth.brand?.localizedCaseInsensitiveContains(searchText) ?? false
-                return nameMatch || brandMatch
+            // 검색어가 있으면 서버 사이드 검색 API 시도, 실패 시 클라이언트 필터링 fallback
+            do {
+                let result = try await apiService.searchClothes(
+                    keyword: searchText,
+                    size: 100,
+                    categoryId: categoryId.map { Int64($0) },
+                    seasons: Array(seasons)
+                )
+                return result.clothes.map(mapToCloth)
+            } catch {
+                let result = try await apiService.fetchClothes(
+                    lastClothId: nil,
+                    size: 100,
+                    categoryId: categoryId.map { Int64($0) },
+                    seasons: Array(seasons)
+                )
+                return result.clothes.map(mapToCloth).filter { cloth in
+                    let nameMatch = cloth.name?.localizedCaseInsensitiveContains(searchText) ?? false
+                    let brandMatch = cloth.brand?.localizedCaseInsensitiveContains(searchText) ?? false
+                    return nameMatch || brandMatch
+                }
             }
+        } else {
+            let result = try await apiService.fetchClothes(
+                lastClothId: nil,
+                size: 100,
+                categoryId: categoryId.map { Int64($0) },
+                seasons: Array(seasons)
+            )
+            return result.clothes.map(mapToCloth)
         }
-
-        return clothes
     }
 
     func deleteClothItems(_ clothIds: [Int]) async throws {

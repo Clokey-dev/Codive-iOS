@@ -18,6 +18,8 @@ protocol HistoryAPIServiceProtocol {
     func fetchClothTags(historyImageId: Int64) async throws -> [ClothTagDTO]
     func fetchMonthlyHistory(memberId: Int64, year: Int32, month: Int32) async throws -> [MonthlyHistoryItemDTO]
     func deleteHistory(historyId: Int64) async throws
+    func getPresignedUrls(for images: [Data]) async throws -> [PresignedUrlInfo]
+    func uploadImageToS3(presignedUrl: String, imageData: Data, contentMD5: String) async throws
 }
 
 // MARK: - History Detail DTO
@@ -77,8 +79,8 @@ struct HistoryImagePayload {
 
 final class HistoryAPIService: HistoryAPIServiceProtocol {
 
-    private let client: Client
-    private let jsonDecoder: JSONDecoder
+    let client: Client
+    let jsonDecoder: JSONDecoder
 
     init(tokenProvider: TokenProvider = KeychainTokenProvider()) {
         self.client = CodiveAPIProvider.createClient(
@@ -132,7 +134,9 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
 
         case .undocumented(statusCode: let code, let body):
             let errorDetail = await extractErrorDetail(from: body)
-            print("❌ Create API Error - Status: \(code), Detail: \(errorDetail)")
+            #if DEBUG
+            print("[History] Create API Error - Status: \(code), Detail: \(errorDetail)")
+            #endif
             throw HistoryAPIError.serverError(statusCode: code, detail: errorDetail)
         }
     }
@@ -176,7 +180,9 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
         case .undocumented(statusCode: let code, let body):
             // Try to extract error details from response body
             let errorDetail = await extractErrorDetail(from: body)
-            print("❌ Update API Error - Status: \(code), Detail: \(errorDetail)")
+            #if DEBUG
+            print("[History] Update API Error - Status: \(code), Detail: \(errorDetail)")
+            #endif
             throw HistoryAPIError.serverError(statusCode: code, detail: errorDetail)
         }
     }
@@ -336,7 +342,9 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
 
         case .undocumented(statusCode: let code, let body):
             let errorDetail = await extractErrorDetail(from: body)
-            print("❌ Delete API Error - Status: \(code), Detail: \(errorDetail)")
+            #if DEBUG
+            print("[History] Delete API Error - Status: \(code), Detail: \(errorDetail)")
+            #endif
             throw HistoryAPIError.serverError(statusCode: code, detail: errorDetail)
         }
     }

@@ -69,6 +69,7 @@ struct OtherProfileView: View {
         }
         .background(Color.white)
         .navigationBarBackButtonHidden(true)
+        .enableSwipeBack()
         .task {
             await viewModel.loadProfile()
         }
@@ -95,6 +96,14 @@ struct OtherProfileView: View {
             Button(TextLiteral.Common.confirm, role: .cancel) {}
         } message: {
             Text(viewModel.blockErrorMessage)
+        }
+        .alert(
+            "캘린더 로딩 실패",
+            isPresented: $viewModel.showHistoryErrorAlert
+        ) {
+            Button(TextLiteral.Common.confirm, role: .cancel) {}
+        } message: {
+            Text("기록을 불러오는데 실패했습니다.")
         }
     }
 

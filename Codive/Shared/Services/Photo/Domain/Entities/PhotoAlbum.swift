@@ -32,7 +32,8 @@ struct SelectedPhoto: Identifiable, Equatable, Hashable {
     var croppedImage: UIImage
     var order: Int
     var clothTags: [ClothTag] = []
-    var imageUrl: String? = nil // 수정 모드에서 기존 이미지 URL 저장
+    var imageUrl: String? // 수정 모드에서 기존 이미지 URL 저장
+    var aiImageUrl: String? // AI 누끼 이미지 URL
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)

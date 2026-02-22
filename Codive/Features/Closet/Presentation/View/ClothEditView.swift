@@ -65,6 +65,7 @@ struct ClothEditView: View {
             await viewModel.fetchDetail()
         }
         .navigationBarHidden(true)
+        .enableSwipeBack()
         .background(Color.white)
         .sheet(isPresented: $viewModel.isCategorySheetPresented) {
             CustomCategoryBottomSheet(
@@ -108,6 +109,7 @@ struct ClothEditView: View {
         }
 
         return ClothingItem(
+            id: viewModel.cloth.id,
             imageName: nil,
             image: nil,
             imageUrl: viewModel.imageUrl,

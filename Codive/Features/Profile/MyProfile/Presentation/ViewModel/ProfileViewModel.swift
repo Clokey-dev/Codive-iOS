@@ -115,7 +115,9 @@ class ProfileViewModel: ObservableObject {
             self.email = profileInfo.email
         } catch {
             self.errorMessage = error.localizedDescription
-            print("프로필 로드 실패: \(error.localizedDescription)")
+            #if DEBUG
+            print("[Profile] 프로필 로드 실패: \(error.localizedDescription)")
+            #endif
         }
         
         isLoading = false
@@ -151,7 +153,9 @@ class ProfileViewModel: ObservableObject {
             self.monthlyHistories = historyMap
             self.monthlyHistoryIds = historyIdMap
         } catch {
-            print("월별 기록 로드 실패: \(error.localizedDescription)")
+            #if DEBUG
+            print("[Profile] 월별 기록 로드 실패: \(error.localizedDescription)")
+            #endif
         }
     }
 
@@ -165,11 +169,11 @@ class ProfileViewModel: ObservableObject {
     }
     
     func onFollowerTapped() {
-        navigationRouter.navigate(to: .followList(mode: .followers, memberId: userId))
+        navigationRouter.navigate(to: .followList(mode: .followers, memberId: userId, isMe: true))
     }
-    
+
     func onFollowingTapped() {
-        navigationRouter.navigate(to: .followList(mode: .followings, memberId: userId))
+        navigationRouter.navigate(to: .followList(mode: .followings, memberId: userId, isMe: true))
     }
     
     func onMoreFavoriteCodiTapped() {
@@ -181,7 +185,9 @@ class ProfileViewModel: ObservableObject {
             let coordinates = try await fetchMyFavoriteLookBookUseCase.fetchMyFavoriteCoordinate()
             self.favoriteCoordinates = coordinates
         } catch {
-            print("최애 코디 로드 실패: \(error)")
+            #if DEBUG
+            print("[Profile] 최애 코디 로드 실패: \(error)")
+            #endif
         }
     }
     
@@ -192,7 +198,9 @@ class ProfileViewModel: ObservableObject {
                 self.selectedCoordinateDetails = try await fetchMyFavoriteLookBookUseCase.fetchCoordinateDetail(coordinateId: coordinateId)
                 self.isShowingPopup = true
             } catch {
-                print("코디 상세 정보 로드 실패: \(error)")
+                #if DEBUG
+                print("[Profile] 코디 상세 정보 로드 실패: \(error)")
+                #endif
             }
         }
     }

@@ -7,6 +7,7 @@
 
 import Foundation
 import CodiveAPI
+import Kingfisher
 
 // MARK: - Auth Repository Implementation
 @MainActor
@@ -43,8 +44,37 @@ final class AuthRepositoryImpl: AuthRepository {
     }
 
     func logout() async {
+        // 서버에 로그아웃 요청 (Redis 리프레시 토큰 삭제)
+        try? await authAPIService.logoutUser()
+        // 소셜 로그아웃 (카카오/애플)
         await socialAuthService.logout()
+        // 로컬 키체인 토큰 삭제
         try? KeychainManager.shared.clearAllTokens()
+        // 로컬 캐시 데이터 삭제
+        clearLocalData()
+    }
+
+    func deactivateAccount() async throws {
+        // 서버에 비활성화 요청 (15일 뒤 자동 탈퇴)
+        try await authAPIService.deactivateAccount()
+        // 소셜 로그아웃
+        await socialAuthService.logout()
+        // 로컬 키체인 토큰 삭제
+        try? KeychainManager.shared.clearAllTokens()
+        // 로컬 캐시 데이터 삭제
+        clearLocalData()
+    }
+
+    // MARK: - Local Data Cleanup
+    private func clearLocalData() {
+        // UserDefaults 캐시 삭제 (카테고리 등)
+        UserDefaults.standard.removeObject(forKey: "SavedCategories")
+        // Kingfisher 이미지 캐시 삭제
+        let cache = ImageCache.default
+        cache.clearMemoryCache()
+        cache.clearDiskCache()
+        // URL 캐시 삭제
+        URLCache.shared.removeAllCachedResponses()
     }
 
     func saveTokens(accessToken: String, refreshToken: String) async throws {

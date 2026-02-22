@@ -61,6 +61,7 @@ struct ClothDetailView: View {
             await viewModel.fetchDetail()
         }
         .navigationBarHidden(true)
+        .enableSwipeBack()
         .background(Color.white)
         .confirmationDialog("", isPresented: $viewModel.showActionSheet) {
             Button("편집") {
@@ -98,7 +99,8 @@ struct ClothDetailView: View {
                 case .success(let image):
                     image
                         .resizable()
-                        .aspectRatio(contentMode: .fill)
+                        .aspectRatio(contentMode: .fit)
+                        .background(Color.Codive.grayscale6)
                 case .failure:
                     Rectangle()
                         .fill(Color.Codive.grayscale7)

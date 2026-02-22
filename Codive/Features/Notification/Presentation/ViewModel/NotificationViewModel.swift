@@ -46,7 +46,9 @@ final class NotificationViewModel: ObservableObject {
                     self.reportType = nil
                 }
             } catch {
-                print(error)
+                #if DEBUG
+                print("[Notification] \(error)")
+                #endif
             }
         }
     }

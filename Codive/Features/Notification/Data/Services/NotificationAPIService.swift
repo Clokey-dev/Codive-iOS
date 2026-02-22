@@ -161,7 +161,6 @@ extension NotificationAPIService {
     }
 }
 
-
 extension NotificationAPIService {
     private func mapNotificationItems(
         _ items: [Components.Schemas.NotificationListResponse]?

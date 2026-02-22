@@ -164,10 +164,9 @@ private struct FeedCellView: View {
                         }
                     }
                 ),
-                onProfileTap: {
-                    viewModel.navigateToProfile(userId: feed.author.id)
-                }
-            )
+            ) {
+                viewModel.navigateToProfile(userId: feed.author.id)
+            }
         }
         .buttonStyle(PlainButtonStyle())
         .onAppear {
@@ -180,6 +179,7 @@ private struct FeedCellView: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 struct FeedView_Previews: PreviewProvider {
     static var previews: some View {
@@ -216,3 +216,4 @@ struct FeedView_Previews: PreviewProvider {
         }
     }
 }
+#endif

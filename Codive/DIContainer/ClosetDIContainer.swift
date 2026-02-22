@@ -35,6 +35,10 @@ final class ClosetDIContainer {
         return ClothRepositoryImpl(dataSource: clothDataSource)
     }()
 
+    private lazy var clothAIRepository: ClothAIRepository = {
+        return ClothAIRepositoryImpl(apiService: clothAPIService)
+    }()
+
     // MARK: - UseCases
     func makeFetchClothItemsUseCase() -> FetchClothItemsUseCase {
         return FetchClothItemsUseCase(repository: clothRepository)
@@ -54,6 +58,10 @@ final class ClosetDIContainer {
     
     func makeFetchMyLookBookListUseCase() -> FetchMyLookBookListUseCase {
         return FetchMyLookBookListUseCase(repository: clothRepository)
+    }
+
+    func makeClothAIUseCase() -> ClothAIUseCase {
+        return DefaultClothAIUseCase(repository: clothAIRepository)
     }
 
     // MARK: - ViewModels

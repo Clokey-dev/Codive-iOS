@@ -39,7 +39,7 @@ final class AddCodiDetailViewModel: ObservableObject {
     private let productUseCase: ProductUseCase
     
     var codiPayloads: [Payloads] {
-        return images.enumerated().map { (index, entity) in
+        return images.enumerated().map { index, entity in
             let normalizedX = (entity.position.x + (boardSize / 2)) / boardSize
             let normalizedY = (entity.position.y + (boardSize / 2)) / boardSize
             
@@ -155,7 +155,9 @@ final class AddCodiDetailViewModel: ObservableObject {
             let uploadedURL = try await productUseCase.execute(jpgData: jpgData)
             self.capturedImageString = uploadedURL
         } catch {
-            print("❌ 이미지 업로드 실패: \(error.localizedDescription)")
+            #if DEBUG
+            print("[Codi] 이미지 업로드 실패: \(error.localizedDescription)")
+            #endif
         }
     }
     

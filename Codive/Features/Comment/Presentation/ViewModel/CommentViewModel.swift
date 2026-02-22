@@ -30,6 +30,13 @@ final class CommentViewModel: ObservableObject {
     @Published var currentReplyText: String = ""
     @Published var isReplyLoading: Bool = false
 
+    // 더보기 메뉴 관련 상태
+    @Published var expandedMenuCommentId: Int?
+    @Published var showDeleteAlert: Bool = false
+    @Published var pendingDeleteCommentId: Int?
+    @Published var showBlockAlert: Bool = false
+    @Published var pendingBlockComment: Comment?
+
     private var cancellables = Set<AnyCancellable>()
 
     private let feedId: Int
@@ -38,6 +45,8 @@ final class CommentViewModel: ObservableObject {
     private let postCommentUseCase: PostCommentUseCase
     private let fetchRepliesUseCase: FetchRepliesUseCase
     private let postReplyUseCase: PostReplyUseCase
+    private let commentRepository: CommentRepository
+    private let toggleBlockUseCase: ToggleBlockUseCase
     var dismissAction: () -> Void = {}
 
     // MARK: - Initializer
@@ -48,7 +57,9 @@ final class CommentViewModel: ObservableObject {
         fetchCommentsUseCase: FetchCommentsUseCase,
         postCommentUseCase: PostCommentUseCase,
         fetchRepliesUseCase: FetchRepliesUseCase,
-        postReplyUseCase: PostReplyUseCase
+        postReplyUseCase: PostReplyUseCase,
+        commentRepository: CommentRepository,
+        toggleBlockUseCase: ToggleBlockUseCase
     ) {
         self.feedId = feedId
         self.navigationRouter = navigationRouter
@@ -56,6 +67,8 @@ final class CommentViewModel: ObservableObject {
         self.postCommentUseCase = postCommentUseCase
         self.fetchRepliesUseCase = fetchRepliesUseCase
         self.postReplyUseCase = postReplyUseCase
+        self.commentRepository = commentRepository
+        self.toggleBlockUseCase = toggleBlockUseCase
     }
     
     // MARK: - Public Methods
@@ -71,7 +84,9 @@ final class CommentViewModel: ObservableObject {
                 self.hasNextPage = result.hasNext
             } catch {
                 // TODO: 에러 처리
+                #if DEBUG
                 print("Error fetching comments: \(error)")
+                #endif
             }
             self.isLoading = false
         }
@@ -86,7 +101,9 @@ final class CommentViewModel: ObservableObject {
                 self.comments = result.comments
                 self.hasNextPage = result.hasNext
             } catch {
+                #if DEBUG
                 print("Error reloading comments: \(error)")
+                #endif
             }
             self.isLoading = false
         }
@@ -107,7 +124,9 @@ final class CommentViewModel: ObservableObject {
                 // 새 댓글을 맨 위에 추가 (전체 리로드 대신)
                 self.comments.insert(newComment, at: 0)
             } catch {
+                #if DEBUG
                 print("Error posting comment: \(error)")
+                #endif
             }
         }
     }
@@ -142,7 +161,9 @@ final class CommentViewModel: ObservableObject {
                     self.comments = updatedComments
                 }
             } catch {
+                #if DEBUG
                 print("Error fetching replies: \(error)")
+                #endif
             }
             self.isReplyLoading = false
         }
@@ -164,7 +185,9 @@ final class CommentViewModel: ObservableObject {
                     self.comments = updatedComments
                 }
             } catch {
-                print("Error fetching all replies: \(error)")
+                #if DEBUG
+                print("[Comment] Error fetching all replies: \(error)")
+                #endif
             }
             self.isReplyLoading = false
         }
@@ -194,14 +217,119 @@ final class CommentViewModel: ObservableObject {
                     self.comments = updatedComments
                 }
             } catch {
+                #if DEBUG
                 print("Error posting reply: \(error)")
+                #endif
             }
         }
     }
 
+    // MARK: - Menu Methods
+
+    func toggleMenu(commentId: Int) {
+        if expandedMenuCommentId == commentId {
+            expandedMenuCommentId = nil
+        } else {
+            expandedMenuCommentId = commentId
+        }
+    }
+
+    func dismissMenu() {
+        expandedMenuCommentId = nil
+    }
+
+    func onDeleteTapped(commentId: Int) {
+        dismissMenu()
+        pendingDeleteCommentId = commentId
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.showDeleteAlert = true
+        }
+    }
+
+    func confirmDelete() {
+        guard let commentId = pendingDeleteCommentId else { return }
+        pendingDeleteCommentId = nil
+
+        Task {
+            do {
+                try await commentRepository.deleteComment(commentId: commentId)
+                removeComment(id: commentId)
+            } catch {
+                #if DEBUG
+                print("Error deleting comment: \(error)")
+                #endif
+            }
+        }
+    }
+
+    func onReportTapped(commentId: Int) {
+        dismissMenu()
+
+        // 댓글 정보를 Report 플로우에 라우팅 파라미터로 전달
+        var info: CommentReportInfo?
+        if let comment = findComment(by: commentId) {
+            info = CommentReportInfo(
+                feedId: feedId,
+                commentId: commentId,
+                authorNickname: comment.author.nickname,
+                authorProfileImageUrl: comment.author.profileImageUrl,
+                content: comment.content,
+                authorId: Int(comment.author.id) ?? 0
+            )
+        }
+
+        dismissAction()
+        let capturedInfo = info
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.navigationRouter.navigate(to: .report(target: .comment(id: commentId), commentInfo: capturedInfo))
+        }
+    }
+
+    func onBlockTapped(comment: Comment) {
+        dismissMenu()
+        pendingBlockComment = comment
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.showBlockAlert = true
+        }
+    }
+
+    func confirmBlock() {
+        guard let comment = pendingBlockComment,
+              let memberId = Int(comment.author.id) else { return }
+        pendingBlockComment = nil
+
+        Task {
+            do {
+                try await toggleBlockUseCase.execute(memberId: memberId)
+                NotificationCenter.default.post(name: .userDidBlock, object: nil)
+
+                // 차단 후 댓글 시트 닫기 (FeedDetailView가 userDidBlock을 받아 처리)
+                dismissAction()
+            } catch {
+                #if DEBUG
+                print("Error blocking user: \(error)")
+                #endif
+            }
+        }
+    }
+
+    func findComment(by id: Int) -> Comment? {
+        for comment in comments {
+            if comment.id == id { return comment }
+            if let reply = comment.replies?.first(where: { $0.id == id }) {
+                return reply
+            }
+        }
+        return nil
+    }
+
+    // MARK: - Navigation
+
     func navigateToProfile(userId: String, isMine: Bool) {
         guard let memberId = Int(userId) else {
-            print("❌ Invalid userId: \(userId)")
+            #if DEBUG
+            print("[Comment] Invalid userId: \(userId)")
+            #endif
             return
         }
 
@@ -213,6 +341,26 @@ final class CommentViewModel: ObservableObject {
         } else {
             // 다른 사람 댓글이면 OtherProfileView로 이동
             navigationRouter.navigate(to: .otherProfile(userId: memberId))
+        }
+    }
+
+    // MARK: - Private Helpers
+
+    private func removeComment(id: Int) {
+        // 최상위 댓글에서 찾기
+        if let index = comments.firstIndex(where: { $0.id == id }) {
+            comments.remove(at: index)
+            return
+        }
+        // 대댓글에서 찾기
+        for i in comments.indices {
+            if let replyIndex = comments[i].replies?.firstIndex(where: { $0.id == id }) {
+                comments[i].replies?.remove(at: replyIndex)
+                if let count = comments[i].replyCount, count > 0 {
+                    comments[i].replyCount = count - 1
+                }
+                return
+            }
         }
     }
 }

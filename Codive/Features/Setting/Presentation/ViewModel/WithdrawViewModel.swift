@@ -38,7 +38,9 @@ final class WithdrawViewModel: ObservableObject {
             } catch {
                 await MainActor.run {
                     isLoading = false
-                    print("탈퇴 실패: \(error.localizedDescription)")
+                    #if DEBUG
+                    print("[Setting] 탈퇴 실패: \(error.localizedDescription)")
+                    #endif
                 }
             }
         }

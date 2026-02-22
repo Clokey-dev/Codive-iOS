@@ -47,7 +47,6 @@ struct FeedLikesListView: View {
                                 buttonStyle: (user.isFollowing ?? false) ? .secondary : .primary
                             ) {
                                 // TODO: 팔로우/언팔로우 액션 구현
-                                print("팔로우/언팔로우 \(user.nickname)")
                             }
                         }
                     }
@@ -59,6 +58,7 @@ struct FeedLikesListView: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 struct FeedLikesListView_Previews: PreviewProvider {
     static var previews: some View {
@@ -69,14 +69,15 @@ struct FeedLikesListView_Previews: PreviewProvider {
             repository: mockRepo,
             navigationRouter: navigationRouter
         )
-        
+
         // 프리뷰용 목 데이터 설정
         viewModel.likers = [
             User(id: "1", nickname: "패셔니스타", profileImageUrl: nil, isFollowing: false),
             User(id: "2", nickname: "코디장인", profileImageUrl: nil, isFollowing: true),
             User(id: "3", nickname: "스타일헌터", profileImageUrl: nil, isFollowing: false)
         ]
-        
+
         return FeedLikesListView(viewModel: viewModel)
     }
 }
+#endif

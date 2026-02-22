@@ -17,7 +17,13 @@ struct ReportView: View {
         VStack(spacing: 0) {
             CustomNavigationBar(
                 title: vm.navTitle,
-                onBack: onBackTapped
+                onBack: onBackTapped,
+                rightButton: .text(
+                    title: TextLiteral.Report.next,
+                    isEnabled: vm.isNextEnabled && !vm.isSubmitting
+                ) {
+                    onSubmit?()
+                }
             )
 
             ScrollView {
@@ -28,19 +34,9 @@ struct ReportView: View {
                     reportingReasons
                 }
             }
-            .safeAreaInset(edge: .bottom) {
-                CustomButton(
-                    text: TextLiteral.Report.next,
-                    widthType: .fixed,
-                    isEnabled: vm.isNextEnabled && !vm.isSubmitting
-                ) {
-                    onSubmit?()
-                }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 48)
-            }
         }
         .navigationBarHidden(true)
+        .enableSwipeBack()
         .task { await vm.loadContext() }
     }
 

@@ -61,7 +61,9 @@ final class PhotoTagViewModel: ObservableObject {
         do {
             clothItems = try await fetchClothItemsUseCase.execute(category: selectedCategory)
         } catch {
-            print("Failed to fetch cloth items: \(error)")
+            #if DEBUG
+            print("[PhotoTag] Failed to fetch cloth items: \(error)")
+            #endif
             clothItems = []
         }
     }

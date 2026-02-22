@@ -33,15 +33,7 @@ struct FeedDetailView: View {
     // MARK: - Body
     var body: some View {
         ZStack {
-            // 로딩 인디케이터
-            if viewModel.isLoading {
-                Color.black.opacity(0.3)
-                    .ignoresSafeArea()
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                    .scaleEffect(1.5)
-                    .zIndex(100)
-            }
+            Color.white.ignoresSafeArea()
 
             VStack(spacing: 0) {
                 HStack {
@@ -139,7 +131,14 @@ struct FeedDetailView: View {
                         }
                     }
                 }
-            .background(Color.white)
+            }
+
+            // 로딩 인디케이터
+            if viewModel.isLoading {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .gray))
+                    .scaleEffect(1.5)
+                    .zIndex(100)
             }
 
             // 더보기 메뉴 오버레이
@@ -162,9 +161,7 @@ struct FeedDetailView: View {
                             ],
                             isExpanded: viewModel.isMoreMenuPresented,
                             showButton: false
-                        ) {
-                            viewModel.dismissMoreMenu()
-                        }
+                        , onClose: { viewModel.dismissMoreMenu() })
                         .padding(.trailing, 20)
                         .padding(.top, 80)
                     } else {
@@ -176,10 +173,8 @@ struct FeedDetailView: View {
                                 { viewModel.onBlockTapped() }
                             ],
                             isExpanded: viewModel.isMoreMenuPresented,
-                            showButton: false
-                        ) {
-                            viewModel.dismissMoreMenu()
-                        }
+                            showButton: false,
+                            onClose: { viewModel.dismissMoreMenu() })
                         .padding(.trailing, 20)
                         .padding(.top, 80)
                     }
@@ -188,7 +183,9 @@ struct FeedDetailView: View {
                 .zIndex(10)
             }
         }
+        .background(Color.white)
         .navigationBarHidden(true)
+        .enableSwipeBack()
         .onAppear {
             Task {
                 await viewModel.loadFeedDetail()
@@ -232,6 +229,16 @@ struct FeedDetailView: View {
         } message: {
             Text(viewModel.blockErrorMessage)
         }
+        .onReceive(NotificationCenter.default.publisher(for: .userDidBlock)) { _ in
+            // 댓글에서 차단한 경우: 피드 상세 다시 로드 시도
+            // 기록 주인이 차단된 경우 API 에러 → 뒤로가기
+            Task {
+                await viewModel.loadFeedDetail()
+                if viewModel.feed == nil {
+                    navigationRouter.navigateBack()
+                }
+            }
+        }
     }
 
     // MARK: - Helper Methods
@@ -245,6 +252,7 @@ struct FeedDetailView: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview {
 
@@ -262,3 +270,4 @@ struct FeedDetailView: View {
         commentDIContainer: CommentDIContainer(navigationRouter: navigationRouter)
     )
 }
+#endif

@@ -76,7 +76,7 @@ final class SettingDIContainer {
     }
 
     func makeWithdrawAccountUseCase() -> WithdrawAccountUseCase {
-        WithdrawAccountUseCase(repository: repository)
+        WithdrawAccountUseCase(authRepository: authDIContainer.authRepository)
     }
 
     // MARK: - ViewModels

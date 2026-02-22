@@ -2,7 +2,7 @@
 //  ToggleBlockUseCase.swift
 //  Codive
 //
-//  Created by Claude on 2026-02-12.
+//  Created by 황상환 on 2026-02-12.
 //
 
 import Foundation

@@ -19,7 +19,7 @@ struct ProfileView: View {
     }
     
     var body: some View {
-        GeometryReader { geometry in
+        GeometryReader { _ in
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 0) {
                     topBar
@@ -59,6 +59,7 @@ struct ProfileView: View {
         }
         .background(Color.white)
         .navigationBarBackButtonHidden(!navigationRouter.path.isEmpty)
+        .enableSwipeBack()
         .task {
             // 콜백 설정: 기록이 없는 날짜가 선택되면 모달 표시
             viewModel.onEmptyHistoryDateSelected = { [weak mainTabViewModel] date in
@@ -176,7 +177,7 @@ struct ProfileView: View {
             
             Text(viewModel.introText)
                 .font(.codive_body2_regular)
-                .foregroundStyle(Color.Codive.grayscale4)
+                .foregroundStyle(Color.Codive.grayscale3)
                 .padding(.top, 4)
         }
         .frame(maxWidth: .infinity)
@@ -191,55 +192,90 @@ struct ProfileView: View {
                     .foregroundStyle(Color.Codive.grayscale1)
                 
                 Spacer(minLength: 0)
-                
-                Button {
-                    viewModel.onMoreFavoriteCodiTapped()
-                } label: {
-                    HStack(spacing: 6) {
-                        Text("더보기")
-                            .font(.codive_body2_regular)
-                            .foregroundStyle(Color.Codive.grayscale3)
-                        Image("go")
-                            .frame(width: 16, height: 16)
-                            .foregroundStyle(Color.Codive.grayscale3)
+
+                if !viewModel.favoriteCoordinates.isEmpty {
+                    Button {
+                        viewModel.onMoreFavoriteCodiTapped()
+                    } label: {
+                        HStack(spacing: 6) {
+                            Text("더보기")
+                                .font(.codive_body2_regular)
+                                .foregroundStyle(Color.Codive.grayscale3)
+                            Image("go")
+                                .frame(width: 16, height: 16)
+                                .foregroundStyle(Color.Codive.grayscale3)
+                        }
                     }
                 }
             }
             .padding(.horizontal, 20)
             
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 10) {
-                    ForEach(viewModel.favoriteCoordinates, id: \.coordinateId) { codi in
-                        CodiCard(
-                            imageURL: URL(string: codi.imageUrl),
-                            title: nil,
-                            icon: .heart(isSelected: true, onTap: {}),
-                            cardWidth: 160,
-                            imageSize: 160,
-                            cornerRadius: 16,
-                            iconPadding: 14,
-                            iconSize: 20,
-                            onCardTap: {
-                                // 카드 클릭 시 coordinateId 전달
+            if viewModel.favoriteCoordinates.isEmpty {
+                favoriteCodiEmptyCard
+                    .padding(.horizontal, 20)
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 10) {
+                        ForEach(viewModel.favoriteCoordinates, id: \.coordinateId) { codi in
+                            CodiCard(
+                                imageURL: URL(string: codi.imageUrl),
+                                title: nil,
+                                icon: .heart(isSelected: true) {},
+                                cardWidth: 160,
+                                imageSize: 160,
+                                cornerRadius: 16,
+                                iconPadding: 14,
+                                iconSize: 20
+                            ) {
                                 viewModel.onCodiCardTapped(coordinateId: Int64(codi.coordinateId))
                             }
-                        )
-                    }
-                    
-                    if viewModel.favoriteCoordinates.isEmpty {
-                        ForEach(0..<3) { _ in
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(Color.Codive.grayscale7)
-                                .frame(width: 160, height: 160)
                         }
                     }
+                    .padding(.top, 12)
                 }
-                .padding(.top, 12)
+                .padding(.horizontal, 20)
             }
-            .padding(.horizontal, 20)
         }
     }
     
+    // MARK: - Favorite Codi Empty
+    private var favoriteCodiEmptyCard: some View {
+        VStack(spacing: 8) {
+            Text("최애 코디가 아직 없어요")
+                .font(.codive_title2)
+                .foregroundStyle(Color.Codive.grayscale1)
+
+            Text("옷장에서 좋아하는 코디에 하트를 눌러\n최애 코디를 채워보세요!")
+                .font(.codive_body2_regular)
+                .foregroundStyle(Color.Codive.grayscale1)
+                .multilineTextAlignment(.center)
+
+            Button {
+                mainTabViewModel.selectedTab = .closet
+            } label: {
+                Text("옷장으로 이동하기")
+                    .font(.codive_title2)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .background(Color.Codive.main0)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+            }
+            .padding(.top, 8)
+        }
+        .padding(.vertical, 24)
+        .padding(.horizontal, 20)
+        .frame(maxWidth: .infinity)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.white)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.Codive.grayscale6, lineWidth: 1)
+                )
+        )
+    }
+
     // MARK: - Calendar
     private var calendarSection: some View {
         VStack(alignment: .leading, spacing: 12) {

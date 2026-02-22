@@ -172,7 +172,9 @@ extension CodiDetailViewModel {
 
 private extension CodiDetailViewModel {
     func handleError(_ error: Error) {
-        print("DEBUG: 코디 상세 로드 실패 - \(error.localizedDescription)")
+        #if DEBUG
+        print("[Codi] 상세 로드 실패: \(error.localizedDescription)")
+        #endif
         self.errorMessage = error.localizedDescription
     }
 }

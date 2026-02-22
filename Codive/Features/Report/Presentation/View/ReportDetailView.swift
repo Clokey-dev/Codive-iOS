@@ -11,12 +11,19 @@ struct ReportDetailView: View {
     @ObservedObject var vm: ReportViewModel
     @ObservedObject var navigationRouter: NavigationRouter
     var onSubmit: (() -> Void)?
+    var onDuplicateDismiss: (() -> Void)?
 
     var body: some View {
         VStack(spacing: 0) {
             CustomNavigationBar(
                 title: vm.navTitle,
-                onBack: onBackTapped
+                onBack: onBackTapped,
+                rightButton: .text(
+                    title: TextLiteral.Report.submit,
+                    isEnabled: vm.isNextEnabled && !vm.isSubmitting
+                ) {
+                    onSubmit?()
+                }
             )
 
             ScrollView {
@@ -70,6 +77,12 @@ struct ReportDetailView: View {
                             }
                         }
 
+                        if let errorMessage = vm.errorMessage {
+                            Text(errorMessage)
+                                .font(.codive_body3_regular)
+                                .foregroundStyle(.red)
+                        }
+
                         // 안내 문구
                         VStack(alignment: .leading, spacing: 16) {
                             NoticeRow(text: "신고 접수 후 패널티 조치까지 영업일 기준 최소 3영업일에서 최대 5영업일 소요될 수 있습니다.")
@@ -82,16 +95,16 @@ struct ReportDetailView: View {
                     .padding(.horizontal, 20)
                 }
             }
-            .safeAreaInset(edge: .bottom) {
-                CustomButton(text: TextLiteral.Report.submit, widthType: .fixed) {
-                    onSubmit?()
-                }
-                .disabled(!vm.isNextEnabled || vm.isSubmitting)
-                .padding(.horizontal, 20)
-                .padding(.bottom, 48)
-            }
         }
         .navigationBarHidden(true)
+        .enableSwipeBack()
+        .alert("신고 안내", isPresented: $vm.showDuplicateAlert) {
+            Button("확인") {
+                onDuplicateDismiss?()
+            }
+        } message: {
+            Text(vm.duplicateAlertMessage)
+        }
     }
 
     // MARK: - Navigation

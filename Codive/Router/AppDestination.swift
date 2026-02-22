@@ -14,9 +14,9 @@ enum AppDestination: Hashable, Identifiable {
     case main
     case recordAdd
     case clothPhotoSelect
-    case clothAdd(photos: [SelectedPhoto])
+    case clothAdd(photos: [SelectedPhoto], isAIEnabled: Bool = false)
     case photoEdit(photos: [SelectedPhoto])
-    case photoEditForCloth(photos: [SelectedPhoto])
+    case photoEditForCloth(photos: [SelectedPhoto], isAIEnabled: Bool = false)
     case recordDetail(photos: [SelectedPhoto])
     case recordEdit(feed: Feed)
     case photoTag(photo: SelectedPhoto, allPhotos: [SelectedPhoto])
@@ -25,8 +25,8 @@ enum AppDestination: Hashable, Identifiable {
     case settingMyComments
     case settingBlockedUsers
     case settingWithdraw
-    case report(target: ReportTarget)
-    case reportDetail(target: ReportTarget)
+    case report(target: ReportTarget, commentInfo: CommentReportInfo? = nil)
+    case reportDetail(target: ReportTarget, commentInfo: CommentReportInfo? = nil)
     case editCategory
     case codiBoard
     case search
@@ -43,13 +43,15 @@ enum AppDestination: Hashable, Identifiable {
     case feedDetail(feedId: Int)
     case comment(feedId: Int)
     case favoriteCodiList(showHeart: Bool)
-    case followList(mode: FollowListMode, memberId: Int)
+    case followList(mode: FollowListMode, memberId: Int, isMe: Bool)
     case otherProfile(userId: Int)
     case myProfile
 
     case myCloset
     case clothDetail(cloth: Cloth)
     case clothEdit(cloth: Cloth)
+    case eraserEditor(photo: SelectedPhoto, photoIndex: Int)
+    case eraserPreview(photoIndex: Int)
     case profileSetting
 
     var id: Self { self }
@@ -86,7 +88,7 @@ enum AppDestination: Hashable, Identifiable {
             return true
 
         // Closet Flow - 전체 화면
-        case .myCloset, .clothDetail, .clothEdit:
+        case .myCloset, .clothDetail, .clothEdit, .eraserEditor, .eraserPreview:
             return true
 
         // 다른 플로우 전체 화면은 여기에 추가
@@ -124,7 +126,7 @@ enum AppDestination: Hashable, Identifiable {
             return false
 
         // Closet Flow - 자체 네비게이션 바 있음
-        case .myCloset, .clothDetail, .clothEdit:
+        case .myCloset, .clothDetail, .clothEdit, .eraserEditor, .eraserPreview:
             return false
 
         default:

@@ -27,6 +27,7 @@ final class MyClosetViewModel: ObservableObject {
     // 편집 모드 관련
     @Published var isEditMode: Bool = false
     @Published var selectedItemIds: Set<Int> = []
+    @Published var showDeleteAlert: Bool = false
 
     // MARK: - Computed Properties
 
@@ -64,7 +65,7 @@ final class MyClosetViewModel: ObservableObject {
     private func setupFilterObservers() {
         // 필터 변경 시 자동으로 데이터 로드
         Publishers.CombineLatest4(
-            $searchText.debounce(for: 0.3, scheduler: DispatchQueue.main),
+            $searchText.debounce(for: 0.5, scheduler: DispatchQueue.main),
             $selectedMainCategory,
             $selectedSubCategory,
             $selectedSeasons
@@ -93,7 +94,9 @@ final class MyClosetViewModel: ObservableObject {
             )
         } catch {
             errorMessage = "옷 목록을 불러오는데 실패했습니다."
-            print("Error loading cloth items: \(error)")
+            #if DEBUG
+            print("[Closet] Error loading cloth items: \(error)")
+            #endif
         }
 
         isLoading = false
@@ -132,7 +135,9 @@ final class MyClosetViewModel: ObservableObject {
             selectedItemIds.removeAll()
         } catch {
             errorMessage = "옷 삭제에 실패했습니다."
-            print("Error deleting cloth items: \(error)")
+            #if DEBUG
+            print("[Closet] Error deleting cloth items: \(error)")
+            #endif
         }
     }
 

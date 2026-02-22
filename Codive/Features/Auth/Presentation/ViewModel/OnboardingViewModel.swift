@@ -35,48 +35,66 @@ final class OnboardingViewModel: ObservableObject {
     func kakaoLoginButtonTapped() async {
         isLoading = true
         errorMessage = nil
-        
+
         let result = await authRepository.socialLogin(provider: .kakao)
-        
+
         isLoading = false
-        
+
         switch result {
         case .success(let user):
-            print("카카오 로그인 성공: \(user.name ?? "Unknown") (\(user.id))")
-            appRouter.navigateToMain()
-            
+            #if DEBUG
+            print("[Auth] 카카오 로그인 성공: \(user.name ?? "Unknown") (\(user.id))")
+            #endif
+            await proceedAfterLogin()
+
         case .failure(let error):
             switch error {
             case .cancelled:
-                print("카카오 로그인 취소됨")
                 return
             default:
                 errorMessage = error.localizedDescription
             }
         }
     }
-    
+
     func appleLoginButtonTapped() async {
         isLoading = true
         errorMessage = nil
-        
+
         let result = await authRepository.socialLogin(provider: .apple)
-        
+
         isLoading = false
-        
+
         switch result {
         case .success(let user):
-            print("애플 로그인 성공: \(user.name ?? "Unknown") (\(user.id))")
-            appRouter.navigateToMain()
-            
+            #if DEBUG
+            print("[Auth] 애플 로그인 성공: \(user.name ?? "Unknown") (\(user.id))")
+            #endif
+            await proceedAfterLogin()
+
         case .failure(let error):
             switch error {
             case .cancelled:
-                print("애플 로그인 취소됨")
                 return
             default:
                 errorMessage = error.localizedDescription
             }
+        }
+    }
+
+    // MARK: - Private Methods
+    private func proceedAfterLogin() async {
+        do {
+            let status = try await authRepository.checkAuthStatus()
+
+            switch status {
+            case .notAgreed:
+                appRouter.navigateToTerms()
+            case .registered:
+                appRouter.navigateToMain()
+            }
+        } catch {
+            errorMessage = "회원 상태 확인에 실패했습니다."
         }
     }
     

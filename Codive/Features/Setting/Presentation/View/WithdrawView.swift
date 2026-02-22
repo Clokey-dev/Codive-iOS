@@ -58,6 +58,7 @@ struct WithdrawView: View {
             }
         }
         .navigationBarHidden(true)
+        .enableSwipeBack()
         .alert(TextLiteral.Setting.withdrawConfirmTitle, isPresented: $vm.showConfirmAlert) {
             Button("취소", role: .cancel) { }
             Button("탈퇴하기", role: .destructive) {

@@ -22,7 +22,7 @@ struct AuthUser {
 }
 
 // MARK: - Auth Provider
-enum AuthProvider {
+enum AuthProvider: String {
     case kakao
     case apple
     

@@ -39,7 +39,7 @@ final class RecentlySearchResultViewModel: ObservableObject {
     ]
     
     func deleteTag() {
-        print("태그 삭제 완료")
+        // TODO: 태그 삭제 로직 구현
     }
     
     func handleDeleteAll() {
@@ -47,7 +47,6 @@ final class RecentlySearchResultViewModel: ObservableObject {
     }
     
     func executeDeleteAll() {
-        print("최근 검색어 전체 삭제 실행 완료")
         self.recentSearchTags = []
     }
     

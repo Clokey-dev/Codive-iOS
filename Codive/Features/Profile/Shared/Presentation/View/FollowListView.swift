@@ -30,11 +30,15 @@ struct FollowListView: View {
                         CustomUserRow(
                             user: item.user,
                             buttonTitle: item.buttonTitle,
-                            buttonStyle: item.buttonStyle
+                            buttonStyle: viewModel.isMe ? item.buttonStyle : .none
                         ) {
                             viewModel.onTapButton(userId: item.user.userId)
                         }
                         .padding(.top, 4)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            viewModel.onTapProfile(userId: item.user.userId)
+                        }
                     }
                 }
                 .padding(.top, 12)
@@ -44,6 +48,7 @@ struct FollowListView: View {
         }
         .background(Color.white)
         .navigationBarBackButtonHidden(true)
+        .enableSwipeBack()
         .task {
             await viewModel.load()
         }

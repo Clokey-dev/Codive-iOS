@@ -48,8 +48,4 @@ final class SettingsRepositoryImpl: SettingRepository {
     func getWithdrawNotices() async throws -> [WithdrawNotice] {
         try await dataSource.getWithdrawNotices()
     }
-
-    func withdrawAccount() async throws {
-        try await dataSource.withdrawAccount()
-    }
 }

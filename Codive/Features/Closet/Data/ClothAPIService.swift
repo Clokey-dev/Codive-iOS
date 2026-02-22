@@ -8,7 +8,6 @@
 import Foundation
 import CodiveAPI
 import OpenAPIRuntime
-import CryptoKit
 
 // MARK: - ClothAPIService Protocol
 
@@ -17,6 +16,7 @@ protocol ClothAPIServiceProtocol {
     func uploadImageToS3(presignedUrl: String, imageData: Data, contentMD5: String) async throws
     func createClothes(requests: [ClothCreateAPIRequest]) async throws -> [Int64]
     func fetchClothes(lastClothId: Int64?, size: Int32, categoryId: Int64?, seasons: [Season]) async throws -> ClothListResult
+    func searchClothes(keyword: String, size: Int32, categoryId: Int64?, seasons: [Season]) async throws -> ClothListResult
     func fetchClothDetails(clothId: Int64) async throws -> ClothDetailResult
     func updateCloth(clothId: Int64, request: ClothUpdateAPIRequest) async throws
     func deleteCloth(clothId: Int64) async throws
@@ -27,6 +27,9 @@ protocol ClothAPIServiceProtocol {
         size: Int32,
         direction: Operations.LookBook_getLookBooks.Input.Query.directionPayload
     ) async throws -> LookBookListResponseDTO
+
+    /// AI 옷 정보 추출 (누끼/카테고리/계절)
+    func extractClothInfo(clothImageUrls: [String]) async throws -> [ClothAIInfo]
 }
 
 // MARK: - Supporting Types
@@ -70,6 +73,15 @@ struct ClothDetailResult {
     let seasons: [Season]
 }
 
+struct ClothAIInfo {
+    let clothImageUrl: String
+    let seasons: Set<Season>
+    let parentCategoryId: Int?
+    let parentCategoryName: String?
+    let categoryId: Int?
+    let categoryName: String?
+}
+
 struct ClothUpdateAPIRequest {
     let clothImageUrl: String?
     let clothUrl: String?
@@ -83,8 +95,8 @@ struct ClothUpdateAPIRequest {
 
 final class ClothAPIService: ClothAPIServiceProtocol {
 
-    private let client: Client
-    private let jsonDecoder: JSONDecoder
+    let client: Client
+    let jsonDecoder: JSONDecoder
 
     init(tokenProvider: TokenProvider = KeychainTokenProvider()) {
         self.client = CodiveAPIProvider.createClient(
@@ -100,7 +112,7 @@ extension ClothAPIService {
 
     func getPresignedUrls(for images: [Data]) async throws -> [PresignedUrlInfo] {
         let payloads = images.map { imageData in
-            let md5Hash = calculateMD5(from: imageData)
+            let md5Hash = S3UploadHelpers.calculateMD5(from: imageData)
             return (
                 payload: Components.Schemas.ClothImagesUploadRequestPayload(fileExtension: .JPEG, md5Hashes: md5Hash),
                 md5Hash: md5Hash
@@ -121,7 +133,7 @@ extension ClothAPIService {
             }
 
             return zip(urls, payloads).map { url, payloadInfo in
-                PresignedUrlInfo(presignedUrl: url, finalUrl: extractFinalUrl(from: url), md5Hash: payloadInfo.md5Hash)
+                PresignedUrlInfo(presignedUrl: url, finalUrl: S3UploadHelpers.extractFinalUrl(from: url), md5Hash: payloadInfo.md5Hash)
             }
 
         case .undocumented(statusCode: let code, _):
@@ -130,25 +142,7 @@ extension ClothAPIService {
     }
 
     func uploadImageToS3(presignedUrl: String, imageData: Data, contentMD5: String) async throws {
-        guard let url = URL(string: presignedUrl) else {
-            throw ClothAPIError.invalidUrl
-        }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "PUT"
-        request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type")
-        request.setValue(contentMD5, forHTTPHeaderField: "Content-MD5")
-        request.httpBody = imageData
-
-        let (_, response) = try await URLSession.shared.data(for: request)
-
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw ClothAPIError.invalidResponse
-        }
-
-        guard (200...299).contains(httpResponse.statusCode) else {
-            throw ClothAPIError.s3UploadFailed(statusCode: httpResponse.statusCode)
-        }
+        try await S3UploadHelpers.uploadToS3(presignedUrl: presignedUrl, imageData: imageData, contentMD5: contentMD5)
     }
 }
 
@@ -221,6 +215,38 @@ extension ClothAPIService {
 
         case .undocumented(statusCode: let code, _):
             throw ClothAPIError.serverError(statusCode: code, message: "옷 목록 조회 실패")
+        }
+    }
+
+    func searchClothes(keyword: String, size: Int32, categoryId: Int64?, seasons: [Season]) async throws -> ClothListResult {
+        let seasonsParam = seasons.isEmpty ? nil : seasons.map { mapSeasonToSearchQueryParam($0) }
+
+        let input = Operations.Search_searchClothes.Input(
+            query: .init(keyword: keyword, size: size, direction: .DESC, categoryId: categoryId, seasons: seasonsParam)
+        )
+
+        let response = try await client.Search_searchClothes(input)
+
+        switch response {
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseClothListResponse.self, from: data)
+
+            let clothes: [ClothListItem] = decoded.result?.content?.map { item -> ClothListItem in
+                return ClothListItem(
+                    clothId: item.clothId ?? 0,
+                    imageUrl: item.ImageUrl ?? "",
+                    brand: item.brand,
+                    name: item.name,
+                    parentCategory: item.parentCategory,
+                    category: item.category
+                )
+            } ?? []
+
+            return ClothListResult(clothes: clothes, isLast: decoded.result?.isLast ?? true)
+
+        case .undocumented(statusCode: let code, _):
+            throw ClothAPIError.serverError(statusCode: code, message: "옷 검색 실패")
         }
     }
 
@@ -326,76 +352,42 @@ extension ClothAPIService {
     }
 }
 
-// MARK: - Private Helpers
+// MARK: - AI Cloth Detection & Extraction
 
-private extension ClothAPIService {
+extension ClothAPIService {
 
-    func calculateMD5(from data: Data) -> String {
-        let digest = Insecure.MD5.hash(data: data)
-        return Data(digest).base64EncodedString()
-    }
+    func extractClothInfo(clothImageUrls: [String]) async throws -> [ClothAIInfo] {
+        let requestBody = Components.Schemas.ClothInfoExtractRequest(clothImageUrls: clothImageUrls)
+        let input = Operations.ClothAi_extractClothInfo.Input(body: .json(requestBody))
 
-    func extractFinalUrl(from presignedUrl: String) -> String {
-        guard let url = URL(string: presignedUrl),
-              var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
-            return presignedUrl
-        }
-        components.query = nil
-        return components.string ?? presignedUrl
-    }
+        let response = try await client.ClothAi_extractClothInfo(input)
 
-    func mapSeasonToCreatePayload(_ season: Season) -> Components.Schemas.ClothCreateRequest.seasonsPayloadPayload {
-        switch season {
-        case .spring: return .SPRING
-        case .summer: return .SUMMER
-        case .fall: return .FALL
-        case .winter: return .WINTER
-        }
-    }
+        switch response {
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+            let decoded = try jsonDecoder.decode(
+                Components.Schemas.BaseResponseClothInfoExtractResponse.self,
+                from: data
+            )
 
-    func mapSeasonToUpdatePayload(_ season: Season) -> Components.Schemas.ClothUpdateRequest.seasonsPayloadPayload {
-        switch season {
-        case .spring: return .SPRING
-        case .summer: return .SUMMER
-        case .fall: return .FALL
-        case .winter: return .WINTER
-        }
-    }
+            let results: [ClothAIInfo] = decoded.result?.payloads?.map { payload -> ClothAIInfo in
+                let seasons: Set<Season> = Set(
+                    payload.seasons?.compactMap { Season(rawValue: $0.rawValue) } ?? []
+                )
+                return ClothAIInfo(
+                    clothImageUrl: payload.clothImageUrl ?? "",
+                    seasons: seasons,
+                    parentCategoryId: payload.parentCategoryId.map { Int($0) },
+                    parentCategoryName: payload.parentCategoryName,
+                    categoryId: payload.categoryId.map { Int($0) },
+                    categoryName: payload.categoryName
+                )
+            } ?? []
 
-    func mapSeasonToQueryParam(_ season: Season) -> Operations.Cloth_getClothes.Input.Query.seasonsPayloadPayload {
-        switch season {
-        case .spring: return .SPRING
-        case .summer: return .SUMMER
-        case .fall: return .FALL
-        case .winter: return .WINTER
-        }
-    }
-}
+            return results
 
-// MARK: - ClothAPIError
-
-enum ClothAPIError: LocalizedError {
-    case presignedUrlMismatch
-    case invalidUrl
-    case invalidResponse
-    case s3UploadFailed(statusCode: Int)
-    case noClothIdsReturned
-    case serverError(statusCode: Int, message: String)
-
-    var errorDescription: String? {
-        switch self {
-        case .presignedUrlMismatch:
-            return "Presigned URL 개수가 요청한 이미지 개수와 일치하지 않습니다."
-        case .invalidUrl:
-            return "유효하지 않은 URL입니다."
-        case .invalidResponse:
-            return "서버 응답을 처리할 수 없습니다."
-        case .s3UploadFailed(let statusCode):
-            return "S3 업로드 실패 (상태 코드: \(statusCode))"
-        case .noClothIdsReturned:
-            return "서버에서 생성된 옷 ID를 반환하지 않았습니다."
-        case .serverError(let statusCode, let message):
-            return "서버 오류 (\(statusCode)): \(message)"
+        case .undocumented(statusCode: let code, _):
+            throw ClothAPIError.serverError(statusCode: code, message: "AI 옷 정보 추출 실패")
         }
     }
 }

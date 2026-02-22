@@ -24,7 +24,7 @@ final class ReportRepositoryImpl:
     }
 
     // MARK: - ReportContextProvider
-    func fetchContext(for target: ReportTarget) async throws -> ReportContext {
-        return try await dataSource.fetchContext(for: target)
+    func fetchContext(for target: ReportTarget, commentInfo: CommentReportInfo? = nil) async throws -> ReportContext {
+        return try await dataSource.fetchContext(for: target, commentInfo: commentInfo)
     }
 }

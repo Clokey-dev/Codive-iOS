@@ -15,12 +15,22 @@ final class FollowListViewModel: ObservableObject {
     @Published var errorMessage: String?
 
     let mode: FollowListMode
+    let isMe: Bool
     private let fetchFollowsUseCase: FetchFollowsUseCase
     private let memberId: Int
+    private let navigationRouter: NavigationRouter
 
-    init(mode: FollowListMode, memberId: Int, fetchFollowsUseCase: FetchFollowsUseCase) {
+    init(
+        mode: FollowListMode,
+        memberId: Int,
+        isMe: Bool,
+        navigationRouter: NavigationRouter,
+        fetchFollowsUseCase: FetchFollowsUseCase
+    ) {
         self.mode = mode
         self.memberId = memberId
+        self.isMe = isMe
+        self.navigationRouter = navigationRouter
         self.fetchFollowsUseCase = fetchFollowsUseCase
     }
 
@@ -41,10 +51,16 @@ final class FollowListViewModel: ObservableObject {
             }
         } catch {
             self.errorMessage = error.localizedDescription
-            print("팔로우 목록 로드 실패: \(error.localizedDescription)")
+            #if DEBUG
+            print("[Follow] 팔로우 목록 로드 실패: \(error.localizedDescription)")
+            #endif
         }
 
         isLoading = false
+    }
+
+    func onTapProfile(userId: UserID) {
+        navigationRouter.navigate(to: .otherProfile(userId: Int(userId) ?? 0))
     }
 
     func onTapButton(userId: UserID) {

@@ -27,6 +27,7 @@ final class HomeViewModel: ObservableObject {
     @Published var capturedImageURL: String?
     
     @Published var isEditingExistingCodi: Bool = false
+    @Published var isConfirmLoading: Bool = false
     @Published var isOverflowMenuExpanded: Bool = false
     
     // MARK: - Properties (Data)
@@ -45,6 +46,7 @@ final class HomeViewModel: ObservableObject {
     @Published var todayCodiPreview: FetchTodayCoordinatePreviewResponseDTO?
     
     @Published var boardPayloads: [Payloads] = []
+    @Published var needsScrollReset: Bool = false
     
     // MARK: - Dependencies
     
@@ -91,6 +93,10 @@ final class HomeViewModel: ObservableObject {
         loadActiveCategories()
         fetchTodayCodiData()
     }
+
+    func navigateToAddCloth() {
+        navigationRouter.navigate(to: .clothPhotoSelect)
+    }
 }
 
 extension HomeViewModel {
@@ -125,7 +131,9 @@ extension HomeViewModel {
             try await fetchWeatherUseCase.postTodayTemp(request: request)
         } catch {
             weatherErrorMessage = TextLiteral.Home.failWeather
-            print("Weather load or post failed:", error)
+            #if DEBUG
+            print("[Home] Weather load or post failed:", error)
+            #endif
         }
     }
     
@@ -142,33 +150,48 @@ extension HomeViewModel {
 
 extension HomeViewModel {
     func loadRecommendCategoryClothList(seasons: Set<Season>) async {
-//        self.activeCategories = []
-//        self.clothItemsByCategory = [:]
-        
         let allCategories = categoryUseCase.loadCategories()
         let filteredCategories = allCategories.filter { $0.itemCount > 0 }
-        
+
+        #if DEBUG
+        print("[Home] ========== 카테고리별 옷 로드 시작 ==========")
+        print("[Home] 전달된 계절: \(seasons.map { $0.rawValue })")
+        print("[Home] 활성 카테고리: \(filteredCategories.map { "\($0.title)(id:\($0.id), count:\($0.itemCount))" })")
+        #endif
+
         self.activeCategories = filteredCategories
-        
+
         var resultMap: [Int: [HomeClothEntity]] = [:]
-        
+
         for category in filteredCategories {
             do {
                 let result = try await categoryUseCase.loadClothItems(
                     lastClothId: nil,
                     size: 10,
                     categoryId: Int64(category.id),
-                    season: seasons // 전달받은 seasons 사용
+                    season: seasons
                 )
-                resultMap[category.id] = result.content.sorted {
-                    $0.clothId < $1.clothId   // 또는 createdAt 기준
+                let sorted = result.content.sorted { $0.clothId < $1.clothId }
+                resultMap[category.id] = sorted
+
+                #if DEBUG
+                print("[Home] 카테고리 '\(category.title)' (id:\(category.id)) → API 결과 \(sorted.count)개")
+                for item in sorted {
+                    print("[Home]   - clothId: \(item.clothId), imageUrl: \(item.imageUrl)")
                 }
+                #endif
             } catch {
-                print("Failed to load items for category \(category.id): \(error)")
+                #if DEBUG
+                print("[Home] 카테고리 '\(category.title)' (id:\(category.id)) → 로드 실패: \(error)")
+                #endif
                 resultMap[category.id] = []
             }
         }
-        
+
+        #if DEBUG
+        print("[Home] ========== 카테고리별 옷 로드 완료 ==========")
+        #endif
+
         self.clothItemsByCategory = resultMap
     }
     
@@ -185,6 +208,14 @@ extension HomeViewModel {
 }
 
 extension HomeViewModel {
+    func refreshAfterCategoryEdit() {
+        loadActiveCategories()
+        needsScrollReset = true
+        Task {
+            await loadRecommendCategoryClothList(seasons: currentSeasons)
+        }
+    }
+
     func handleEditCategory() {
         navigationRouter.navigate(to: .editCategory)
     }
@@ -237,8 +268,11 @@ extension HomeViewModel {
             }
         
         self.selectedCodiClothes = items
-        
+        self.isConfirmLoading = true
+
         Task {
+            defer { self.isConfirmLoading = false }
+
             var loadedImages: [Int64: UIImage] = [:]
             await withTaskGroup(of: (Int64, UIImage?).self) { group in
                 for cloth in items {
@@ -251,30 +285,29 @@ extension HomeViewModel {
                     if let img = image { loadedImages[id] = img }
                 }
             }
-            
+
             let captureView = CodiCompositeView(clothes: items, loadedImages: loadedImages)
                 .frame(width: 260, height: 260)
                 .background(Color.white)
-            
+
             let renderer = ImageRenderer(content: captureView)
             renderer.scale = UIScreen.main.scale
-            
+
             guard let uiImage = renderer.uiImage else {
                 return
             }
-            
+
             guard let jpgData = uiImage.jpegData(compressionQuality: 0.8) else { return }
-            
+
             do {
                 let uploadedURL = try await todayCodiUseCase.execute(jpgData: jpgData)
-                
-                await MainActor.run {
-                    self.capturedImageURL = uploadedURL
-                    self.showCompletePopUp = true
-                    print("🚀 [Home Success] 최종 이미지 URL: \(uploadedURL)")
-                }
+
+                self.capturedImageURL = uploadedURL
+                self.showCompletePopUp = true
             } catch {
-                print("❌ [Home Capture] 서버 에러: \(error.localizedDescription)")
+                #if DEBUG
+                print("[Home] 서버 에러: \(error.localizedDescription)")
+                #endif
             }
         }
     }
@@ -297,9 +330,9 @@ extension HomeViewModel {
         Task {
             do {
                 guard let imageURL = self.capturedImageURL else { return }
-                
+
                 let rawPayloads = boardPayloads.isEmpty ? createPayloadsFromCurrentList() : boardPayloads
-                
+
                 let finalPayloads = rawPayloads.map { p in
                     Payloads(
                         clothId: p.clothId,
@@ -310,7 +343,7 @@ extension HomeViewModel {
                         order: Int32(p.order)
                     )
                 }
-                
+
                 if isEditingExistingCodi, let coordinateId = todayCodiPreview?.coordinateId {
                     let editRequest = EditCoordinateRequestDTO(
                         coordinateImageUrl: imageURL,
@@ -318,7 +351,7 @@ extension HomeViewModel {
                         memo: nil,
                         payloads: finalPayloads
                     )
-                    
+
                     try await todayCodiUseCase.patchUpdateCoordinates(
                         coordinateId: coordinateId,
                         request: editRequest
@@ -329,14 +362,37 @@ extension HomeViewModel {
                         payloads: finalPayloads
                     )
                     let result = try await todayCodiUseCase.createTodayCoordinate(request: createRequest)
-                    print("✅ 오늘의 코디 신규 생성 성공 (ID: \(result.coordinateId))")
+                    #if DEBUG
+                    print("[Home] 오늘의 코디 신규 생성 성공 (ID: \(result.coordinateId))")
+                    #endif
                 }
-                
-                await MainActor.run {
+
+                // 코디 이미지를 다운로드하여 SelectedPhoto로 변환
+                guard let codiImage = await downloadUIImage(from: imageURL) else {
                     self.completeProcess()
+                    return
                 }
+
+                let selectedPhoto = SelectedPhoto(
+                    id: UUID().uuidString,
+                    originalImage: codiImage,
+                    croppedImage: codiImage,
+                    order: 1
+                )
+
+                // 상태 정리 후 기록 플로우로 이동
+                self.isEditingExistingCodi = false
+                self.showCompletePopUp = false
+                self.hasCodi = true
+                self.boardPayloads = []
+                self.capturedImageURL = nil
+                self.fetchTodayCodiData()
+
+                self.navigationRouter.navigate(to: .recordDetail(photos: [selectedPhoto]))
             } catch {
-                print("- 에러 타입: \(error)")
+                #if DEBUG
+                print("[Home] 코디 저장 에러: \(error)")
+                #endif
             }
         }
     }
@@ -380,32 +436,5 @@ extension HomeViewModel {
     func handlePopupClose() {
         showCompletePopUp = false
         completedCodiImageURL = nil
-    }
-    
-    private func captureCompletedCodiImage() -> UIImage {
-        let view = CodiCompositeView(clothes: selectedCodiClothes)
-            .frame(width: 260, height: 260)
-            .background(Color.white)
-        
-        let controller = UIHostingController(rootView: view)
-        let uiView = controller.view!
-        uiView.bounds = CGRect(origin: .zero, size: CGSize(width: 260, height: 260))
-        uiView.backgroundColor = .clear
-        
-        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 260, height: 260))
-        return renderer.image { _ in
-            uiView.drawHierarchy(in: uiView.bounds, afterScreenUpdates: true)
-        }
-    }
-    
-    private func downloadUIImage(from urlString: String) async -> UIImage? {
-        guard let url = URL(string: urlString) else { return nil }
-        do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            return UIImage(data: data)
-        } catch {
-            print("❌ 이미지 다운로드 실패 (\(urlString)): \(error)")
-            return nil
-        }
     }
 }

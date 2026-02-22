@@ -44,6 +44,7 @@ final class OtherProfileViewModel: ObservableObject {
     @Published var showBlockAlert: Bool = false
     @Published var showBlockFailureAlert: Bool = false
     @Published var blockErrorMessage: String = ""
+    @Published var showHistoryErrorAlert: Bool = false
     @Published var monthlyHistories: [String: String] = [:] // "2026-01-21" -> imageUrl
     @Published var monthlyHistoryIds: [String: Int] = [:] // "2026-01-21" -> historyId
 
@@ -91,11 +92,9 @@ final class OtherProfileViewModel: ObservableObject {
             self.isMe = profile.isMe
 
             await loadMonthlyHistories()
-
         } catch {
             self.errorMessage = TextLiteral.Profile.loadFailure
         }
-
         isLoading = false
     }
 
@@ -114,18 +113,15 @@ final class OtherProfileViewModel: ObservableObject {
 
             var newHistories: [String: String] = [:]
             var newHistoryIds: [String: Int] = [:]
-            for item in items {
-                if newHistories[item.historyDate] == nil {
-                    newHistories[item.historyDate] = item.firstImageUrl
-                    newHistoryIds[item.historyDate] = Int(item.historyId)
-                }
+            for item in items where newHistories[item.historyDate] == nil {
+                newHistories[item.historyDate] = item.firstImageUrl
+                newHistoryIds[item.historyDate] = Int(item.historyId)
             }
 
             self.monthlyHistories = newHistories
             self.monthlyHistoryIds = newHistoryIds
-
         } catch {
-            // Silent failure - UI에 영향 없음
+            showHistoryErrorAlert = true
         }
     }
 
@@ -168,11 +164,11 @@ final class OtherProfileViewModel: ObservableObject {
     }
 
     func onFollowerTapped() {
-        navigationRouter.navigate(to: .followList(mode: .followers, memberId: memberId))
+        navigationRouter.navigate(to: .followList(mode: .followers, memberId: memberId, isMe: false))
     }
 
     func onFollowingTapped() {
-        navigationRouter.navigate(to: .followList(mode: .followings, memberId: memberId))
+        navigationRouter.navigate(to: .followList(mode: .followings, memberId: memberId, isMe: false))
     }
 
     func onFollowButtonTapped() {
@@ -186,13 +182,11 @@ final class OtherProfileViewModel: ObservableObject {
                 } else {
                     followerCount -= 1
                 }
-
             } catch {
                 errorMessage = TextLiteral.Profile.followFailure
             }
         }
     }
-
     func onMoreFavoriteCodiTapped() {
         navigationRouter.navigate(to: .favoriteCodiList(showHeart: false))
     }

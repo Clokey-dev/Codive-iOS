@@ -27,9 +27,7 @@ struct DraggableImageView<T: DraggableImageProtocol>: View {
                                 ProgressView()
                                     .frame(width: 180, height: 180)
                             }
-                            .onFailure { error in
-                                print("이미지 로드 실패: \(error.localizedDescription)")
-                            }
+                            .onFailure { _ in }
                             .resizable()
                             .scaledToFit()
                             .frame(width: 180, height: 180)

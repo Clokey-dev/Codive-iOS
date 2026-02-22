@@ -52,6 +52,7 @@ struct RecentlySearchResultView: View {
             }
         }
         .navigationBarHidden(true)
+        .enableSwipeBack()
         .background(Color.white.ignoresSafeArea(.all))
         // MARK: - Alert
         .alert(

@@ -10,16 +10,16 @@ import Foundation
 final class WithdrawAccountUseCase {
 
     // MARK: - Properties
-    private let repository: SettingRepository
+    private let authRepository: AuthRepository
 
     // MARK: - Initializer
-    init(repository: SettingRepository) {
-        self.repository = repository
+    init(authRepository: AuthRepository) {
+        self.authRepository = authRepository
     }
 
     // MARK: - Execute
-    /// 계정 탈퇴 실행
+    /// 계정 비활성화 (15일 뒤 자동 탈퇴)
     func execute() async throws {
-        try await repository.withdrawAccount()
+        try await authRepository.deactivateAccount()
     }
 }

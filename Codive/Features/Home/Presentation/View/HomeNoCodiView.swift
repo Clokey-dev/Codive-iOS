@@ -27,11 +27,6 @@ struct HomeNoCodiView: View {
         }
         .onAppear {
             viewModel.onAppear()
-            Task {
-                if viewModel.clothItemsByCategory.isEmpty {
-                    await viewModel.loadRecommendCategoryClothList(seasons: viewModel.currentSeasons)
-                }
-            }
         }
     }
 }
@@ -78,7 +73,10 @@ private extension HomeNoCodiView {
                         title: category.title,
                         items: items,
                         isEmptyState: items.isEmpty,
-                        currentIndex: selectedIdx
+                        currentIndex: selectedIdx,
+                        onEmptyTap: {
+                            viewModel.navigateToAddCloth()
+                        }
                     )
                     .id(category.id)
                     .background(Color.white)

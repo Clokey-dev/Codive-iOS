@@ -23,11 +23,13 @@ final class RecordAddViewModel: ObservableObject {
     @Published var isCameraPresented = false
     @Published var authorizationStatus: PHAuthorizationStatus = .notDetermined
     @Published var isCompletingSelection = false
+    @Published var isClothInfoPresented = false
+    @Published var isAIAddEnabled = false
 
     private let fetchPhotosUseCase: FetchPhotosUseCase
     private let processImageUseCase: ProcessImageUseCase
     private let navigationRouter: NavigationRouter
-    private let flowType: PhotoEditFlowType
+    let flowType: PhotoEditFlowType
     
     // MARK: - Computed Properties
     var isCompleteEnabled: Bool {
@@ -71,6 +73,10 @@ final class RecordAddViewModel: ObservableObject {
         
         if authorizationStatus == .authorized || authorizationStatus == .limited {
             await loadAlbums()
+
+            if flowType == .cloth {
+                isClothInfoPresented = true
+            }
         }
     }
 
@@ -145,7 +151,9 @@ final class RecordAddViewModel: ObservableObject {
                 PHAssetChangeRequest.creationRequestForAsset(from: image)
             }
         } catch {
-            print("사진 저장 실패: \(error)")
+            #if DEBUG
+            print("[Photo] 사진 저장 실패: \(error)")
+            #endif
         }
     }
     
@@ -185,7 +193,7 @@ final class RecordAddViewModel: ObservableObject {
             case .record:
                 navigationRouter.navigate(to: .photoEdit(photos: selectedPhotoItems))
             case .cloth:
-                navigationRouter.navigate(to: .photoEditForCloth(photos: selectedPhotoItems))
+                navigationRouter.navigate(to: .photoEditForCloth(photos: selectedPhotoItems, isAIEnabled: isAIAddEnabled))
             }
                     
             resetSelection()

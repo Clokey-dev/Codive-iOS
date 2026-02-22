@@ -21,7 +21,7 @@ struct RecordCreateRequest {
 struct RecordPhoto {
     let image: UIImage
     let clothTags: [RecordClothTag]
-    var imageUrl: String? = nil // 수정 모드에서 기존 이미지 URL 저장
+    var imageUrl: String? // 수정 모드에서 기존 이미지 URL 저장
 }
 
 struct RecordClothTag {
@@ -41,14 +41,11 @@ protocol RecordDataSource {
 
 final class DefaultRecordDataSource: RecordDataSource {
 
-    private let clothAPIService: ClothAPIServiceProtocol
     private let historyAPIService: HistoryAPIServiceProtocol
 
     init(
-        clothAPIService: ClothAPIServiceProtocol = ClothAPIService(),
         historyAPIService: HistoryAPIServiceProtocol = HistoryAPIService()
     ) {
-        self.clothAPIService = clothAPIService
         self.historyAPIService = historyAPIService
     }
 
@@ -109,12 +106,12 @@ final class DefaultRecordDataSource: RecordDataSource {
             throw RecordDataSourceError.imageConversionFailed
         }
 
-        // Presigned URL 발급 (옷 추가 API 재사용)
-        let presignedInfos = try await clothAPIService.getPresignedUrls(for: imageDatas)
+        // Presigned URL 발급 (기록 전용 API)
+        let presignedInfos = try await historyAPIService.getPresignedUrls(for: imageDatas)
 
         // S3 업로드
         for (imageData, presignedInfo) in zip(imageDatas, presignedInfos) {
-            try await clothAPIService.uploadImageToS3(
+            try await historyAPIService.uploadImageToS3(
                 presignedUrl: presignedInfo.presignedUrl,
                 imageData: imageData,
                 contentMD5: presignedInfo.md5Hash

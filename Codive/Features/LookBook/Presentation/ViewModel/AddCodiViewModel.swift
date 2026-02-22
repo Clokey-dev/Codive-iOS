@@ -110,7 +110,9 @@ extension AddCodiViewModel {
                 _ = try await codiUseCase.createAutoDailyCoordinate(request: request)
                 processSuccess()
             } catch {
-                print("❌ 자동 코디 생성 실패: \(error.localizedDescription)")
+                #if DEBUG
+                print("[Codi] 자동 생성 실패: \(error.localizedDescription)")
+                #endif
             }
         }
     }
@@ -134,7 +136,9 @@ extension AddCodiViewModel {
                 _ = try await codiUseCase.createManualCoordinate(request: requestDTO)
                 processSuccess()
             } catch {
-                print("❌ 수동 코디 생성 실패: \(error.localizedDescription)")
+                #if DEBUG
+                print("[Codi] 수동 생성 실패: \(error.localizedDescription)")
+                #endif
             }
         }
     }

@@ -61,7 +61,9 @@ extension HomeViewModel {
         // 1. 저장할 이미지 URL 확인
         guard let imageUrlString = todayCodiPreview?.imageUrl,
               let url = URL(string: imageUrlString) else {
-            print("⚠️ [Save] 저장할 이미지 URL이 없습니다.")
+            #if DEBUG
+            print("[Save] 저장할 이미지 URL이 없습니다.")
+            #endif
             return
         }
         
@@ -70,14 +72,18 @@ extension HomeViewModel {
                 // 2. 이미지 데이터 다운로드
                 let (data, _) = try await URLSession.shared.data(from: url)
                 guard let image = UIImage(data: data) else {
-                    print("⚠️ [Save] 이미지 변환 실패")
+                    #if DEBUG
+                    print("[Save] 이미지 변환 실패")
+                    #endif
                     return
                 }
                 
                 // 3. 사진첩 저장 실행
                 saveToPhotoLibrary(image: image)
             } catch {
-                print("❌ [Save] 다운로드 실패: \(error.localizedDescription)")
+                #if DEBUG
+                print("[Save] 다운로드 실패: \(error.localizedDescription)")
+                #endif
             }
         }
     }
@@ -88,14 +94,18 @@ extension HomeViewModel {
                 PHPhotoLibrary.shared().performChanges {
                     PHAssetChangeRequest.creationRequestForAsset(from: image)
                 } completionHandler: { success, error in
+                    #if DEBUG
                     if success {
-                        print("✅ 사진첩 저장 성공")
+                        print("[Save] 사진첩 저장 성공")
                     } else if let error = error {
-                        print("❌ 저장 실패: \(error.localizedDescription)")
+                        print("[Save] 저장 실패: \(error.localizedDescription)")
                     }
+                    #endif
                 }
             } else {
-                print("⚠️ 사진첩 접근 권한이 거부되었습니다.")
+                #if DEBUG
+                print("[Save] 사진첩 접근 권한이 거부되었습니다.")
+                #endif
             }
         }
     }
@@ -122,14 +132,18 @@ extension HomeViewModel {
                 
                 self.showLookBookSheet = true
             } catch {
-                print("❌ 룩북 리스트 로드 실패: \(error.localizedDescription)")
+                #if DEBUG
+                print("[Lookbook] 룩북 리스트 로드 실패: \(error.localizedDescription)")
+                #endif
             }
         }
     }
     
     func selectLookBook(_ entity: LookBookBottomSheetEntity) {
         guard let dailyCodiId = todayCodiPreview?.coordinateId else {
-            print("⚠️ [Lookbook] 추가할 오늘의 코디 정보가 없습니다.")
+            #if DEBUG
+            print("[Lookbook] 추가할 오늘의 코디 정보가 없습니다.")
+            #endif
             return
         }
         
@@ -142,13 +156,15 @@ extension HomeViewModel {
                     lookBookId: entity.lookbookId
                 )
                 
-                let result = try await addToLookBookUseCase.createAutoDailyCoordinate(request: request)
+                _ = try await addToLookBookUseCase.createAutoDailyCoordinate(request: request)
                 
                 await MainActor.run {
                     self.showLookBookSheet = false
                 }
             } catch {
-                print("❌ [Lookbook] 룩북 추가 실패: \(error.localizedDescription)")
+                #if DEBUG
+                print("[Lookbook] 룩북 추가 실패: \(error.localizedDescription)")
+                #endif
             }
         }
     }
@@ -189,7 +205,11 @@ extension HomeViewModel {
                 self.hasCodi = true
             } catch {
                 self.hasCodi = false
-                print("❌ 데이터 로드 실패: \(error)")
+                #if DEBUG
+                if case HomeAPIError.serverError(statusCode: 404, _) = error { } else {
+                    print("[Home] 데이터 로드 실패: \(error)")
+                }
+                #endif
             }
         }
     }
@@ -206,7 +226,38 @@ extension HomeViewModel {
             selectedItemID = id
         }
     }
+
+    private func captureCompletedCodiImage() -> UIImage {
+        let view = CodiCompositeView(clothes: selectedCodiClothes)
+            .frame(width: 260, height: 260)
+            .background(Color.white)
+        
+        let controller = UIHostingController(rootView: view)
+        guard let uiView = controller.view else {
+            return UIImage()
+        }
+        uiView.bounds = CGRect(origin: .zero, size: CGSize(width: 260, height: 260))
+        uiView.backgroundColor = .clear
+        
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 260, height: 260))
+        return renderer.image { _ in
+            uiView.drawHierarchy(in: uiView.bounds, afterScreenUpdates: true)
+        }
+    }
     
+    func downloadUIImage(from urlString: String) async -> UIImage? {
+        guard let url = URL(string: urlString) else { return nil }
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            return UIImage(data: data)
+        } catch {
+            #if DEBUG
+            print("[Home] 이미지 다운로드 실패 (\(urlString)): \(error)")
+            #endif
+            return nil
+        }
+    }
+
     /// 드래그를 통해 태그의 상대 위치를 업데이트
     func updateTagPosition(tagId: UUID, x: CGFloat, y: CGFloat, imageSize: CGSize) {
         if let index = selectedItemTags.firstIndex(where: { $0.id == tagId }) {

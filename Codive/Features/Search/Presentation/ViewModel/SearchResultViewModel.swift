@@ -67,7 +67,9 @@ final class SearchResultViewModel: ObservableObject {
             let sort = currentSort == "전체" ? nil : currentSort
             self.posts = try await useCase.fetchPosts(query: self.initialQuery, sort: sort)
         } catch {
-            print("게시물 로딩 실패: \(error.localizedDescription)")
+            #if DEBUG
+            print("[Search] 게시물 로딩 실패: \(error.localizedDescription)")
+            #endif
         }
     }
 
@@ -75,18 +77,16 @@ final class SearchResultViewModel: ObservableObject {
         do {
             self.allUsers = try await useCase.fetchUsers(query: self.initialQuery)
             self.users = self.allUsers
-            print("유저 로딩 완료: \(self.users.count)명")
         } catch {
-            print("유저 로딩 실패: \(error.localizedDescription)")
+            #if DEBUG
+            print("[Search] 유저 로딩 실패: \(error.localizedDescription)")
+            #endif
         }
     }
 
     func executeNewSearch(query: String) {
         let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        if trimmedQuery.isEmpty {
-            print("검색어를 입력해 주세요.")
-            return
-        }
+        if trimmedQuery.isEmpty { return }
 
         self.initialQuery = trimmedQuery
         self.currentSort = "전체"
@@ -94,7 +94,6 @@ final class SearchResultViewModel: ObservableObject {
         Task {
             await loadPosts()
             await loadUsers()
-            print("현재 페이지에서 검색 결과 갱신: \(trimmedQuery)")
         }
     }
     

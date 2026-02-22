@@ -67,4 +67,8 @@ final class MockCommentRepository: CommentRepository {
         )
         return newReply
     }
+
+    func deleteComment(commentId: Int) async throws {
+        try await Task.sleep(nanoseconds: 300_000_000)
+    }
 }

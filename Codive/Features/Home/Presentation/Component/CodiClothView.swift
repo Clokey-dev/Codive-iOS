@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct ClothCardView: View {
     let item: HomeClothEntity
@@ -27,52 +28,14 @@ struct ClothCardView: View {
                     .frame(height: 124)
                     .frame(width: 124)
                     .overlay {
-                        if let url = URL(string: item.imageUrl),
-                           !item.imageUrl.isEmpty {
-
-                            AsyncImage(url: url, transaction: Transaction(animation: .easeInOut)) { phase in
-                                switch phase {
-                                case .empty:
-                                    ZStack {
-                                        RoundedRectangle(cornerRadius: 15)
-                                            .fill(Color.Codive.grayscale7)
-                                        ProgressView()
-                                    }
-
-                                case .success(let image):
-                                    image
-                                        .resizable()
-                                        .scaledToFit()
-                                        .transition(.opacity)
-
-                                case .failure(let error):
-                                    if let urlError = error as? URLError, urlError.code == .cancelled {
-                                        // Retry automatically on next runloop
-                                        Color.clear
-                                            .onAppear {
-                                                DispatchQueue.main.async {
-                                                    reloadKey = UUID()
-                                                }
-                                            }
-                                    } else {
-                                        ZStack {
-                                            RoundedRectangle(cornerRadius: 15)
-                                                .fill(Color.Codive.grayscale7)
-                                            Image(systemName: "exclamationmark.triangle")
-                                                .foregroundColor(.gray)
-                                        }
-                                        .onAppear {
-                                            print("Image load failed:", item.imageUrl)
-                                            print("Error:", error.localizedDescription)
-                                        }
-                                    }
-
-                                @unknown default:
-                                    EmptyView()
+                        if let url = URL(string: item.imageUrl), !item.imageUrl.isEmpty {
+                            KFImage(url)
+                                .placeholder {
+                                    ProgressView()
                                 }
-                            }
-                            .id(reloadKey)
-                            .clipShape(RoundedRectangle(cornerRadius: 15))
+                                .resizable()
+                                .scaledToFit()
+                                .clipShape(RoundedRectangle(cornerRadius: 15))
                         } else {
                             Image(item.imageUrl)
                                 .resizable()
@@ -93,6 +56,7 @@ struct CodiClothCarouselView: View {
     let activeScale: CGFloat
     let inactiveScale: CGFloat
     let isEmptyState: Bool
+    var onEmptyTap: (() -> Void)?
     
     @ViewBuilder
     private func emptyStateCard(at index: Int, width: CGFloat) -> some View {
@@ -110,17 +74,17 @@ struct CodiClothCarouselView: View {
                     .overlay(border)
                     .frame(height: 124)
                     .frame(width: 124)
-                
+
                 VStack(spacing: 10) {
                     Text(TextLiteral.Home.noClothTitle)
                         .font(.codive_body2_medium)
                         .foregroundColor(Color.Codive.grayscale1)
-                    
+
                     Text(TextLiteral.Home.noClothDescription)
                         .font(.codive_body3_regular)
                         .foregroundColor(Color.Codive.grayscale3)
                         .padding(.top, 4)
-                    
+
                     Image("plus")
                         .resizable()
                         .scaledToFit()
@@ -128,6 +92,9 @@ struct CodiClothCarouselView: View {
                 }
             }
             .frame(width: width)
+            .onTapGesture {
+                onEmptyTap?()
+            }
             
         default:
             ZStack {
@@ -207,6 +174,9 @@ struct CodiClothCarouselView: View {
                 }
                 .scrollDisabled(isEmptyState)
                 .onAppear {
+                    if isEmptyState {
+                        currentIndex = 1
+                    }
                     proxy.scrollTo(currentIndex, anchor: .center)
                 }
                 .onChange(of: items.count) { _ in
@@ -229,22 +199,25 @@ struct CodiClothView: View {
     let title: String
     let items: [HomeClothEntity]
     let isEmptyState: Bool
+    var onEmptyTap: (() -> Void)?
 
     let spacing: CGFloat = 12
     let activeScale: CGFloat = 1.0
     let inactiveScale: CGFloat = 0.85
     @Binding var currentIndex: Int
-    
+
     init(
         title: String,
         items: [HomeClothEntity],
         isEmptyState: Bool,
-        currentIndex: Binding<Int>
+        currentIndex: Binding<Int>,
+        onEmptyTap: (() -> Void)? = nil
     ) {
         self.title = title
         self.items = items
         self.isEmptyState = isEmptyState
         self._currentIndex = currentIndex
+        self.onEmptyTap = onEmptyTap
     }
     
     var body: some View {
@@ -256,7 +229,8 @@ struct CodiClothView: View {
                     spacing: spacing,
                     activeScale: activeScale,
                     inactiveScale: inactiveScale,
-                    isEmptyState: isEmptyState
+                    isEmptyState: isEmptyState,
+                    onEmptyTap: onEmptyTap
                 )
                 
                 // 카테고리 태그

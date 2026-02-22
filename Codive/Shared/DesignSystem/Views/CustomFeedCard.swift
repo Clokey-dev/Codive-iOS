@@ -114,9 +114,8 @@ struct CustomFeedCard: View {
             imageUrl: "sample_feed_image",
             profileImageUrl: "sample_profile",
             nickname: "닉네임",
-            isLiked: .constant(true),
-            onProfileTap: {}
-        )
+            isLiked: .constant(true)
+        ) {}
         .frame(width: 160)
     }
 }

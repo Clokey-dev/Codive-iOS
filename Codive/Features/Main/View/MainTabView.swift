@@ -138,6 +138,17 @@ struct MainTabView: View {
                 }
             }
 
+            // MARK: - Confirm Loading Overlay
+            if homeViewModel.isConfirmLoading {
+                ZStack {
+                    Color.black.opacity(0.3)
+                        .ignoresSafeArea()
+                    ProgressView()
+                        .tint(.white)
+                }
+                .zIndex(400)
+            }
+
             // MARK: - Success Overlay
             if let message = navigationRouter.successMessage {
                 CustomSuccessView(message: message)
@@ -214,6 +225,7 @@ struct MainTabView: View {
     @ViewBuilder
     private func destinationView(for destination: AppDestination) -> some View {
         switch destination {
+        // MARK: - Search
         case .search:
             searchDIContainer.makeSearchView()
         case .searchResult(let query):
@@ -222,16 +234,22 @@ struct MainTabView: View {
             searchDIContainer.makeRecentlySearchResultView()
         case .notification:
             notificationDIContainer.makeNotificationView()
+
+        // MARK: - Feed
         case .feedDetail(let feedId):
             feedDIContainer.makeFeedDetailView(feedId: feedId)
         case .otherProfile:
             feedDIContainer.feedViewFactory.makeView(for: destination)
         case .comment(let feedId):
             commentDIContainer.makeCommentView(feedId: feedId)
+
+        // MARK: - Home
         case .editCategory:
             homeDIContainer.makeEditCategoryView()
         case .codiBoard:
             homeDIContainer.makeCodiBoardView()
+
+        // MARK: - Profile & Settings
         case .favoriteCodiList(let showHeart):
             profileDIContainer.makeFavoriteCodiView(showHeart: showHeart)
         case .settings:
@@ -248,22 +266,20 @@ struct MainTabView: View {
             profileDIContainer.makeProfileSettingView()
         case .myProfile:
             profileDIContainer.makeProfileView()
-        case .followList(let mode, let memberId):
-            profileDIContainer.makeFollowListView(mode: mode, memberId: memberId)
+        case .followList(let mode, let memberId, let isMe):
+            profileDIContainer.makeFollowListView(mode: mode, memberId: memberId, isMe: isMe)
+
+        // MARK: - Closet
         case .myCloset:
             closetDIContainer.makeMyClosetView()
         case .clothDetail, .clothEdit:
             closetDIContainer.closetViewFactory.makeView(for: destination)
 
-        // Add Flow
-        case .recordAdd, .clothPhotoSelect, .photoEdit, .photoEditForCloth, .recordDetail, .recordEdit, .photoTag, .clothAdd:
+        // MARK: - Add / LookBook / Report
+        case .recordAdd, .clothPhotoSelect, .photoEdit, .photoEditForCloth, .recordDetail, .recordEdit, .photoTag, .clothAdd, .eraserEditor, .eraserPreview:
             addDIContainer.addViewFactory.makeView(for: destination)
-
-        // LookBook Flow
         case .lookbook, .specificLookbook, .addCodi, .addCodiDetail, .addBeforeCodi, .codiDetail, .editCodi:
             lookBookDIContainer.lookBookViewFactory.makeView(for: destination)
-
-        // Report Flow
         case .report, .reportDetail:
             reportDIContainer.reportViewFactory.makeView(for: destination)
 

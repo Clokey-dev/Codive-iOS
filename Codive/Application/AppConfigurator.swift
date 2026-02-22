@@ -16,11 +16,12 @@ final class AppConfigurator {
     
     private static func configureKakaoSDK() {
         guard let kakaoAppKey = Bundle.main.object(forInfoDictionaryKey: "KAKAO_APP_KEY") as? String else {
-            print("KAKAO_APP_KEY not found in Info.plist")
+            #if DEBUG
+            print("[App] KAKAO_APP_KEY not found in Info.plist")
+            #endif
             return
         }
-        
+
         KakaoSDK.initSDK(appKey: kakaoAppKey)
-        print("Kakao SDK initialized")
     }
 }

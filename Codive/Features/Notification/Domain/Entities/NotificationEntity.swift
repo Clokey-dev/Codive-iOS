@@ -9,8 +9,8 @@ import Foundation
 
 /// 신고 접수 유형
 enum ReportType: String, Codable {
-    case HISTORY = "HISTORY"
-    case COMMENT = "COMMENT"
+    case HISTORY
+    case COMMENT
 }
 
 /// 신고 접수 안내 api

@@ -14,6 +14,8 @@ protocol AuthAPIServiceProtocol {
     func checkAuthStatus() async throws -> RegisterStatus
     func reissueTokens(refreshToken: String) async throws -> TokenPair
     func renewDeviceToken(deviceToken: String) async throws
+    func logoutUser() async throws
+    func deactivateAccount() async throws
 }
 
 // MARK: - Token Pair
@@ -110,6 +112,37 @@ final class AuthAPIService: AuthAPIServiceProtocol {
 
         case .undocumented(statusCode: let statusCode, _):
             throw AuthError.networkError("디바이스 토큰 갱신 실패: \(statusCode)")
+        }
+    }
+
+    // MARK: - Logout
+
+    func logoutUser() async throws {
+        let input = Operations.Auth_logoutUser.Input()
+        let response = try await client.Auth_logoutUser(input)
+
+        switch response {
+        case .ok:
+            return
+
+        case .undocumented(statusCode: let statusCode, _):
+            throw AuthError.networkError("로그아웃 실패: \(statusCode)")
+        }
+    }
+
+    // MARK: - Deactivate Account
+
+    func deactivateAccount() async throws {
+        let requestBody = Components.Schemas.UserStatusUpdateRequest(active: false)
+        let input = Operations.Auth_updateUserStatus.Input(body: .json(requestBody))
+        let response = try await client.Auth_updateUserStatus(input)
+
+        switch response {
+        case .ok:
+            return
+
+        case .undocumented(statusCode: let statusCode, _):
+            throw AuthError.networkError("회원 비활성화 실패: \(statusCode)")
         }
     }
 }

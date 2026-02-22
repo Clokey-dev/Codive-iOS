@@ -60,7 +60,7 @@ private extension HomeHasCodiView {
     var header: some View {
         HStack {
             Text("\(TextLiteral.Home.todayCodiTitle)(\(viewModel.todayString))")
-                .font(.title2)
+                .font(.codive_title1)
                 .padding(.horizontal, 20)
             Spacer()
         }

@@ -29,7 +29,9 @@ final class FavoriteCodiViewModel: ObservableObject {
             self.favoriteCoordinates = try await fetchMyFavoriteLookBookUseCase.fetchMyFavoriteCoordinate()
         } catch {
             self.errorMessage = "데이터를 불러오는 데 실패했습니다."
-            print("Error fetching favorites: \(error)")
+            #if DEBUG
+            print("[FavoriteCodi] Error fetching favorites: \(error)")
+            #endif
         }
         
         isLoading = false

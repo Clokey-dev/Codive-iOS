@@ -9,7 +9,7 @@ import SwiftUI
 
 // MARK: - 옷 정보 모델
 struct ClothingItem: Identifiable {
-    let id = UUID()
+    let id: Int
     let imageName: String?
     let image: UIImage?
     let imageUrl: String?
@@ -21,6 +21,7 @@ struct ClothingItem: Identifiable {
     let purchaseUrl: String
 
     init(
+        id: Int = 0,
         imageName: String? = nil,
         image: UIImage? = nil,
         imageUrl: String? = nil,
@@ -31,6 +32,7 @@ struct ClothingItem: Identifiable {
         brand: String,
         purchaseUrl: String
     ) {
+        self.id = id
         self.imageName = imageName
         self.image = image
         self.imageUrl = imageUrl
@@ -67,9 +69,22 @@ struct CustomAIRecommendationView: View {
     let onBrandChanged: ((String) -> Void)?
     let onPurchaseUrlChanged: ((String) -> Void)?
 
+    // 유효성 검증 에러 (옵션)
+    let showCategoryError: Bool
+    let showSeasonError: Bool
+
+    // 완료된 아이템 인덱스 (썸네일 흐림 효과용)
+    let completedItemIndices: Set<Int>
+
+    // 썸네일 탭 콜백 (옵션 - 유효성 검증용)
+    let onThumbnailTap: ((Int) -> Void)?
+
     // UI 표시 제어 (옵션)
     let showTitle: Bool
     let showEditButton: Bool
+
+    // 지우개 편집 콜백 (옵션)
+    let onEditButtonTap: (() -> Void)?
 
     // MARK: - Initializer
     init(
@@ -88,8 +103,13 @@ struct CustomAIRecommendationView: View {
         onNameChanged: ((String) -> Void)? = nil,
         onBrandChanged: ((String) -> Void)? = nil,
         onPurchaseUrlChanged: ((String) -> Void)? = nil,
+        showCategoryError: Bool = false,
+        showSeasonError: Bool = false,
+        completedItemIndices: Set<Int> = [],
+        onThumbnailTap: ((Int) -> Void)? = nil,
         showTitle: Bool = true,
-        showEditButton: Bool = true
+        showEditButton: Bool = true,
+        onEditButtonTap: (() -> Void)? = nil
     ) {
         self.title = title
         self.items = items
@@ -106,8 +126,13 @@ struct CustomAIRecommendationView: View {
         self.onNameChanged = onNameChanged
         self.onBrandChanged = onBrandChanged
         self.onPurchaseUrlChanged = onPurchaseUrlChanged
+        self.showCategoryError = showCategoryError
+        self.showSeasonError = showSeasonError
+        self.completedItemIndices = completedItemIndices
+        self.onThumbnailTap = onThumbnailTap
         self.showTitle = showTitle
         self.showEditButton = showEditButton
+        self.onEditButtonTap = onEditButtonTap
     }
     
     // 안전한 currentItem 접근
@@ -165,57 +190,8 @@ struct CustomAIRecommendationView: View {
     private func mainImageView(for item: ClothingItem) -> some View {
         GeometryReader { geometry in
             ZStack(alignment: .topTrailing) {
-                if let image = item.image {
-                    Image(uiImage: image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: geometry.size.width)
-                        .background(Color.Codive.grayscale6)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                } else if let imageUrl = item.imageUrl, !imageUrl.isEmpty, let url = URL(string: imageUrl) {
-                    AsyncImage(url: url) { phase in
-                        switch phase {
-                        case .empty:
-                            Rectangle()
-                                .fill(Color.Codive.grayscale6)
-                                .overlay(ProgressView())
-                        case .success(let image):
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                        case .failure:
-                            Rectangle()
-                                .fill(Color.Codive.grayscale6)
-                                .overlay(
-                                    Image(systemName: "photo")
-                                        .foregroundStyle(Color.Codive.grayscale4)
-                                )
-                        @unknown default:
-                            EmptyView()
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: geometry.size.width)
-                    .background(Color.Codive.grayscale6)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                } else if let imageName = item.imageName, !imageName.isEmpty {
-                    Image(imageName)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: geometry.size.width)
-                        .background(Color.Codive.grayscale6)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                } else {
-                    Rectangle()
-                        .fill(Color.Codive.grayscale6)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: geometry.size.width)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                }
+                mainImageContent(for: item, size: geometry.size.width)
 
-                // Edit button (조건부 표시)
                 if showEditButton {
                     editButton
                 }
@@ -223,15 +199,84 @@ struct CustomAIRecommendationView: View {
         }
         .aspectRatio(1, contentMode: .fit)
     }
+
+    @ViewBuilder
+    private func mainImageContent(for item: ClothingItem, size: CGFloat) -> some View {
+        if let image = item.image {
+            uiImageView(image, size: size)
+        } else if let imageUrl = item.imageUrl, !imageUrl.isEmpty, let url = URL(string: imageUrl) {
+            asyncImageView(url: url, size: size)
+        } else if let imageName = item.imageName, !imageName.isEmpty {
+            assetImageView(imageName, size: size)
+        } else {
+            placeholderImageView(size: size)
+        }
+    }
+
+    private func uiImageView(_ image: UIImage, size: CGFloat) -> some View {
+        Image(uiImage: image)
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(maxWidth: .infinity)
+            .frame(height: size)
+            .background(Color.Codive.grayscale6)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    private func asyncImageView(url: URL, size: CGFloat) -> some View {
+        AsyncImage(url: url) { phase in
+            switch phase {
+            case .empty:
+                Rectangle()
+                    .fill(Color.Codive.grayscale6)
+                    .overlay(ProgressView())
+            case .success(let image):
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            case .failure:
+                Rectangle()
+                    .fill(Color.Codive.grayscale6)
+                    .overlay(
+                        Image(systemName: "photo")
+                            .foregroundStyle(Color.Codive.grayscale4)
+                    )
+            @unknown default:
+                EmptyView()
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: size)
+        .background(Color.Codive.grayscale6)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    private func assetImageView(_ name: String, size: CGFloat) -> some View {
+        Image(name)
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(maxWidth: .infinity)
+            .frame(height: size)
+            .background(Color.Codive.grayscale6)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    private func placeholderImageView(size: CGFloat) -> some View {
+        Rectangle()
+            .fill(Color.Codive.grayscale6)
+            .frame(maxWidth: .infinity)
+            .frame(height: size)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
     
     private var editButton: some View {
         Button {
-            // action
+            onEditButtonTap?()
         } label: {
-            Image(systemName: "pencil")
+            Image(systemName: "eraser")
                 .font(.system(size: 16))
                 .foregroundStyle(Color.Codive.grayscale2)
-                .frame(width: 32, height: 32)
+                .frame(width: 30, height: 30)
                 .background(Color.white)
                 .clipShape(Circle())
                 .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
@@ -252,8 +297,12 @@ struct CustomAIRecommendationView: View {
     
     private func thumbnailButton(for item: ClothingItem, at index: Int) -> some View {
         Button {
-            withAnimation {
-                selectedItemIndex = index
+            if let onThumbnailTap {
+                onThumbnailTap(index)
+            } else {
+                withAnimation {
+                    selectedItemIndex = index
+                }
             }
         } label: {
             Group {
@@ -261,6 +310,17 @@ struct CustomAIRecommendationView: View {
                     Image(uiImage: image)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
+                } else if let imageUrl = item.imageUrl, !imageUrl.isEmpty, let url = URL(string: imageUrl) {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                        default:
+                            Color.Codive.grayscale6
+                        }
+                    }
                 } else if let imageName = item.imageName {
                     Image(imageName)
                         .resizable()
@@ -277,6 +337,12 @@ struct CustomAIRecommendationView: View {
                         lineWidth: selectedItemIndex == index ? 2 : 1
                     )
             )
+            .overlay {
+                if completedItemIndices.contains(index) && selectedItemIndex != index {
+                    RoundedRectangle(cornerRadius: 5)
+                        .fill(Color.Codive.grayscale5.opacity(0.6))
+                }
+            }
         }
     }
     
@@ -289,6 +355,7 @@ struct CustomAIRecommendationView: View {
                 value: item.category.isEmpty ? "" : "\(item.category) > \(item.subcategory)",
                 placeholder: TextLiteral.Closet.categoryPlaceholder,
                 showRequiredMark: true,
+                showError: showCategoryError,
                 action: onCategoryTap
             )
 
@@ -297,6 +364,7 @@ struct CustomAIRecommendationView: View {
                 value: item.season,
                 placeholder: TextLiteral.Closet.seasonPlaceholder,
                 showRequiredMark: true,
+                showError: showSeasonError,
                 action: onSeasonTap
             )
 
@@ -345,69 +413,5 @@ struct CustomAIRecommendationView: View {
         .frame(maxWidth: .infinity)
         .frame(height: 300)
         .padding(.top, 20)
-    }
-}
-
-// MARK: - CustomTextFieldButton
-struct CustomTextFieldButton: View {
-    let title: String
-    let value: String
-    let placeholder: String
-    let showRequiredMark: Bool
-    let action: () -> Void
-
-    init(
-        title: String,
-        value: String,
-        placeholder: String = "",
-        showRequiredMark: Bool = false,
-        action: @escaping () -> Void
-    ) {
-        self.title = title
-        self.value = value
-        self.placeholder = placeholder
-        self.showRequiredMark = showRequiredMark
-        self.action = action
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // Title
-            HStack(alignment: .top, spacing: 4) {
-                Text(title)
-                    .font(.codive_title2)
-                    .foregroundStyle(Color.Codive.grayscale1)
-
-                if showRequiredMark {
-                    Text("*")
-                        .font(.codive_title2)
-                        .foregroundStyle(Color.Codive.point1)
-                        .offset(x: -4, y: -4)
-                }
-            }
-
-            // Button (TextField 스타일)
-            Button(action: action) {
-                HStack {
-                    Text(value.isEmpty ? placeholder : value)
-                        .font(.codive_body1_regular)
-                        .foregroundStyle(value.isEmpty ? Color.Codive.grayscale4 : Color.Codive.grayscale1)
-
-                    Spacer()
-
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 14))
-                        .foregroundStyle(Color.Codive.grayscale3)
-                }
-                .padding(.horizontal, 16)
-                .frame(height: 54)
-                .background(Color.white)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.Codive.grayscale5, lineWidth: 1)
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-            }
-        }
     }
 }

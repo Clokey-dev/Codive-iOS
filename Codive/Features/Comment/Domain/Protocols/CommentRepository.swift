@@ -40,4 +40,8 @@ public protocol CommentRepository {
     /// - Returns: 생성된 `Comment` 객체
     @discardableResult
     func postReply(feedId: Int, commentId: Int, content: String) async throws -> Comment
+
+    /// 댓글을 삭제함.
+    /// - Parameter commentId: 삭제할 댓글의 ID
+    func deleteComment(commentId: Int) async throws
 }

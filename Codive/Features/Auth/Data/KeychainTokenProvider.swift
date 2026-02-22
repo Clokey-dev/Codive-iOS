@@ -7,6 +7,7 @@
 
 import Foundation
 import CodiveAPI
+import Kingfisher
 
 // MARK: - Token Refresh Manager (Actor)
 
@@ -51,10 +52,14 @@ actor TokenRefreshManager {
                 try? keychainManager.saveAccessToken(tokenPair.accessToken)
                 try? keychainManager.saveRefreshToken(tokenPair.refreshToken)
 
+                #if DEBUG
                 print("[TokenRefresh] 토큰 재발급 성공")
+                #endif
                 return tokenPair.accessToken
             } catch {
+                #if DEBUG
                 print("[TokenRefresh] 토큰 재발급 실패: \(error)")
+                #endif
                 await notifyRefreshTokenExpired()
                 return nil
             }
@@ -67,8 +72,16 @@ actor TokenRefreshManager {
     /// refresh token 만료 또는 재발급 실패 시 로그아웃 알림
     @MainActor
     private func notifyRefreshTokenExpired() {
+        #if DEBUG
         print("[TokenRefresh] 로그아웃 필요 - refresh token 만료 또는 재발급 실패")
+        #endif
         try? KeychainManager.shared.clearAllTokens()
+        // 로컬 캐시 데이터 삭제
+        UserDefaults.standard.removeObject(forKey: "SavedCategories")
+        let cache = ImageCache.default
+        cache.clearMemoryCache()
+        cache.clearDiskCache()
+        URLCache.shared.removeAllCachedResponses()
         NotificationCenter.default.post(name: .tokenRefreshFailed, object: nil)
     }
 }

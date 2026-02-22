@@ -21,11 +21,11 @@ final class ReportViewFactory {
     @ViewBuilder
     func makeView(for destination: AppDestination) -> some View {
         switch destination {
-        case .report(let target):
-            reportDIContainer?.makeReportView(target: target)
-            
-        case .reportDetail(let target):
-            reportDIContainer?.makeReportDetailView(target: target)
+        case .report(let target, let commentInfo):
+            reportDIContainer?.makeReportView(target: target, commentInfo: commentInfo)
+
+        case .reportDetail(let target, let commentInfo):
+            reportDIContainer?.makeReportDetailView(target: target, commentInfo: commentInfo)
             
         default:
             EmptyView()

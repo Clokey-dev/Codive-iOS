@@ -202,6 +202,7 @@ struct OnboardingContainerView: View {
         onKakaoLogin: { },
         onAppleLogin: { },
         isLoading: false,
-        errorMessage: nil
-    ) { }
+        errorMessage: nil,
+        onErrorDismiss: { } // swiftlint:disable:this trailing_closure
+    )
 }
