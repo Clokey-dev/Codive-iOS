@@ -83,6 +83,9 @@ struct CustomAIRecommendationView: View {
     let showTitle: Bool
     let showEditButton: Bool
 
+    // 지우개 편집 콜백 (옵션)
+    let onEditButtonTap: (() -> Void)?
+
     // MARK: - Initializer
     init(
         title: String = TextLiteral.Closet.aiRecommendationTitle,
@@ -105,7 +108,8 @@ struct CustomAIRecommendationView: View {
         completedItemIndices: Set<Int> = [],
         onThumbnailTap: ((Int) -> Void)? = nil,
         showTitle: Bool = true,
-        showEditButton: Bool = true
+        showEditButton: Bool = true,
+        onEditButtonTap: (() -> Void)? = nil
     ) {
         self.title = title
         self.items = items
@@ -128,6 +132,7 @@ struct CustomAIRecommendationView: View {
         self.onThumbnailTap = onThumbnailTap
         self.showTitle = showTitle
         self.showEditButton = showEditButton
+        self.onEditButtonTap = onEditButtonTap
     }
     
     // 안전한 currentItem 접근
@@ -266,7 +271,7 @@ struct CustomAIRecommendationView: View {
     
     private var editButton: some View {
         Button {
-            // action
+            onEditButtonTap?()
         } label: {
             Image(systemName: "eraser")
                 .font(.system(size: 16))

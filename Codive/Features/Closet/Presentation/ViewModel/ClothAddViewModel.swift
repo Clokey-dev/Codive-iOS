@@ -88,6 +88,9 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
     @Published var categoryError = false
     @Published var seasonError = false
 
+    // 이미지 갱신 트리거 (SwiftUI 강제 리렌더링용)
+    @Published var imageRefreshId = UUID()
+
     // MARK: - Dependencies
     private let navigationRouter: NavigationRouter
     private let addClothUseCase: AddClothUseCase
@@ -375,6 +378,39 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
         currentIndex = 0
     }
 
+    // MARK: - Eraser Editing
+
+    func startEraserEditing() {
+        guard let photo = currentPhoto else { return }
+
+        // AI 누끼 이미지가 있으면 다운로드해서 사용
+        if let aiImageUrl = photo.aiImageUrl, let url = URL(string: aiImageUrl) {
+            isLoading = true
+            Task { [weak self] in
+                guard let self else { return }
+                defer { self.isLoading = false }
+
+                if let (data, _) = try? await URLSession.shared.data(from: url),
+                   let aiImage = UIImage(data: data) {
+                    var editPhoto = photo
+                    editPhoto.croppedImage = aiImage
+                    navigationRouter.navigate(to: .eraserEditor(photo: editPhoto, photoIndex: currentIndex))
+                }
+            }
+        } else {
+            navigationRouter.navigate(to: .eraserEditor(photo: photo, photoIndex: currentIndex))
+        }
+    }
+
+    func updateErasedImage(at index: Int, image: UIImage) {
+        guard selectedPhotos.indices.contains(index) else { return }
+        var updated = selectedPhotos
+        updated[index].croppedImage = image
+        updated[index].aiImageUrl = nil
+        selectedPhotos = updated
+        imageRefreshId = UUID()
+    }
+
     func dismissView() {
         navigationRouter.navigateBack()
     }
@@ -409,7 +445,7 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
                         aiInputs.append(input)
                         aiImageUrls.append(aiUrl)
                     } else {
-                        guard let data = photo.croppedImage.jpegData(compressionQuality: 0.8) else {
+                        guard let data = photo.croppedImage.pngData() ?? photo.croppedImage.jpegData(compressionQuality: 0.8) else {
                             throw ClothAddError.imageConversionFailed
                         }
                         normalInputs.append(input)

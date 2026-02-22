@@ -63,8 +63,12 @@ struct ClothAddView: View {
                         completedItemIndices: viewModel.completedItemIndices,
                         onThumbnailTap: { index in
                             viewModel.trySelectItem(at: index)
+                        },
+                        onEditButtonTap: {
+                            viewModel.startEraserEditing()
                         }
                     )
+                    .id(viewModel.imageRefreshId)
                 }
                 .padding(.top, 10)
             }
