@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 @MainActor
 final class AddDIContainer {
@@ -17,6 +18,10 @@ final class AddDIContainer {
     
     let navigationRouter: NavigationRouter
     lazy var addViewFactory = AddViewFactory(addDIContainer: self)
+
+    // 지우개 편집 시 공유 참조
+    weak var activeClothAddViewModel: ClothAddViewModel?
+    var pendingErasedImage: UIImage?
     
     // MARK: - Initializer
     init(
@@ -112,8 +117,35 @@ final class AddDIContainer {
     }
 
     func makeClothAddView(selectedPhotos: [SelectedPhoto], isAIEnabled: Bool = false) -> ClothAddView {
-        return ClothAddView(
-            viewModel: makeClothAddViewModel(selectedPhotos: selectedPhotos, isAIEnabled: isAIEnabled)
+        let viewModel = makeClothAddViewModel(selectedPhotos: selectedPhotos, isAIEnabled: isAIEnabled)
+        // NavigationStack이 재호출해도 @StateObject가 유지하는 최초 viewModel을 덮어쓰지 않음
+        if activeClothAddViewModel == nil {
+            activeClothAddViewModel = viewModel
+        }
+        return ClothAddView(viewModel: viewModel)
+    }
+
+    func makeEraserEditorView(photo: SelectedPhoto, photoIndex: Int) -> EraserEditorView? {
+        guard let viewModel = activeClothAddViewModel else { return nil }
+        return EraserEditorView(
+            originalImage: photo.croppedImage,
+            photoIndex: photoIndex,
+            navigationRouter: navigationRouter,
+            clothAddViewModel: viewModel,
+            onSaveImage: { [weak self] image in
+                self?.pendingErasedImage = image
+            }
+        )
+    }
+
+    func makeEraserPreviewView(photoIndex: Int) -> EraserPreviewView? {
+        guard let viewModel = activeClothAddViewModel,
+              let image = pendingErasedImage else { return nil }
+        return EraserPreviewView(
+            previewImage: image,
+            photoIndex: photoIndex,
+            navigationRouter: navigationRouter,
+            clothAddViewModel: viewModel
         )
     }
 }

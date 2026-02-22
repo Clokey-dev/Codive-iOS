@@ -276,7 +276,7 @@ struct MainTabView: View {
             closetDIContainer.closetViewFactory.makeView(for: destination)
 
         // MARK: - Add / LookBook / Report
-        case .recordAdd, .clothPhotoSelect, .photoEdit, .photoEditForCloth, .recordDetail, .recordEdit, .photoTag, .clothAdd:
+        case .recordAdd, .clothPhotoSelect, .photoEdit, .photoEditForCloth, .recordDetail, .recordEdit, .photoTag, .clothAdd, .eraserEditor, .eraserPreview:
             addDIContainer.addViewFactory.makeView(for: destination)
         case .lookbook, .specificLookbook, .addCodi, .addCodiDetail, .addBeforeCodi, .codiDetail, .editCodi:
             lookBookDIContainer.lookBookViewFactory.makeView(for: destination)

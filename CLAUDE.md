@@ -2,6 +2,16 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Language
+
+- Always respond to the user in **Korean**.
+- Code comments, commit messages, etc. follow existing conventions.
+
+## CLAUDE.md Editing Rules
+
+- All content in this file MUST be written in English, regardless of the user's language.
+- When adding new rules or sections, follow the existing formatting and language conventions.
+
 ## Git Commit Rules
 
 When asked to commit, follow this procedure:

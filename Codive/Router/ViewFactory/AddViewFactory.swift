@@ -38,6 +38,10 @@ final class AddViewFactory {
             addDIContainer?.makeRecordDetailViewForEdit(feed: feed)
         case .photoTag(let photo, let allPhotos):
             addDIContainer?.makePhotoTagView(photo: photo, allPhotos: allPhotos)
+        case .eraserEditor(let photo, let photoIndex):
+            addDIContainer?.makeEraserEditorView(photo: photo, photoIndex: photoIndex)
+        case .eraserPreview(let photoIndex):
+            addDIContainer?.makeEraserPreviewView(photoIndex: photoIndex)
         default:
             EmptyView()
         }
