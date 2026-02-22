@@ -43,7 +43,7 @@ struct CustomClothCard: View {
                 ZStack(alignment: .topTrailing) {
                     // 1. 상품 이미지
                     ZStack {
-                        Color.Codive.grayscale7
+                        Color.Codive.grayscale6
 
                         imageContent
 

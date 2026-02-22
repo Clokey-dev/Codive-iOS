@@ -100,6 +100,7 @@ struct ClothDetailView: View {
                     image
                         .resizable()
                         .aspectRatio(contentMode: .fit)
+                        .background(Color.Codive.grayscale6)
                 case .failure:
                     Rectangle()
                         .fill(Color.Codive.grayscale7)
