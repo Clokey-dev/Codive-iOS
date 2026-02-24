@@ -45,6 +45,11 @@ final class MyCommentsViewModel: ObservableObject {
     }
 
     @MainActor
+    func navigateBack() {
+        navigationRouter.navigateBack()
+    }
+
+    @MainActor
     func navigateToFeedDetail(historyId: Int) {
         navigationRouter.navigate(to: .feedDetail(feedId: historyId))
     }

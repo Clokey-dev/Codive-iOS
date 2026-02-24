@@ -36,27 +36,9 @@ struct FeedDetailView: View {
             Color.white.ignoresSafeArea()
 
             VStack(spacing: 0) {
-                HStack {
-                    Button(action: {
-                        navigationRouter.navigateBack()
-                    }, label: {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 20))
-                            .foregroundStyle(.black)
-                    })
-
-                    Spacer()
-
-                    Text(TextLiteral.Feed.detailTitle)
-                        .font(.codive_title2)
-                        .foregroundStyle(.black)
-
-                    Spacer()
-
-                    Color.clear.frame(width: 24, height: 24)
+                CustomNavigationBar(title: TextLiteral.Feed.detailTitle) {
+                    navigationRouter.navigateBack()
                 }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 12)
 
                 ScrollView {
                     VStack(spacing: 0) {
