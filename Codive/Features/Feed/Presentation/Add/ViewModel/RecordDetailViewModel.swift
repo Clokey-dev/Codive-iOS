@@ -189,7 +189,9 @@ final class RecordDetailViewModel: ObservableObject {
                 let request = try buildRecordRequest()
                 try await saveRecord(request)
                 isLoading = false
-                navigationRouter.navigateBack()
+                NotificationCenter.default.post(name: .feedDidCreate, object: nil)
+                let message = isEditMode ? "기록이 수정되었습니다" : "기록이 저장되었습니다"
+                navigationRouter.showSuccessAndNavigate(message: message, to: .feed)
             } catch {
                 handleRecordError(error)
             }

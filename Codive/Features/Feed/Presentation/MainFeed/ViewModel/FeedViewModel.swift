@@ -40,6 +40,7 @@ final class FeedViewModel: ObservableObject {
     private let pageSize: Int = 20
     private var nextCursor: String?
     private var hasMorePages: Bool = true
+    private var needsRefresh: Bool = false
     private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Initialization
@@ -52,12 +53,12 @@ final class FeedViewModel: ObservableObject {
         self.navigationRouter = navigationRouter
         self.fetchFeedsUseCase = fetchFeedsUseCase
         self.toggleLikeUseCase = toggleLikeUseCase
-        setupUserBlockObserver()
+        setupObservers()
     }
 
     // MARK: - Setup
 
-    private func setupUserBlockObserver() {
+    private func setupObservers() {
         NotificationCenter.default.publisher(for: .userDidBlock)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
@@ -65,6 +66,16 @@ final class FeedViewModel: ObservableObject {
                 Task { @MainActor in
                     await self.refresh()
                 }
+            }
+            .store(in: &cancellables)
+
+        NotificationCenter.default.publisher(for: .feedDidCreate)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                #if DEBUG
+                print("[Feed] feedDidCreate 알림 수신 - needsRefresh 설정")
+                #endif
+                self?.needsRefresh = true
             }
             .store(in: &cancellables)
     }
@@ -88,9 +99,16 @@ final class FeedViewModel: ObservableObject {
         navigationRouter.navigate(to: .otherProfile(userId: memberId))
     }
 
+    /// View가 나타날 때 호출 — 필요한 경우에만 로드
+    func loadFeedsIfNeeded() {
+        if feeds.isEmpty || needsRefresh {
+            needsRefresh = false
+            Task { await loadFeeds() }
+        }
+    }
+
     /// 첫 페이지 Feed 로드
     func loadFeeds() async {
-        // 이미 로딩 중이면 중복 호출 방지
         guard !isLoading else { return }
 
         isLoading = true
@@ -110,6 +128,11 @@ final class FeedViewModel: ObservableObject {
             nextCursor = result.nextCursor
             hasMorePages = result.hasNext
         } catch {
+            // Task 취소 시 기존 데이터 유지
+            guard !Task.isCancelled else {
+                isLoading = false
+                return
+            }
             errorMessage = "Feed를 불러오는데 실패했습니다: \(error.localizedDescription)"
             feeds = []
         }
@@ -150,6 +173,9 @@ final class FeedViewModel: ObservableObject {
 
     /// 새로고침 (첫 페이지부터 다시 로드)
     func refresh() async {
+        #if DEBUG
+        print("[Feed] refresh() called")
+        #endif
         await loadFeeds()
     }
 
