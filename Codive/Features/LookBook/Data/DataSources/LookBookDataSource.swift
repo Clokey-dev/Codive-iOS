@@ -199,44 +199,19 @@ extension LookBookDataSource {
     /// 코디 이미지를 S3에 업로드하고 최종 URL을 반환
     func uploadCodiImage(jpgData: Data) async throws -> String {
         let presignedUrlInfos = try await apiService.getPresignedUrls(for: [jpgData])
-        
+
         guard let urlInfo = presignedUrlInfos.first else {
             throw LookBookAPIError.uploadFailed(message: "Presigned URL 발급 실패")
         }
-        
-        try await uploadImageToS3(
+
+        let contentType = S3UploadHelpers.detectFormat(from: jpgData).contentType
+        try await S3UploadHelpers.uploadToS3(
             presignedUrl: urlInfo.presignedUrl,
             imageData: jpgData,
-            md5Hash: urlInfo.md5Hash
+            contentMD5: urlInfo.md5Hash,
+            contentType: contentType
         )
 
         return urlInfo.finalUrl
-    }
- 
-    private func uploadImageToS3(
-        presignedUrl: String,
-        imageData: Data,
-        md5Hash: String
-    ) async throws {
-        guard let url = URL(string: presignedUrl) else {
-            throw LookBookAPIError.invalidUrl
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "PUT"
-        request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type")
-        request.setValue(md5Hash, forHTTPHeaderField: "Content-MD5")
-        request.httpBody = imageData
-        
-        let (_, response) = try await URLSession.shared.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse,
-              (200...299).contains(httpResponse.statusCode) else {
-            throw LookBookAPIError.uploadFailed(message: "S3 업로드 실패 (Status: \((response as? HTTPURLResponse)?.statusCode ?? -1))")
-        }
-        
-        #if DEBUG
-        print("[LookBook] S3 이미지 업로드 성공")
-        #endif
     }
 }

@@ -19,7 +19,7 @@ protocol HistoryAPIServiceProtocol {
     func fetchMonthlyHistory(memberId: Int64, year: Int32, month: Int32) async throws -> [MonthlyHistoryItemDTO]
     func deleteHistory(historyId: Int64) async throws
     func getPresignedUrls(for images: [Data]) async throws -> [PresignedUrlInfo]
-    func uploadImageToS3(presignedUrl: String, imageData: Data, contentMD5: String) async throws
+    func uploadImageToS3(presignedUrl: String, imageData: Data, contentMD5: String, contentType: String) async throws
 }
 
 // MARK: - History Detail DTO

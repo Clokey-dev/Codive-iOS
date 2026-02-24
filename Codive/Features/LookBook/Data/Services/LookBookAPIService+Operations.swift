@@ -204,8 +204,9 @@ extension LookBookAPIService {
     func getPresignedUrls(for images: [Data]) async throws -> [PresignedUrlInfo] {
         let payloads = images.map { imageData in
             let md5Hash = S3UploadHelpers.calculateMD5(from: imageData)
+            let format = S3UploadHelpers.detectFormat(from: imageData)
             return (
-                payload: Components.Schemas.ClothImagesUploadRequestPayload(fileExtension: .JPEG, md5Hashes: md5Hash),
+                payload: Components.Schemas.ClothImagesUploadRequestPayload(fileExtension: format.clothFileExtension, md5Hashes: md5Hash),
                 md5Hash: md5Hash
             )
         }

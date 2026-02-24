@@ -32,10 +32,12 @@ final class ClothAIRepositoryImpl: ClothAIRepository {
             for (index, (imageData, presignedInfo)) in zip(images, presignedInfos).enumerated() {
                 group.addTask {
                     do {
+                        let contentType = S3UploadHelpers.detectFormat(from: imageData).contentType
                         try await self.apiService.uploadImageToS3(
                             presignedUrl: presignedInfo.presignedUrl,
                             imageData: imageData,
-                            contentMD5: presignedInfo.md5Hash
+                            contentMD5: presignedInfo.md5Hash,
+                            contentType: contentType
                         )
                         return (index, presignedInfo.finalUrl)
                     } catch {

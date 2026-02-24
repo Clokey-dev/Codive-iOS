@@ -104,10 +104,12 @@ final class DefaultClothDataSource: ClothDataSource {
 
     private func uploadImagesToS3(images: [Data], presignedInfos: [PresignedUrlInfo]) async throws {
         for (imageData, presignedInfo) in zip(images, presignedInfos) {
+            let contentType = S3UploadHelpers.detectFormat(from: imageData).contentType
             try await apiService.uploadImageToS3(
                 presignedUrl: presignedInfo.presignedUrl,
                 imageData: imageData,
-                contentMD5: presignedInfo.md5Hash
+                contentMD5: presignedInfo.md5Hash,
+                contentType: contentType
             )
         }
     }

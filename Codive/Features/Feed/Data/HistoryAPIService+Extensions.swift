@@ -15,8 +15,9 @@ extension HistoryAPIService {
     func getPresignedUrls(for images: [Data]) async throws -> [PresignedUrlInfo] {
         let payloads = images.map { imageData in
             let md5Hash = S3UploadHelpers.calculateMD5(from: imageData)
+            let format = S3UploadHelpers.detectFormat(from: imageData)
             return (
-                payload: Components.Schemas.HistoryImagesUploadRequestPayload(fileExtension: .JPEG, md5Hashes: md5Hash),
+                payload: Components.Schemas.HistoryImagesUploadRequestPayload(fileExtension: format.historyFileExtension, md5Hashes: md5Hash),
                 md5Hash: md5Hash
             )
         }
@@ -43,7 +44,7 @@ extension HistoryAPIService {
         }
     }
 
-    func uploadImageToS3(presignedUrl: String, imageData: Data, contentMD5: String) async throws {
-        try await S3UploadHelpers.uploadToS3(presignedUrl: presignedUrl, imageData: imageData, contentMD5: contentMD5)
+    func uploadImageToS3(presignedUrl: String, imageData: Data, contentMD5: String, contentType: String) async throws {
+        try await S3UploadHelpers.uploadToS3(presignedUrl: presignedUrl, imageData: imageData, contentMD5: contentMD5, contentType: contentType)
     }
 }

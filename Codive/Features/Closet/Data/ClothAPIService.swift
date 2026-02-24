@@ -13,7 +13,7 @@ import OpenAPIRuntime
 
 protocol ClothAPIServiceProtocol {
     func getPresignedUrls(for images: [Data]) async throws -> [PresignedUrlInfo]
-    func uploadImageToS3(presignedUrl: String, imageData: Data, contentMD5: String) async throws
+    func uploadImageToS3(presignedUrl: String, imageData: Data, contentMD5: String, contentType: String) async throws
     func createClothes(requests: [ClothCreateAPIRequest]) async throws -> [Int64]
     func fetchClothes(lastClothId: Int64?, size: Int32, categoryId: Int64?, seasons: [Season]) async throws -> ClothListResult
     func searchClothes(keyword: String, size: Int32, categoryId: Int64?, seasons: [Season]) async throws -> ClothListResult
@@ -113,8 +113,9 @@ extension ClothAPIService {
     func getPresignedUrls(for images: [Data]) async throws -> [PresignedUrlInfo] {
         let payloads = images.map { imageData in
             let md5Hash = S3UploadHelpers.calculateMD5(from: imageData)
+            let format = S3UploadHelpers.detectFormat(from: imageData)
             return (
-                payload: Components.Schemas.ClothImagesUploadRequestPayload(fileExtension: .JPEG, md5Hashes: md5Hash),
+                payload: Components.Schemas.ClothImagesUploadRequestPayload(fileExtension: format.clothFileExtension, md5Hashes: md5Hash),
                 md5Hash: md5Hash
             )
         }
@@ -141,8 +142,8 @@ extension ClothAPIService {
         }
     }
 
-    func uploadImageToS3(presignedUrl: String, imageData: Data, contentMD5: String) async throws {
-        try await S3UploadHelpers.uploadToS3(presignedUrl: presignedUrl, imageData: imageData, contentMD5: contentMD5)
+    func uploadImageToS3(presignedUrl: String, imageData: Data, contentMD5: String, contentType: String) async throws {
+        try await S3UploadHelpers.uploadToS3(presignedUrl: presignedUrl, imageData: imageData, contentMD5: contentMD5, contentType: contentType)
     }
 }
 

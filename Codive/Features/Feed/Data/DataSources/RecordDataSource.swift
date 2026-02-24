@@ -111,10 +111,12 @@ final class DefaultRecordDataSource: RecordDataSource {
 
         // S3 업로드
         for (imageData, presignedInfo) in zip(imageDatas, presignedInfos) {
+            let contentType = S3UploadHelpers.detectFormat(from: imageData).contentType
             try await historyAPIService.uploadImageToS3(
                 presignedUrl: presignedInfo.presignedUrl,
                 imageData: imageData,
-                contentMD5: presignedInfo.md5Hash
+                contentMD5: presignedInfo.md5Hash,
+                contentType: contentType
             )
         }
 

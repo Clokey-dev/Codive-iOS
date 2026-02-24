@@ -184,7 +184,8 @@ final class ProfileAPIService: ProfileAPIServiceProtocol {
 
     func uploadProfileImage(_ imageData: Data) async throws -> String {
         let md5Hash = S3UploadHelpers.calculateMD5(from: imageData)
-        let uploadPayload = Components.Schemas.ClothImagesUploadRequestPayload(fileExtension: .JPEG, md5Hashes: md5Hash)
+        let format = S3UploadHelpers.detectFormat(from: imageData)
+        let uploadPayload = Components.Schemas.ClothImagesUploadRequestPayload(fileExtension: format.clothFileExtension, md5Hashes: md5Hash)
         let requestBody = Components.Schemas.ClothImagesUploadRequest(payloads: [uploadPayload])
 
         let response = try await client.ClothAi_getClothUploadPresignedUrl(
@@ -207,7 +208,7 @@ final class ProfileAPIService: ProfileAPIServiceProtocol {
             let presignedUrl = urls[0]
 
             // S3에 직접 업로드
-            try await S3UploadHelpers.uploadToS3(presignedUrl: presignedUrl, imageData: imageData, contentMD5: md5Hash)
+            try await S3UploadHelpers.uploadToS3(presignedUrl: presignedUrl, imageData: imageData, contentMD5: md5Hash, contentType: format.contentType)
 
             return S3UploadHelpers.extractFinalUrl(from: presignedUrl)
 
