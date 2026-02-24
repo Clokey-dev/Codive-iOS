@@ -126,28 +126,43 @@ struct RecordAddView: View {
                     .ignoresSafeArea()
                     .onTapGesture {
                         withAnimation {
-                            viewModel.isClothInfoPresented = false
+                            viewModel.dismissClothInfo()
                         }
                     }
 
-                Image("Cloth_info")
-                    .resizable()
-                    .scaledToFit()
-                    .padding(.horizontal, 40)
-                    .overlay(alignment: .topTrailing) {
-                        Button {
-                            withAnimation {
-                                viewModel.isClothInfoPresented = false
+                VStack(spacing: 16) {
+                    Image("Cloth_info")
+                        .resizable()
+                        .scaledToFit()
+                        .overlay(alignment: .topTrailing) {
+                            Button {
+                                withAnimation {
+                                    viewModel.dismissClothInfo()
+                                }
+                            } label: {
+                                Image(systemName: "xmark")
+                                    .font(.system(size: 14, weight: .bold))
+                                    .foregroundStyle(Color.Codive.grayscale3)
+                                    .padding(12)
                             }
-                        } label: {
-                            Image(systemName: "xmark")
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundStyle(Color.Codive.grayscale3)
-                                .padding(12)
                         }
-                        .padding(.horizontal, 40)
+
+                    Button {
+                        viewModel.isDontShowTodayChecked.toggle()
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: viewModel.isDontShowTodayChecked ? "checkmark.square.fill" : "square")
+                                .font(.system(size: 18))
+                                .foregroundStyle(viewModel.isDontShowTodayChecked ? Color.Codive.point1 : Color.Codive.grayscale4)
+
+                            Text("오늘 다시 보지 않기")
+                                .font(.codive_body2_medium)
+                                .foregroundStyle(Color.white)
+                        }
                     }
-                    .transition(.opacity)
+                }
+                .padding(.horizontal, 40)
+                .transition(.opacity)
             }
         }
         .animation(.easeInOut(duration: 0.25), value: viewModel.isClothInfoPresented)
