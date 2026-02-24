@@ -8,6 +8,7 @@ final class SettingViewModel: ObservableObject {
     @Published var isMarketingOn: Bool = false
     @Published private(set) var isLoading: Bool = false
     @Published private(set) var error: Error?
+    private var hasLoaded = false
 
     private let appRouter: AppRouter
     private let navigationRouter: NavigationRouter
@@ -34,6 +35,7 @@ final class SettingViewModel: ObservableObject {
 
     // 초기 로드
     func load() async {
+        guard !hasLoaded else { return }
         isLoading = true
         error = nil
 
@@ -44,6 +46,7 @@ final class SettingViewModel: ObservableObject {
             let prefs = try await getPrefsUC.fetch()
             isPushOn = prefs.pushEnabled
             isMarketingOn = prefs.marketingOptIn
+            hasLoaded = true
         } catch {
             self.error = error
         }

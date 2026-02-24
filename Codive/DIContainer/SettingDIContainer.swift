@@ -80,15 +80,19 @@ final class SettingDIContainer {
     }
 
     // MARK: - ViewModels
+
+    /// 네비게이션 시 재생성 방지를 위해 캐싱
+    private lazy var settingViewModel: SettingViewModel = SettingViewModel(
+        appRouter: appRouter,
+        navigationRouter: navigationRouter,
+        getPrefsUC: makeGetNotificationPrefsUseCase(),
+        updatePrefsUC: makeUpdateNotificationPrefsUseCase(),
+        authRepository: authDIContainer.authRepository,
+        profileViewModel: profileDIContainer.makeProfileViewModel()
+    )
+
     func makeSettingViewModel() -> SettingViewModel {
-        SettingViewModel(
-            appRouter: appRouter,
-            navigationRouter: navigationRouter,
-            getPrefsUC: makeGetNotificationPrefsUseCase(),
-            updatePrefsUC: makeUpdateNotificationPrefsUseCase(),
-            authRepository: authDIContainer.authRepository,
-            profileViewModel: profileDIContainer.makeProfileViewModel()
-        )
+        settingViewModel
     }
 
     func makeLikedRecordsViewModel() -> LikedRecordsViewModel {
