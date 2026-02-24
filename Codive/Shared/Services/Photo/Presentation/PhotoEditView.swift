@@ -114,6 +114,7 @@ struct PhotoEditView: View {
                 ImageCropView(
                     image: currentPhoto.originalImage,
                     aspectRatio: viewModel.aspectRatio,
+                    allowZoomOut: viewModel.flowType == .cloth,
                     onComplete: { croppedImage in
                         viewModel.updateCroppedImage(croppedImage)
                         viewModel.isEditingMode = false

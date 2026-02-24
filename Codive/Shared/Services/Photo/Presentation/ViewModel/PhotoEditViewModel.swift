@@ -26,7 +26,7 @@ final class PhotoEditViewModel: ObservableObject {
     @Published var showExitAlert: Bool = false
 
     private let navigationRouter: NavigationRouter
-    private let flowType: PhotoEditFlowType
+    let flowType: PhotoEditFlowType
     private let isAIEnabled: Bool
     private var cancellables = Set<AnyCancellable>()
     
