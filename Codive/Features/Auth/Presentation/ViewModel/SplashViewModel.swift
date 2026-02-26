@@ -24,6 +24,7 @@ final class SplashViewModel: ObservableObject {
 
     private let tokenService: TokenServiceProtocol
     private let authAPIService: AuthAPIServiceProtocol
+    private let profileAPIService: ProfileAPIServiceProtocol
     private let keychainManager: KeychainManager
 
     // MARK: - Initializer
@@ -32,11 +33,13 @@ final class SplashViewModel: ObservableObject {
         appRouter: AppRouter,
         tokenService: TokenServiceProtocol = TokenService(),
         authAPIService: AuthAPIServiceProtocol = AuthAPIService(),
+        profileAPIService: ProfileAPIServiceProtocol = ProfileAPIService(),
         keychainManager: KeychainManager = KeychainManager.shared
     ) {
         self.appRouter = appRouter
         self.tokenService = tokenService
         self.authAPIService = authAPIService
+        self.profileAPIService = profileAPIService
         self.keychainManager = keychainManager
     }
 
@@ -116,10 +119,22 @@ final class SplashViewModel: ObservableObject {
             case .notAgreed:
                 appRouter.navigateToTerms()
             case .registered:
+                await cacheMyProfile()
                 appRouter.navigateToMain()
             }
         } catch {
             appRouter.finishSplash()
+        }
+    }
+
+    private func cacheMyProfile() async {
+        do {
+            let profile = try await profileAPIService.fetchMyProfile()
+            UserProfileStorage.save(profile)
+        } catch {
+            #if DEBUG
+            print("[Splash] 프로필 캐싱 실패: \(error)")
+            #endif
         }
     }
 

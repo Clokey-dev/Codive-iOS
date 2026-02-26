@@ -5,7 +5,7 @@
 //  Created by 황상환 on 1/25/26.
 //
 
-struct MyProfileInfo {
+struct MyProfileInfo: Codable {
     let userId: Int
     let nickname: String
     let displayName: String

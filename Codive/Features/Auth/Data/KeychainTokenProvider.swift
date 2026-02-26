@@ -78,6 +78,7 @@ actor TokenRefreshManager {
         try? KeychainManager.shared.clearAllTokens()
         // 로컬 캐시 데이터 삭제
         UserDefaults.standard.removeObject(forKey: "SavedCategories")
+        UserProfileStorage.clear()
         let cache = ImageCache.default
         cache.clearMemoryCache()
         cache.clearDiskCache()

@@ -67,8 +67,9 @@ final class AuthRepositoryImpl: AuthRepository {
 
     // MARK: - Local Data Cleanup
     private func clearLocalData() {
-        // UserDefaults 캐시 삭제 (카테고리 등)
+        // UserDefaults 캐시 삭제 (카테고리, 프로필 등)
         UserDefaults.standard.removeObject(forKey: "SavedCategories")
+        UserProfileStorage.clear()
         // Kingfisher 이미지 캐시 삭제
         let cache = ImageCache.default
         cache.clearMemoryCache()

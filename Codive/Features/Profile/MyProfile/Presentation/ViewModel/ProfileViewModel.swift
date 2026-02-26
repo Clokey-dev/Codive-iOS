@@ -113,6 +113,7 @@ class ProfileViewModel: ObservableObject {
             self.followingCount = profileInfo.followingCount
             self.profileImageUrl = profileInfo.profileImageUrl
             self.email = profileInfo.email
+            UserProfileStorage.save(profileInfo)
         } catch {
             self.errorMessage = error.localizedDescription
             #if DEBUG
