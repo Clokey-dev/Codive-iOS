@@ -12,30 +12,29 @@ final class SearchViewModel: ObservableObject {
     // MARK: - Properties
     private let navigationRouter: NavigationRouter
     private let useCase: SearchUseCase
-    
+
     @Published var username: String = ""
-    @Published var recentSearchTags: [SearchTagEntity] = []
+    @Published var recentSearchTerms: [String] = []
     @Published var recommendedNews: [SearchRecommendationEntity] = []
-    @Published var showingDeleteAlert: Bool = false
-    
+
     // MARK: - Initializer
     init(navigationRouter: NavigationRouter, useCase: SearchUseCase) {
         self.navigationRouter = navigationRouter
         self.useCase = useCase
     }
-    
+
     // MARK: - Methods
-    
+
     func loadData() {
         if let profile = UserProfileStorage.load() {
             self.username = profile.nickname
         }
     }
-    
-    func recentlySearchResultList() {
-        self.recentSearchTags = recentSearchTags
+
+    func loadRecentSearchTerms() {
+        self.recentSearchTerms = RecentSearchStorage.load()
     }
-    
+
     func loadSearchRecommendation() {
         Task {
             do {
@@ -59,11 +58,13 @@ final class SearchViewModel: ObservableObject {
             }
         }
     }
-    
+
     func executeSearch(query: String) {
         let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmedQuery.isEmpty { return }
 
+        RecentSearchStorage.addTerm(trimmedQuery)
+        loadRecentSearchTerms()
         navigationRouter.navigate(to: .searchResult(query: trimmedQuery))
     }
 
@@ -72,23 +73,24 @@ final class SearchViewModel: ObservableObject {
         let trimmedKeyword = keyword.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedKeyword.isEmpty else { return }
 
+        RecentSearchStorage.addTerm(trimmedKeyword)
+        loadRecentSearchTerms()
         navigationRouter.navigate(to: .searchResult(query: trimmedKeyword))
     }
 
-    func deleteTag(tag: SearchTagEntity) {
-        if let index = recentSearchTags.firstIndex(where: { $0.id == tag.id }) {
-            recentSearchTags.remove(at: index)
-        }
+    func deleteTag(term: String) {
+        RecentSearchStorage.removeTerm(term)
+        loadRecentSearchTerms()
     }
-    
+
     func handleShowAll() {
         navigationRouter.navigate(to: .recentlySearchResult)
     }
-    
-    func handleTagTap(tag: SearchTagEntity) {
-        executeSearch(query: tag.text)
+
+    func handleTagTap(term: String) {
+        executeSearch(query: term)
     }
-    
+
     // MARK: - Navigation
     func handleBackTap() {
         navigationRouter.navigateBack()

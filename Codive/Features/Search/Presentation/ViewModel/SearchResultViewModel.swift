@@ -88,6 +88,7 @@ final class SearchResultViewModel: ObservableObject {
         let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmedQuery.isEmpty { return }
 
+        RecentSearchStorage.addTerm(trimmedQuery)
         self.initialQuery = trimmedQuery
         self.currentSort = "전체"
 

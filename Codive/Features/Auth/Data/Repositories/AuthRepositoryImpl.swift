@@ -70,6 +70,7 @@ final class AuthRepositoryImpl: AuthRepository {
         // UserDefaults 캐시 삭제 (카테고리, 프로필 등)
         UserDefaults.standard.removeObject(forKey: "SavedCategories")
         UserProfileStorage.clear()
+        RecentSearchStorage.clear()
         // Kingfisher 이미지 캐시 삭제
         let cache = ImageCache.default
         cache.clearMemoryCache()

@@ -10,12 +10,12 @@ import SwiftUI
 struct RecentlySearchResultView: View {
     // MARK: - Properties
     @StateObject private var viewModel: RecentlySearchResultViewModel
-    
+
     // MARK: - Initializer
     init(viewModel: RecentlySearchResultViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
-    
+
     var body: some View {
         VStack {
             CustomNavigationBar(
@@ -26,25 +26,14 @@ struct RecentlySearchResultView: View {
                 }
             )
             .padding(.horizontal, 15)
-            
+
             ScrollView {
                 VStack(spacing: 12) {
-                    ForEach(viewModel.items) { item in
+                    ForEach(viewModel.recentSearchTerms, id: \.self) { term in
                         RecentlySearchResultRow(
-                            type: {
-                                switch item {
-                                case .hashTag(let title):
-                                    return .hashTag(title: title)
-                                case .member(let imageUrl, let title, let subtitle):
-                                    return .member(
-                                        imageUrl: imageUrl,
-                                        title: title,
-                                        subtitle: subtitle
-                                    )
-                                }
-                            }()
+                            type: .hashTag(title: term)
                         ) {
-                            viewModel.deleteTag()
+                            viewModel.deleteTerm(term)
                         }
                     }
                 }
@@ -54,6 +43,9 @@ struct RecentlySearchResultView: View {
         .navigationBarHidden(true)
         .enableSwipeBack()
         .background(Color.white.ignoresSafeArea(.all))
+        .onAppear {
+            viewModel.loadData()
+        }
         // MARK: - Alert
         .alert(
             TextLiteral.Search.alertTitle,
