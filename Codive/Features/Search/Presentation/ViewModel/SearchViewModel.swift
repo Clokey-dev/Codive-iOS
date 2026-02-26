@@ -27,9 +27,9 @@ final class SearchViewModel: ObservableObject {
     // MARK: - Methods
     
     func loadData() {
-        // 1. 로컬 데이터 (동기)
-        let user = useCase.fetchUserName()
-        self.username = user.username
+        if let profile = UserProfileStorage.load() {
+            self.username = profile.nickname
+        }
     }
     
     func recentlySearchResultList() {
