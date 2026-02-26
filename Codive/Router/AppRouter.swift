@@ -61,17 +61,23 @@ final class AppRouter: ObservableObject {
     func finishSplash() {
         // 스플래시 종료 후 인증 화면으로 이동
         // TODO: 로그인 상태 확인 로직 추가 (토큰 있으면 .main)
-        currentAppState = .auth
+        withAnimation(.easeInOut(duration: 0.4)) {
+            currentAppState = .auth
+        }
     }
 
     func navigateToTerms() {
         isLoading = false
-        currentAppState = .termsAgreement
+        withAnimation(.easeInOut(duration: 0.4)) {
+            currentAppState = .termsAgreement
+        }
     }
 
     func navigateToMain() {
         isLoading = false
-        currentAppState = .main
+        withAnimation(.easeInOut(duration: 0.4)) {
+            currentAppState = .main
+        }
         #if DEBUG
         if let token = try? KeychainManager.shared.getAccessToken() {
             print("----------------------------------------")
@@ -96,6 +102,8 @@ final class AppRouter: ObservableObject {
         navigationRouter?.navigateToRoot()
 
         // 2. 로그인 화면으로 상태 변경
-        currentAppState = .auth
+        withAnimation(.easeInOut(duration: 0.4)) {
+            currentAppState = .auth
+        }
     }
 }
