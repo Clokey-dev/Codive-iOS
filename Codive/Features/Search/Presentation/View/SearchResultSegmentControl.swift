@@ -23,40 +23,41 @@ struct SearchResultSegmentControl: View {
                 segmentItem(title: TextLiteral.Search.account, segment: .account)
                 segmentItem(title: TextLiteral.Search.hashtag, segment: .hashtag)
             }
-            
-            Rectangle()
-                .frame(height: 2)
-                .foregroundStyle(Color.Codive.grayscale6)
+
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    Rectangle()
+                        .foregroundStyle(Color.Codive.grayscale6)
+
+                    Rectangle()
+                        .foregroundStyle(Color.Codive.point1)
+                        .frame(width: geometry.size.width / 2)
+                        .offset(x: selectedSegment == .account ? 0 : geometry.size.width / 2)
+                }
+            }
+            .frame(height: 2)
         }
     }
-    
+
     @ViewBuilder
     private func segmentItem(title: String, segment: SearchResultSegment) -> some View {
         Button {
             selectedSegment = segment
         } label: {
-            VStack(spacing: 6) {
-                Text(title)
-                    .font(
-                        selectedSegment == segment
-                        ? .codive_body1_medium
-                        : .codive_body1_regular
-                    )
-                    .foregroundStyle(
-                        selectedSegment == segment
-                        ? Color.Codive.grayscale1
-                        : Color.Codive.grayscale4
-                    )
-                
-                Rectangle()
-                    .frame(height: 2)
-                    .foregroundStyle(
-                        selectedSegment == segment
-                        ? Color.Codive.point1
-                        : .clear
-                    )
-            }
-            .frame(maxWidth: .infinity)
+            Text(title)
+                .font(
+                    selectedSegment == segment
+                    ? .codive_body1_medium
+                    : .codive_body1_regular
+                )
+                .foregroundStyle(
+                    selectedSegment == segment
+                    ? Color.Codive.grayscale1
+                    : Color.Codive.grayscale4
+                )
+                .frame(maxWidth: .infinity)
+                .padding(.bottom, 8)
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
