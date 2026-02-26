@@ -56,7 +56,7 @@ struct SearchView: View {
                     }
                     .padding(.top, 32)
 
-                    if viewModel.recentSearchTerms.isEmpty {
+                    if viewModel.recentSearchItems.isEmpty {
                         HStack {
                             Text(TextLiteral.Search.noTag)
                                 .font(Font.codive_body2_medium)
@@ -66,15 +66,15 @@ struct SearchView: View {
                         .padding(.top, 8)
                     } else {
                         VStack {
-                            ForEach(viewModel.recentSearchTerms, id: \.self) { term in
+                            ForEach(viewModel.recentSearchItems, id: \.id) { item in
                                 RecentlySearchResultRow(
-                                    type: .hashTag(title: term)
+                                    type: item.toSearchResultType()
                                 ) {
-                                    viewModel.deleteTag(term: term)
+                                    viewModel.deleteItem(item)
                                 }
                                 .contentShape(Rectangle())
                                 .onTapGesture {
-                                    viewModel.handleTagTap(term: term)
+                                    viewModel.handleItemTap(item)
                                 }
                             }
                         }
@@ -126,7 +126,7 @@ struct SearchView: View {
         // MARK: - Data Loading Trigger
         .onAppear {
             viewModel.loadData()
-            viewModel.loadRecentSearchTerms()
+            viewModel.loadRecentSearchItems()
             viewModel.loadSearchRecommendation()
         }
     }

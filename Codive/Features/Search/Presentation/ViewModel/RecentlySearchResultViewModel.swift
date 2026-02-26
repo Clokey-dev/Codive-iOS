@@ -12,7 +12,7 @@ final class RecentlySearchResultViewModel: ObservableObject {
     // MARK: - Properties
     private let navigationRouter: NavigationRouter
 
-    @Published var recentSearchTerms: [String] = []
+    @Published var recentSearchItems: [RecentSearchItem] = []
     @Published var showingDeleteAlert: Bool = false
 
     // MARK: - Initializer
@@ -21,11 +21,11 @@ final class RecentlySearchResultViewModel: ObservableObject {
     }
 
     func loadData() {
-        self.recentSearchTerms = RecentSearchStorage.load()
+        self.recentSearchItems = RecentSearchStorage.load()
     }
 
-    func deleteTerm(_ term: String) {
-        RecentSearchStorage.removeTerm(term)
+    func deleteItem(_ item: RecentSearchItem) {
+        RecentSearchStorage.removeItem(item)
         loadData()
     }
 
@@ -35,7 +35,22 @@ final class RecentlySearchResultViewModel: ObservableObject {
 
     func executeDeleteAll() {
         RecentSearchStorage.clear()
-        self.recentSearchTerms = []
+        self.recentSearchItems = []
+    }
+
+    func handleItemTap(_ item: RecentSearchItem) {
+        switch item {
+        case .keyword(let text):
+            let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else { return }
+            RecentSearchStorage.addTerm(trimmed)
+            navigationRouter.navigate(to: .searchResult(query: trimmed))
+        case .member(let userId, _, _):
+            if let id = Int(userId) {
+                RecentSearchStorage.addItem(item)
+                navigationRouter.navigate(to: .otherProfile(userId: id))
+            }
+        }
     }
 
     // MARK: - Navigation

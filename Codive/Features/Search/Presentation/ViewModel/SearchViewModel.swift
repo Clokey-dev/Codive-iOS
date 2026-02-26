@@ -14,7 +14,7 @@ final class SearchViewModel: ObservableObject {
     private let useCase: SearchUseCase
 
     @Published var username: String = ""
-    @Published var recentSearchTerms: [String] = []
+    @Published var recentSearchItems: [RecentSearchItem] = []
     @Published var recommendedNews: [SearchRecommendationEntity] = []
 
     // MARK: - Initializer
@@ -31,8 +31,8 @@ final class SearchViewModel: ObservableObject {
         }
     }
 
-    func loadRecentSearchTerms() {
-        self.recentSearchTerms = RecentSearchStorage.load()
+    func loadRecentSearchItems() {
+        self.recentSearchItems = RecentSearchStorage.load()
     }
 
     func loadSearchRecommendation() {
@@ -64,7 +64,7 @@ final class SearchViewModel: ObservableObject {
         if trimmedQuery.isEmpty { return }
 
         RecentSearchStorage.addTerm(trimmedQuery)
-        loadRecentSearchTerms()
+        loadRecentSearchItems()
         navigationRouter.navigate(to: .searchResult(query: trimmedQuery))
     }
 
@@ -74,21 +74,30 @@ final class SearchViewModel: ObservableObject {
         guard !trimmedKeyword.isEmpty else { return }
 
         RecentSearchStorage.addTerm(trimmedKeyword)
-        loadRecentSearchTerms()
+        loadRecentSearchItems()
         navigationRouter.navigate(to: .searchResult(query: trimmedKeyword))
     }
 
-    func deleteTag(term: String) {
-        RecentSearchStorage.removeTerm(term)
-        loadRecentSearchTerms()
+    func deleteItem(_ item: RecentSearchItem) {
+        RecentSearchStorage.removeItem(item)
+        loadRecentSearchItems()
     }
 
     func handleShowAll() {
         navigationRouter.navigate(to: .recentlySearchResult)
     }
 
-    func handleTagTap(term: String) {
-        executeSearch(query: term)
+    func handleItemTap(_ item: RecentSearchItem) {
+        switch item {
+        case .keyword(let text):
+            executeSearch(query: text)
+        case .member(let userId, _, _):
+            if let id = Int(userId) {
+                RecentSearchStorage.addItem(item)
+                loadRecentSearchItems()
+                navigationRouter.navigate(to: .otherProfile(userId: id))
+            }
+        }
     }
 
     // MARK: - Navigation

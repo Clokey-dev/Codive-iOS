@@ -30,25 +30,18 @@ struct RecentlySearchResultRow: View {
                 case .member(let imageUrl, _, _):
                     AsyncImage(url: URL(string: imageUrl)) { phase in
                         switch phase {
-                        case .empty:
-                            Circle()
-                                .fill(Color.gray.opacity(0.1))
-                                .frame(width: 44, height: 44)
                         case .success(let image):
                             image
                                 .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 44, height: 44)
-                                .clipShape(Circle())
-                        case .failure:
-                            Image("settingProfile")
+                                .scaledToFill()
+                        default:
+                            Image("Profile")
                                 .resizable()
-                                .frame(width: 40, height: 40)
-                                .foregroundColor(.gray)
-                        @unknown default:
-                            EmptyView()
+                                .scaledToFill()
                         }
                     }
+                    .frame(width: 40, height: 40)
+                    .clipShape(Circle())
                 }
             }
             
@@ -63,9 +56,11 @@ struct RecentlySearchResultRow: View {
                     Text(title)
                         .font(.codive_body1_medium)
                         .foregroundColor(Color.Codive.grayscale1)
-                    Text(subtitle)
-                        .font(.codive_body3_medium)
-                        .foregroundColor(Color.Codive.grayscale3)
+                    if !subtitle.isEmpty {
+                        Text(subtitle)
+                            .font(.codive_body3_medium)
+                            .foregroundColor(Color.Codive.grayscale3)
+                    }
                 }
             }
             

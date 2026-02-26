@@ -29,11 +29,15 @@ struct RecentlySearchResultView: View {
 
             ScrollView {
                 VStack(spacing: 12) {
-                    ForEach(viewModel.recentSearchTerms, id: \.self) { term in
+                    ForEach(viewModel.recentSearchItems, id: \.id) { item in
                         RecentlySearchResultRow(
-                            type: .hashTag(title: term)
+                            type: item.toSearchResultType()
                         ) {
-                            viewModel.deleteTerm(term)
+                            viewModel.deleteItem(item)
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            viewModel.handleItemTap(item)
                         }
                     }
                 }
