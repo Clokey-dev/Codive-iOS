@@ -114,7 +114,7 @@ struct CustomNavigationBar: View {
         case .text(let title, let isEnabled, let action):
             Button(action: action) {
                 Text(title)
-                    .font(Font.codive_body2_medium)
+                    .font(Font.codive_title3)
                     .foregroundStyle(isEnabled ? Color.Codive.point1 : Color.Codive.grayscale5)
             }
             .disabled(!isEnabled)
