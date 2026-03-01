@@ -80,7 +80,7 @@ class ProfileViewModel: ObservableObject {
     private let navigationRouter: NavigationRouter
     private let fetchMyProfileUseCase: FetchMyProfileUseCase
     private let fetchMonthlyHistoryUseCase: FetchMonthlyHistoryUseCase
-    private let fetchMyFavoriteLookBookUseCase: FetchMyFavoriteLookBookUseCase
+    private let fetchFavoriteLookBookUseCase: FetchFavoriteLookBookUseCase
 
     // MARK: - Callbacks
     var onEmptyHistoryDateSelected: ((Date) -> Void)?
@@ -90,12 +90,12 @@ class ProfileViewModel: ObservableObject {
         navigationRouter: NavigationRouter,
         fetchMyProfileUseCase: FetchMyProfileUseCase,
         fetchMonthlyHistoryUseCase: FetchMonthlyHistoryUseCase,
-        fetchMyFavoriteLookBookUseCase: FetchMyFavoriteLookBookUseCase
+        fetchFavoriteLookBookUseCase: FetchFavoriteLookBookUseCase
     ) {
         self.navigationRouter = navigationRouter
         self.fetchMyProfileUseCase = fetchMyProfileUseCase
         self.fetchMonthlyHistoryUseCase = fetchMonthlyHistoryUseCase
-        self.fetchMyFavoriteLookBookUseCase = fetchMyFavoriteLookBookUseCase
+        self.fetchFavoriteLookBookUseCase = fetchFavoriteLookBookUseCase
     }
     
     // MARK: - Loading
@@ -182,7 +182,7 @@ class ProfileViewModel: ObservableObject {
     
     func loadFavoriteCoordinates() async {
         do {
-            let coordinates = try await fetchMyFavoriteLookBookUseCase.fetchMyFavoriteCoordinate()
+            let coordinates = try await fetchFavoriteLookBookUseCase.fetchMyFavoriteCoordinate()
             self.favoriteCoordinates = coordinates
         } catch {
             #if DEBUG
@@ -194,8 +194,8 @@ class ProfileViewModel: ObservableObject {
     func onCodiCardTapped(coordinateId: Int64) {
         Task {
             do {
-                self.selectedCoordinatePreview = try await fetchMyFavoriteLookBookUseCase.fetchCoordinatePreview(coordinateId: coordinateId)
-                self.selectedCoordinateDetails = try await fetchMyFavoriteLookBookUseCase.fetchCoordinateDetail(coordinateId: coordinateId)
+                self.selectedCoordinatePreview = try await fetchFavoriteLookBookUseCase.fetchCoordinatePreview(coordinateId: coordinateId)
+                self.selectedCoordinateDetails = try await fetchFavoriteLookBookUseCase.fetchCoordinateDetail(coordinateId: coordinateId)
                 self.isShowingPopup = true
             } catch {
                 #if DEBUG

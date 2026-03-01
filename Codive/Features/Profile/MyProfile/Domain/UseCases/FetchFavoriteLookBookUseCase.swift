@@ -5,7 +5,7 @@
 //  Created by 한금준 on 2/5/26.
 //
 
-final class FetchMyFavoriteLookBookUseCase {
+final class FetchFavoriteLookBookUseCase {
     // MARK: - Properties
     private let repository: ProfileRepository
 

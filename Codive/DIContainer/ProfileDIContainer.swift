@@ -62,8 +62,8 @@ final class ProfileDIContainer {
         return FetchMonthlyHistoryUseCase(historyRepository: historyRepository)
     }
     
-    func makeFetchMyFavoriteLookBookUseCase() -> FetchMyFavoriteLookBookUseCase {
-        return FetchMyFavoriteLookBookUseCase(repository: profileRepository)
+    func makeFetchFavoriteLookBookUseCase() -> FetchFavoriteLookBookUseCase {
+        return FetchFavoriteLookBookUseCase(repository: profileRepository)
     }
 
     func makeFetchMemberInfoUseCase() -> FetchMemberInfoUseCase {
@@ -84,7 +84,7 @@ final class ProfileDIContainer {
             navigationRouter: navigationRouter,
             fetchMyProfileUseCase: makeFetchMyProfileUseCase(),
             fetchMonthlyHistoryUseCase: makeFetchMonthlyHistoryUseCase(),
-            fetchMyFavoriteLookBookUseCase: makeFetchMyFavoriteLookBookUseCase()
+            fetchFavoriteLookBookUseCase: makeFetchFavoriteLookBookUseCase()
         )
     }()
 
@@ -117,14 +117,15 @@ final class ProfileDIContainer {
             fetchMemberInfoUseCase: makeFetchMemberInfoUseCase(),
             toggleFollowUseCase: makeToggleFollowUseCase(),
             fetchMonthlyHistoryUseCase: makeFetchMonthlyHistoryUseCase(),
-            toggleBlockUseCase: makeToggleBlockUseCase()
+            toggleBlockUseCase: makeToggleBlockUseCase(),
+            fetchFavoriteLookBookUseCase: makeFetchFavoriteLookBookUseCase()
         )
     }
     
     func makeFavoriteCodiViewModel() -> FavoriteCodiViewModel {
         return FavoriteCodiViewModel(
             navigationRouter: navigationRouter,
-            fetchMyFavoriteLookBookUseCase: makeFetchMyFavoriteLookBookUseCase()
+            fetchFavoriteLookBookUseCase: makeFetchFavoriteLookBookUseCase()
         )
     }
 
