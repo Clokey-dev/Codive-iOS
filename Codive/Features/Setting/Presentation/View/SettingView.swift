@@ -36,7 +36,9 @@ struct SettingView: View {
             }
         }
         .navigationBarHidden(true)
-        .enableSwipeBack()
+        .enableSwipeBack {
+            vm.navigateBack()
+        }
         .task {
             await vm.load()
         }

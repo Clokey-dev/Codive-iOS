@@ -62,7 +62,9 @@ struct PhotoTagView: View {
             }
             .background(Color.white)
             .navigationBarHidden(true)
-            .enableSwipeBack()
+            .enableSwipeBack {
+                viewModel.dismissView()
+            }
         }
         .ignoresSafeArea(.all, edges: .bottom)
     }

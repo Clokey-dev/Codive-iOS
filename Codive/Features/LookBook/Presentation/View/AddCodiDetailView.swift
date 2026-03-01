@@ -85,7 +85,9 @@ struct AddCodiDetailView: View {
             }
         }
         .navigationBarHidden(true)
-        .enableSwipeBack()
+        .enableSwipeBack {
+            viewModel.handleBackTap()
+        }
         .background(Color.white.ignoresSafeArea())
     }
 }

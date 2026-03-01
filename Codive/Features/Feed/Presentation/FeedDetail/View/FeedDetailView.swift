@@ -185,7 +185,9 @@ struct FeedDetailView: View {
         }
         .background(Color.white)
         .navigationBarHidden(true)
-        .enableSwipeBack()
+        .enableSwipeBack {
+            navigationRouter.navigateBack()
+        }
         .highPriorityGesture(
             DragGesture()
                 .onEnded { value in

@@ -119,14 +119,9 @@ struct SearchView: View {
                 }
         )
         .padding(.horizontal, 20)
-        .highPriorityGesture(
-            DragGesture()
-                .onEnded { value in
-                    if value.translation.width > 80 && abs(value.translation.height) < 50 {
-                        viewModel.handleBackTap()
-                    }
-                }
-        )
+        .enableSwipeBack {
+            viewModel.handleBackTap()
+        }
         // MARK: - Data Loading Trigger
         .onAppear {
             viewModel.loadData()

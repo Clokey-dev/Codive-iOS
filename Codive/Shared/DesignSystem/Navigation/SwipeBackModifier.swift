@@ -8,9 +8,25 @@
 import SwiftUI
 import UIKit
 
+//struct SwipeBackModifier: ViewModifier {
+//    func body(content: Content) -> some View {
+//        content.background(SwipeBackHelper())
+//    }
+//}
+
 struct SwipeBackModifier: ViewModifier {
+    let action: () -> Void
+    
     func body(content: Content) -> some View {
-        content.background(SwipeBackHelper())
+        content.highPriorityGesture(
+            DragGesture()
+                .onEnded { value in
+                    if value.translation.width > 80 &&
+                       abs(value.translation.height) < 50 {
+                        action()
+                    }
+                }
+        )
     }
 }
 
@@ -43,8 +59,13 @@ struct SwipeBackHelper: UIViewControllerRepresentable {
     }
 }
 
+//extension View {
+//    func enableSwipeBack() -> some View {
+//        modifier(SwipeBackModifier())
+//    }
+//}
 extension View {
-    func enableSwipeBack() -> some View {
-        modifier(SwipeBackModifier())
+    func enableSwipeBack(action: @escaping () -> Void) -> some View {
+        modifier(SwipeBackModifier(action: action))
     }
 }

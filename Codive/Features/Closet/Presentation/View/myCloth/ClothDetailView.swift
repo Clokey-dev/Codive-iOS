@@ -61,7 +61,9 @@ struct ClothDetailView: View {
             await viewModel.fetchDetail()
         }
         .navigationBarHidden(true)
-        .enableSwipeBack()
+        .enableSwipeBack {
+            viewModel.navigateBack()
+        }
         .background(Color.white)
         .confirmationDialog("", isPresented: $viewModel.showActionSheet) {
             Button("편집") {

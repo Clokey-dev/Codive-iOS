@@ -36,7 +36,9 @@ struct ReportView: View {
             }
         }
         .navigationBarHidden(true)
-        .enableSwipeBack()
+        .enableSwipeBack {
+            onBackTapped()
+        }
         .task { await vm.loadContext() }
     }
 

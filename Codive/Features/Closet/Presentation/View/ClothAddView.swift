@@ -90,7 +90,9 @@ struct ClothAddView: View {
             }
         }
         .navigationBarHidden(true)
-        .enableSwipeBack()
+        .enableSwipeBack {
+            viewModel.dismissView()
+        }
         .background(Color.white)
         .customToast(
             isPresented: $viewModel.showValidationError,
