@@ -11,13 +11,15 @@ struct CustomCropView: View {
     let image: UIImage
     let aspectRatio: CGFloat
     var allowZoomOut: Bool = false
-    var onComplete: (UIImage) -> Void
 
     @Environment(\.dismiss) var dismiss
 
     // MARK: - Configuration
     private let minBoxWidth: CGFloat = 100
     private let boxPadding: CGFloat = 20
+
+    // MARK: - Callbacks
+    var onComplete: (UIImage) -> Void
 
     // MARK: - State
     @State private var imageScale: CGFloat = 1.0
