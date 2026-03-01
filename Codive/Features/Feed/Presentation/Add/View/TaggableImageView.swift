@@ -68,9 +68,9 @@ struct TaggableImageView: View {
                         // 상세 화면용: 위치 고정, Navigable 스타일
                         CustomTagView(
                             type: .navigable(
-                                title: tag.brand.isEmpty ? TextLiteral.Feed.defaultBrand : tag.brand,
-                                content: tag.name.isEmpty ? TextLiteral.Feed.defaultProductName : tag.name
-                            ) { 
+                                title: tag.displayBrand,
+                                content: tag.displayName
+                            ) {
                                 onTagTap?(tag.id)
                             }
                         )
@@ -121,8 +121,8 @@ private struct DraggableTag: View {
     var body: some View {
         CustomTagView(
             type: .closable(
-                title: tag.brand.isEmpty ? TextLiteral.Feed.defaultBrand : tag.brand,
-                content: tag.name.isEmpty ? TextLiteral.Feed.defaultProductName : tag.name,
+                title: tag.displayBrand,
+                content: tag.displayName,
                 onClose: onRemove
             )
         )
