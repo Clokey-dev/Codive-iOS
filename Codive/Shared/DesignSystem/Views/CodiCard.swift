@@ -89,7 +89,8 @@ struct CodiCard: View {
             case .success(let image):
                 image.resizable().aspectRatio(contentMode: .fill)
             case .failure:
-                Rectangle().fill(Color(.systemGray3))
+                Rectangle()
+                    .fill(Color.white)
             default:
                 Rectangle().fill(Color(.systemGray5))
             }
