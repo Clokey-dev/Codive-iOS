@@ -1,0 +1,57 @@
+//
+//  WardrobeReportDetailViewModel.swift
+//  Codive
+//
+//  Created by claude on 2/26/26.
+//
+
+import Foundation
+
+@MainActor
+final class WardrobeReportDetailViewModel: ObservableObject {
+
+    // MARK: - Published Properties
+    @Published var isLoading: Bool = false
+    @Published var canAggregate: Bool = false
+
+    // MARK: - Computed Properties
+    var currentMonth: Int {
+        Calendar.current.component(.month, from: Date())
+    }
+
+    // MARK: - Private Properties
+    private let navigationRouter: NavigationRouter
+    private let checkStatisticsConditionUseCase: CheckStatisticsConditionUseCase
+
+    // MARK: - Initializer
+    init(
+        navigationRouter: NavigationRouter,
+        checkStatisticsConditionUseCase: CheckStatisticsConditionUseCase
+    ) {
+        self.navigationRouter = navigationRouter
+        self.checkStatisticsConditionUseCase = checkStatisticsConditionUseCase
+    }
+
+    // MARK: - Methods
+    func checkCondition() async {
+        isLoading = true
+        do {
+            canAggregate = try await checkStatisticsConditionUseCase.execute()
+        } catch {
+            canAggregate = false
+            #if DEBUG
+            print("[WardrobeReport] 통계 조건 확인 실패: \(error)")
+            #endif
+        }
+        isLoading = false
+    }
+
+    // MARK: - Navigation
+    func navigateBack() {
+        navigationRouter.navigateBack()
+    }
+
+    func navigateToRecordAdd() {
+        navigationRouter.navigate(to: .recordAdd)
+    }
+}
