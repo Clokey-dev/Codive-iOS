@@ -59,6 +59,14 @@ struct FavoriteCodiView: View {
         .background(Color.white)
         .navigationBarHidden(true)
         .enableSwipeBack()
+        .highPriorityGesture(
+            DragGesture()
+                .onEnded { value in
+                    if value.translation.width > 80 && abs(value.translation.height) < 50 {
+                        navigationRouter.navigateBack()
+                    }
+                }
+        )
         .task {
             await viewModel.loadFavoriteCoordinates()
         }

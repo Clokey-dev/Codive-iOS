@@ -12,7 +12,7 @@ struct PostCard: View {
     let postImageUrl: String?
     let profileImageUrl: String?
     let nickname: String
-
+    
     // MARK: - Constants (디자인 값)
     private let cornerRadius: CGFloat = 12
     private let profileImageSize: CGFloat = 28

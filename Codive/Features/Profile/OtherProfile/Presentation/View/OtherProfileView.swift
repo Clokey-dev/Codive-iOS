@@ -91,6 +91,14 @@ struct OtherProfileView: View {
         .background(Color.white)
         .navigationBarBackButtonHidden(true)
         .enableSwipeBack()
+        .highPriorityGesture(
+            DragGesture()
+                .onEnded { value in
+                    if value.translation.width > 80 && abs(value.translation.height) < 50 {
+                        navigationRouter.navigateBack()
+                    }
+                }
+        )
         .task {
             await viewModel.loadProfile()
         }

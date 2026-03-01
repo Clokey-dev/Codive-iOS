@@ -52,6 +52,14 @@ struct NotificationView: View {
         .navigationBarHidden(true)
         .enableSwipeBack()
         .background(Color.white.ignoresSafeArea(.all))
+        .highPriorityGesture(
+            DragGesture()
+                .onEnded { value in
+                    if value.translation.width > 80 && abs(value.translation.height) < 50 {
+                        viewModel.handleBackTap()
+                    }
+                }
+        )
         // MARK: - Data Loading Trigger
         .onAppear {
             viewModel.loadData()

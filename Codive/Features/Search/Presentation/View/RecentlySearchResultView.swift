@@ -54,6 +54,14 @@ struct RecentlySearchResultView: View {
         .navigationBarHidden(true)
         .enableSwipeBack()
         .background(Color.white.ignoresSafeArea(.all))
+        .highPriorityGesture(
+            DragGesture()
+                .onEnded { value in
+                    if value.translation.width > 80 && abs(value.translation.height) < 50 {
+                        viewModel.handleBackTap()
+                    }
+                }
+        )
         // MARK: - Alert
         .alert(
             TextLiteral.Search.alertTitle,
