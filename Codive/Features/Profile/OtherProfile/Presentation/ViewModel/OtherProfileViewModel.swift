@@ -193,7 +193,7 @@ final class OtherProfileViewModel: ObservableObject {
         }
     }
     func onMoreFavoriteCodiTapped() {
-        navigationRouter.navigate(to: .favoriteCodiList(showHeart: false))
+        navigationRouter.navigate(to: .favoriteCodiList(showHeart: false, memberId: memberId))
     }
     
     @Published var favoriteCoordinates: [MyFavoriteLookBookResponseDTO] = []
@@ -228,7 +228,7 @@ final class OtherProfileViewModel: ObservableObject {
     
     func loadFavoriteCoordinates() async {
         do {
-            let coordinates = try await fetchFavoriteLookBookUseCase.fetchFavoriteCoordinate(memberId: nil)
+            let coordinates = try await fetchFavoriteLookBookUseCase.fetchFavoriteCoordinate(memberId: String(memberId))
             self.favoriteCoordinates = coordinates
         } catch {
             #if DEBUG

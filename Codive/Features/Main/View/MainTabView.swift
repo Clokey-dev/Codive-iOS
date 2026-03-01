@@ -250,8 +250,8 @@ struct MainTabView: View {
             homeDIContainer.makeCodiBoardView()
 
         // MARK: - Profile & Settings
-        case .favoriteCodiList(let showHeart):
-            profileDIContainer.makeFavoriteCodiView(showHeart: showHeart)
+        case .favoriteCodiList(let showHeart, let memberId):
+            profileDIContainer.makeFavoriteCodiView(showHeart: showHeart, memberId: memberId)
         case .settings:
             settingDIContainer.makeSettingView()
         case .settingLikedRecords:
