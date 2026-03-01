@@ -13,8 +13,8 @@ final class FetchFavoriteLookBookUseCase {
         self.repository = repository
     }
     
-    func fetchMyFavoriteCoordinate() async throws -> [MyFavoriteLookBookResponseDTO] {
-        try await repository.fetchMyFavoriteCoordinate()
+    func fetchFavoriteCoordinate(memberId: String?) async throws -> [MyFavoriteLookBookResponseDTO] {
+        try await repository.fetchMyFavoriteCoordinate(memberId: memberId)
     }
     
     /// 코디 preview 조회

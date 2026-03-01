@@ -21,7 +21,7 @@ protocol ProfileAPIServiceProtocol {
     func toggleFollow(memberId: Int) async throws
     func togglePendingFollow(memberId: Int) async throws
     func toggleBlock(memberId: Int) async throws
-    func fetchMyFavoriteCoordinate() async throws -> [MyFavoriteLookBookResponseDTO]
+    func fetchMyFavoriteCoordinate(memberId: String?) async throws -> [MyFavoriteLookBookResponseDTO]
     func fetchCoordinatePreview(coordinateId: Int64) async throws -> CoordinatePreviewResponseDTO
     func fetchCoordinateDetail(
         coordinateId: Int64
@@ -288,5 +288,4 @@ final class ProfileAPIService: ProfileAPIServiceProtocol {
             throw ProfileAPIError.serverError(statusCode: code, message: "차단 처리 실패")
         }
     }
-
 }

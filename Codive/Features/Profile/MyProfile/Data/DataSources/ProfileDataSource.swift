@@ -13,7 +13,7 @@ protocol ProfileDataSourceProtocol {
     func updateProfile(nickname: String, bio: String, isPublic: Bool, currentImageUrl: String?) async throws -> MyProfileInfo
     func checkNicknameDuplicate(nickname: String) async throws -> Bool
     func uploadProfileImage(_ imageData: Data) async throws -> String
-    func fetchMyFavoriteCoordinate() async throws -> [MyFavoriteLookBookResponseDTO]
+    func fetchMyFavoriteCoordinate(memberId: String?) async throws -> [MyFavoriteLookBookResponseDTO]
     /// 코디 preview 조회
     func fetchCoordinatePreview(coordinateId: Int64) async throws -> CoordinatePreviewResponseDTO
     
@@ -50,8 +50,8 @@ final class ProfileDataSource: ProfileDataSourceProtocol {
         return try await apiService.uploadProfileImage(imageData)
     }
     
-    func fetchMyFavoriteCoordinate() async throws -> [MyFavoriteLookBookResponseDTO] {
-        return try await apiService.fetchMyFavoriteCoordinate()
+    func fetchMyFavoriteCoordinate(memberId: String?) async throws -> [MyFavoriteLookBookResponseDTO] {
+        return try await apiService.fetchMyFavoriteCoordinate(memberId: memberId)
     }
 
     func fetchCoordinatePreview(coordinateId: Int64) async throws -> CoordinatePreviewResponseDTO {

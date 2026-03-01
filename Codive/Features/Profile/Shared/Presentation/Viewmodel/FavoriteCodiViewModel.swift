@@ -26,7 +26,7 @@ final class FavoriteCodiViewModel: ObservableObject {
         errorMessage = nil
         
         do {
-            self.favoriteCoordinates = try await fetchFavoriteLookBookUseCase.fetchMyFavoriteCoordinate()
+            self.favoriteCoordinates = try await fetchFavoriteLookBookUseCase.fetchFavoriteCoordinate(memberId: nil)
         } catch {
             self.errorMessage = "데이터를 불러오는 데 실패했습니다."
             #if DEBUG

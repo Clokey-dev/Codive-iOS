@@ -228,7 +228,7 @@ final class OtherProfileViewModel: ObservableObject {
     
     func loadFavoriteCoordinates() async {
         do {
-            let coordinates = try await fetchFavoriteLookBookUseCase.fetchMyFavoriteCoordinate()
+            let coordinates = try await fetchFavoriteLookBookUseCase.fetchFavoriteCoordinate(memberId: nil)
             self.favoriteCoordinates = coordinates
         } catch {
             #if DEBUG
