@@ -190,39 +190,74 @@ struct AgreementRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            // 체크박스
-            Button(action: { isAgreed.toggle() }, label: {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.codive_title1)
-                    .foregroundColor(isAgreed ? .Codive.point1 : .Codive.point4)
-            })
+            // 체크박스 + 제목 (탭하면 토글)
+            Button(action: { isAgreed.toggle() }) {
+                HStack(spacing: 12) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.codive_title1)
+                        .foregroundColor(isAgreed ? .Codive.point1 : .Codive.point4)
 
-            // 제목 (필수/선택 강조 포함)
-            HStack(spacing: 4) {
-                if let isRequired = isRequired {
-                    Text(isRequired ? "(필수)" : "(선택)")
-                        .foregroundColor(isRequired ? .Codive.point1 : .Codive.grayscale4)
+                    HStack(spacing: 4) {
+                        if let isRequired = isRequired {
+                            Text(isRequired ? "(필수)" : "(선택)")
+                                .foregroundColor(isRequired ? .Codive.point1 : .Codive.grayscale4)
+                        }
+                        Text(title)
+                    }
+                    .font(isBold ? .codive_body1_bold : .codive_body1_regular)
+                    .foregroundColor(isBold ? .Codive.grayscale1 : .Codive.grayscale4)
                 }
-                Text(title)
             }
-            .font(isBold ? .codive_body1_bold : .codive_body1_regular)
-            .foregroundColor(isBold ? .Codive.grayscale1 : .Codive.grayscale4)
 
             Spacer()
 
             // 상세 보기 버튼
             if showChevron {
-                Button(action: { /* 상세 페이지 이동 */ }, label: {
+                Button(action: { /* 상세 페이지 이동 */ }) {
                     Image(systemName: "chevron.right")
                         .font(.codive_body2_regular)
                         .foregroundColor(.Codive.grayscale4)
-                })
+                }
             }
         }
         .frame(height: 44)
     }
 }
 
-#Preview {
-    TermsAgreementView { }
+#Preview("AgreementRow") {
+    struct PreviewWrapper: View {
+        @State var allAgreed = false
+        @State var required1 = false
+        @State var required2 = true
+        @State var optional1 = false
+
+        var body: some View {
+            VStack(spacing: 0) {
+                AgreementRow(
+                    title: "전체 동의",
+                    isAgreed: $allAgreed,
+                    isBold: true,
+                    showChevron: false
+                )
+                Divider().padding(.vertical, 10)
+                AgreementRow(
+                    title: "서비스 이용약관",
+                    isAgreed: $required1,
+                    isRequired: true
+                )
+                AgreementRow(
+                    title: "개인정보 수집 및 이용",
+                    isAgreed: $required2,
+                    isRequired: true
+                )
+                AgreementRow(
+                    title: "마케팅 정보 수신",
+                    isAgreed: $optional1,
+                    isRequired: false
+                )
+            }
+            .padding(.horizontal, 20)
+        }
+    }
+    return PreviewWrapper()
 }
