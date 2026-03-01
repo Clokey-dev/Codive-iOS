@@ -23,14 +23,25 @@ struct ClothDetailView: View {
                 onBack: {
                     viewModel.navigateBack()
                 },
-                rightButton: .menu(
-                    imageName: "more",
-                    isSystemIcon: false,
-                    isEnabled: true
-                ) {
-                    viewModel.handleMenuTap()
-                }
+//                rightButton: .menu(
+//                    imageName: "more",
+//                    isSystemIcon: false,
+//                    isEnabled: true
+//                ) {
+//                    viewModel.handleMenuTap()
+//                }
+                rightButton: .overflow(
+                    menuType: .closet,
+                    menuActions: [
+                        viewModel.handleEdit,
+                        viewModel.handleDeleteRequest
+                    ],
+                    isExpanded: viewModel.isOverflowMenuExpanded,
+                    onToggle: viewModel.toggleOverflowMenu,
+                    onClose: viewModel.closeOverflowMenu
+                )
             )
+            .zIndex(10)
             
             if viewModel.isLoading {
                 Spacer()
@@ -57,6 +68,12 @@ struct ClothDetailView: View {
                 }
             }
         }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if viewModel.isOverflowMenuExpanded {
+                viewModel.closeOverflowMenu()
+            }
+        }
         .task {
             await viewModel.fetchDetail()
         }
@@ -65,15 +82,6 @@ struct ClothDetailView: View {
             viewModel.navigateBack()
         }
         .background(Color.white)
-        .confirmationDialog("", isPresented: $viewModel.showActionSheet) {
-            Button("편집") {
-                viewModel.handleEdit()
-            }
-            Button("삭제", role: .destructive) {
-                viewModel.handleDeleteRequest()
-            }
-            Button("취소", role: .cancel) {}
-        }
         .alert("옷 삭제", isPresented: $viewModel.showDeleteAlert) {
             Button("취소", role: .cancel) {}
             Button("삭제", role: .destructive) {

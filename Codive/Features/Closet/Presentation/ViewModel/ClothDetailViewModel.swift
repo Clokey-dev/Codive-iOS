@@ -17,6 +17,8 @@ final class ClothDetailViewModel: ObservableObject {
     @Published var showActionSheet: Bool = false
     @Published var isLoading: Bool = false
     @Published var detailData: ClothDetailResult?
+    
+    @Published var isOverflowMenuExpanded: Bool = false
 
     // MARK: - Computed Properties
 
@@ -114,11 +116,12 @@ final class ClothDetailViewModel: ObservableObject {
     }
 
     func handleEdit() {
+        isOverflowMenuExpanded = false
         navigationRouter.navigate(to: .clothEdit(cloth: cloth))
     }
 
     func handleDeleteRequest() {
-        showActionSheet = false
+        isOverflowMenuExpanded = false
         showDeleteAlert = true
     }
 
@@ -129,5 +132,13 @@ final class ClothDetailViewModel: ObservableObject {
         } catch {
             // TODO: 에러 메시지를 UI에 표시 (errorMessage 프로퍼티 추가 필요)
         }
+    }
+    
+    func toggleOverflowMenu() {
+        isOverflowMenuExpanded.toggle()
+    }
+    
+    func closeOverflowMenu() {
+        isOverflowMenuExpanded = false
     }
 }
