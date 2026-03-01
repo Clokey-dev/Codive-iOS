@@ -18,13 +18,6 @@ struct ClothCardView: View {
             ZStack(alignment: .topLeading) {
                 RoundedRectangle(cornerRadius: 15)
                     .fill(Color.white)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 15)
-                            .stroke(
-                                Color.Codive.main4,
-                                style: StrokeStyle(lineWidth: 1, dash: [6])
-                            )
-                    )
                     .frame(height: 124)
                     .frame(width: 124)
                     .overlay {
