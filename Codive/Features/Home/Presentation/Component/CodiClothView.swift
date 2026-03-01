@@ -17,7 +17,7 @@ struct ClothCardView: View {
         VStack {
             ZStack(alignment: .topLeading) {
                 RoundedRectangle(cornerRadius: 15)
-                    .fill(Color.white)
+                    .fill(Color.clear)
                     .frame(height: 124)
                     .frame(width: 124)
                     .overlay {
