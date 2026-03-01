@@ -205,7 +205,7 @@ struct AgreementRow: View {
                 }
                 Text(title)
             }
-            .font(isBold ? .codive_body1_bold : .codive_body1_regular)
+            .font(isBold ? .codive_title3 : .codive_body1_regular)
             .foregroundColor(isBold ? .Codive.grayscale1 : .Codive.grayscale4)
 
             Spacer()
