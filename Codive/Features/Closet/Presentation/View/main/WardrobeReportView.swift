@@ -8,26 +8,58 @@
 import SwiftUI
 
 struct WardrobeReportView: View {
-    
+
     // MARK: - Properties
     @State private var selectedSection: Int? = 1
     let timer = Timer.publish(every: 2.0, on: .main, in: .common).autoconnect()
     let gap: Double = 5.0
-    
+    var isEmpty: Bool = false
+    var onTapReport: (() -> Void)?
+    var onAddCloth: (() -> Void)?
+
+    private var currentMonth: Int {
+        Calendar.current.component(.month, from: Date())
+    }
+
     // MARK: - Body
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("9월 옷장 리포트")
-                    .font(.codive_title2)
-                    .foregroundStyle(Color.Codive.grayscale1)
-                
-                Text("내 옷장에서 발견한 패턴, 지금 확인해보세요!")
-                    .font(.codive_body2_medium)
-                    .foregroundStyle(Color.Codive.grayscale3)
+        VStack(spacing: 16) {
+            Text(verbatim: "\(currentMonth)월 옷장 리포트")
+                .font(.codive_title2)
+                .foregroundStyle(Color.Codive.grayscale1)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 20)
+
+            if isEmpty {
+                emptyReportContent
+            } else {
+                reportChartContent
             }
-            .padding(.horizontal, 20)
-            
+        }
+    }
+
+    // MARK: - Empty Report Content
+    private var emptyReportContent: some View {
+        EmptyStateView(
+            headerTitle: nil,
+            title: "아직 분석 결과가 없어요.",
+            description: "옷을 추가해 나만의 옷 리포트를 받아보세요.\n옷장 인사이트를 얻을 수 있어요.",
+            buttonText: "옷 추가하기"
+        ) {
+            onAddCloth?()
+        }
+        .frame(height: 200)
+    }
+
+    // MARK: - Report Chart Content
+    private var reportChartContent: some View {
+        VStack {
+            Text("내 옷장에서 발견한 패턴, 지금 확인해보세요!")
+                .font(.codive_body2_medium)
+                .foregroundStyle(Color.Codive.grayscale3)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 20)
+
             VStack {
                 ZStack {
                     ZStack {
@@ -38,7 +70,7 @@ struct WardrobeReportView: View {
                             index: 1,
                             selectedIndex: $selectedSection
                         )
-                        
+
                         ChartSegment(
                             color: Color.Codive.point2,
                             startAngle: 0.35 * 360,
@@ -46,7 +78,7 @@ struct WardrobeReportView: View {
                             index: 2,
                             selectedIndex: $selectedSection
                         )
-                        
+
                         ChartSegment(
                             color: Color.Codive.point3,
                             startAngle: 0.65 * 360,
@@ -57,18 +89,18 @@ struct WardrobeReportView: View {
                     }
                     .frame(width: 120, height: 120)
                     .rotationEffect(.degrees(-90))
-                    
+
                     Group {
                         ReportBubbleView(text: "제일 많은 옷은?")
                             .offset(x: 85, y: -60)
                             .scaleEffect(selectedSection == 1 ? 1.08 : 1.0)
                             .animation(.spring(), value: selectedSection)
-                        
+
                         ReportBubbleView(text: "가을 옷은 충분할까?")
                             .offset(x: -85, y: 0)
                             .scaleEffect(selectedSection == 3 ? 1.08 : 1.0)
                             .animation(.spring(), value: selectedSection)
-                        
+
                         ReportBubbleView(text: "쇼핑하면 좋을 옷은?")
                             .offset(x: 85, y: 60)
                             .scaleEffect(selectedSection == 2 ? 1.08 : 1.0)
@@ -86,9 +118,9 @@ struct WardrobeReportView: View {
                         }
                     }
                 }
-                
+
                 CustomButton(text: "분석 결과 보기", widthType: .fixed) {
-                    // TODO: 분석 결과 화면 연결
+                    onTapReport?()
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 20)
@@ -197,6 +229,10 @@ struct ReportBubbleView: View {
     }
 }
 
-#Preview {
-    WardrobeReportView()
+#Preview("차트 있음") {
+    WardrobeReportView(onTapReport: {})
+}
+
+#Preview("빈 상태") {
+    WardrobeReportView(isEmpty: true, onAddCloth: {})
 }

@@ -11,10 +11,12 @@ struct ClosetView: View {
 
     // MARK: - Properties
     private let closetDIContainer: ClosetDIContainer
+    @StateObject private var myClosetSectionViewModel: MyClosetSectionViewModel
 
     // MARK: - Initializer
     init(closetDIContainer: ClosetDIContainer) {
         self.closetDIContainer = closetDIContainer
+        _myClosetSectionViewModel = StateObject(wrappedValue: closetDIContainer.makeMyClosetSectionViewModel())
     }
 
     // MARK: - Body
@@ -22,11 +24,19 @@ struct ClosetView: View {
         ScrollView {
             VStack(spacing: 30) {
                 MyClosetSectionView(
-                    viewModel: closetDIContainer.makeMyClosetSectionViewModel()
+                    viewModel: myClosetSectionViewModel
                 )
                 .padding(.top, 15)
 
-                WardrobeReportView()
+                WardrobeReportView(
+                    isEmpty: myClosetSectionViewModel.clothItems.isEmpty,
+                    onTapReport: {
+                        closetDIContainer.navigationRouter.navigate(to: .wardrobeReport)
+                    },
+                    onAddCloth: {
+                        myClosetSectionViewModel.navigateToAddCloth()
+                    }
+                )
 
                 MyLookbookSectionView(
                     viewModel: closetDIContainer.makeMyLookBookSectionViewModel()
