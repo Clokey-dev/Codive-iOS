@@ -29,7 +29,7 @@ struct RecentlySearchResultView: View {
 
             ScrollView {
                 VStack(spacing: 12) {
-                    ForEach(viewModel.recentSearchItems, id: \.id) { item in
+                    ForEach(viewModel.recentSearchItems) { item in
                         RecentlySearchResultRow(
                             type: item.toSearchResultType()
                         ) {

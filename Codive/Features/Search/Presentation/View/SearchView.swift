@@ -66,7 +66,7 @@ struct SearchView: View {
                         .padding(.top, 8)
                     } else {
                         VStack {
-                            ForEach(viewModel.recentSearchItems, id: \.id) { item in
+                            ForEach(viewModel.recentSearchItems) { item in
                                 RecentlySearchResultRow(
                                     type: item.toSearchResultType()
                                 ) {

@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum RecentSearchItem: Codable, Hashable {
+enum RecentSearchItem: Identifiable, Codable, Hashable {
     case keyword(String)
     case member(userId: String, nickname: String, profileImageUrl: String?)
 
