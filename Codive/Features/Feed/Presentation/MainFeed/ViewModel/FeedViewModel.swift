@@ -101,10 +101,9 @@ final class FeedViewModel: ObservableObject {
 
     /// View가 나타날 때 호출 — 필요한 경우에만 로드
     func loadFeedsIfNeeded() {
-        if feeds.isEmpty || needsRefresh {
-            needsRefresh = false
-            Task { await loadFeeds() }
-        }
+        guard !isLoading, feeds.isEmpty || needsRefresh else { return }
+        needsRefresh = false
+        Task { await loadFeeds() }
     }
 
     /// 첫 페이지 Feed 로드
