@@ -76,14 +76,7 @@ actor TokenRefreshManager {
         print("[TokenRefresh] 로그아웃 필요 - refresh token 만료 또는 재발급 실패")
         #endif
         try? KeychainManager.shared.clearAllTokens()
-        // 로컬 캐시 데이터 삭제
-        UserDefaults.standard.removeObject(forKey: "SavedCategories")
-        UserProfileStorage.clear()
-        RecentSearchStorage.clear()
-        let cache = ImageCache.default
-        cache.clearMemoryCache()
-        cache.clearDiskCache()
-        URLCache.shared.removeAllCachedResponses()
+        LocalDataCleaner.clearAll()
         NotificationCenter.default.post(name: .tokenRefreshFailed, object: nil)
     }
 }
