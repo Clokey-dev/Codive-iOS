@@ -42,6 +42,17 @@ struct WardrobeReportDetailView: View {
         .task {
             await viewModel.checkCondition()
         }
+        .alert(
+            "네트워크 오류",
+            isPresented: $viewModel.isShowingNetworkErrorAlert
+        ) {
+            Button("재시도") {
+                Task { await viewModel.checkCondition() }
+            }
+            Button("확인", role: .cancel) { }
+        } message: {
+            Text(viewModel.networkErrorMessage ?? "네트워크 오류가 발생했습니다.")
+        }
     }
 
     // MARK: - Insufficient Data View
