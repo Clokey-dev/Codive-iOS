@@ -19,8 +19,8 @@ protocol StatisticsAPIServiceProtocol {
 
 final class StatisticsAPIService: StatisticsAPIServiceProtocol {
 
-    let client: Client
-    let jsonDecoder: JSONDecoder
+    private let client: Client
+    private let jsonDecoder: JSONDecoder
 
     init(tokenProvider: TokenProvider = KeychainTokenProvider()) {
         self.client = CodiveAPIProvider.createClient(
