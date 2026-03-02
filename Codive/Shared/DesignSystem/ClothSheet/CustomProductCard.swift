@@ -53,7 +53,7 @@ struct CustomProductCard: View {
 
                     // 갈색 원 + 체크마크
                     Circle()
-                        .fill(Color(red: 0.45, green: 0.35, blue: 0.27))
+                        .fill(Color.Codive.main1)
                         .frame(width: 36, height: 36)
                         .overlay(
                             Image(systemName: "checkmark")

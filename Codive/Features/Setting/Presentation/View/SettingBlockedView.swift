@@ -18,8 +18,8 @@ struct SettingBlockedView: View {
 
             content
                 .task { await vm.refresh() }
-            .refreshable { await vm.refresh() }
-            .alert(
+                .refreshable { await vm.refresh() }
+                .alert(
                 TextLiteral.Setting.unblockAlertTitle,
                 isPresented: $vm.showUnblockAlert
             ) {
