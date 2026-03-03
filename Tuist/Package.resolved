@@ -16,7 +16,7 @@
       "location" : "https://github.com/Clokey-dev/CodiveAPI",
       "state" : {
         "branch" : "main",
-        "revision" : "ec335478a7ef10e464d88730773b637624df8628"
+        "revision" : "178ef86dd32001b2eb0817a21d02cf943712ec5c"
       }
     },
     {
@@ -60,8 +60,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ReactiveX/RxSwift.git",
       "state" : {
-        "revision" : "5734ad2b6d7d4c0656df3d09ca4ce54fa3c09913",
-        "version" : "6.10.1"
+        "revision" : "132aea4f236ccadc51590b38af0357a331d51fa2",
+        "version" : "6.10.2"
       }
     },
     {
