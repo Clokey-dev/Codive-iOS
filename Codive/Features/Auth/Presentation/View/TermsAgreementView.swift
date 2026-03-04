@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import WebKit
 
 struct TermsAgreementView: View {
     @Environment(\.dismiss) private var dismiss
@@ -18,13 +19,16 @@ struct TermsAgreementView: View {
 
     // 약관 상태 관리 (termId 매핑)
     @State private var agreements: [Int64: Bool] = [:]
-    
+
     // 서버에서 받아온 약관 목록
     @State private var termsList: [TermItem] = []
 
     // 로딩 상태
     @State private var isLoading = false
     @State private var errorMessage: String?
+
+    // 웹뷰 시트 상태
+    @State private var selectedTermsURL: URL?
 
     // 전체 동의 여부
     private var isAllAgreed: Bool {
@@ -88,7 +92,9 @@ struct TermsAgreementView: View {
                             title: term.title,
                             isAgreed: binding(for: term.termId),
                             isRequired: !term.isOptional
-                        )
+                        ) {
+                            selectedTermsURL = termsWikiURL(for: term.title)
+                        }
                     }
                 }
                 .padding(.horizontal, 20)
@@ -120,6 +126,27 @@ struct TermsAgreementView: View {
         .task {
             await loadTerms()
         }
+        .fullScreenCover(item: $selectedTermsURL) { url in
+            TermsWebView(url: url)
+        }
+    }
+
+    // MARK: - Wiki URL Mapping
+
+    private static let wikiBaseURL = "https://github.com/Clokey-dev/Codive-iOS/wiki/"
+
+    private static let titleToWikiSlug: [(keyword: String, slug: String)] = [
+        ("서비스 이용약관", "서비스-이용약관"),
+        ("개인정보", "개인정보처리방침"),
+        ("위치기반", "위치기반서비스-이용약관"),
+        ("마케팅", "마케팅-정보-수신동의-약관")
+    ]
+
+    private func termsWikiURL(for title: String) -> URL? {
+        for mapping in Self.titleToWikiSlug where title.contains(mapping.keyword) {
+            return URL(string: Self.wikiBaseURL + mapping.slug)
+        }
+        return nil
     }
 
     // MARK: - Helper Methods
@@ -180,18 +207,28 @@ struct TermsAgreementView: View {
     }
 }
 
-// 개별 약관 로우 컴포넌트
+// MARK: - URL+Identifiable
+
+extension URL: @retroactive Identifiable {
+    public var id: String { absoluteString }
+}
+
+// MARK: - 개별 약관 로우 컴포넌트
+
 struct AgreementRow: View {
     let title: String
     @Binding var isAgreed: Bool
     var isBold: Bool = false
     var isRequired: Bool?
     var showChevron: Bool = true
+    var onChevronTap: (() -> Void)?
 
     var body: some View {
-        HStack(spacing: 12) {
-            // 체크박스 + 제목 (탭하면 토글)
-            Button(action: { isAgreed.toggle() }) {
+        HStack(spacing: 0) {
+            // 체크박스 + 제목 + 여백 (탭하면 토글)
+            Button {
+                isAgreed.toggle()
+            } label: {
                 HStack(spacing: 12) {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.codive_title1)
@@ -206,22 +243,64 @@ struct AgreementRow: View {
                     }
                     .font(isBold ? .codive_body1_bold : .codive_body1_regular)
                     .foregroundColor(isBold ? .Codive.grayscale1 : .Codive.grayscale4)
-                }
-            }
 
-            Spacer()
+                    Spacer()
+                }
+                .contentShape(Rectangle())
+            }
 
             // 상세 보기 버튼
             if showChevron {
-                Button(action: { /* 상세 페이지 이동 */ }) {
+                Button {
+                    onChevronTap?()
+                } label: {
                     Image(systemName: "chevron.right")
                         .font(.codive_body2_regular)
                         .foregroundColor(.Codive.grayscale4)
+                        .padding(.leading, 12)
                 }
             }
         }
         .frame(height: 44)
     }
+}
+
+// MARK: - 약관 웹뷰 (전체화면 시트)
+
+struct TermsWebView: View {
+    let url: URL
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationView {
+            WebViewRepresentable(url: url)
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button {
+                            dismiss()
+                        } label: {
+                            Image(systemName: "xmark")
+                                .foregroundColor(.Codive.grayscale1)
+                        }
+                    }
+                }
+        }
+    }
+}
+
+// MARK: - WKWebView UIViewRepresentable
+
+struct WebViewRepresentable: UIViewRepresentable {
+    let url: URL
+
+    func makeUIView(context: Context) -> WKWebView {
+        let webView = WKWebView()
+        webView.load(URLRequest(url: url))
+        return webView
+    }
+
+    func updateUIView(_ uiView: WKWebView, context: Context) {}
 }
 
 #Preview("AgreementRow") {
