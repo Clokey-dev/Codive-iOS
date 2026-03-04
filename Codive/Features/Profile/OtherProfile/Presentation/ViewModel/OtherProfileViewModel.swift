@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 @MainActor
 final class OtherProfileViewModel: ObservableObject {
@@ -55,6 +56,7 @@ final class OtherProfileViewModel: ObservableObject {
     private let toggleFollowUseCase: ToggleFollowUseCase
     private let fetchMonthlyHistoryUseCase: FetchMonthlyHistoryUseCase
     private let toggleBlockUseCase: ToggleBlockUseCase
+    private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Initializer
     init(
@@ -71,6 +73,15 @@ final class OtherProfileViewModel: ObservableObject {
         self.toggleFollowUseCase = toggleFollowUseCase
         self.fetchMonthlyHistoryUseCase = fetchMonthlyHistoryUseCase
         self.toggleBlockUseCase = toggleBlockUseCase
+
+        NotificationCenter.default.publisher(for: .followDidChange)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                Task { [weak self] in
+                    await self?.loadProfile()
+                }
+            }
+            .store(in: &cancellables)
     }
 
     // MARK: - Public Methods
@@ -182,6 +193,7 @@ final class OtherProfileViewModel: ObservableObject {
                 } else {
                     followerCount -= 1
                 }
+                NotificationCenter.default.post(name: .followDidChange, object: nil)
             } catch {
                 errorMessage = TextLiteral.Profile.followFailure
             }

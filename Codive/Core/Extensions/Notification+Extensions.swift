@@ -11,4 +11,7 @@ extension Notification.Name {
 
     /// 기록 생성/수정 완료 시 발송되는 알림
     static let feedDidCreate = Notification.Name("feedDidCreate")
+
+    /// 팔로우/언팔로우 변경 시 발송되는 알림
+    static let followDidChange = Notification.Name("followDidChange")
 }
