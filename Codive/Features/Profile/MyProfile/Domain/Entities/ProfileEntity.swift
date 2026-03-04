@@ -17,7 +17,13 @@ struct MyProfileInfo: Codable {
     let isPublic: Bool
 }
 
+struct FollowMember {
+    let user: SimpleUser
+    let isFollowing: Bool
+    let isMe: Bool
+}
+
 struct FollowListResult {
-    let followers: [SimpleUser]
+    let followers: [FollowMember]
     let isLast: Bool
 }

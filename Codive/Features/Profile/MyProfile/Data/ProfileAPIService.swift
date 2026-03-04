@@ -114,13 +114,18 @@ final class ProfileAPIService: ProfileAPIServiceProtocol {
             )
 
             let members = apiResponse.result?.content ?? []
-            let followers: [SimpleUser] = members.compactMap { member -> SimpleUser? in
+            let followers: [FollowMember] = members.compactMap { member -> FollowMember? in
                 guard let userId = member.memberId else { return nil }
-                return SimpleUser(
+                let user = SimpleUser(
                     userId: String(userId),
                     nickname: member.nickname ?? "",
                     handle: member.nickname ?? "",
                     avatarURL: member.profileImageUrl.flatMap { URL(string: $0) }
+                )
+                return FollowMember(
+                    user: user,
+                    isFollowing: member.isFollowingMember ?? false,
+                    isMe: member.isMe ?? false
                 )
             }
 

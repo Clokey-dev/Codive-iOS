@@ -17,6 +17,7 @@ final class FollowListViewModel: ObservableObject {
     let mode: FollowListMode
     let isMe: Bool
     private let fetchFollowsUseCase: FetchFollowsUseCase
+    private let toggleFollowUseCase: ToggleFollowUseCase
     private let memberId: Int
     private let navigationRouter: NavigationRouter
 
@@ -25,13 +26,15 @@ final class FollowListViewModel: ObservableObject {
         memberId: Int,
         isMe: Bool,
         navigationRouter: NavigationRouter,
-        fetchFollowsUseCase: FetchFollowsUseCase
+        fetchFollowsUseCase: FetchFollowsUseCase,
+        toggleFollowUseCase: ToggleFollowUseCase
     ) {
         self.mode = mode
         self.memberId = memberId
         self.isMe = isMe
         self.navigationRouter = navigationRouter
         self.fetchFollowsUseCase = fetchFollowsUseCase
+        self.toggleFollowUseCase = toggleFollowUseCase
     }
 
     func load() async {
@@ -46,8 +49,8 @@ final class FollowListViewModel: ObservableObject {
                 size: 20
             )
 
-            self.items = result.followers.map { user in
-                FollowRowItem(user: user, isFollowing: true)
+            self.items = result.followers.map { member in
+                FollowRowItem(user: member.user, isFollowing: member.isFollowing, isMe: member.isMe)
             }
         } catch {
             self.errorMessage = error.localizedDescription
@@ -65,15 +68,20 @@ final class FollowListViewModel: ObservableObject {
 
     func onTapButton(userId: UserID) {
         guard let idx = items.firstIndex(where: { $0.id == userId }) else { return }
+        let targetMemberId = Int(userId) ?? 0
 
-        // 공통: 현재 버튼은 follow/following 토글
-        // 실제 구현: API 성공 후 반영
-        items[idx].isFollowing.toggle()
+        Task {
+            do {
+                try await toggleFollowUseCase.execute(memberId: targetMemberId, isPublic: true)
+                items[idx].isFollowing.toggle()
 
-        // mode가 followings인 경우:
-        // "팔로잉" 목록에서 언팔로우하면 리스트에서 제거
-        if mode == .followings, items[idx].isFollowing == false {
-            items.remove(at: idx)
+                if mode == .followings, items[idx].isFollowing == false {
+                    items.remove(at: idx)
+                }
+                NotificationCenter.default.post(name: .followDidChange, object: nil)
+            } catch {
+                errorMessage = "팔로우 변경에 실패했습니다."
+            }
         }
     }
 }
@@ -81,6 +89,7 @@ final class FollowListViewModel: ObservableObject {
 struct FollowRowItem: Identifiable, Hashable {
     let user: SimpleUser
     var isFollowing: Bool
+    let isMe: Bool
 
     var id: UserID { user.userId }
 
@@ -89,6 +98,7 @@ struct FollowRowItem: Identifiable, Hashable {
     }
 
     var buttonStyle: CustomUserRowButtonStyle {
-        isFollowing ? .secondary : .primary
+        if isMe { return .none }
+        return isFollowing ? .secondary : .primary
     }
 }
