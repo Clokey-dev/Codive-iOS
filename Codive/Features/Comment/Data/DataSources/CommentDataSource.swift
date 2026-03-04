@@ -28,13 +28,29 @@ final class DefaultCommentDataSource: CommentDataSource {
             middlewares: [CodiveAuthMiddleware(provider: KeychainTokenProvider())]
         )
         self.jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
-        self.currentUser = User(id: "", nickname: "현재 사용자", profileImageUrl: nil)
+        if let profile = UserProfileStorage.load() {
+            self.currentUser = User(
+                id: String(profile.userId),
+                nickname: profile.nickname,
+                profileImageUrl: profile.profileImageUrl
+            )
+        } else {
+            self.currentUser = User(id: "", nickname: "", profileImageUrl: nil)
+        }
     }
 
     init(apiClient: Client) {
         self.apiClient = apiClient
         self.jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
-        self.currentUser = User(id: "", nickname: "현재 사용자", profileImageUrl: nil)
+        if let profile = UserProfileStorage.load() {
+            self.currentUser = User(
+                id: String(profile.userId),
+                nickname: profile.nickname,
+                profileImageUrl: profile.profileImageUrl
+            )
+        } else {
+            self.currentUser = User(id: "", nickname: "", profileImageUrl: nil)
+        }
     }
 
     init(apiClient: Client, currentUser: User) {
