@@ -36,22 +36,22 @@ struct OnboardingView: View {
         OnboardingPage(
             imageName: "onboarding_1",
             title: "오늘의 추천 코디",
-            description: "오늘 날씨에 딱 맞는 내 옷장 속 아이템을 추천받고\n좌우로 넘기며 코디를 손쉽게 매치해보세요!"
+            description: "날짜별 코디를 추천받고, 스와이프 해 코디해 보세요!"
         ),
         OnboardingPage(
             imageName: "onboarding_2",
             title: "똑똑한 옷장 관리",
-            description: "등록한 옷을 폴더로 정리해 관리하고\n착용 기록을 기반으로 리포트를 받아보세요!"
+            description: "폴더에 옷을 정리하고 착용 리포트를 받아보세요!"
         ),
         OnboardingPage(
             imageName: "onboarding_3",
             title: "나의 옷장에서 시작되는 피드",
-            description: "등록한 옷으로 입은 코디와 스타일을 공유하고\n다른 사람들의 패션 아이디어로 영감을 얻어보세요!"
+            description: "다른 사람의 패션 아이디어로 영감을 얻어보세요!"
         ),
         OnboardingPage(
             imageName: "onboarding_4",
             title: "나를 담은 스타일 프로필",
-            description: "마음에 든 코디를 모아 나만의 취향을 표현하고\n이번 달의 기록을 한눈에 확인해 보세요!"
+            description: "마음에 든 코디와 착용 기록을 한눈에 확인해 보세요!"
         )
     ]
 
@@ -82,16 +82,16 @@ struct OnboardingView: View {
                     // 온보딩 멘트 슬라이드
                     TabView(selection: $currentPage) {
                         ForEach(0..<Self.pages.count, id: \.self) { index in
-                            VStack(spacing: 5) {
+                            VStack(spacing: 12) {
                                 Text(Self.pages[index].title)
-                                    .font(.codive_title2)
+                                    .font(.codive_onboarding_title)
                                     .foregroundColor(Color.Codive.point1)
 
                                 Text(Self.pages[index].description)
                                     .font(.codive_body1_regular)
                                     .multilineTextAlignment(.center)
-                                    .foregroundColor(.black.opacity(0.8))
-                                    .lineSpacing(3)
+                                    .foregroundColor(.black)
+                                    .lineSpacing(1)
                             }
                             .padding(.horizontal, 30)
                             .tag(index)
@@ -108,7 +108,7 @@ struct OnboardingView: View {
                                 .frame(width: 5, height: 5)
                         }
                     }
-                    .padding(.bottom, 15)
+                    .padding(.bottom, 20)
 
                     // 로그인 버튼들
                     VStack(spacing: 12) {
