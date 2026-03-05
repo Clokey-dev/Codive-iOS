@@ -162,6 +162,7 @@ private extension RecordDetailView {
                 title: TextLiteral.Add.recordDetailSituationTitle,
                 options: viewModel.situationOptions,
                 selectedOptions: $viewModel.selectedSituations,
+                maxSelection: 1,
                 showRequiredMark: true
             )
         }
