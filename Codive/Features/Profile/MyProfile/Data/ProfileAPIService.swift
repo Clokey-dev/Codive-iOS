@@ -22,6 +22,7 @@ protocol ProfileAPIServiceProtocol {
     func togglePendingFollow(memberId: Int) async throws
     func toggleBlock(memberId: Int) async throws
     func fetchMyFavoriteCoordinate() async throws -> [MyFavoriteLookBookResponseDTO]
+    func fetchFavoriteCoordinate(memberId: Int) async throws -> [MyFavoriteLookBookResponseDTO]
     func fetchCoordinatePreview(coordinateId: Int64) async throws -> CoordinatePreviewResponseDTO
     func fetchCoordinateDetail(
         coordinateId: Int64

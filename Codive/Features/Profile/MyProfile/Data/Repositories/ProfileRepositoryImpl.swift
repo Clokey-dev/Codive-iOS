@@ -38,6 +38,10 @@ final class ProfileRepositoryImpl: ProfileRepository {
         return try await dataSource.fetchMyFavoriteCoordinate()
     }
 
+    func fetchFavoriteCoordinate(memberId: Int) async throws -> [MyFavoriteLookBookResponseDTO] {
+        return try await dataSource.fetchFavoriteCoordinate(memberId: memberId)
+    }
+
     func fetchCoordinatePreview(coordinateId: Int64) async throws -> CoordinatePreviewEntity {
         let dto = try await dataSource.fetchCoordinatePreview(coordinateId: coordinateId)
         return dto.toEntity()

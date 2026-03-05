@@ -48,6 +48,7 @@ final class OtherProfileViewModel: ObservableObject {
     @Published var showHistoryErrorAlert: Bool = false
     @Published var monthlyHistories: [String: String] = [:] // "2026-01-21" -> imageUrl
     @Published var monthlyHistoryIds: [String: Int] = [:] // "2026-01-21" -> historyId
+    @Published var favoriteCoordinates: [MyFavoriteLookBookResponseDTO] = []
 
     // MARK: - Dependencies
     private let memberId: Int
@@ -56,6 +57,7 @@ final class OtherProfileViewModel: ObservableObject {
     private let toggleFollowUseCase: ToggleFollowUseCase
     private let fetchMonthlyHistoryUseCase: FetchMonthlyHistoryUseCase
     private let toggleBlockUseCase: ToggleBlockUseCase
+    private let fetchMyFavoriteLookBookUseCase: FetchMyFavoriteLookBookUseCase
     private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Initializer
@@ -65,7 +67,8 @@ final class OtherProfileViewModel: ObservableObject {
         fetchMemberInfoUseCase: FetchMemberInfoUseCase,
         toggleFollowUseCase: ToggleFollowUseCase,
         fetchMonthlyHistoryUseCase: FetchMonthlyHistoryUseCase,
-        toggleBlockUseCase: ToggleBlockUseCase
+        toggleBlockUseCase: ToggleBlockUseCase,
+        fetchMyFavoriteLookBookUseCase: FetchMyFavoriteLookBookUseCase
     ) {
         self.memberId = memberId
         self.navigationRouter = navigationRouter
@@ -73,6 +76,7 @@ final class OtherProfileViewModel: ObservableObject {
         self.toggleFollowUseCase = toggleFollowUseCase
         self.fetchMonthlyHistoryUseCase = fetchMonthlyHistoryUseCase
         self.toggleBlockUseCase = toggleBlockUseCase
+        self.fetchMyFavoriteLookBookUseCase = fetchMyFavoriteLookBookUseCase
 
         NotificationCenter.default.publisher(for: .followDidChange)
             .receive(on: DispatchQueue.main)
@@ -103,6 +107,7 @@ final class OtherProfileViewModel: ObservableObject {
             self.isMe = profile.isMe
 
             await loadMonthlyHistories()
+            await loadFavoriteCoordinates()
         } catch {
             self.errorMessage = TextLiteral.Profile.loadFailure
         }
@@ -133,6 +138,17 @@ final class OtherProfileViewModel: ObservableObject {
             self.monthlyHistoryIds = newHistoryIds
         } catch {
             showHistoryErrorAlert = true
+        }
+    }
+
+    func loadFavoriteCoordinates() async {
+        do {
+            let coordinates = try await fetchMyFavoriteLookBookUseCase.fetchFavoriteCoordinate(memberId: memberId)
+            self.favoriteCoordinates = coordinates
+        } catch {
+            #if DEBUG
+            print("최애 코디 로드 실패: \(error)")
+            #endif
         }
     }
 

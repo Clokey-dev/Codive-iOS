@@ -41,8 +41,10 @@ struct OtherProfileView: View {
                             .padding(.top, 24)
                             .foregroundStyle(Color.Codive.grayscale7)
 
-                        favoriteCodiSection
-                            .padding(.top, 24)
+                        if !viewModel.favoriteCoordinates.isEmpty {
+                            favoriteCodiSection
+                                .padding(.top, 24)
+                        }
 
                         calendarSection
                             .padding(.top, 40)
@@ -226,13 +228,13 @@ struct OtherProfileView: View {
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 10) {
-                    ForEach(0..<8, id: \.self) { _ in
+                    ForEach(viewModel.favoriteCoordinates, id: \.coordinateId) { codi in
                         CodiCard(
-                            imageURL: URL(string: "https://via.placeholder.com/155"),
+                            imageURL: URL(string: codi.imageUrl),
                             title: nil,
                             icon: .none,
-                            cardWidth: 155,
-                            imageSize: 155,
+                            cardWidth: 160,
+                            imageSize: 160,
                             cornerRadius: 16,
                             onCardTap: nil
                         )

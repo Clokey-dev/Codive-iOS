@@ -36,6 +36,33 @@ extension ProfileAPIService {
         }
     }
 
+    func fetchFavoriteCoordinate(memberId: Int) async throws -> [MyFavoriteLookBookResponseDTO] {
+        let input = Operations.Coordinate_getFavoriteCoordinates.Input(
+            query: .init(memberId: String(memberId))
+        )
+        let response = try await client.Coordinate_getFavoriteCoordinates(input)
+
+        switch response {
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+            let jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
+
+            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseListFavoriteCoordinateResponse.self, from: data)
+
+            let items = decoded.result ?? []
+
+            return items.map { item in
+                MyFavoriteLookBookResponseDTO(
+                    coordinateId: item.coordinateId ?? 0,
+                    imageUrl: item.imageUrl ?? "",
+                    coordinateName: item.coordinateName ?? ""
+                )
+            }
+        case .undocumented(statusCode: let code, _):
+            throw ProfileAPIError.serverError(statusCode: code, message: "최애 코디 조회 실패 (상태코드: \(code))")
+        }
+    }
+
     func fetchCoordinatePreview(coordinateId: Int64) async throws -> CoordinatePreviewResponseDTO {
         let input = Operations.Coordinate_getCoordinatePreview.Input(
             path: .init(coordinateId: coordinateId)

@@ -118,7 +118,8 @@ final class ProfileDIContainer {
             fetchMemberInfoUseCase: makeFetchMemberInfoUseCase(),
             toggleFollowUseCase: makeToggleFollowUseCase(),
             fetchMonthlyHistoryUseCase: makeFetchMonthlyHistoryUseCase(),
-            toggleBlockUseCase: makeToggleBlockUseCase()
+            toggleBlockUseCase: makeToggleBlockUseCase(),
+            fetchMyFavoriteLookBookUseCase: makeFetchMyFavoriteLookBookUseCase()
         )
     }
     
