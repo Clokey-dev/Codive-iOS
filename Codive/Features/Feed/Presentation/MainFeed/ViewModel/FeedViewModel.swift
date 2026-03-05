@@ -126,12 +126,11 @@ final class FeedViewModel: ObservableObject {
             feeds = result.feeds
             nextCursor = result.nextCursor
             hasMorePages = result.hasNext
-        } catch {
+        } catch is CancellationError {
             // Task 취소 시 기존 데이터 유지
-            guard !Task.isCancelled else {
-                isLoading = false
-                return
-            }
+            isLoading = false
+            return
+        } catch {
             errorMessage = "Feed를 불러오는데 실패했습니다: \(error.localizedDescription)"
             feeds = []
         }

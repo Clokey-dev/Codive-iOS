@@ -23,6 +23,7 @@ final class PhotoTagViewModel: ObservableObject {
     @Published var selectedProducts: Set<Int> = []
     @Published var clothTags: [ClothTag] = []
     @Published var clothItems: [ProductItem] = []
+    @Published var errorMessage: String?
 
     let allPhotos: [SelectedPhoto]
     private let navigationRouter: NavigationRouter
@@ -68,7 +69,10 @@ final class PhotoTagViewModel: ObservableObject {
     }
     
     // MARK: - Methods
+    // TODO: 코디 완성 후 태그하기 진입 시, 해당 코디에 사용된 clothId 목록을 전달받아
+    // isTodayCloth: true 설정 + 자동 선택 처리 필요 (백엔드 API 필드 추가 or 클라이언트 처리)
     func fetchClothItems() async {
+        errorMessage = nil
         do {
             clothItems = try await fetchClothItemsUseCase.execute(category: selectedCategory)
         } catch {
@@ -76,6 +80,7 @@ final class PhotoTagViewModel: ObservableObject {
             print("[PhotoTag] Failed to fetch cloth items: \(error)")
             #endif
             clothItems = []
+            errorMessage = "옷 목록을 불러오지 못했습니다"
         }
     }
     

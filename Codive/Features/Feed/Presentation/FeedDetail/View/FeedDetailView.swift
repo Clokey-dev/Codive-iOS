@@ -173,12 +173,10 @@ struct FeedDetailView: View {
                 await viewModel.loadFeedDetail()
             }
         }
-        .sheet(isPresented: $viewModel.isLikesSheetPresented, onDismiss: {
-            viewModel.isLikesSheetPresented = false
-        }, content: {
+        .sheet(isPresented: $viewModel.isLikesSheetPresented) {
             FeedLikesListView(viewModel: viewModel)
                 .presentationDetents([.medium, .large])
-        })
+        }
         .sheet(isPresented: Binding(
             get: { navigationRouter.sheetDestination != nil && isCommentSheet(navigationRouter.sheetDestination) },
             set: { if !$0 { navigationRouter.dismissSheet() } }

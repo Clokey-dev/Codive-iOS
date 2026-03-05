@@ -18,7 +18,6 @@ extension ProfileAPIService {
         switch response {
         case .ok(let okResponse):
             let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
 
             let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseListFavoriteCoordinateResponse.self, from: data)
 
@@ -45,7 +44,6 @@ extension ProfileAPIService {
         switch response {
         case .ok(let okResponse):
             let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
 
             let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseListFavoriteCoordinateResponse.self, from: data)
 
