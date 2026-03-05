@@ -80,8 +80,10 @@ final class RecordDetailViewModel: ObservableObject {
     }
     
     var isCompleteEnabled: Bool {
-        // 스타일 최소 1개, 최대 3개 선택 필수
-        return selectedStyles.count >= Constants.minStyleCount && selectedStyles.count <= Constants.maxStyleCount
+        // 스타일 최소 1개, 최대 3개 선택 필수, 상황 최소 1개 선택 필수
+        return selectedStyles.count >= Constants.minStyleCount &&
+               selectedStyles.count <= Constants.maxStyleCount &&
+               !selectedSituations.isEmpty
     }
     
     // MARK: - Initializer
