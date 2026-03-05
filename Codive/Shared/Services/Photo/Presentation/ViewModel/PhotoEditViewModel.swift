@@ -26,11 +26,15 @@ final class PhotoEditViewModel: ObservableObject {
     @Published var showExitAlert: Bool = false
 
     private let navigationRouter: NavigationRouter
-    let flowType: PhotoEditFlowType
+    private let flowType: PhotoEditFlowType
     private let isAIEnabled: Bool
     private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Computed Properties
+    var allowZoomOut: Bool {
+        flowType == .cloth
+    }
+
     var currentPhoto: SelectedPhoto? {
         guard selectedPhotos.indices.contains(currentIndex) else { return nil }
         return selectedPhotos[currentIndex]

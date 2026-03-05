@@ -72,7 +72,7 @@ struct CustomProductCard: View {
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 3)
-                                .background(Color.blue)
+                                .background(Color.Codive.point1)
                                 .clipShape(Capsule())
                                 .padding(6)
                         }

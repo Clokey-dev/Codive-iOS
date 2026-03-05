@@ -32,9 +32,13 @@ final class RecordAddViewModel: ObservableObject {
     private let navigationRouter: NavigationRouter
     private var cancellables = Set<AnyCancellable>()
     private var hasShownClothInfoInSession = false
-    let flowType: PhotoEditFlowType
-    
+    private let flowType: PhotoEditFlowType
+
     // MARK: - Computed Properties
+    var isClothFlow: Bool {
+        flowType == .cloth
+    }
+
     var isCompleteEnabled: Bool {
         !selectedPhotos.isEmpty
     }

@@ -91,7 +91,7 @@ struct RecordAddView: View {
                 }
 
                 // AI 추가 토글 (옷 추가 플로우 전용)
-                if viewModel.flowType == .cloth {
+                if viewModel.isClothFlow {
                     aiAddToggleBar
                 }
             }

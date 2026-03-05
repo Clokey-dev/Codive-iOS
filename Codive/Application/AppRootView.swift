@@ -47,6 +47,7 @@ struct AppRootView: View {
                         .transition(.opacity)
                 }
             }
+            .animation(.easeInOut(duration: 0.4), value: appRouter.currentAppState)
 
             // 로딩 오버레이
             if appRouter.isLoading {
