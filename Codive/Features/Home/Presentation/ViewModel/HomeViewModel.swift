@@ -288,9 +288,10 @@ extension HomeViewModel {
 
             let captureView = CodiCompositeView(clothes: items, loadedImages: loadedImages)
                 .frame(width: 260, height: 260)
-                .background(Color.white)
+                .background(Color.Codive.grayscale7)
 
             let renderer = ImageRenderer(content: captureView)
+            renderer.isOpaque = true
             renderer.scale = UIScreen.main.scale
 
             guard let uiImage = renderer.uiImage else {
@@ -373,10 +374,13 @@ extension HomeViewModel {
                     return
                 }
 
+                // 1:1 → 3:4 비율 변환 (상하 여백 추가)
+                let recordImage = Self.convertToThreeByFour(codiImage)
+
                 let selectedPhoto = SelectedPhoto(
                     id: UUID().uuidString,
-                    originalImage: codiImage,
-                    croppedImage: codiImage,
+                    originalImage: recordImage,
+                    croppedImage: recordImage,
                     order: 1
                 )
 
@@ -397,6 +401,26 @@ extension HomeViewModel {
         }
     }
     
+    /// 1:1 이미지를 3:4 비율로 변환 (상하에 배경색 여백 추가)
+    private static func convertToThreeByFour(_ image: UIImage) -> UIImage {
+        let width = image.size.width
+        let targetHeight = width * 4.0 / 3.0
+        let yOffset = (targetHeight - image.size.height) / 2.0
+        let targetSize = CGSize(width: width, height: targetHeight)
+        let bgColor = UIColor(red: 246.0 / 255.0, green: 246.0 / 255.0, blue: 246.0 / 255.0, alpha: 1.0)
+
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = image.scale
+        format.opaque = true
+
+        let renderer = UIGraphicsImageRenderer(size: targetSize, format: format)
+        return renderer.image { context in
+            bgColor.setFill()
+            context.fill(CGRect(origin: .zero, size: targetSize))
+            image.draw(at: CGPoint(x: 0, y: yOffset))
+        }
+    }
+
     private func completeProcess() {
         self.isEditingExistingCodi = false
         self.showCompletePopUp = false

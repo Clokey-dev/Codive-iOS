@@ -131,7 +131,6 @@ struct CodiCompositeView: View {
                     }
                 }
                 .frame(width: itemSize, height: itemSize)
-                .background(Color.white)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .position(x: position.x, y: position.y)
                 .zIndex(Double(index))
