@@ -20,6 +20,12 @@ final class AppConfigurator {
     }
 
     private static func configureFirebase() {
+        guard Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil else {
+            #if DEBUG
+            print("[App] GoogleService-Info.plist not found")
+            #endif
+            return
+        }
         FirebaseApp.configure()
 
         #if DEBUG

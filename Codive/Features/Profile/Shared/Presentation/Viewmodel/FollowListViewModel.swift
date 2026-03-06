@@ -67,8 +67,8 @@ final class FollowListViewModel: ObservableObject {
     }
 
     func onTapButton(userId: UserID) {
-        guard let idx = items.firstIndex(where: { $0.id == userId }) else { return }
-        let targetMemberId = Int(userId) ?? 0
+        guard let idx = items.firstIndex(where: { $0.id == userId }),
+              let targetMemberId = Int(userId) else { return }
 
         Task {
             do {

@@ -28,7 +28,7 @@ struct TermsAgreementView: View {
     @State private var errorMessage: String?
 
     // 웹뷰 시트 상태
-    @State private var selectedTermsURL: URL?
+    @State private var selectedTermsURL: TermsURL?
 
     // 전체 동의 여부
     private var isAllAgreed: Bool {
@@ -93,7 +93,9 @@ struct TermsAgreementView: View {
                             isAgreed: binding(for: term.termId),
                             isRequired: !term.isOptional
                         ) {
-                            selectedTermsURL = termsWikiURL(for: term.title)
+                            if let url = termsWikiURL(for: term.title) {
+                                selectedTermsURL = TermsURL(url: url)
+                            }
                         }
                     }
                 }
@@ -126,8 +128,8 @@ struct TermsAgreementView: View {
         .task {
             await loadTerms()
         }
-        .fullScreenCover(item: $selectedTermsURL) { url in
-            TermsWebView(url: url)
+        .fullScreenCover(item: $selectedTermsURL) { termsURL in
+            TermsWebView(url: termsURL.url)
         }
     }
 
@@ -207,10 +209,11 @@ struct TermsAgreementView: View {
     }
 }
 
-// MARK: - URL+Identifiable
+// MARK: - Identifiable URL wrapper
 
-extension URL: @retroactive Identifiable {
-    public var id: String { absoluteString }
+struct TermsURL: Identifiable {
+    let url: URL
+    var id: String { url.absoluteString }
 }
 
 // MARK: - 개별 약관 로우 컴포넌트

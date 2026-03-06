@@ -37,8 +37,9 @@ struct SelectedPhoto: Identifiable, Equatable, Hashable {
 
     /// 원본 이미지를 tmp 디스크에 저장하고 경로만 보관 (메모리 절약)
     mutating func saveOriginalToDisk(_ image: UIImage) {
+        let sanitizedId = id.replacingOccurrences(of: "/", with: "_")
         let path = FileManager.default.temporaryDirectory
-            .appendingPathComponent("original_\(id).jpg")
+            .appendingPathComponent("original_\(sanitizedId).jpg")
         if let data = image.jpegData(compressionQuality: 0.9) {
             try? data.write(to: path)
             originalImagePath = path

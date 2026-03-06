@@ -15,7 +15,6 @@ import PackageDescription
             "Alamofire": .framework,
             "Kingfisher": .framework,
             "FirebaseAnalytics": .framework,
-            "FirebaseCrashlytics": .framework,
         ]
     )
 #endif
