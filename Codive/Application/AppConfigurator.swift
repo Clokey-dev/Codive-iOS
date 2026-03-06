@@ -7,11 +7,21 @@
 
 import Foundation
 import KakaoSDKCommon
+import Kingfisher
 
 final class AppConfigurator {
-    
+
     static func configure() {
         configureKakaoSDK()
+        configureImageCache()
+    }
+
+    private static func configureImageCache() {
+        let cache = ImageCache.default
+        // 메모리 캐시 100MB 제한
+        cache.memoryStorage.config.totalCostLimit = 100 * 1024 * 1024
+        // 메모리 캐시 항목 수 150개 제한
+        cache.memoryStorage.config.countLimit = 150
     }
     
     private static func configureKakaoSDK() {

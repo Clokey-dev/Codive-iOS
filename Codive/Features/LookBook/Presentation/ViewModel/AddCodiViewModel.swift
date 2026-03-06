@@ -17,7 +17,6 @@ final class AddCodiViewModel: ObservableObject {
     
     @Published var selectedImageURL: String?
     @Published var capturedImage: UIImage?
-    @Published var capturedImageBase64: String?
     @Published var combinedItems: [DraggableImageEntity] = []
     @Published var receivedPayloads: [Payloads] = []
     @Published var isNewlyCombined: Bool = false
