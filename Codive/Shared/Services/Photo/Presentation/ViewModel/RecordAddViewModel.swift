@@ -192,12 +192,12 @@ final class RecordAddViewModel: ObservableObject {
                         croppedImage = processImageUseCase.cropTo1_1Ratio(image)
                     }
 
-                    let selectedPhoto = SelectedPhoto(
+                    var selectedPhoto = SelectedPhoto(
                         id: photo.id,
-                        originalImage: image,
                         croppedImage: croppedImage,
                         order: index + 1
                     )
+                    selectedPhoto.saveOriginalToDisk(image)
                     selectedPhotoItems.append(selectedPhoto)
                 }
             }

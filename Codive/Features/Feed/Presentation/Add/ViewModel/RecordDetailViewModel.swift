@@ -149,7 +149,6 @@ final class RecordDetailViewModel: ObservableObject {
             if let image = await downloadImage(from: feedImage.imageUrl) {
                 var selectedPhoto = SelectedPhoto(
                     id: UUID().uuidString,
-                    originalImage: image,
                     croppedImage: image,
                     order: index,
                     clothTags: [] // 기존 태그는 나중에 로드됨

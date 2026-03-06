@@ -379,7 +379,6 @@ extension HomeViewModel {
 
                 let selectedPhoto = SelectedPhoto(
                     id: UUID().uuidString,
-                    originalImage: recordImage,
                     croppedImage: recordImage,
                     order: 1
                 )

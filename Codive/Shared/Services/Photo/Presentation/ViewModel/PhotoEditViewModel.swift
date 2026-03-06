@@ -105,6 +105,7 @@ final class PhotoEditViewModel: ObservableObject {
     }
     
     func completeEditing() {
+        cleanupOriginalImages()
         switch flowType {
         case .record:
             navigationRouter.navigate(to: .recordDetail(photos: selectedPhotos))
@@ -118,6 +119,15 @@ final class PhotoEditViewModel: ObservableObject {
     }
 
     func confirmExit() {
+        cleanupOriginalImages()
         navigationRouter.navigateBack()
+    }
+
+    // MARK: - Private Methods
+
+    private func cleanupOriginalImages() {
+        for photo in selectedPhotos {
+            photo.cleanupOriginal()
+        }
     }
 }
