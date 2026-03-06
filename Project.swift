@@ -3,6 +3,23 @@
 // MARK: - Projects
 
 // SwiftLint 스크립트 정의
+let crashlyticsScript = TargetScript.post(
+    script: """
+    if [ "${CONFIGURATION}" = "Release" ]; then
+        ${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run
+    fi
+    """,
+    name: "Firebase Crashlytics dSYM Upload",
+    inputPaths: [
+        "${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}",
+        "${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}",
+        "${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist",
+        "$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/GoogleService-Info.plist",
+        "$(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)"
+    ],
+    basedOnDependencyAnalysis: false
+)
+
 let lintScript = TargetScript.pre(
     script: """
     if test -d "/opt/homebrew/bin/"; then
@@ -134,7 +151,7 @@ let project = Project(
             ],
             resources: ["Codive/Resources/**"],
             entitlements: .file(path: "Codive/Codive.entitlements"),
-            scripts: [lintScript],
+            scripts: [lintScript, crashlyticsScript],
             dependencies: [
                 // 카카오 SDK
                 .external(name: "KakaoSDKCommon"),
@@ -147,7 +164,11 @@ let project = Project(
                 // CodiveAPI
                 .external(name: "CodiveAPI"),
                 // 이미지 캐싱
-                .external(name: "Kingfisher")
+                .external(name: "Kingfisher"),
+
+                // Firebase
+                .external(name: "FirebaseAnalytics"),
+                .external(name: "FirebaseCrashlytics")
             ],
             settings: .settings(
                 base: [

@@ -8,12 +8,23 @@
 import Foundation
 import KakaoSDKCommon
 import Kingfisher
+import FirebaseCore
+import FirebaseCrashlytics
 
 final class AppConfigurator {
 
     static func configure() {
+        configureFirebase()
         configureKakaoSDK()
         configureImageCache()
+    }
+
+    private static func configureFirebase() {
+        FirebaseApp.configure()
+
+        #if DEBUG
+        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(false)
+        #endif
     }
 
     private static func configureImageCache() {
