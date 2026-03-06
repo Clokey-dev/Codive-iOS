@@ -168,8 +168,8 @@ final class OtherProfileViewModel: ObservableObject {
 
     func onBlockTapped() {
         dismissBlockMenu()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            self.showBlockAlert = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            self?.showBlockAlert = true
         }
     }
 
