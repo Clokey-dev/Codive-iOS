@@ -73,30 +73,57 @@ final class SplashViewModel: ObservableObject {
 //        appRouter.finishSplash()
 //        return
 
+        #if DEBUG
+        print("[Splash] 자동 로그인 체크 시작")
+        #endif
+
         // 1. 키체인에 토큰이 있는지 확인
         guard tokenService.hasValidTokens() else {
+            #if DEBUG
+            print("[Splash] 저장된 토큰 없음 → 로그인 화면으로 이동")
+            #endif
             appRouter.finishSplash()
             return
         }
 
+        #if DEBUG
+        print("[Splash] 토큰 존재 확인 완료")
+        #endif
+
         // 2. Access Token 유효성 검사
         if !tokenService.isAccessTokenExpired() {
+            #if DEBUG
+            print("[Splash] Access Token 유효 → 메인 진입 시도")
+            #endif
             await proceedWithValidToken()
             return
         }
 
+        #if DEBUG
+        print("[Splash] Access Token 만료됨")
+        #endif
+
         // 3. Refresh Token 유효성 검사
         if tokenService.isRefreshTokenExpired() {
+            #if DEBUG
+            print("[Splash] Refresh Token 만료됨 → 토큰 삭제 후 로그인 화면으로 이동")
+            #endif
             clearTokensAndGoToAuth()
             return
         }
 
         // 4. 토큰 재발급
+        #if DEBUG
+        print("[Splash] Refresh Token 유효 → 토큰 재발급 시도")
+        #endif
         await reissueTokens()
     }
 
     private func reissueTokens() async {
         guard let refreshToken = tokenService.getRefreshToken() else {
+            #if DEBUG
+            print("[Splash] Refresh Token 가져오기 실패 → 로그인 화면으로 이동")
+            #endif
             clearTokensAndGoToAuth()
             return
         }
@@ -105,8 +132,14 @@ final class SplashViewModel: ObservableObject {
             let tokenPair = try await authAPIService.reissueTokens(refreshToken: refreshToken)
             try? keychainManager.saveAccessToken(tokenPair.accessToken)
             try? keychainManager.saveRefreshToken(tokenPair.refreshToken)
+            #if DEBUG
+            print("[Splash] 토큰 재발급 성공 → 메인 진입 시도")
+            #endif
             await proceedWithValidToken()
         } catch {
+            #if DEBUG
+            print("[Splash] 토큰 재발급 실패: \(error) → 로그인 화면으로 이동")
+            #endif
             clearTokensAndGoToAuth()
         }
     }
