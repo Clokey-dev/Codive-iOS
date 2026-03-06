@@ -243,8 +243,8 @@ final class FeedDetailViewModel: ObservableObject {
     }
 
     func onDeleteTapped() {
-        showAlertAfterDismissingMenu {
-            self.showDeleteAlert = true
+        showAlertAfterDismissingMenu { [weak self] in
+            self?.showDeleteAlert = true
         }
     }
 
@@ -275,8 +275,8 @@ final class FeedDetailViewModel: ObservableObject {
     }
 
     func onBlockTapped() {
-        showAlertAfterDismissingMenu {
-            self.showBlockAlert = true
+        showAlertAfterDismissingMenu { [weak self] in
+            self?.showBlockAlert = true
         }
     }
 

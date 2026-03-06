@@ -12,10 +12,10 @@ struct CustomProductCard: View {
     let isTodayCloth: Bool
     let isSelected: Bool
     let onTap: () -> Void
-    
+
     var body: some View {
         Button(action: onTap) {
-            ZStack(alignment: .topTrailing) {
+            ZStack {
                 // 이미지
                 Group {
                     if let url = URL(string: imageName), imageName.hasPrefix("http") {
@@ -44,29 +44,41 @@ struct CustomProductCard: View {
                 }
                 .frame(width: 100, height: 100)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
-                .overlay(
+
+                // 선택 오버레이
+                if isSelected {
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2)
-                )
-                
+                        .fill(Color.black.opacity(0.4))
+                        .frame(width: 100, height: 100)
+
+                    // 갈색 원 + 체크마크
+                    Circle()
+                        .fill(Color.Codive.main1)
+                        .frame(width: 36, height: 36)
+                        .overlay(
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundColor(.white)
+                        )
+                }
+
                 // Today 뱃지
                 if isTodayCloth {
-                    Text("Today")
-                        .font(.system(size: 10, weight: .bold))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 3)
-                        .background(Color.blue)
-                        .clipShape(Capsule())
-                        .padding(6)
-                }
-                
-                // 선택 체크마크
-                if isSelected {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.blue)
-                        .background(Color.white.clipShape(Circle()))
-                        .padding(6)
+                    VStack {
+                        HStack {
+                            Spacer()
+                            Text("Today")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 3)
+                                .background(Color.Codive.point1)
+                                .clipShape(Capsule())
+                                .padding(6)
+                        }
+                        Spacer()
+                    }
+                    .frame(width: 100, height: 100)
                 }
             }
         }

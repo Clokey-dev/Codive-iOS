@@ -49,6 +49,14 @@ struct LookBookView: View {
             Text(TextLiteral.LookBook.alertDeleteSubTitle)
         }
         .alert(
+            "오류",
+            isPresented: $viewModel.isShowingErrorAlert
+        ) {
+            Button("확인", role: .cancel) { }
+        } message: {
+            Text(viewModel.errorMessage ?? "알 수 없는 오류가 발생했습니다.")
+        }
+        .alert(
             TextLiteral.LookBook.exitDescription,
             isPresented: $viewModel.isShowingCancelConfirmAlert
         ) {

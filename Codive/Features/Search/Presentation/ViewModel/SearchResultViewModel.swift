@@ -88,6 +88,7 @@ final class SearchResultViewModel: ObservableObject {
         let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmedQuery.isEmpty { return }
 
+        RecentSearchStorage.addTerm(trimmedQuery)
         self.initialQuery = trimmedQuery
         self.currentSort = "전체"
 
@@ -103,8 +104,15 @@ final class SearchResultViewModel: ObservableObject {
         navigationRouter.navigateBack()
     }
 
-    func navigateToUserProfile(userId: Int) {
-        navigationRouter.navigate(to: .otherProfile(userId: userId))
+    func navigateToUserProfile(user: SimpleUser) {
+        RecentSearchStorage.addMember(
+            userId: user.userId,
+            nickname: user.nickname,
+            profileImageUrl: user.avatarURL?.absoluteString
+        )
+        if let userId = Int(user.userId) {
+            navigationRouter.navigate(to: .otherProfile(userId: userId))
+        }
     }
 
     func navigateToFeedDetail(feedId: Int) {

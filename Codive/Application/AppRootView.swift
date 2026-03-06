@@ -30,19 +30,24 @@ struct AppRootView: View {
                 switch appRouter.currentAppState {
                 case .splash:
                     SplashContainerView(appRouter: appRouter)
+                        .transition(.opacity)
 
                 case .auth:
                     authDIContainer.makeAuthFlowView()
+                        .transition(.opacity)
 
                 case .termsAgreement:
                     TermsAgreementView {
                         appRouter.navigateToMain()
                     }
+                    .transition(.opacity)
 
                 case .main:
                     MainTabView(appDIContainer: appDIContainer)
+                        .transition(.opacity)
                 }
             }
+            .animation(.easeInOut(duration: 0.4), value: appRouter.currentAppState)
 
             // 로딩 오버레이
             if appRouter.isLoading {

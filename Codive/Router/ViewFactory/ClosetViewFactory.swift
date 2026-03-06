@@ -28,6 +28,8 @@ final class ClosetViewFactory {
             closetDIContainer?.makeClothDetailView(cloth: cloth)
         case .clothEdit(let cloth):
             closetDIContainer?.makeClothEditView(cloth: cloth)
+        case .wardrobeReport:
+            closetDIContainer?.makeWardrobeReportDetailView()
         default:
             EmptyView()
         }

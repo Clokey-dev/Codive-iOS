@@ -7,11 +7,38 @@
 
 import Foundation
 import KakaoSDKCommon
+import Kingfisher
+import FirebaseCore
+import FirebaseCrashlytics
 
 final class AppConfigurator {
-    
+
     static func configure() {
+        configureFirebase()
         configureKakaoSDK()
+        configureImageCache()
+    }
+
+    private static func configureFirebase() {
+        guard Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil else {
+            #if DEBUG
+            print("[App] GoogleService-Info.plist not found")
+            #endif
+            return
+        }
+        FirebaseApp.configure()
+
+        #if DEBUG
+        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(false)
+        #endif
+    }
+
+    private static func configureImageCache() {
+        let cache = ImageCache.default
+        // 메모리 캐시 100MB 제한
+        cache.memoryStorage.config.totalCostLimit = 100 * 1024 * 1024
+        // 메모리 캐시 항목 수 150개 제한
+        cache.memoryStorage.config.countLimit = 150
     }
     
     private static func configureKakaoSDK() {

@@ -88,12 +88,15 @@ final class FeedDIContainer {
 
     // MARK: - ViewModels
 
+    /// 탭 전환 시 재생성 방지를 위해 캐싱
+    private lazy var feedViewModel: FeedViewModel = FeedViewModel(
+        navigationRouter: navigationRouter,
+        fetchFeedsUseCase: makeFetchFeedsUseCase(),
+        toggleLikeUseCase: makeToggleLikeUseCase()
+    )
+
     func makeFeedViewModel() -> FeedViewModel {
-        return FeedViewModel(
-            navigationRouter: navigationRouter,
-            fetchFeedsUseCase: makeFetchFeedsUseCase(),
-            toggleLikeUseCase: makeToggleLikeUseCase()
-        )
+        return feedViewModel
     }
 
     func makeFeedDetailViewModel(feedId: Int) -> FeedDetailViewModel {

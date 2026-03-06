@@ -16,7 +16,11 @@ final class FetchMyFavoriteLookBookUseCase {
     func fetchMyFavoriteCoordinate() async throws -> [MyFavoriteLookBookResponseDTO] {
         try await repository.fetchMyFavoriteCoordinate()
     }
-    
+
+    func fetchFavoriteCoordinate(memberId: Int) async throws -> [MyFavoriteLookBookResponseDTO] {
+        try await repository.fetchFavoriteCoordinate(memberId: memberId)
+    }
+
     /// 코디 preview 조회
     func fetchCoordinatePreview(
         coordinateId: Int64

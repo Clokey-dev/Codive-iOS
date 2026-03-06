@@ -11,45 +11,48 @@ import Foundation
 final class RecentlySearchResultViewModel: ObservableObject {
     // MARK: - Properties
     private let navigationRouter: NavigationRouter
-    
-    @Published var recentSearchTags: [SearchTagEntity] = []
+
+    @Published var recentSearchItems: [RecentSearchItem] = []
     @Published var showingDeleteAlert: Bool = false
-    
+
     // MARK: - Initializer
     init(navigationRouter: NavigationRouter) {
         self.navigationRouter = navigationRouter
     }
-    
-    enum RecentlySearchItem: Identifiable {
-        case hashTag(title: String)
-        case member(imageUrl: String, title: String, subtitle: String)
 
-        var id: UUID {
-            UUID()
-        }
+    func loadData() {
+        self.recentSearchItems = RecentSearchStorage.load()
     }
 
-    @Published var items: [RecentlySearchItem] = [
-        .hashTag(title: "드뮤어룩"),
-        .member(
-            imageUrl: "https://example.com/profile.jpg",
-            title: "피크닉좋아",
-            subtitle: "hamster12"
-        )
-    ]
-    
-    func deleteTag() {
-        // TODO: 태그 삭제 로직 구현
+    func deleteItem(_ item: RecentSearchItem) {
+        RecentSearchStorage.removeItem(item)
+        loadData()
     }
-    
+
     func handleDeleteAll() {
         self.showingDeleteAlert = true
     }
-    
+
     func executeDeleteAll() {
-        self.recentSearchTags = []
+        RecentSearchStorage.clear()
+        self.recentSearchItems = []
     }
-    
+
+    func handleItemTap(_ item: RecentSearchItem) {
+        switch item {
+        case .keyword(let text):
+            let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else { return }
+            RecentSearchStorage.addTerm(trimmed)
+            navigationRouter.navigate(to: .searchResult(query: trimmed))
+        case .member(let userId, _, _):
+            if let id = Int(userId) {
+                RecentSearchStorage.addItem(item)
+                navigationRouter.navigate(to: .otherProfile(userId: id))
+            }
+        }
+    }
+
     // MARK: - Navigation
     func handleBackTap() {
         navigationRouter.navigateBack()

@@ -174,14 +174,10 @@ final class ProfileSettingViewModel: ObservableObject {
         Task {
             do {
                 let isDuplicated = try await profileRepository.checkNicknameDuplicate(nickname: nickname)
-                DispatchQueue.main.async {
-                    self.nicknameCheckStatus = isDuplicated ? .duplicated : .available
-                }
+                self.nicknameCheckStatus = isDuplicated ? .duplicated : .available
             } catch {
-                DispatchQueue.main.async {
-                    self.errorMessage = "닉네임 중복확인 실패: \(error.localizedDescription)"
-                    self.nicknameCheckStatus = .none
-                }
+                self.errorMessage = "닉네임 중복확인 실패: \(error.localizedDescription)"
+                self.nicknameCheckStatus = .none
             }
         }
     }

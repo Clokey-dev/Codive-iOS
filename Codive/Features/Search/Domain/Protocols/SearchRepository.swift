@@ -9,10 +9,6 @@ import Foundation
 import CodiveAPI
 
 protocol SearchRepository {
-    func fetchUserName() -> SearchEntity
-    func fetchRecentSearchTags() -> [SearchTagEntity]
-    func fetchRecommendedNews() -> [NewsEntity]
-
     /// 검색 탭 기록 추천
     func fetchSearchRecommendation() async throws -> [SearchRecommendationEntity]
 

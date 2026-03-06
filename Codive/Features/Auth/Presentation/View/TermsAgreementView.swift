@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import WebKit
 
 struct TermsAgreementView: View {
     @Environment(\.dismiss) private var dismiss
@@ -18,13 +19,16 @@ struct TermsAgreementView: View {
 
     // 약관 상태 관리 (termId 매핑)
     @State private var agreements: [Int64: Bool] = [:]
-    
+
     // 서버에서 받아온 약관 목록
     @State private var termsList: [TermItem] = []
 
     // 로딩 상태
     @State private var isLoading = false
     @State private var errorMessage: String?
+
+    // 웹뷰 시트 상태
+    @State private var selectedTermsURL: TermsURL?
 
     // 전체 동의 여부
     private var isAllAgreed: Bool {
@@ -88,7 +92,11 @@ struct TermsAgreementView: View {
                             title: term.title,
                             isAgreed: binding(for: term.termId),
                             isRequired: !term.isOptional
-                        )
+                        ) {
+                            if let url = termsWikiURL(for: term.title) {
+                                selectedTermsURL = TermsURL(url: url)
+                            }
+                        }
                     }
                 }
                 .padding(.horizontal, 20)
@@ -120,6 +128,27 @@ struct TermsAgreementView: View {
         .task {
             await loadTerms()
         }
+        .fullScreenCover(item: $selectedTermsURL) { termsURL in
+            TermsWebView(url: termsURL.url)
+        }
+    }
+
+    // MARK: - Wiki URL Mapping
+
+    private static let wikiBaseURL = "https://github.com/Clokey-dev/Codive-iOS/wiki/"
+
+    private static let titleToWikiSlug: [(keyword: String, slug: String)] = [
+        ("서비스 이용약관", "서비스-이용약관"),
+        ("개인정보", "개인정보처리방침"),
+        ("위치기반", "위치기반서비스-이용약관"),
+        ("마케팅", "마케팅-정보-수신동의-약관")
+    ]
+
+    private func termsWikiURL(for title: String) -> URL? {
+        for mapping in Self.titleToWikiSlug where title.contains(mapping.keyword) {
+            return URL(string: Self.wikiBaseURL + mapping.slug)
+        }
+        return nil
     }
 
     // MARK: - Helper Methods
@@ -180,49 +209,137 @@ struct TermsAgreementView: View {
     }
 }
 
-// 개별 약관 로우 컴포넌트
+// MARK: - Identifiable URL wrapper
+
+struct TermsURL: Identifiable {
+    let url: URL
+    var id: String { url.absoluteString }
+}
+
+// MARK: - 개별 약관 로우 컴포넌트
+
 struct AgreementRow: View {
     let title: String
     @Binding var isAgreed: Bool
     var isBold: Bool = false
     var isRequired: Bool?
     var showChevron: Bool = true
+    var onChevronTap: (() -> Void)?
 
     var body: some View {
-        HStack(spacing: 12) {
-            // 체크박스
-            Button(action: { isAgreed.toggle() }, label: {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.codive_title1)
-                    .foregroundColor(isAgreed ? .Codive.point1 : .Codive.point4)
-            })
+        HStack(spacing: 0) {
+            // 체크박스 + 제목 + 여백 (탭하면 토글)
+            Button {
+                isAgreed.toggle()
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.codive_title1)
+                        .foregroundColor(isAgreed ? .Codive.point1 : .Codive.point4)
 
-            // 제목 (필수/선택 강조 포함)
-            HStack(spacing: 4) {
-                if let isRequired = isRequired {
-                    Text(isRequired ? "(필수)" : "(선택)")
-                        .foregroundColor(isRequired ? .Codive.point1 : .Codive.grayscale4)
+                    HStack(spacing: 4) {
+                        if let isRequired = isRequired {
+                            Text(isRequired ? "(필수)" : "(선택)")
+                                .foregroundColor(isRequired ? .Codive.point1 : .Codive.grayscale4)
+                        }
+                        Text(title)
+                    }
+                    .font(isBold ? .codive_body1_bold : .codive_body1_regular)
+                    .foregroundColor(isBold ? .Codive.grayscale1 : .Codive.grayscale4)
+
+                    Spacer()
                 }
-                Text(title)
+                .contentShape(Rectangle())
             }
-            .font(isBold ? .codive_body1_bold : .codive_body1_regular)
-            .foregroundColor(isBold ? .Codive.grayscale1 : .Codive.grayscale4)
-
-            Spacer()
 
             // 상세 보기 버튼
             if showChevron {
-                Button(action: { /* 상세 페이지 이동 */ }, label: {
+                Button {
+                    onChevronTap?()
+                } label: {
                     Image(systemName: "chevron.right")
                         .font(.codive_body2_regular)
                         .foregroundColor(.Codive.grayscale4)
-                })
+                        .padding(.leading, 12)
+                }
             }
         }
         .frame(height: 44)
     }
 }
 
-#Preview {
-    TermsAgreementView { }
+// MARK: - 약관 웹뷰 (전체화면 시트)
+
+struct TermsWebView: View {
+    let url: URL
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationView {
+            WebViewRepresentable(url: url)
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button {
+                            dismiss()
+                        } label: {
+                            Image(systemName: "xmark")
+                                .foregroundColor(.Codive.grayscale1)
+                        }
+                    }
+                }
+        }
+    }
+}
+
+// MARK: - WKWebView UIViewRepresentable
+
+struct WebViewRepresentable: UIViewRepresentable {
+    let url: URL
+
+    func makeUIView(context: Context) -> WKWebView {
+        let webView = WKWebView()
+        webView.load(URLRequest(url: url))
+        return webView
+    }
+
+    func updateUIView(_ uiView: WKWebView, context: Context) {}
+}
+
+#Preview("AgreementRow") {
+    struct PreviewWrapper: View {
+        @State var allAgreed = false
+        @State var required1 = false
+        @State var required2 = true
+        @State var optional1 = false
+
+        var body: some View {
+            VStack(spacing: 0) {
+                AgreementRow(
+                    title: "전체 동의",
+                    isAgreed: $allAgreed,
+                    isBold: true,
+                    showChevron: false
+                )
+                Divider().padding(.vertical, 10)
+                AgreementRow(
+                    title: "서비스 이용약관",
+                    isAgreed: $required1,
+                    isRequired: true
+                )
+                AgreementRow(
+                    title: "개인정보 수집 및 이용",
+                    isAgreed: $required2,
+                    isRequired: true
+                )
+                AgreementRow(
+                    title: "마케팅 정보 수신",
+                    isAgreed: $optional1,
+                    isRequired: false
+                )
+            }
+            .padding(.horizontal, 20)
+        }
+    }
+    return PreviewWrapper()
 }

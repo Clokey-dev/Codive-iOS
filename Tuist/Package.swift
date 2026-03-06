@@ -14,6 +14,7 @@ import PackageDescription
             "KakaoSDKCommon": .framework,
             "Alamofire": .framework,
             "Kingfisher": .framework,
+            "FirebaseAnalytics": .framework,
         ]
     )
 #endif
@@ -25,6 +26,7 @@ let package = Package(
         .package(url: "https://github.com/kakao/kakao-ios-sdk", from: "2.22.5"),
         .package(url: "https://github.com/Moya/Moya.git", from: "15.0.0"),
         .package(url: "https://github.com/Clokey-dev/CodiveAPI", branch: "main"),
-        .package(url: "https://github.com/onevcat/Kingfisher.git", from: "8.0.0")
+        .package(url: "https://github.com/onevcat/Kingfisher.git", from: "8.0.0"),
+        .package(url: "https://github.com/firebase/firebase-ios-sdk.git", from: "11.0.0")
     ]
 )

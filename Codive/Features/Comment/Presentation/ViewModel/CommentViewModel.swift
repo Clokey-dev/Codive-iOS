@@ -241,8 +241,8 @@ final class CommentViewModel: ObservableObject {
     func onDeleteTapped(commentId: Int) {
         dismissMenu()
         pendingDeleteCommentId = commentId
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            self.showDeleteAlert = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            self?.showDeleteAlert = true
         }
     }
 
@@ -280,16 +280,16 @@ final class CommentViewModel: ObservableObject {
 
         dismissAction()
         let capturedInfo = info
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            self.navigationRouter.navigate(to: .report(target: .comment(id: commentId), commentInfo: capturedInfo))
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            self?.navigationRouter.navigate(to: .report(target: .comment(id: commentId), commentInfo: capturedInfo))
         }
     }
 
     func onBlockTapped(comment: Comment) {
         dismissMenu()
         pendingBlockComment = comment
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            self.showBlockAlert = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            self?.showBlockAlert = true
         }
     }
 

@@ -12,6 +12,7 @@ struct ImageCropView: View {
     // MARK: - Properties
     let image: UIImage
     let aspectRatio: CGFloat
+    var allowZoomOut: Bool = false
     let onComplete: (UIImage) -> Void
     let onCancel: () -> Void
 
@@ -20,6 +21,7 @@ struct ImageCropView: View {
         CustomCropView(
             image: image,
             aspectRatio: aspectRatio,
+            allowZoomOut: allowZoomOut,
             onComplete: onComplete
         )
     }

@@ -86,11 +86,11 @@ struct LookBookFolder: View {
     }
 
     private var defaultImage: some View {
-        Image(systemName: "photo")
+        Image(systemName: "tshirt")
             .resizable()
-            .scaledToFill()
-            .frame(width: 76, height: 76)
-            .clipShape(RoundedRectangle(cornerRadius: 11.18))
+            .scaledToFit()
+            .frame(width: 40)
+            .foregroundStyle(Color.Codive.grayscale4)
     }
 
     @ViewBuilder

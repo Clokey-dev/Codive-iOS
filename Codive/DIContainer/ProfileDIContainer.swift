@@ -98,7 +98,8 @@ final class ProfileDIContainer {
             memberId: memberId,
             isMe: isMe,
             navigationRouter: navigationRouter,
-            fetchFollowsUseCase: makeFetchFollowsUseCase()
+            fetchFollowsUseCase: makeFetchFollowsUseCase(),
+            toggleFollowUseCase: makeToggleFollowUseCase()
         )
     }
 
@@ -117,7 +118,8 @@ final class ProfileDIContainer {
             fetchMemberInfoUseCase: makeFetchMemberInfoUseCase(),
             toggleFollowUseCase: makeToggleFollowUseCase(),
             fetchMonthlyHistoryUseCase: makeFetchMonthlyHistoryUseCase(),
-            toggleBlockUseCase: makeToggleBlockUseCase()
+            toggleBlockUseCase: makeToggleBlockUseCase(),
+            fetchMyFavoriteLookBookUseCase: makeFetchMyFavoriteLookBookUseCase()
         )
     }
     

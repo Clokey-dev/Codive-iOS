@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 // MARK: - CommentRow (리스트 아이템)
 struct CommentRow: View {
@@ -25,32 +26,30 @@ struct CommentRow: View {
             // MARK: 댓글 내용
             HStack(alignment: .top, spacing: 10) {
                 // 프로필 이미지
-                AsyncImage(url: URL(string: comment.author.profileImageUrl ?? "")) { image in
-                    image.resizable().aspectRatio(contentMode: .fill)
-                } placeholder: {
-                    Image("Profile")
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                }
-                .frame(width: isReply ? 28 : 36, height: isReply ? 28 : 36)
-                .clipShape(Circle())
+                KFImage(URL(string: comment.author.profileImageUrl ?? ""))
+                    .setProcessor(DownsamplingImageProcessor(size: CGSize(
+                        width: (isReply ? 28 : 36) * UIScreen.main.scale,
+                        height: (isReply ? 28 : 36) * UIScreen.main.scale
+                    )))
+                    .placeholder {
+                        Image("Profile")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    }
+                    .onFailure { _ in }
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: isReply ? 28 : 36, height: isReply ? 28 : 36)
+                    .clipShape(Circle())
                 .onTapGesture {
                     onProfileImageTap(comment.author.id, comment.isMine)
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
                     // 닉네임
-                    HStack(spacing: 4) {
-                        Text(comment.author.nickname)
-                            .font(.codive_body2_medium)
-                            .foregroundStyle(Color.Codive.grayscale1)
-
-                        if comment.isMine {
-                            Text("(작성자)")
-                                .font(.codive_body3_regular)
-                                .foregroundStyle(Color.Codive.main0)
-                        }
-                    }
+                    Text(comment.author.nickname)
+                        .font(.codive_body2_medium)
+                        .foregroundStyle(Color.Codive.grayscale1)
 
                     // 댓글내용
                     Text(comment.content)

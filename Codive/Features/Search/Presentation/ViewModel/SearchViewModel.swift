@@ -12,30 +12,29 @@ final class SearchViewModel: ObservableObject {
     // MARK: - Properties
     private let navigationRouter: NavigationRouter
     private let useCase: SearchUseCase
-    
+
     @Published var username: String = ""
-    @Published var recentSearchTags: [SearchTagEntity] = []
+    @Published var recentSearchItems: [RecentSearchItem] = []
     @Published var recommendedNews: [SearchRecommendationEntity] = []
-    @Published var showingDeleteAlert: Bool = false
-    
+
     // MARK: - Initializer
     init(navigationRouter: NavigationRouter, useCase: SearchUseCase) {
         self.navigationRouter = navigationRouter
         self.useCase = useCase
     }
-    
+
     // MARK: - Methods
-    
+
     func loadData() {
-        // 1. 로컬 데이터 (동기)
-        let user = useCase.fetchUserName()
-        self.username = user.username
+        if let profile = UserProfileStorage.load() {
+            self.username = profile.nickname
+        }
     }
-    
-    func recentlySearchResultList() {
-        self.recentSearchTags = recentSearchTags
+
+    func loadRecentSearchItems() {
+        self.recentSearchItems = RecentSearchStorage.load()
     }
-    
+
     func loadSearchRecommendation() {
         Task {
             do {
@@ -59,11 +58,13 @@ final class SearchViewModel: ObservableObject {
             }
         }
     }
-    
+
     func executeSearch(query: String) {
         let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmedQuery.isEmpty { return }
 
+        RecentSearchStorage.addTerm(trimmedQuery)
+        loadRecentSearchItems()
         navigationRouter.navigate(to: .searchResult(query: trimmedQuery))
     }
 
@@ -72,23 +73,33 @@ final class SearchViewModel: ObservableObject {
         let trimmedKeyword = keyword.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedKeyword.isEmpty else { return }
 
+        RecentSearchStorage.addTerm(trimmedKeyword)
+        loadRecentSearchItems()
         navigationRouter.navigate(to: .searchResult(query: trimmedKeyword))
     }
 
-    func deleteTag(tag: SearchTagEntity) {
-        if let index = recentSearchTags.firstIndex(where: { $0.id == tag.id }) {
-            recentSearchTags.remove(at: index)
-        }
+    func deleteItem(_ item: RecentSearchItem) {
+        RecentSearchStorage.removeItem(item)
+        loadRecentSearchItems()
     }
-    
+
     func handleShowAll() {
         navigationRouter.navigate(to: .recentlySearchResult)
     }
-    
-    func handleTagTap(tag: SearchTagEntity) {
-        executeSearch(query: tag.text)
+
+    func handleItemTap(_ item: RecentSearchItem) {
+        switch item {
+        case .keyword(let text):
+            executeSearch(query: text)
+        case .member(let userId, _, _):
+            if let id = Int(userId) {
+                RecentSearchStorage.addItem(item)
+                loadRecentSearchItems()
+                navigationRouter.navigate(to: .otherProfile(userId: id))
+            }
+        }
     }
-    
+
     // MARK: - Navigation
     func handleBackTap() {
         navigationRouter.navigateBack()

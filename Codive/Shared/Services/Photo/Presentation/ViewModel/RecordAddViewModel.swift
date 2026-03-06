@@ -25,13 +25,20 @@ final class RecordAddViewModel: ObservableObject {
     @Published var isCompletingSelection = false
     @Published var isClothInfoPresented = false
     @Published var isAIAddEnabled = false
+    @Published var isDontShowTodayChecked = false
 
     private let fetchPhotosUseCase: FetchPhotosUseCase
     private let processImageUseCase: ProcessImageUseCase
     private let navigationRouter: NavigationRouter
-    let flowType: PhotoEditFlowType
-    
+    private var cancellables = Set<AnyCancellable>()
+    private var hasShownClothInfoInSession = false
+    private let flowType: PhotoEditFlowType
+
     // MARK: - Computed Properties
+    var isClothFlow: Bool {
+        flowType == .cloth
+    }
+
     var isCompleteEnabled: Bool {
         !selectedPhotos.isEmpty
     }
@@ -60,6 +67,16 @@ final class RecordAddViewModel: ObservableObject {
         self.processImageUseCase = processImageUseCase
         self.navigationRouter = navigationRouter
         self.flowType = flowType
+
+        if flowType == .cloth {
+            $isAIAddEnabled
+                .dropFirst()
+                .filter { $0 }
+                .sink { [weak self] _ in
+                    self?.showClothInfoIfNeeded()
+                }
+                .store(in: &cancellables)
+        }
     }
     
     // MARK: - Image Loading
@@ -73,10 +90,6 @@ final class RecordAddViewModel: ObservableObject {
         
         if authorizationStatus == .authorized || authorizationStatus == .limited {
             await loadAlbums()
-
-            if flowType == .cloth {
-                isClothInfoPresented = true
-            }
         }
     }
 
@@ -179,12 +192,12 @@ final class RecordAddViewModel: ObservableObject {
                         croppedImage = processImageUseCase.cropTo1_1Ratio(image)
                     }
 
-                    let selectedPhoto = SelectedPhoto(
+                    var selectedPhoto = SelectedPhoto(
                         id: photo.id,
-                        originalImage: image,
                         croppedImage: croppedImage,
                         order: index + 1
                     )
+                    selectedPhoto.saveOriginalToDisk(image)
                     selectedPhotoItems.append(selectedPhoto)
                 }
             }
@@ -211,5 +224,35 @@ final class RecordAddViewModel: ObservableObject {
     
     func dismissView() {
         navigationRouter.navigateBack()
+    }
+
+    // MARK: - Cloth Info Guide
+    private static let clothInfoDismissDateKey = "cloth_info_dismiss_date"
+
+    private func showClothInfoIfNeeded() {
+        guard !hasShownClothInfoInSession else { return }
+
+        let today = Self.todayDateString()
+        let savedDate = UserDefaults.standard.string(forKey: Self.clothInfoDismissDateKey)
+
+        if savedDate != today {
+            hasShownClothInfoInSession = true
+            isClothInfoPresented = true
+            isDontShowTodayChecked = false
+        }
+    }
+
+    func dismissClothInfo() {
+        if isDontShowTodayChecked {
+            UserDefaults.standard.set(Self.todayDateString(), forKey: Self.clothInfoDismissDateKey)
+        }
+        isClothInfoPresented = false
+    }
+
+    private static func todayDateString() -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.timeZone = TimeZone(identifier: "Asia/Seoul")
+        return formatter.string(from: Date())
     }
 }

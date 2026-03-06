@@ -33,6 +33,11 @@ final class BlockedUsersViewModel: ObservableObject {
     var isEmpty: Bool { !isLoading && items.isEmpty && error == nil }
 
     @MainActor
+    func navigateBack() {
+        navigationRouter.navigateBack()
+    }
+
+    @MainActor
     func refresh() async {
         isLoading = true
         error = nil

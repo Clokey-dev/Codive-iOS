@@ -74,6 +74,10 @@ struct CustomMultiSelectButton: View {
             selectedOptions.remove(option)
         } else {
             if let maxSelection = maxSelection, selectedOptions.count >= maxSelection {
+                if maxSelection == 1 {
+                    selectedOptions.removeAll()
+                    selectedOptions.insert(option)
+                }
                 return
             }
             selectedOptions.insert(option)

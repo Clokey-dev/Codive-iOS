@@ -10,13 +10,16 @@ import SwiftUI
 struct CustomCropView: View {
     let image: UIImage
     let aspectRatio: CGFloat
-    var onComplete: (UIImage) -> Void
+    var allowZoomOut: Bool = false
 
     @Environment(\.dismiss) var dismiss
 
     // MARK: - Configuration
     private let minBoxWidth: CGFloat = 100
     private let boxPadding: CGFloat = 20
+
+    // MARK: - Callbacks
+    var onComplete: (UIImage) -> Void
 
     // MARK: - State
     @State private var imageScale: CGFloat = 1.0
@@ -56,7 +59,8 @@ struct CustomCropView: View {
                                         .onChanged { value in
                                             let delta = value / lastImageScale
                                             lastImageScale = value
-                                            imageScale = max(imageScale * delta, 1.0)
+                                            let minScale: CGFloat = allowZoomOut ? 0.5 : 1.0
+                                            imageScale = max(imageScale * delta, minScale)
                                         }
                                         .onEnded { _ in
                                             lastImageScale = 1.0
