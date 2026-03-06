@@ -105,9 +105,8 @@ enum S3UploadHelpers {
         request.httpMethod = "PUT"
         request.setValue(contentType, forHTTPHeaderField: "Content-Type")
         request.setValue(contentMD5, forHTTPHeaderField: "Content-MD5")
-        request.httpBody = imageData
 
-        let (_, response) = try await URLSession.shared.data(for: request)
+        let (_, response) = try await URLSession.shared.upload(for: request, from: imageData)
 
         guard let httpResponse = response as? HTTPURLResponse else {
             throw S3UploadError.invalidResponse

@@ -27,34 +27,43 @@ final class ClothAIRepositoryImpl: ClothAIRepository {
             return Array(repeating: nil, count: images.count)
         }
 
-        // 2. S3 병렬 업로드 (개별 실패 허용)
-        return await withTaskGroup(of: (Int, String?).self, returning: [String?].self) { group in
-            for (index, (imageData, presignedInfo)) in zip(images, presignedInfos).enumerated() {
-                group.addTask {
-                    do {
-                        let contentType = S3UploadHelpers.detectFormat(from: imageData).contentType
-                        try await self.apiService.uploadImageToS3(
-                            presignedUrl: presignedInfo.presignedUrl,
-                            imageData: imageData,
-                            contentMD5: presignedInfo.md5Hash,
-                            contentType: contentType
-                        )
-                        return (index, presignedInfo.finalUrl)
-                    } catch {
-                        #if DEBUG
-                        print("[ClothAI] S3 업로드 실패 (index: \(index)): \(error)")
-                        #endif
-                        return (index, nil)
+        // 2. S3 업로드 (3장씩 청크 분할하여 동시 메모리 제한)
+        let chunkSize = 3
+        var results = Array<String?>(repeating: nil, count: images.count)
+        let pairs = Array(zip(images, presignedInfos).enumerated())
+
+        for chunkStart in stride(from: 0, to: pairs.count, by: chunkSize) {
+            let chunkEnd = min(chunkStart + chunkSize, pairs.count)
+            let chunk = pairs[chunkStart..<chunkEnd]
+
+            await withTaskGroup(of: (Int, String?).self) { group in
+                for (index, (imageData, presignedInfo)) in chunk {
+                    group.addTask {
+                        do {
+                            let contentType = S3UploadHelpers.detectFormat(from: imageData).contentType
+                            try await self.apiService.uploadImageToS3(
+                                presignedUrl: presignedInfo.presignedUrl,
+                                imageData: imageData,
+                                contentMD5: presignedInfo.md5Hash,
+                                contentType: contentType
+                            )
+                            return (index, presignedInfo.finalUrl)
+                        } catch {
+                            #if DEBUG
+                            print("[ClothAI] S3 업로드 실패 (index: \(index)): \(error)")
+                            #endif
+                            return (index, nil)
+                        }
                     }
                 }
+                for await (index, url) in group {
+                    results[index] = url
+                }
             }
-
-            var results = Array<String?>(repeating: nil, count: images.count)
-            for await (index, url) in group {
-                results[index] = url
-            }
-            return results
+            // 이 청크의 TaskGroup 종료 → 캡처된 Data 해제 가능
         }
+
+        return results
     }
 
     func extractClothInfo(clothImageUrls: [String]) async throws -> [ClothAIInfo] {
