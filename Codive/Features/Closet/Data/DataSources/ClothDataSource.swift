@@ -67,11 +67,16 @@ final class DefaultClothDataSource: ClothDataSource {
     // MARK: - Methods
 
     func fetchClothItems(category: String?) async throws -> [ProductItem] {
-        // 전체 옷 목록 조회 (페이지네이션 없이 전체)
+        // 카테고리 이름 → ID 변환
+        var categoryId: Int64?
+        if let category = category, category != "전체" {
+            categoryId = CategoryConstants.category(byName: category).map { Int64($0.id) }
+        }
+
         let result = try await apiService.fetchClothes(
             lastClothId: nil,
             size: 100,
-            categoryId: nil,
+            categoryId: categoryId,
             seasons: []
         )
 
@@ -80,7 +85,9 @@ final class DefaultClothDataSource: ClothDataSource {
                 id: Int(item.clothId),
                 imageUrl: item.imageUrl,
                 brand: item.brand,
-                name: item.name
+                name: item.name,
+                mainCategory: item.parentCategory,
+                subCategory: item.category
             )
         }
     }
@@ -104,10 +111,12 @@ final class DefaultClothDataSource: ClothDataSource {
 
     private func uploadImagesToS3(images: [Data], presignedInfos: [PresignedUrlInfo]) async throws {
         for (imageData, presignedInfo) in zip(images, presignedInfos) {
+            let contentType = S3UploadHelpers.detectFormat(from: imageData).contentType
             try await apiService.uploadImageToS3(
                 presignedUrl: presignedInfo.presignedUrl,
                 imageData: imageData,
-                contentMD5: presignedInfo.md5Hash
+                contentMD5: presignedInfo.md5Hash,
+                contentType: contentType
             )
         }
     }

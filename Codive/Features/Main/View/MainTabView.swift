@@ -272,7 +272,7 @@ struct MainTabView: View {
         // MARK: - Closet
         case .myCloset:
             closetDIContainer.makeMyClosetView()
-        case .clothDetail, .clothEdit:
+        case .clothDetail, .clothEdit, .wardrobeReport:
             closetDIContainer.closetViewFactory.makeView(for: destination)
 
         // MARK: - Add / LookBook / Report

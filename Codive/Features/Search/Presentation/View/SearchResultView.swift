@@ -50,9 +50,7 @@ struct SearchResultView: View {
                     VStack(spacing: 0) {
                         ForEach(viewModel.users, id: \.userId) { user in
                             Button {
-                                if let userId = Int(user.userId) {
-                                    viewModel.navigateToUserProfile(userId: userId)
-                                }
+                                viewModel.navigateToUserProfile(user: user)
                             } label: {
                                 CustomUserRow(
                                     user: user,

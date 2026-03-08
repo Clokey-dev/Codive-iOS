@@ -25,14 +25,26 @@ final class ClosetDIContainer {
         return ClothAPIService()
     }()
 
+    private lazy var statisticsAPIService: StatisticsAPIServiceProtocol = {
+        return StatisticsAPIService()
+    }()
+
     // MARK: - DataSources
     private lazy var clothDataSource: ClothDataSource = {
         return DefaultClothDataSource(apiService: clothAPIService)
     }()
 
+    private lazy var statisticsDataSource: StatisticsDataSource = {
+        return DefaultStatisticsDataSource(apiService: statisticsAPIService)
+    }()
+
     // MARK: - Repositories
     private lazy var clothRepository: ClothRepository = {
         return ClothRepositoryImpl(dataSource: clothDataSource)
+    }()
+
+    private lazy var statisticsRepository: StatisticsRepository = {
+        return StatisticsRepositoryImpl(dataSource: statisticsDataSource)
     }()
 
     private lazy var clothAIRepository: ClothAIRepository = {
@@ -62,6 +74,10 @@ final class ClosetDIContainer {
 
     func makeClothAIUseCase() -> ClothAIUseCase {
         return DefaultClothAIUseCase(repository: clothAIRepository)
+    }
+
+    func makeCheckStatisticsConditionUseCase() -> CheckStatisticsConditionUseCase {
+        return CheckStatisticsConditionUseCase(repository: statisticsRepository)
     }
 
     // MARK: - ViewModels
@@ -104,6 +120,13 @@ final class ClosetDIContainer {
         )
     }
 
+    func makeWardrobeReportDetailViewModel() -> WardrobeReportDetailViewModel {
+        return WardrobeReportDetailViewModel(
+            navigationRouter: navigationRouter,
+            checkStatisticsConditionUseCase: makeCheckStatisticsConditionUseCase()
+        )
+    }
+
     // MARK: - Views
     func makeMyClosetView() -> some View {
         return MyClosetView(viewModel: makeMyClosetViewModel())
@@ -115,5 +138,9 @@ final class ClosetDIContainer {
 
     func makeClothEditView(cloth: Cloth) -> some View {
         return ClothEditView(viewModel: makeClothEditViewModel(cloth: cloth))
+    }
+
+    func makeWardrobeReportDetailView() -> some View {
+        return WardrobeReportDetailView(viewModel: makeWardrobeReportDetailViewModel())
     }
 }

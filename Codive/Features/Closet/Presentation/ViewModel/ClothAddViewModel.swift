@@ -271,18 +271,31 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
 
             defer { self.isAIProcessing = false }
 
-            let imageDatas = selectedPhotos.compactMap { $0.croppedImage.jpegData(compressionQuality: 0.8) }
-            guard !imageDatas.isEmpty else {
-                return
-            }
+            let totalCount = selectedPhotos.count
+            guard totalCount > 0 else { return }
 
-            let totalCount = imageDatas.count
             let chunkSize = 3
 
             aiProcessingMessage = "AI가 옷을 분석하고 배경을 제거하고 있어요 (0/\(totalCount))"
 
-            // 1. S3 병렬 업로드 (개별 실패 허용)
-            let uploadResults = await clothAIUseCase.uploadImages(images: imageDatas)
+            // 1. S3 업로드 (3장씩 Data 변환 → 업로드 → 해제)
+            var uploadResults: [String?] = []
+
+            for chunkStart in stride(from: 0, to: totalCount, by: chunkSize) {
+                let chunkEnd = min(chunkStart + chunkSize, totalCount)
+                let chunkPhotos = Array(selectedPhotos[chunkStart..<chunkEnd])
+
+                let chunkDatas = chunkPhotos.compactMap { $0.croppedImage.jpegData(compressionQuality: 0.8) }
+                if chunkDatas.count != chunkPhotos.count {
+                    uploadResults.append(contentsOf: Array(repeating: nil, count: chunkPhotos.count))
+                    continue
+                }
+
+                let chunkResults = await clothAIUseCase.uploadImages(images: chunkDatas)
+                uploadResults.append(contentsOf: chunkResults)
+                // chunkDatas 스코프 종료 → Data 해제
+            }
+
             let successUrls = uploadResults.compactMap { $0 }
 
             guard !successUrls.isEmpty else {

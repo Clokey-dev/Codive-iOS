@@ -10,12 +10,12 @@ import SwiftUI
 struct RecentlySearchResultView: View {
     // MARK: - Properties
     @StateObject private var viewModel: RecentlySearchResultViewModel
-    
+
     // MARK: - Initializer
     init(viewModel: RecentlySearchResultViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
-    
+
     var body: some View {
         VStack {
             CustomNavigationBar(
@@ -26,25 +26,18 @@ struct RecentlySearchResultView: View {
                 }
             )
             .padding(.horizontal, 15)
-            
+
             ScrollView {
                 VStack(spacing: 12) {
-                    ForEach(viewModel.items) { item in
+                    ForEach(viewModel.recentSearchItems) { item in
                         RecentlySearchResultRow(
-                            type: {
-                                switch item {
-                                case .hashTag(let title):
-                                    return .hashTag(title: title)
-                                case .member(let imageUrl, let title, let subtitle):
-                                    return .member(
-                                        imageUrl: imageUrl,
-                                        title: title,
-                                        subtitle: subtitle
-                                    )
-                                }
-                            }()
+                            type: item.toSearchResultType()
                         ) {
-                            viewModel.deleteTag()
+                            viewModel.deleteItem(item)
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            viewModel.handleItemTap(item)
                         }
                     }
                 }
@@ -56,6 +49,9 @@ struct RecentlySearchResultView: View {
             viewModel.handleBackTap()
         }
         .background(Color.white.ignoresSafeArea(.all))
+        .onAppear {
+            viewModel.loadData()
+        }
         // MARK: - Alert
         .alert(
             TextLiteral.Search.alertTitle,

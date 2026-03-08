@@ -35,6 +35,7 @@ final class LookBookViewModel: ObservableObject {
     @Published var isShowingDeleteAlert: Bool = false
     @Published var isShowingAddDialog: Bool = false
     @Published var isShowingCancelConfirmAlert: Bool = false
+    @Published var isShowingErrorAlert: Bool = false
     
     // MARK: - Initializer
     
@@ -112,39 +113,43 @@ final class LookBookViewModel: ObservableObject {
         }
         isShowingDeleteAlert = true
     }
-    
+
     // MARK: - alert 삭제 동작 후 복귀
     func beginDelete() {
         isShowingDeleteAlert = false
         isLoading = true
-        
+
         Task {
             try? await Task.sleep(nanoseconds: 150_000_000)
             self.confirmDelete()
         }
     }
-    
+
     // MARK: - 룩북 삭제 확정
     func confirmDelete() {
-        guard let idToDelete = selectedLookBookId else { return }
-        
+        guard let idToDelete = selectedLookBookId else {
+            isLoading = false
+            return
+        }
+
         isLoading = true
         errorMessage = nil
-        
+
         Task {
             do {
                 try await listUseCase.deleteLookBook(lookBookId: idToDelete)
-                
+
                 let updatedResult = try await listUseCase.fetchLookBookList(
                     lastLookBookId: nil,
                     size: 10,
                     direction: .DESC
                 )
                 self.lookBookList = updatedResult.content
-                
+
                 self.handleDeleteAction()
             } catch {
-                self.errorMessage = "룩북 삭제에 실패했습니다."
+                self.errorMessage = "룩북 삭제에 실패했습니다: \(error.localizedDescription)"
+                self.isShowingErrorAlert = true
             }
             isLoading = false
         }

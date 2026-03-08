@@ -112,8 +112,9 @@ struct PhotoEditView: View {
         .fullScreenCover(isPresented: $viewModel.isEditingMode) {
             if let currentPhoto = viewModel.currentPhoto {
                 ImageCropView(
-                    image: currentPhoto.originalImage,
+                    image: currentPhoto.loadOriginalImage() ?? currentPhoto.croppedImage,
                     aspectRatio: viewModel.aspectRatio,
+                    allowZoomOut: viewModel.allowZoomOut,
                     onComplete: { croppedImage in
                         viewModel.updateCroppedImage(croppedImage)
                         viewModel.isEditingMode = false

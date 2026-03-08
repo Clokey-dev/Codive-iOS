@@ -50,8 +50,9 @@ final class CodiBoardViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] transferredData in
                 guard let self = self else { return }
-                
+
                 self.images = transferredData.images
+                HomeViewModel.codiTransferPublisher.send(nil)
             }
             .store(in: &cancellables)
     }

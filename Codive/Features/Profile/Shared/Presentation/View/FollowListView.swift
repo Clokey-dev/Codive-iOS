@@ -30,7 +30,7 @@ struct FollowListView: View {
                         CustomUserRow(
                             user: item.user,
                             buttonTitle: item.buttonTitle,
-                            buttonStyle: viewModel.isMe ? item.buttonStyle : .none
+                            buttonStyle: item.buttonStyle
                         ) {
                             viewModel.onTapButton(userId: item.user.userId)
                         }

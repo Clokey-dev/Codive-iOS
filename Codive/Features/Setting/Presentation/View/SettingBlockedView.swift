@@ -11,12 +11,15 @@ struct SettingBlockedView: View {
     @StateObject var vm: BlockedUsersViewModel
 
     var body: some View {
-        content
-            .navigationTitle(TextLiteral.Setting.blockedUsers)
-            .navigationBarTitleDisplayMode(.inline)
-            .task { await vm.refresh() }
-            .refreshable { await vm.refresh() }
-            .alert(
+        VStack(spacing: 0) {
+            CustomNavigationBar(title: TextLiteral.Setting.blockedUsers) {
+                vm.navigateBack()
+            }
+
+            content
+                .task { await vm.refresh() }
+                .refreshable { await vm.refresh() }
+                .alert(
                 TextLiteral.Setting.unblockAlertTitle,
                 isPresented: $vm.showUnblockAlert
             ) {
@@ -31,6 +34,9 @@ struct SettingBlockedView: View {
                     Text(TextLiteral.Setting.unblockAlertMessage(user.user.nickname))
                 }
             }
+        }
+        .navigationBarHidden(true)
+        .enableSwipeBack()
     }
 
     @ViewBuilder

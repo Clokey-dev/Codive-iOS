@@ -31,6 +31,10 @@ final class PhotoEditViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Computed Properties
+    var allowZoomOut: Bool {
+        flowType == .cloth
+    }
+
     var currentPhoto: SelectedPhoto? {
         guard selectedPhotos.indices.contains(currentIndex) else { return nil }
         return selectedPhotos[currentIndex]
@@ -101,6 +105,7 @@ final class PhotoEditViewModel: ObservableObject {
     }
     
     func completeEditing() {
+        cleanupOriginalImages()
         switch flowType {
         case .record:
             navigationRouter.navigate(to: .recordDetail(photos: selectedPhotos))
@@ -114,6 +119,15 @@ final class PhotoEditViewModel: ObservableObject {
     }
 
     func confirmExit() {
+        cleanupOriginalImages()
         navigationRouter.navigateBack()
+    }
+
+    // MARK: - Private Methods
+
+    private func cleanupOriginalImages() {
+        for photo in selectedPhotos {
+            photo.cleanupOriginal()
+        }
     }
 }

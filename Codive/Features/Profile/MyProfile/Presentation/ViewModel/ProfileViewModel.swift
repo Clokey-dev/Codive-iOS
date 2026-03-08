@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 @MainActor
 class ProfileViewModel: ObservableObject {
@@ -80,7 +81,8 @@ class ProfileViewModel: ObservableObject {
     private let navigationRouter: NavigationRouter
     private let fetchMyProfileUseCase: FetchMyProfileUseCase
     private let fetchMonthlyHistoryUseCase: FetchMonthlyHistoryUseCase
-    private let fetchFavoriteLookBookUseCase: FetchFavoriteLookBookUseCase
+    private let fetchMyFavoriteLookBookUseCase: FetchMyFavoriteLookBookUseCase
+    private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Callbacks
     var onEmptyHistoryDateSelected: ((Date) -> Void)?
@@ -95,9 +97,30 @@ class ProfileViewModel: ObservableObject {
         self.navigationRouter = navigationRouter
         self.fetchMyProfileUseCase = fetchMyProfileUseCase
         self.fetchMonthlyHistoryUseCase = fetchMonthlyHistoryUseCase
-        self.fetchFavoriteLookBookUseCase = fetchFavoriteLookBookUseCase
+        self.fetchMyFavoriteLookBookUseCase = fetchMyFavoriteLookBookUseCase
+
+        NotificationCenter.default.publisher(for: .followDidChange)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                Task { [weak self] in
+                    await self?.refreshFollowCounts()
+                }
+            }
+            .store(in: &cancellables)
     }
     
+    func refreshFollowCounts() async {
+        do {
+            let profileInfo = try await fetchMyProfileUseCase.execute()
+            self.followerCount = profileInfo.followerCount
+            self.followingCount = profileInfo.followingCount
+        } catch {
+            #if DEBUG
+            print("[Profile] 팔로우 카운트 갱신 실패: \(error.localizedDescription)")
+            #endif
+        }
+    }
+
     // MARK: - Loading
     func loadMyProfile() async {
         isLoading = true
@@ -113,6 +136,7 @@ class ProfileViewModel: ObservableObject {
             self.followingCount = profileInfo.followingCount
             self.profileImageUrl = profileInfo.profileImageUrl
             self.email = profileInfo.email
+            UserProfileStorage.save(profileInfo)
         } catch {
             self.errorMessage = error.localizedDescription
             #if DEBUG

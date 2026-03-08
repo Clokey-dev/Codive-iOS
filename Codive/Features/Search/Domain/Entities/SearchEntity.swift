@@ -7,21 +7,6 @@
 
 import Foundation
 
-struct SearchEntity {
-    let username: String
-}
-
-struct SearchTagEntity: Identifiable {
-    let id: Int
-    let text: String
-}
-
-struct NewsEntity: Identifiable {
-    let id: Int
-    let imageUrl: String
-    let title: String
-}
-
 struct PostEntity: Identifiable {
     let id: Int
     let postImageUrl: String?

@@ -31,8 +31,10 @@ struct ProfileView: View {
                         .padding(.top, 24)
                         .foregroundStyle(Color.Codive.grayscale7)
                     
-                    favoriteCodiSection
-                        .padding(.top, 24)
+                    if !viewModel.favoriteCoordinates.isEmpty {
+                        favoriteCodiSection
+                            .padding(.top, 24)
+                    }
                     
                     calendarSection
                         .padding(.top, 40)
@@ -83,6 +85,7 @@ struct ProfileView: View {
                         .resizable()
                         .scaledToFit()
                         .frame(width: 24, height: 24)
+                        .foregroundStyle(Color.Codive.grayscale3)
                 }
             }
 
@@ -212,72 +215,29 @@ struct ProfileView: View {
             }
             .padding(.horizontal, 20)
             
-            if viewModel.favoriteCoordinates.isEmpty {
-                favoriteCodiEmptyCard
-                    .padding(.horizontal, 20)
-            } else {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 10) {
-                        ForEach(viewModel.favoriteCoordinates, id: \.coordinateId) { codi in
-                            CodiCard(
-                                imageURL: URL(string: codi.imageUrl),
-                                title: nil,
-                                icon: .heart(isSelected: true) {},
-                                cardWidth: 160,
-                                imageSize: 160,
-                                cornerRadius: 16,
-                                iconPadding: 14,
-                                iconSize: 20
-                            ) {
-                                viewModel.onCodiCardTapped(coordinateId: Int64(codi.coordinateId))
-                            }
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 10) {
+                    ForEach(viewModel.favoriteCoordinates, id: \.coordinateId) { codi in
+                        CodiCard(
+                            imageURL: URL(string: codi.imageUrl),
+                            title: nil,
+                            icon: .heart(isSelected: true) {},
+                            cardWidth: 160,
+                            imageSize: 160,
+                            cornerRadius: 16,
+                            iconPadding: 14,
+                            iconSize: 20
+                        ) {
+                            viewModel.onCodiCardTapped(coordinateId: Int64(codi.coordinateId))
                         }
                     }
-                    .padding(.top, 12)
                 }
-                .padding(.horizontal, 20)
+                .padding(.top, 12)
             }
+            .padding(.horizontal, 20)
         }
     }
     
-    // MARK: - Favorite Codi Empty
-    private var favoriteCodiEmptyCard: some View {
-        VStack(spacing: 8) {
-            Text("최애 코디가 아직 없어요")
-                .font(.codive_title2)
-                .foregroundStyle(Color.Codive.grayscale1)
-
-            Text("옷장에서 좋아하는 코디에 하트를 눌러\n최애 코디를 채워보세요!")
-                .font(.codive_body2_regular)
-                .foregroundStyle(Color.Codive.grayscale1)
-                .multilineTextAlignment(.center)
-
-            Button {
-                mainTabViewModel.selectedTab = .closet
-            } label: {
-                Text("옷장으로 이동하기")
-                    .font(.codive_title2)
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(Color.Codive.main0)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-            }
-            .padding(.top, 8)
-        }
-        .padding(.vertical, 24)
-        .padding(.horizontal, 20)
-        .frame(maxWidth: .infinity)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color.white)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(Color.Codive.grayscale6, lineWidth: 1)
-                )
-        )
-    }
-
     // MARK: - Calendar
     private var calendarSection: some View {
         VStack(alignment: .leading, spacing: 12) {

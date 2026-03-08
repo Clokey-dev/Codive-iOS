@@ -41,8 +41,10 @@ struct OtherProfileView: View {
                             .padding(.top, 24)
                             .foregroundStyle(Color.Codive.grayscale7)
 
-                        favoriteCodiSection
-                            .padding(.top, 24)
+                        if !viewModel.favoriteCoordinates.isEmpty {
+                            favoriteCodiSection
+                                .padding(.top, 24)
+                        }
 
                         calendarSection
                             .padding(.top, 40)
@@ -249,26 +251,18 @@ struct OtherProfileView: View {
             }
             .padding(.horizontal, 20)
 
-            if viewModel.favoriteCoordinates.isEmpty {
-                favoriteCodiEmptyCard
-                    .padding(.horizontal, 20)
-            } else {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 10) {
-                        ForEach(viewModel.favoriteCoordinates, id: \.coordinateId) { codi in
-                            CodiCard(
-                                imageURL: URL(string: codi.imageUrl),
-                                title: nil,
-                                icon: .heart(isSelected: true) {},
-                                cardWidth: 160,
-                                imageSize: 160,
-                                cornerRadius: 16,
-                                iconPadding: 14,
-                                iconSize: 20
-                            ) {
-                                viewModel.onCodiCardTapped(coordinateId: Int64(codi.coordinateId))
-                            }
-                        }
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 10) {
+                    ForEach(viewModel.favoriteCoordinates, id: \.coordinateId) { codi in
+                        CodiCard(
+                            imageURL: URL(string: codi.imageUrl),
+                            title: nil,
+                            icon: .none,
+                            cardWidth: 160,
+                            imageSize: 160,
+                            cornerRadius: 16,
+                            onCardTap: nil
+                        )
                     }
                     .padding(.top, 12)
                 }

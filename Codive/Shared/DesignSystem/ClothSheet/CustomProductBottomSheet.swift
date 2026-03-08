@@ -16,7 +16,7 @@ struct CustomProductBottomSheet: View {
     let products: [ProductItem]
     let onProductTap: (ProductItem) -> Void
 
-    private let categories = ["전체", "상의", "바지", "스커트", "아우터", "신발", "가방", "패션소품"]
+    private let categories = ["전체", "상의", "바지", "스커트", "아우터", "신발", "가방", "패션 소품"]
     private let columns = [
         GridItem(.flexible(), spacing: 10),
         GridItem(.flexible(), spacing: 10),

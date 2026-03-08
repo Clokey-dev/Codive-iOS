@@ -46,6 +46,11 @@ final class LikedRecordsViewModel: ObservableObject {
     }
 
     @MainActor
+    func navigateBack() {
+        navigationRouter.navigateBack()
+    }
+
+    @MainActor
     func navigateToFeedDetail(feedId: Int) {
         navigationRouter.navigate(to: .feedDetail(feedId: feedId))
     }

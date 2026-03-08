@@ -68,21 +68,23 @@ struct FeedImageSlider: View {
                 .padding(.top, 20)
             }
 
-            Button(action: {
-                withAnimation {
-                    onTagButtonTap()
-                }
-            }, label: {
-                ZStack {
-                    Image("tag")
-                        .resizable()
-                        .renderingMode(.original)
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 28, height: 28)
-                }
-            })
-            .padding(.leading, 20)
-            .padding(.bottom, 20)
+            if currentIndex < tags.count, !tags[currentIndex].isEmpty {
+                Button(action: {
+                    withAnimation {
+                        onTagButtonTap()
+                    }
+                }, label: {
+                    ZStack {
+                        Image("tag")
+                            .resizable()
+                            .renderingMode(.original)
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 28, height: 28)
+                    }
+                })
+                .padding(.leading, 20)
+                .padding(.bottom, 20)
+            }
         }
         .aspectRatio(3/4, contentMode: .fill)
         .clipped()

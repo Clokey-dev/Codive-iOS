@@ -167,7 +167,9 @@ final class AddCodiDetailViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] editData in
                 guard let self = self else { return }
-                
+
+                AddCodiViewModel.editCodiRequested.send(nil)
+
                 if !self.clothItems.isEmpty {
                     self.restoreCodiData(from: editData)
                 } else {

@@ -45,6 +45,7 @@ struct EmptyStateView: View {
                 widthType: .dynamic,
                 action: action
             )
+            .fixedSize(horizontal: true, vertical: false)
             .padding(.top, 24)
             
             if headerTitle == nil {

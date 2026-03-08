@@ -115,8 +115,12 @@ extension LookBookAPIService {
         let response = try await client.LookBook_deleteLookBook(input)
 
         switch response {
-        case .ok:
-            return
+        case .ok(let okResponse):
+            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+            if let decoded = try? jsonDecoder.decode(Components.Schemas.BaseResponseVoid.self, from: data),
+               decoded.isSuccess == false {
+                throw LookBookAPIError.serverError(statusCode: 200, message: decoded.message ?? "삭제 실패")
+            }
         case .undocumented(statusCode: let code, _):
             throw LookBookAPIError.serverError(statusCode: code, message: "룩북 삭제 실패")
         }
@@ -204,8 +208,9 @@ extension LookBookAPIService {
     func getPresignedUrls(for images: [Data]) async throws -> [PresignedUrlInfo] {
         let payloads = images.map { imageData in
             let md5Hash = S3UploadHelpers.calculateMD5(from: imageData)
+            let format = S3UploadHelpers.detectFormat(from: imageData)
             return (
-                payload: Components.Schemas.ClothImagesUploadRequestPayload(fileExtension: .JPEG, md5Hashes: md5Hash),
+                payload: Components.Schemas.ClothImagesUploadRequestPayload(fileExtension: format.clothFileExtension, md5Hashes: md5Hash),
                 md5Hash: md5Hash
             )
         }

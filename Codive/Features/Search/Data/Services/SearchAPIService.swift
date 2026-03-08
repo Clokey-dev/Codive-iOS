@@ -49,14 +49,14 @@ final class SearchAPIService: SearchAPIServiceProtocol {
 extension SearchAPIService {
     func fetchSearchRecommendation() async throws -> [SearchRecommendationResponseDTO] {
         let input = Operations.Search_recommendInSearching.Input()
-        
+
         let response = try await client.Search_recommendInSearching(input)
-        
+
         switch response {
         case .ok(let okResponse):
             let data = try await Data(collecting: okResponse.body.any, upTo: .max)
             let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseListSearchingRecommendResponse.self, from: data)
-            
+
             let items = decoded.result ?? []
 
             return items.map { item in
@@ -69,7 +69,7 @@ extension SearchAPIService {
                     imageUrl: item.imageUrl ?? ""
                 )
             }
-            
+
         case .undocumented(statusCode: let code, _):
             throw SearchAPIError.serverError(statusCode: code, message: "검색 탭 기록 추천 조회 실패")
         }

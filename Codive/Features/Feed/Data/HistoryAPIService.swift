@@ -19,7 +19,7 @@ protocol HistoryAPIServiceProtocol {
     func fetchMonthlyHistory(memberId: Int64, year: Int32, month: Int32) async throws -> [MonthlyHistoryItemDTO]
     func deleteHistory(historyId: Int64) async throws
     func getPresignedUrls(for images: [Data]) async throws -> [PresignedUrlInfo]
-    func uploadImageToS3(presignedUrl: String, imageData: Data, contentMD5: String) async throws
+    func uploadImageToS3(presignedUrl: String, imageData: Data, contentMD5: String, contentType: String) async throws
 }
 
 // MARK: - History Detail DTO
@@ -321,10 +321,15 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
     // MARK: - Helper Methods
 
     private func extractErrorDetail(from payload: UndocumentedPayload) async -> String {
-        // The payload contains the error response from the server
-        // For now, return a generic message to help with debugging
-        // In a real scenario, we would parse the response body for more details
-        return "서버에서 요청을 처리할 수 없습니다. 네트워크 상태를 확인해주세요."
+        guard let body = payload.body else {
+            return "응답 body 없음"
+        }
+        do {
+            let data = try await Data(collecting: body, upTo: .max)
+            return String(data: data, encoding: .utf8) ?? "UTF-8 디코딩 실패"
+        } catch {
+            return "응답 body 읽기 실패: \(error.localizedDescription)"
+        }
     }
 
     // MARK: - Delete History

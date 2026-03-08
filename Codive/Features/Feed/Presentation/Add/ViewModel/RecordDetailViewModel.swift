@@ -80,8 +80,10 @@ final class RecordDetailViewModel: ObservableObject {
     }
     
     var isCompleteEnabled: Bool {
-        // 스타일 최소 1개, 최대 3개 선택 필수
-        return selectedStyles.count >= Constants.minStyleCount && selectedStyles.count <= Constants.maxStyleCount
+        // 스타일 최소 1개, 최대 3개 선택 필수, 상황 최소 1개 선택 필수
+        return selectedStyles.count >= Constants.minStyleCount &&
+               selectedStyles.count <= Constants.maxStyleCount &&
+               !selectedSituations.isEmpty
     }
     
     // MARK: - Initializer
@@ -147,7 +149,6 @@ final class RecordDetailViewModel: ObservableObject {
             if let image = await downloadImage(from: feedImage.imageUrl) {
                 var selectedPhoto = SelectedPhoto(
                     id: UUID().uuidString,
-                    originalImage: image,
                     croppedImage: image,
                     order: index,
                     clothTags: [] // 기존 태그는 나중에 로드됨
@@ -189,7 +190,9 @@ final class RecordDetailViewModel: ObservableObject {
                 let request = try buildRecordRequest()
                 try await saveRecord(request)
                 isLoading = false
-                navigationRouter.navigateBack()
+                NotificationCenter.default.post(name: .feedDidCreate, object: nil)
+                let message = isEditMode ? "기록이 수정되었습니다" : "기록이 저장되었습니다"
+                navigationRouter.showSuccessAndNavigate(message: message, to: .feed)
             } catch {
                 handleRecordError(error)
             }

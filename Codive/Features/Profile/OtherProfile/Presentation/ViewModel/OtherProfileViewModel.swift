@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 @MainActor
 final class OtherProfileViewModel: ObservableObject {
@@ -47,6 +48,7 @@ final class OtherProfileViewModel: ObservableObject {
     @Published var showHistoryErrorAlert: Bool = false
     @Published var monthlyHistories: [String: String] = [:] // "2026-01-21" -> imageUrl
     @Published var monthlyHistoryIds: [String: Int] = [:] // "2026-01-21" -> historyId
+    @Published var favoriteCoordinates: [MyFavoriteLookBookResponseDTO] = []
 
     // MARK: - Dependencies
     private let memberId: Int
@@ -55,7 +57,8 @@ final class OtherProfileViewModel: ObservableObject {
     private let toggleFollowUseCase: ToggleFollowUseCase
     private let fetchMonthlyHistoryUseCase: FetchMonthlyHistoryUseCase
     private let toggleBlockUseCase: ToggleBlockUseCase
-    private let fetchFavoriteLookBookUseCase: FetchFavoriteLookBookUseCase
+    private let fetchMyFavoriteLookBookUseCase: FetchMyFavoriteLookBookUseCase
+    private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Initializer
     init(
@@ -65,7 +68,7 @@ final class OtherProfileViewModel: ObservableObject {
         toggleFollowUseCase: ToggleFollowUseCase,
         fetchMonthlyHistoryUseCase: FetchMonthlyHistoryUseCase,
         toggleBlockUseCase: ToggleBlockUseCase,
-        fetchFavoriteLookBookUseCase: FetchFavoriteLookBookUseCase
+        fetchMyFavoriteLookBookUseCase: FetchMyFavoriteLookBookUseCase
     ) {
         self.memberId = memberId
         self.navigationRouter = navigationRouter
@@ -73,7 +76,16 @@ final class OtherProfileViewModel: ObservableObject {
         self.toggleFollowUseCase = toggleFollowUseCase
         self.fetchMonthlyHistoryUseCase = fetchMonthlyHistoryUseCase
         self.toggleBlockUseCase = toggleBlockUseCase
-        self.fetchFavoriteLookBookUseCase = fetchFavoriteLookBookUseCase
+        self.fetchMyFavoriteLookBookUseCase = fetchMyFavoriteLookBookUseCase
+
+        NotificationCenter.default.publisher(for: .followDidChange)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                Task { [weak self] in
+                    await self?.loadProfile()
+                }
+            }
+            .store(in: &cancellables)
     }
 
     // MARK: - Public Methods
@@ -95,6 +107,7 @@ final class OtherProfileViewModel: ObservableObject {
             self.isMe = profile.isMe
 
             await loadMonthlyHistories()
+            await loadFavoriteCoordinates()
         } catch {
             self.errorMessage = TextLiteral.Profile.loadFailure
         }
@@ -130,6 +143,17 @@ final class OtherProfileViewModel: ObservableObject {
         }
     }
 
+    func loadFavoriteCoordinates() async {
+        do {
+            let coordinates = try await fetchMyFavoriteLookBookUseCase.fetchFavoriteCoordinate(memberId: memberId)
+            self.favoriteCoordinates = coordinates
+        } catch {
+            #if DEBUG
+            print("최애 코디 로드 실패: \(error)")
+            #endif
+        }
+    }
+
     // MARK: - Actions
 
     func onBackTapped() {
@@ -146,8 +170,8 @@ final class OtherProfileViewModel: ObservableObject {
 
     func onBlockTapped() {
         dismissBlockMenu()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            self.showBlockAlert = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            self?.showBlockAlert = true
         }
     }
 
@@ -187,6 +211,7 @@ final class OtherProfileViewModel: ObservableObject {
                 } else {
                     followerCount -= 1
                 }
+                NotificationCenter.default.post(name: .followDidChange, object: nil)
             } catch {
                 errorMessage = TextLiteral.Profile.followFailure
             }

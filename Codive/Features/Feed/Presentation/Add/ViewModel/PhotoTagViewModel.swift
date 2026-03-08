@@ -23,16 +23,18 @@ final class PhotoTagViewModel: ObservableObject {
     @Published var selectedProducts: Set<Int> = []
     @Published var clothTags: [ClothTag] = []
     @Published var clothItems: [ProductItem] = []
+    @Published var errorMessage: String?
 
     let allPhotos: [SelectedPhoto]
     private let navigationRouter: NavigationRouter
     private let fetchClothItemsUseCase: FetchClothItemsUseCase
-    
+    private var cancellables = Set<AnyCancellable>()
+
     // MARK: - Computed Properties
     var isCompleteEnabled: Bool {
         return true
     }
-    
+
     // MARK: - Initializer
     init(
         photo: SelectedPhoto,
@@ -44,12 +46,22 @@ final class PhotoTagViewModel: ObservableObject {
         self.allPhotos = allPhotos
         self.navigationRouter = navigationRouter
         self.fetchClothItemsUseCase = fetchClothItemsUseCase
-        
+
         // 기존 태그가 있으면 불러오기
         self.clothTags = photo.clothTags
         // 기존 태그의 clothId들을 selectedProducts에 추가
         self.selectedProducts = Set(photo.clothTags.map { $0.clothId })
-        
+
+        // 카테고리 변경 시 자동 재조회
+        $selectedCategory
+            .dropFirst()
+            .sink { [weak self] _ in
+                Task {
+                    await self?.fetchClothItems()
+                }
+            }
+            .store(in: &cancellables)
+
         // 옷 목록 가져오기
         Task {
             await fetchClothItems()
@@ -57,7 +69,10 @@ final class PhotoTagViewModel: ObservableObject {
     }
     
     // MARK: - Methods
+    // TODO: 코디 완성 후 태그하기 진입 시, 해당 코디에 사용된 clothId 목록을 전달받아
+    // isTodayCloth: true 설정 + 자동 선택 처리 필요 (백엔드 API 필드 추가 or 클라이언트 처리)
     func fetchClothItems() async {
+        errorMessage = nil
         do {
             clothItems = try await fetchClothItemsUseCase.execute(category: selectedCategory)
         } catch {
@@ -65,6 +80,7 @@ final class PhotoTagViewModel: ObservableObject {
             print("[PhotoTag] Failed to fetch cloth items: \(error)")
             #endif
             clothItems = []
+            errorMessage = "옷 목록을 불러오지 못했습니다"
         }
     }
     
@@ -98,6 +114,8 @@ final class PhotoTagViewModel: ObservableObject {
             brand: product.brand ?? "",
             name: product.name ?? "",
             imageUrl: product.imageUrl,
+            mainCategory: product.mainCategory,
+            subCategory: product.subCategory,
             locationX: 0.5,
             locationY: 0.5
         )

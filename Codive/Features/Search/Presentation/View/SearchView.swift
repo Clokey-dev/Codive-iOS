@@ -11,12 +11,12 @@ struct SearchView: View {
     // MARK: - Properties
     @StateObject private var viewModel: SearchViewModel
     @State private var searchText: String = ""
-    
+
     // MARK: - Initializer
     init(viewModel: SearchViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
-    
+
     // MARK: - Body
     var body: some View {
         VStack {
@@ -32,7 +32,7 @@ struct SearchView: View {
             .onSubmit {
                 viewModel.executeSearch(query: searchText)
             }
-            
+
             ScrollView {
                 VStack {
                     // MARK: - Recent Search Tags Section
@@ -40,9 +40,9 @@ struct SearchView: View {
                         Text(TextLiteral.Search.recentSearch)
                             .font(Font.codive_title2)
                             .foregroundStyle(Color.Codive.grayscale1)
-                        
+
                         Spacer()
-                        
+
                         Button(
                             action: {
                                 viewModel.handleShowAll()
@@ -55,8 +55,8 @@ struct SearchView: View {
                         )
                     }
                     .padding(.top, 32)
-                    
-                    if viewModel.recentSearchTags.isEmpty {
+
+                    if viewModel.recentSearchItems.isEmpty {
                         HStack {
                             Text(TextLiteral.Search.noTag)
                                 .font(Font.codive_body2_medium)
@@ -66,17 +66,21 @@ struct SearchView: View {
                         .padding(.top, 8)
                     } else {
                         VStack {
-                            ForEach(viewModel.recentSearchTags) { tag in
+                            ForEach(viewModel.recentSearchItems) { item in
                                 RecentlySearchResultRow(
-                                    type: .hashTag(title: tag.text)
+                                    type: item.toSearchResultType()
                                 ) {
-                                    viewModel.deleteTag(tag: tag)
+                                    viewModel.deleteItem(item)
+                                }
+                                .contentShape(Rectangle())
+                                .onTapGesture {
+                                    viewModel.handleItemTap(item)
                                 }
                             }
                         }
                         .padding(.top, 8)
                     }
-                    
+
                     // MARK: - Recommended News Section
                     HStack {
                         Text(
@@ -84,11 +88,11 @@ struct SearchView: View {
                         )
                         .font(Font.codive_title2)
                         .foregroundStyle(Color.Codive.grayscale1)
-                        
+
                         Spacer()
                     }
                     .padding(.top, 32)
-                    
+
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 16) {
                             ForEach(viewModel.recommendedNews) { news in
@@ -114,7 +118,7 @@ struct SearchView: View {
         .background(
             Color.white
                 .ignoresSafeArea(.all)
-                .onTapGesture { 
+                .onTapGesture {
                     hideKeyboard()
                 }
         )
@@ -125,7 +129,7 @@ struct SearchView: View {
         // MARK: - Data Loading Trigger
         .onAppear {
             viewModel.loadData()
-            viewModel.recentlySearchResultList()
+            viewModel.loadRecentSearchItems()
             viewModel.loadSearchRecommendation()
         }
     }
