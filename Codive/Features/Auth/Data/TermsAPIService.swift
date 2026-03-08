@@ -57,40 +57,42 @@ final class TermsAPIService: TermsAPIServiceProtocol {
     private let jsonDecoder: JSONDecoder
 
     init(tokenProvider: TokenProvider = KeychainTokenProvider()) {
-        self.client = CodiveAPIProvider.createClient(
+        self.client = CodiveAPIProvider.createConfiguredClient(
             middlewares: [CodiveAuthMiddleware(provider: tokenProvider)]
         )
         self.jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
     }
 
     // MARK: - GET /terms
-
+    // 서버 응답의 Payload 필드(title, optional)가 생성된 스키마(termId, agreed)와 불일치하여
+    // OpenAPI Client 디코딩이 실패하므로, 직접 URLSession + 커스텀 DTO로 디코딩
     func fetchTerms() async throws -> [TermItem] {
-        let input = Operations.Term_getTerms.Input()
-        let response = try await client.Term_getTerms(input)
+        guard let url = URL(string: "https://prod.clokey.store/terms") else {
+            throw TermsAPIError.noData
+        }
 
-        switch response {
-        case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
 
-            // 커스텀 타입으로 디코딩 (서버 응답에 title, optional 필드 있음)
-            let decoded = try jsonDecoder.decode(TermsResponse.self, from: data)
+        if let token = await TokenRefreshManager.shared.getValidToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
 
-            guard let payloads = decoded.result?.payloads else {
-                throw TermsAPIError.noData
-            }
+        let (data, _) = try await URLSession.shared.data(for: request)
+        let decoded = try jsonDecoder.decode(TermsResponse.self, from: data)
 
-            return payloads.compactMap { payload in
-                guard let termId = payload.termId else { return nil }
-                return TermItem(
-                    termId: termId,
-                    title: payload.title ?? "",
-                    isOptional: payload.optional ?? false
-                )
-            }
+        guard let payloads = decoded.result?.payloads else {
+            throw TermsAPIError.noData
+        }
 
-        case .undocumented(statusCode: let code, _):
-            throw TermsAPIError.serverError(statusCode: code)
+        return payloads.compactMap { payload -> TermItem? in
+            guard let termId = payload.termId else { return nil }
+            return TermItem(
+                termId: termId,
+                title: payload.title ?? "",
+                isOptional: payload.optional ?? false
+            )
         }
     }
 
