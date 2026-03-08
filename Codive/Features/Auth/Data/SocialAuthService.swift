@@ -91,6 +91,7 @@ final class SocialAuthService: NSObject, SocialAuthServiceProtocol {
         do {
             try KeychainManager.shared.saveAccessToken(accessToken)
             try KeychainManager.shared.saveRefreshToken(refreshToken)
+            AuthProvider.saveCurrent(provider)
             let authUser = AuthUser(id: "temp_\(provider.rawValue)_user", email: nil, name: nil, provider: provider)
             return .success(authUser)
         } catch {
