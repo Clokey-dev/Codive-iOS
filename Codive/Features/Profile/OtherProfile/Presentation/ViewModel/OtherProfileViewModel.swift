@@ -57,7 +57,7 @@ final class OtherProfileViewModel: ObservableObject {
     private let toggleFollowUseCase: ToggleFollowUseCase
     private let fetchMonthlyHistoryUseCase: FetchMonthlyHistoryUseCase
     private let toggleBlockUseCase: ToggleBlockUseCase
-    private let fetchMyFavoriteLookBookUseCase: FetchMyFavoriteLookBookUseCase
+    private let fetchMyFavoriteLookBookUseCase: FetchFavoriteLookBookUseCase
     private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Initializer
@@ -68,7 +68,7 @@ final class OtherProfileViewModel: ObservableObject {
         toggleFollowUseCase: ToggleFollowUseCase,
         fetchMonthlyHistoryUseCase: FetchMonthlyHistoryUseCase,
         toggleBlockUseCase: ToggleBlockUseCase,
-        fetchMyFavoriteLookBookUseCase: FetchMyFavoriteLookBookUseCase
+        fetchMyFavoriteLookBookUseCase: FetchFavoriteLookBookUseCase
     ) {
         self.memberId = memberId
         self.navigationRouter = navigationRouter
@@ -221,7 +221,7 @@ final class OtherProfileViewModel: ObservableObject {
         navigationRouter.navigate(to: .favoriteCodiList(showHeart: false, memberId: memberId))
     }
     
-    @Published var favoriteCoordinates: [MyFavoriteLookBookResponseDTO] = []
+//    @Published var favoriteCoordinates: [MyFavoriteLookBookResponseDTO] = []
     @Published var isShowingPopup: Bool = false
     @Published var selectedCoordinatePreview: CoordinatePreviewEntity?
     @Published var selectedCoordinateDetails: [CoordinateDetailEntity] = []
@@ -251,22 +251,22 @@ final class OtherProfileViewModel: ObservableObject {
         }
     }
     
-    func loadFavoriteCoordinates() async {
-        do {
-            let coordinates = try await fetchFavoriteLookBookUseCase.fetchFavoriteCoordinate(memberId: String(memberId))
-            self.favoriteCoordinates = coordinates
-        } catch {
-            #if DEBUG
-            print("[Profile] 최애 코디 로드 실패: \(error)")
-            #endif
-        }
-    }
-    
+//    func loadFavoriteCoordinates() async {
+//        do {
+//            let coordinates = try await fetchFavoriteLookBookUseCase.fetchFavoriteCoordinate(memberId: String(memberId))
+//            self.favoriteCoordinates = coordinates
+//        } catch {
+//            #if DEBUG
+//            print("[Profile] 최애 코디 로드 실패: \(error)")
+//            #endif
+//        }
+//    }
+//    
     func onCodiCardTapped(coordinateId: Int64) {
         Task {
             do {
-                self.selectedCoordinatePreview = try await fetchFavoriteLookBookUseCase.fetchCoordinatePreview(coordinateId: coordinateId)
-                self.selectedCoordinateDetails = try await fetchFavoriteLookBookUseCase.fetchCoordinateDetail(coordinateId: coordinateId)
+                self.selectedCoordinatePreview = try await fetchMyFavoriteLookBookUseCase.fetchCoordinatePreview(coordinateId: coordinateId)
+                self.selectedCoordinateDetails = try await fetchMyFavoriteLookBookUseCase.fetchCoordinateDetail(coordinateId: coordinateId)
                 self.isShowingPopup = true
             } catch {
                 #if DEBUG

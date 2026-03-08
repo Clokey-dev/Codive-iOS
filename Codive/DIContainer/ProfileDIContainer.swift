@@ -119,7 +119,7 @@ final class ProfileDIContainer {
             toggleFollowUseCase: makeToggleFollowUseCase(),
             fetchMonthlyHistoryUseCase: makeFetchMonthlyHistoryUseCase(),
             toggleBlockUseCase: makeToggleBlockUseCase(),
-            fetchMyFavoriteLookBookUseCase: makeFetchMyFavoriteLookBookUseCase()
+            fetchMyFavoriteLookBookUseCase: makeFetchFavoriteLookBookUseCase()
         )
     }
     

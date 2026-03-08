@@ -54,8 +54,12 @@ extension SearchAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseListSearchingRecommendResponse.self, from: data)
+            let decoded: Components.Schemas.BaseResponseListSearchingRecommendResponse
+
+            switch okResponse.body {
+            case .json(let value):
+                decoded = value
+            }
 
             let items = decoded.result ?? []
 
@@ -90,11 +94,12 @@ extension SearchAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let decoded = try jsonDecoder.decode(
-                Components.Schemas.BaseResponseSliceResponseSearchedMemberResponse.self,
-                from: data
-            )
+            let decoded: Components.Schemas.BaseResponseSliceResponseSearchedMemberResponse
+
+            switch okResponse.body {
+            case .json(let value):
+                decoded = value
+            }
 
             let members = decoded.result?.content ?? []
             let users: [SimpleUser] = members.compactMap { member -> SimpleUser? in
@@ -135,12 +140,13 @@ extension SearchAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let decoded = try jsonDecoder.decode(
-                Components.Schemas.BaseResponseSliceResponseSearchedHistoryResponse.self,
-                from: data
-            )
-
+            let decoded: Components.Schemas.BaseResponseSliceResponseSearchedHistoryResponse
+            
+            switch okResponse.body {
+            case .json(let value):
+                decoded = value
+            }
+            
             let histories = decoded.result?.content ?? []
             let posts: [PostEntity] = histories.compactMap { history -> PostEntity? in
                 guard let historyId = history.historyId else { return nil }

@@ -36,7 +36,9 @@ struct SettingBlockedView: View {
             }
         }
         .navigationBarHidden(true)
-        .enableSwipeBack()
+        .enableSwipeBack {
+            vm.navigateBack()
+        }
     }
 
     @ViewBuilder
