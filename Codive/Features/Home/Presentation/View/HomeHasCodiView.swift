@@ -24,14 +24,15 @@ struct HomeHasCodiView: View {
                     
                     ZStack(alignment: .bottomLeading) {
                         boardBackground(size: canvasSize)
-                        
+
                         if let selectedID = viewModel.selectedItemID,
                            let selectedItem = viewModel.codiItems.first(where: { $0.coordinateClothId == Int64(selectedID) }) {
                             tagOverlay(for: selectedItem, in: canvasSize)
                         }
-                        
+
                         tagToggleButton
                     }
+                    .animation(.easeInOut(duration: 0.2), value: viewModel.selectedItemID)
                 }
                 .frame(width: max(width - 40, 0), height: max(width - 40, 0))
                 .padding(.horizontal, 20)
@@ -110,14 +111,14 @@ private extension HomeHasCodiView {
     @ViewBuilder
     func tagOverlay(for item: CodiItemEntity, in canvasSize: CGSize) -> some View {
         CustomTagView(type: .basic(
-            title: item.brand,
-            content: item.name
+            title: item.brand.isEmpty ? "No brand" : item.brand,
+            content: item.name.isEmpty ? "\(item.parentCategory) > \(item.category)" : item.name
         ))
         .position(
             x: canvasSize.width * CGFloat(item.locationX),
             y: canvasSize.height * CGFloat(item.locationY)
         )
-        .transition(.opacity.combined(with: .scale))
+        .transition(.opacity)
     }
     
     /// 태그 표시 토글 버튼
