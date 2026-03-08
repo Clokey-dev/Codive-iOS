@@ -32,7 +32,7 @@ final class ReportDataSource {
 
     init(historyAPIService: HistoryAPIServiceProtocol) {
         self.historyAPIService = historyAPIService
-        self.apiClient = CodiveAPIProvider.createClient(
+        self.apiClient = CodiveAPIProvider.createConfiguredClient(
             middlewares: [CodiveAuthMiddleware(provider: KeychainTokenProvider())]
         )
     }
@@ -104,16 +104,7 @@ final class ReportDataSource {
         #if DEBUG
         print("[ReportAPI] 응답: OK")
         #endif
-        let httpBody = try okResponse.body.any
-        let data = try await Data(collecting: httpBody, upTo: .max)
-        #if DEBUG
-        print("[ReportAPI] 응답 데이터: \(String(data: data, encoding: .utf8) ?? "파싱 불가")")
-        #endif
-        let jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
-        let apiResponse = try jsonDecoder.decode(
-            Components.Schemas.BaseResponseReportCreateResponse.self,
-            from: data
-        )
+        let apiResponse = try okResponse.body.json
         if let reportId = apiResponse.result?.reportId {
             #if DEBUG
             print("[ReportAPI] reportId: \(reportId)")

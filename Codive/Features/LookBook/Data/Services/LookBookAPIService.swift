@@ -17,7 +17,7 @@ final class LookBookAPIService: LookBookAPIServiceProtocol {
     let jsonDecoder: JSONDecoder
 
     init(tokenProvider: TokenProvider = KeychainTokenProvider()) {
-        self.client = CodiveAPIProvider.createClient(
+        self.client = CodiveAPIProvider.createConfiguredClient(
             middlewares: [CodiveAuthMiddleware(provider: tokenProvider)]
         )
         self.jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
@@ -41,8 +41,7 @@ extension LookBookAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseLookBookListResponse.self, from: data)
+            let decoded = try okResponse.body.json
 
             let content: [LookBookListResponseItem] = decoded.result?.content?.map { item -> LookBookListResponseItem in
                 return LookBookListResponseItem(lookBookId: item.lookBookId ?? 0, lookBookName: item.lookBookName ?? "", imageUrl: item.imageUrl ?? "", count: item.count ?? 0)
@@ -75,9 +74,7 @@ extension LookBookAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseCoordinateListResponse.self, from: data)
+            let decoded = try okResponse.body.json
 
             let content: [LookBookCoordinateListResponseItem] =
             decoded.result?.content?.map { item -> LookBookCoordinateListResponseItem in
@@ -109,13 +106,8 @@ extension LookBookAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-
             do {
-                let decoded = try makeCustomDecoder().decode(
-                    Components.Schemas.BaseResponseSliceResponseDailyCoordinateListResponse.self,
-                    from: data
-                )
+                let decoded = try okResponse.body.json
 
                 let content: [PastDailyCoordinateListResponseItem] = decoded.result?.content?.map { item in
                     return PastDailyCoordinateListResponseItem(
@@ -144,9 +136,7 @@ extension LookBookAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseCoordinatePreviewResponse.self, from: data)
+            let decoded = try okResponse.body.json
 
             guard let item = decoded.result else {
                 throw LookBookAPIError.invalidResponse
@@ -175,9 +165,7 @@ extension LookBookAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseListCoordinateDetailsListResponse.self, from: data)
+            let decoded = try okResponse.body.json
 
             let items = decoded.result ?? []
 
@@ -214,8 +202,7 @@ extension LookBookAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseClothListResponse.self, from: data)
+            let decoded = try okResponse.body.json
 
             let clothes: [ClothListItem] = decoded.result?.content?.map { item -> ClothListItem in
                 return ClothListItem(
@@ -224,7 +211,8 @@ extension LookBookAPIService {
                     brand: item.brand,
                     name: item.name,
                     parentCategory: item.parentCategory,
-                    category: item.category
+                    category: item.category,
+                    isTodayCoordinateCloth: item.isTodayCoordinateCloth ?? false
                 )
             } ?? []
 

@@ -28,8 +28,7 @@ extension HistoryAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseHistoryImagesPresignedUrlResponse.self, from: data)
+            let decoded = try okResponse.body.json
 
             guard let urls = decoded.result?.urls, urls.count == images.count else {
                 throw HistoryAPIError.noData

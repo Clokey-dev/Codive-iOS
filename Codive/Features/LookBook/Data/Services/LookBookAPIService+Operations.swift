@@ -21,11 +21,7 @@ extension LookBookAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let decoded = try jsonDecoder.decode(
-                Components.Schemas.BaseResponseLookBookCreateResponse.self,
-                from: data
-            )
+            let decoded = try okResponse.body.json
 
             guard let lookBookId = decoded.result?.lookBookId else {
                 throw LookBookAPIError.noClothIdsReturned
@@ -62,11 +58,7 @@ extension LookBookAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let decoded = try jsonDecoder.decode(
-                Components.Schemas.BaseResponseCoordinateCreateResponse.self,
-                from: data
-            )
+            let decoded = try okResponse.body.json
 
             guard let coordinateId = decoded.result?.coordinateId else {
                 throw LookBookAPIError.invalidResponse
@@ -90,11 +82,7 @@ extension LookBookAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let decoded = try jsonDecoder.decode(
-                Components.Schemas.BaseResponseCoordinateCreateResponse.self,
-                from: data
-            )
+            let decoded = try okResponse.body.json
 
             guard let coordinateId = decoded.result?.coordinateId else {
                 throw LookBookAPIError.invalidResponse
@@ -116,9 +104,8 @@ extension LookBookAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            if let decoded = try? jsonDecoder.decode(Components.Schemas.BaseResponseVoid.self, from: data),
-               decoded.isSuccess == false {
+            let decoded = try okResponse.body.json
+            if decoded.isSuccess == false {
                 throw LookBookAPIError.serverError(statusCode: 200, message: decoded.message ?? "삭제 실패")
             }
         case .undocumented(statusCode: let code, _):
@@ -221,8 +208,7 @@ extension LookBookAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseClothImagesPresignedUrlResponse.self, from: data)
+            let decoded = try okResponse.body.json
 
             guard let urls = decoded.result?.urls, urls.count == images.count else {
                 throw LookBookAPIError.presignedUrlMismatch

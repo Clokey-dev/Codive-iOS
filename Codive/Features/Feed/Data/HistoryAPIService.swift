@@ -83,7 +83,7 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
     let jsonDecoder: JSONDecoder
 
     init(tokenProvider: TokenProvider = KeychainTokenProvider()) {
-        self.client = CodiveAPIProvider.createClient(
+        self.client = CodiveAPIProvider.createConfiguredClient(
             middlewares: [CodiveAuthMiddleware(provider: tokenProvider)]
         )
         self.jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
@@ -122,9 +122,7 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
 
         switch response {
         case .ok(let okResponse):
-            let httpBody = try okResponse.body.any
-            let data = try await Data(collecting: httpBody, upTo: .max)
-            let decoded = try jsonDecoder.decode(HistoryCreateResponse.self, from: data)
+            let decoded = try okResponse.body.json
 
             guard let historyId = decoded.result?.historyId else {
                 throw HistoryAPIError.noData
@@ -198,12 +196,7 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
 
         switch response {
         case .ok(let okResponse):
-            let httpBody = try okResponse.body.any
-            let data = try await Data(collecting: httpBody, upTo: .max)
-            let decoded = try jsonDecoder.decode(
-                Components.Schemas.BaseResponseDailyHistoryResponse.self,
-                from: data
-            )
+            let decoded = try okResponse.body.json
 
             guard let result = decoded.result else {
                 throw HistoryAPIError.noData
@@ -251,12 +244,7 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
 
         switch response {
         case .ok(let okResponse):
-            let httpBody = try okResponse.body.any
-            let data = try await Data(collecting: httpBody, upTo: .max)
-            let decoded = try jsonDecoder.decode(
-                Components.Schemas.BaseResponseHistoryClothTagListResponse.self,
-                from: data
-            )
+            let decoded = try okResponse.body.json
 
             guard let payloads = decoded.result?.payloads else {
                 throw HistoryAPIError.noData
@@ -295,11 +283,7 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let decoded = try jsonDecoder.decode(
-                Components.Schemas.BaseResponseMonthlyHistoryResponse.self,
-                from: data
-            )
+            let decoded = try okResponse.body.json
 
             guard let payloads = decoded.result?.payloads else {
                 throw HistoryAPIError.noData
@@ -352,19 +336,6 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
             #endif
             throw HistoryAPIError.serverError(statusCode: code, detail: errorDetail)
         }
-    }
-}
-
-// MARK: - Response Types
-
-private struct HistoryCreateResponse: Decodable {
-    let isSuccess: Bool?
-    let code: String?
-    let message: String?
-    let result: HistoryResult?
-
-    struct HistoryResult: Decodable {
-        let historyId: Int64?
     }
 }
 
