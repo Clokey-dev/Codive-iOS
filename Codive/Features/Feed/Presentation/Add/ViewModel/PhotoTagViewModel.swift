@@ -69,18 +69,24 @@ final class PhotoTagViewModel: ObservableObject {
     }
     
     // MARK: - Methods
-    // TODO: 코디 완성 후 태그하기 진입 시, 해당 코디에 사용된 clothId 목록을 전달받아
-    // isTodayCloth: true 설정 + 자동 선택 처리 필요 (백엔드 API 필드 추가 or 클라이언트 처리)
     func fetchClothItems() async {
         errorMessage = nil
         do {
             clothItems = try await fetchClothItemsUseCase.execute(category: selectedCategory)
+            autoSelectTodayCoordinateClothes()
         } catch {
             #if DEBUG
             print("[PhotoTag] Failed to fetch cloth items: \(error)")
             #endif
             clothItems = []
             errorMessage = "옷 목록을 불러오지 못했습니다"
+        }
+    }
+
+    private func autoSelectTodayCoordinateClothes() {
+        for item in clothItems where item.isTodayCloth && !selectedProducts.contains(item.id) {
+            selectedProducts.insert(item.id)
+            addClothTag(from: item)
         }
     }
     
