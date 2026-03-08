@@ -25,10 +25,8 @@ struct AnimatedPhotoCard: View {
             Image(uiImage: photo.croppedImage)
                 .resizable()
                 .aspectRatio(3/4, contentMode: .fit)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-            
+
             Color.black.opacity(0.5)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
             
             VStack(spacing: 14) {
                 ZStack {
