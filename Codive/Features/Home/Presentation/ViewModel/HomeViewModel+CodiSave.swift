@@ -131,7 +131,7 @@ extension HomeViewModel {
         let targetHeight = width * 4.0 / 3.0
         let yOffset = (targetHeight - image.size.height) / 2.0
         let targetSize = CGSize(width: width, height: targetHeight)
-        let bgColor = UIColor(red: 246.0 / 255.0, green: 246.0 / 255.0, blue: 246.0 / 255.0, alpha: 1.0)
+        let bgColor = UIColor(Color.Codive.grayscale7)
 
         let format = UIGraphicsImageRendererFormat()
         format.scale = image.scale

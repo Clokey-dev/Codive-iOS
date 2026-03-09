@@ -9,8 +9,6 @@ import OpenAPIRuntime
 /// 서버의 다양한 날짜 포맷(나노초 포함)을 처리하는 커스텀 DateTranscoder
 struct CodiveDateTranscoder: DateTranscoder {
 
-    private let lock = NSLock()
-
     func encode(_ date: Date) throws -> String {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]

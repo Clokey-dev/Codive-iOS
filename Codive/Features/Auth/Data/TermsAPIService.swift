@@ -67,7 +67,7 @@ final class TermsAPIService: TermsAPIServiceProtocol {
     // 서버 응답의 Payload 필드(title, optional)가 생성된 스키마(termId, agreed)와 불일치하여
     // OpenAPI Client 디코딩이 실패하므로, 직접 URLSession + 커스텀 DTO로 디코딩
     func fetchTerms() async throws -> [TermItem] {
-        guard let url = URL(string: "https://prod.clokey.store/terms") else {
+        guard let url = URL(string: "\(CodiveAPIProvider.baseURLString)/terms") else {
             throw TermsAPIError.noData
         }
 
