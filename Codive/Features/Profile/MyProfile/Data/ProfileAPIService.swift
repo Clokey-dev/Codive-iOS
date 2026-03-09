@@ -270,5 +270,4 @@ final class ProfileAPIService: ProfileAPIServiceProtocol {
             throw ProfileAPIError.serverError(statusCode: code, message: "차단 처리 실패")
         }
     }
-
 }

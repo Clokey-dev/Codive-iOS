@@ -28,10 +28,10 @@ struct EraserPreviewView: View {
                     title: "완료",
                     isEnabled: true
                 ) {
-                    _ = navigationRouter.popTo(where: { destination in
+                    _ = navigationRouter.popTo { destination in
                         if case .clothAdd = destination { return true }
                         return false
-                    })
+                    }
                     DispatchQueue.main.async {
                         clothAddViewModel.updateErasedImage(at: photoIndex, image: previewImage)
                     }

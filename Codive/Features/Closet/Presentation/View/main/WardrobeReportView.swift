@@ -230,9 +230,11 @@ struct ReportBubbleView: View {
 }
 
 #Preview("차트 있음") {
+    // swiftlint:disable:next trailing_closure
     WardrobeReportView(onTapReport: {})
 }
 
 #Preview("빈 상태") {
+    // swiftlint:disable:next trailing_closure
     WardrobeReportView(isEmpty: true, onAddCloth: {})
 }

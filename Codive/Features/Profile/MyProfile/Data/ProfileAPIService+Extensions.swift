@@ -122,7 +122,6 @@ extension ProfileAPIService {
     }
 }
 
-
 // MARK: - Profile API Error
 
 enum ProfileAPIError: LocalizedError {

@@ -52,7 +52,7 @@ struct DuplicateRecordModalView: View {
         Color.black.opacity(0.3)
             .ignoresSafeArea()
 
-        DuplicateRecordModalView(onClose: {})
+        DuplicateRecordModalView {}
             .padding(.horizontal, 55)
     }
 }

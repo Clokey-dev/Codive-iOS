@@ -43,9 +43,8 @@ struct MainTabView: View {
 
         self._navigationRouter = ObservedObject(wrappedValue: appDIContainer.navigationRouter)
         let checkTodayRecordUseCase = CheckTodayRecordUseCase(
-            historyRepository: HistoryRepositoryImpl(),
-            memberIdProvider: { TokenService().getCurrentUserId() }
-        )
+            historyRepository: HistoryRepositoryImpl()
+        ) { TokenService().getCurrentUserId() }
         let viewModel = MainTabViewModel(
             navigationRouter: appDIContainer.navigationRouter,
             notificationUsecase: notificationDIContainer.topNavigationNotificaionUsecase,
@@ -182,11 +181,9 @@ struct MainTabView: View {
                     }
                     .zIndex(300)
 
-                DuplicateRecordModalView(
-                    onClose: {
-                        viewModel.isDuplicateRecordModalPresented = false
-                    }
-                )
+                DuplicateRecordModalView {
+                    viewModel.isDuplicateRecordModalPresented = false
+                }
                 .padding(.horizontal, 55)
                 .zIndex(301)
             }
@@ -256,6 +253,7 @@ struct MainTabView: View {
         true
     }
     
+    // swiftlint:disable cyclomatic_complexity
     @ViewBuilder
     private func destinationView(for destination: AppDestination) -> some View {
         switch destination {
@@ -321,4 +319,5 @@ struct MainTabView: View {
             EmptyView()
         }
     }
+    // swiftlint:enable cyclomatic_complexity
 }
