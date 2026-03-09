@@ -79,7 +79,13 @@ final class TermsAPIService: TermsAPIServiceProtocol {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
 
-        let (data, _) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        if let httpResponse = response as? HTTPURLResponse,
+           !(200...299).contains(httpResponse.statusCode) {
+            throw TermsAPIError.serverError(statusCode: httpResponse.statusCode)
+        }
+
         let decoded = try jsonDecoder.decode(TermsResponse.self, from: data)
 
         guard let payloads = decoded.result?.payloads else {

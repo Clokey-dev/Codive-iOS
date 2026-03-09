@@ -129,7 +129,7 @@ struct MainTabView: View {
                                 Task {
                                     let hasTodayRecord = await viewModel.checkTodayRecordExists()
                                     if hasTodayRecord {
-                                        homeViewModel.showCompletePopUp = false
+                                        homeViewModel.handlePopupClose()
                                         viewModel.isDuplicateRecordModalPresented = true
                                     } else {
                                         homeViewModel.handlePopupRecord()
