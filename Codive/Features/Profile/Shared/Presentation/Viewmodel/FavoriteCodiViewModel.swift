@@ -14,11 +14,11 @@ final class FavoriteCodiViewModel: ObservableObject {
     @Published var favoriteCoordinates: [MyFavoriteLookBookResponseDTO] = []
     
     private let navigationRouter: NavigationRouter
-    private let fetchFavoriteLookBookUseCase: FetchFavoriteLookBookUseCase
+    private let fetchMyFavoriteLookBookUseCase: FetchMyFavoriteLookBookUseCase
     
-    init(navigationRouter: NavigationRouter, fetchFavoriteLookBookUseCase: FetchFavoriteLookBookUseCase) {
+    init(navigationRouter: NavigationRouter, fetchMyFavoriteLookBookUseCase: FetchMyFavoriteLookBookUseCase) {
         self.navigationRouter = navigationRouter
-        self.fetchFavoriteLookBookUseCase = fetchFavoriteLookBookUseCase
+        self.fetchMyFavoriteLookBookUseCase = fetchMyFavoriteLookBookUseCase
     }
     
     func loadFavoriteCoordinates(memberId: Int?) async {
@@ -26,8 +26,11 @@ final class FavoriteCodiViewModel: ObservableObject {
         errorMessage = nil
         
         do {
-            let idString = memberId.map { String($0) }
-            self.favoriteCoordinates = try await fetchFavoriteLookBookUseCase.fetchFavoriteCoordinate(memberId: idString)
+            if let memberId {
+                self.favoriteCoordinates = try await fetchMyFavoriteLookBookUseCase.fetchFavoriteCoordinate(memberId: memberId)
+            } else {
+                self.favoriteCoordinates = try await fetchMyFavoriteLookBookUseCase.fetchMyFavoriteCoordinate()
+            }
         } catch {
             self.errorMessage = "데이터를 불러오는 데 실패했습니다."
             #if DEBUG

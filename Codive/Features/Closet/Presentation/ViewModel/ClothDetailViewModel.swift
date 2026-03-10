@@ -17,8 +17,6 @@ final class ClothDetailViewModel: ObservableObject {
     @Published var isOverflowMenuExpanded: Bool = false
     @Published var isLoading: Bool = false
     @Published var detailData: ClothDetailResult?
-    
-    @Published var isOverflowMenuExpanded: Bool = false
 
     // MARK: - Computed Properties
 
@@ -136,13 +134,5 @@ final class ClothDetailViewModel: ObservableObject {
         } catch {
             // TODO: 에러 메시지를 UI에 표시 (errorMessage 프로퍼티 추가 필요)
         }
-    }
-    
-    func toggleOverflowMenu() {
-        isOverflowMenuExpanded.toggle()
-    }
-    
-    func closeOverflowMenu() {
-        isOverflowMenuExpanded = false
     }
 }

@@ -58,7 +58,7 @@ struct WithdrawView: View {
             }
         }
         .navigationBarHidden(true)
-        .enableSwipeBack{
+        .enableSwipeBack {
             vm.navigateBack()
         }
         .alert(TextLiteral.Setting.withdrawConfirmTitle, isPresented: $vm.showConfirmAlert) {
