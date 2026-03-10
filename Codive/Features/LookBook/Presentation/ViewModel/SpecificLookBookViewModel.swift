@@ -227,7 +227,6 @@ final class SpecificLookBookViewModel: ObservableObject {
             confirmEditTitle()
         } else {
             navigationRouter.navigateBack()
-//            confirmEditTitle()
         }
     }
 }

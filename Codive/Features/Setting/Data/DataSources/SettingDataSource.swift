@@ -38,36 +38,6 @@ final class SettingsDataSource {
         )
 
         switch response {
-//        case .ok(let okResponse):
-//            let httpBody = try okResponse.body.any
-//            let data = try await Data(collecting: httpBody, upTo: .max)
-//
-//            struct LikedRecordsResult: Decodable {
-//                let content: [LikedHistoryDTO]
-//                let isLast: Bool
-//            }
-//
-//            struct LikedRecordsAPIResponse: Decodable {
-//                let isSuccess: Bool
-//                let code: String
-//                let message: String
-//                let timeStamp: String
-//                let result: LikedRecordsResult
-//            }
-//
-//            let apiResponse = try jsonDecoder.decode(LikedRecordsAPIResponse.self, from: data)
-//
-//            guard apiResponse.isSuccess else {
-//                throw SettingError.apiError(message: apiResponse.message)
-//            }
-//
-//            let dateFormatter = DateFormatter()
-//            dateFormatter.dateFormat = "yyyy-MM-dd"
-//            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-//
-//            return apiResponse.result.content.map { dto in
-//                SettingDTOMapper.mapLikedHistoryDTOToLikedRecord(dto, with: dateFormatter)
-//            }
         case .ok(let okResponse):
             let apiResponse = try okResponse.body.json
 
@@ -113,23 +83,6 @@ final class SettingsDataSource {
         )
 
         switch response {
-//        case .ok(let okResponse):
-//            let httpBody = try okResponse.body.any
-//            let data = try await Data(collecting: httpBody, upTo: .max)
-//
-//            let apiResponse = try jsonDecoder.decode(MyCommentsAPIResponse.self, from: data)
-//
-//            guard apiResponse.isSuccess else {
-//                throw SettingError.apiError(message: apiResponse.message)
-//            }
-//
-//            let dateFormatter = DateFormatter()
-//            dateFormatter.dateFormat = "yyyy-MM-dd"
-//            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-//
-//            return apiResponse.result.content.map { historyDTO in
-//                SettingDTOMapper.mapHistoryDTOToMyComment(historyDTO, with: dateFormatter)
-//            }
         case .ok(let okResponse):
             let apiResponse = try okResponse.body.json
 
@@ -181,23 +134,6 @@ final class SettingsDataSource {
         )
 
         switch response {
-//        case .ok(let okResponse):
-//            let httpBody = try okResponse.body.any
-//            let data = try await Data(collecting: httpBody, upTo: .max)
-//
-//            let apiResponse = try jsonDecoder.decode(BlockedMembersAPIResponse.self, from: data)
-//
-//            guard apiResponse.isSuccess else {
-//                throw SettingError.apiError(message: apiResponse.message)
-//            }
-//
-//            let dateFormatter = DateFormatter()
-//            dateFormatter.dateFormat = "yyyy-MM-dd"
-//            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-//
-//            return apiResponse.result.content.map { dto in
-//                SettingDTOMapper.mapBlockedMemberDTOToBlockedUser(dto, with: dateFormatter)
-//            }
         case .ok(let okResponse):
             let apiResponse = try okResponse.body.json
 
