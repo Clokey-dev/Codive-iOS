@@ -264,11 +264,10 @@ struct OtherProfileView: View {
                                 icon: .none,
                                 cardWidth: 160,
                                 imageSize: 160,
-                                cornerRadius: 16,
-                                onCardTap: {
-                                    viewModel.onCodiCardTapped(coordinateId: Int64(codi.coordinateId))
-                                }
-                            )
+                                cornerRadius: 16
+                            ) {
+                                viewModel.onCodiCardTapped(coordinateId: Int64(codi.coordinateId))
+                            }
                         }
                         .padding(.top, 12)
                     }
