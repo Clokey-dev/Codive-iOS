@@ -77,8 +77,6 @@ struct SettingLikedView: View {
             }
         }
         .navigationBarHidden(true)
-        .enableSwipeBack {
-            vm.navigateBack()
-        }
+        .enableSwipeBack()
     }
 }

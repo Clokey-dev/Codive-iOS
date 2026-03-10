@@ -28,9 +28,7 @@ struct AddBeforeCodiView: View {
             contentScrollView
         }
         .navigationBarHidden(true)
-        .enableSwipeBack {
-            viewModel.handleBackTap()
-        }
+        .enableSwipeBack()
         .background(Color.white)
         .onAppear {
             viewModel.fetchBeforeCoordinateDailyList()

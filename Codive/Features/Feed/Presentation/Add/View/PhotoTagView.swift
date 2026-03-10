@@ -62,9 +62,7 @@ struct PhotoTagView: View {
             }
             .background(Color.white)
             .navigationBarHidden(true)
-            .enableSwipeBack {
-                viewModel.dismissView()
-            }
+            .enableSwipeBack()
         }
         .ignoresSafeArea(.all, edges: .bottom)
         .alert("오류", isPresented: Binding(

@@ -9,32 +9,26 @@ import SwiftUI
 import UIKit
 
 struct SwipeBackModifier: ViewModifier {
-    let action: () -> Void
-    
     func body(content: Content) -> some View {
-        content.simultaneousGesture(
-            DragGesture()
-                .onEnded { value in
-                    let horizontal = value.translation.width
-                    let vertical = value.translation.height
-
-                    if horizontal > 80 && abs(horizontal) > abs(vertical) {
-                        action()
-                    }
-                }
-        )
+        content.background(SwipeBackHelper())
     }
 }
 
 struct SwipeBackHelper: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIViewController {
-        return UIViewController()
+        Controller()
     }
 
-    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
-        guard let nav = uiViewController.navigationController else { return }
-        nav.interactivePopGestureRecognizer?.isEnabled = true
-        nav.interactivePopGestureRecognizer?.delegate = context.coordinator
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
+
+    final class Controller: UIViewController {
+
+        override func viewDidAppear(_ animated: Bool) {
+            super.viewDidAppear(animated)
+
+            navigationController?.interactivePopGestureRecognizer?.isEnabled = true
+            navigationController?.interactivePopGestureRecognizer?.delegate = nil
+        }
     }
 
     func makeCoordinator() -> Coordinator {
@@ -56,7 +50,7 @@ struct SwipeBackHelper: UIViewControllerRepresentable {
 }
 
 extension View {
-    func enableSwipeBack(action: @escaping () -> Void) -> some View {
-        modifier(SwipeBackModifier(action: action))
+    func enableSwipeBack() -> some View {
+        modifier(SwipeBackModifier())
     }
 }

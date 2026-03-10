@@ -92,9 +92,7 @@ struct OtherProfileView: View {
         }
         .background(Color.white)
         .navigationBarBackButtonHidden(true)
-        .enableSwipeBack {
-            viewModel.onBackTapped()
-        }
+        .enableSwipeBack()
         .task {
             await viewModel.loadProfile()
         }

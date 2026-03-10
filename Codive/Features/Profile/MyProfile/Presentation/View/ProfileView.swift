@@ -61,9 +61,7 @@ struct ProfileView: View {
         }
         .background(Color.white)
         .navigationBarBackButtonHidden(!navigationRouter.path.isEmpty)
-        .enableSwipeBack {
-            navigationRouter.navigateBack()
-        }
+        .enableSwipeBack()
         .task {
             // 콜백 설정: 기록이 없는 날짜가 선택되면 모달 표시
             viewModel.onEmptyHistoryDateSelected = { [weak mainTabViewModel] date in

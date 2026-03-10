@@ -50,9 +50,7 @@ struct NotificationView: View {
             }
         }
         .navigationBarHidden(true)
-        .enableSwipeBack {
-            viewModel.handleBackTap()
-        }
+        .enableSwipeBack()
         .background(Color.white.ignoresSafeArea(.all))
         // MARK: - Data Loading Trigger
         .onAppear {

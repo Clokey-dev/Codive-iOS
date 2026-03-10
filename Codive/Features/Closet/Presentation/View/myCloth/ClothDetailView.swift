@@ -77,9 +77,7 @@ struct ClothDetailView: View {
             await viewModel.fetchDetail()
         }
         .navigationBarHidden(true)
-        .enableSwipeBack {
-            viewModel.navigateBack()
-        }
+        .enableSwipeBack()
         .background(Color.white)
         .alert("옷 삭제", isPresented: $viewModel.showDeleteAlert) {
             Button("취소", role: .cancel) {}

@@ -135,8 +135,6 @@ struct SettingCommentView: View {
             .refreshable { await vm.refresh() }
         }
         .navigationBarHidden(true)
-        .enableSwipeBack {
-            vm.navigateBack()
-        }
+        .enableSwipeBack()
     }
 }

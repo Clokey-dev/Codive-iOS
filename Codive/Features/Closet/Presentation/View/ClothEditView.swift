@@ -65,9 +65,7 @@ struct ClothEditView: View {
             await viewModel.fetchDetail()
         }
         .navigationBarHidden(true)
-        .enableSwipeBack {
-            viewModel.dismissView()
-        }
+        .enableSwipeBack()
         .background(Color.white)
         .sheet(isPresented: $viewModel.isCategorySheetPresented) {
             CustomCategoryBottomSheet(

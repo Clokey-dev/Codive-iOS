@@ -34,9 +34,7 @@ struct EditCategoryView: View {
         }
         .navigationBarHidden(true)
         .background(Color.white)
-        .enableSwipeBack {
-            viewModel.handleBackTap()
-        }
+        .enableSwipeBack()
         .alert(TextLiteral.Home.changeAlertTitle, isPresented: $viewModel.showExitAlert) {
             alertButtons
         } message: {

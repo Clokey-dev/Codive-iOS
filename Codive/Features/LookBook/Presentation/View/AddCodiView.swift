@@ -33,9 +33,7 @@ struct AddCodiView: View {
             }
         }
         .navigationBarHidden(true)
-        .enableSwipeBack {
-            viewModel.handleBackTap()
-        }
+        .enableSwipeBack()
         .background(Color.white)
         .animation(.easeInOut(duration: 0.2), value: viewModel.isShowingSuccessView)
     }

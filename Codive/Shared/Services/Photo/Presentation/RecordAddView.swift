@@ -101,9 +101,7 @@ struct RecordAddView: View {
             }
         }
         .navigationBarHidden(true)
-        .enableSwipeBack {
-            viewModel.dismissView()
-        }
+        .enableSwipeBack()
         .background(Color.white)
         .sheet(isPresented: $viewModel.isAlbumSheetPresented) {
             AlbumBottomSheet(

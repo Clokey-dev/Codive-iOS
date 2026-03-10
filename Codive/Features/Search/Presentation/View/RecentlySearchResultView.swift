@@ -45,9 +45,7 @@ struct RecentlySearchResultView: View {
             }
         }
         .navigationBarHidden(true)
-        .enableSwipeBack {
-            viewModel.handleBackTap()
-        }
+        .enableSwipeBack()
         .background(Color.white.ignoresSafeArea(.all))
         .onAppear {
             viewModel.loadData()

@@ -98,9 +98,7 @@ struct MyClosetView: View {
             }
         }
         .navigationBarHidden(true)
-        .enableSwipeBack {
-            viewModel.navigateBack()
-        }
+        .enableSwipeBack()
         .background(Color.white)
         .ignoresSafeArea(.all, edges: .bottom)
         .sheet(isPresented: $isShowingSeasonSheet) {

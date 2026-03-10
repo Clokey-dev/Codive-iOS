@@ -70,9 +70,7 @@ struct ProfileSettingView: View {
             .background(Color.white)
         }
         .navigationBarHidden(true)
-        .enableSwipeBack {
-            navigationRouter.navigateBack()
-        }
+        .enableSwipeBack()
         .onAppear {
             Task {
                 await viewModel.loadCurrentProfile()

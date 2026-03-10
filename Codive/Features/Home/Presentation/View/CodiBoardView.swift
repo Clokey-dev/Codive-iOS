@@ -33,9 +33,7 @@ struct CodiBoardView: View {
             }
         }
         .navigationBarHidden(true)
-        .enableSwipeBack {
-            viewModel.handleBackTap()
-        }
+        .enableSwipeBack()
         .background(Color.white)
         .onChange(of: viewModel.isConfirmed) { confirmed in
             if confirmed {
