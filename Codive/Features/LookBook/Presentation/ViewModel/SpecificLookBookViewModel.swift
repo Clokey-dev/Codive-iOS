@@ -224,6 +224,7 @@ final class SpecificLookBookViewModel: ObservableObject {
     func handleBackTap() {
         if isEditing {
             toggleEditingMode()
+        } else if isEditingTitle {
             confirmEditTitle()
         } else {
             navigationRouter.navigateBack()
