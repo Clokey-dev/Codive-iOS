@@ -11,19 +11,16 @@ import CodiveAPI
 // MARK: - Coordinate Operations
 
 extension ProfileAPIService {
-    func fetchMyFavoriteCoordinate(memberId: String?) async throws -> [MyFavoriteLookBookResponseDTO] {
-        let response = try await client.Coordinate_getFavoriteCoordinates(
-            query: Operations.Coordinate_getFavoriteCoordinates.Input.Query(
-                memberId: memberId
-            )
-        )
-
+    func fetchMyFavoriteCoordinate() async throws -> [MyFavoriteLookBookResponseDTO] {
+        let input = Operations.Coordinate_getFavoriteCoordinates.Input()
+        let response = try await client.Coordinate_getFavoriteCoordinates(input)
+        
         switch response {
         case .ok(let okResponse):
             let decoded = try okResponse.body.json
-
+            
             let items = decoded.result ?? []
-
+            
             return items.map { item in
                 MyFavoriteLookBookResponseDTO(
                     coordinateId: item.coordinateId ?? 0,

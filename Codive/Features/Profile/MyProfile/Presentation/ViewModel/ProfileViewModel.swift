@@ -92,7 +92,7 @@ class ProfileViewModel: ObservableObject {
         navigationRouter: NavigationRouter,
         fetchMyProfileUseCase: FetchMyProfileUseCase,
         fetchMonthlyHistoryUseCase: FetchMonthlyHistoryUseCase,
-        fetchFavoriteLookBookUseCase: FetchFavoriteLookBookUseCase
+        fetchMyFavoriteLookBookUseCase: FetchMyFavoriteLookBookUseCase
     ) {
         self.navigationRouter = navigationRouter
         self.fetchMyProfileUseCase = fetchMyProfileUseCase
@@ -206,7 +206,7 @@ class ProfileViewModel: ObservableObject {
     
     func loadFavoriteCoordinates() async {
         do {
-            let coordinates = try await fetchFavoriteLookBookUseCase.fetchFavoriteCoordinate(memberId: nil)
+            let coordinates = try await fetchMyFavoriteLookBookUseCase.fetchMyFavoriteCoordinate()
             self.favoriteCoordinates = coordinates
         } catch {
             #if DEBUG
@@ -218,8 +218,8 @@ class ProfileViewModel: ObservableObject {
     func onCodiCardTapped(coordinateId: Int64) {
         Task {
             do {
-                self.selectedCoordinatePreview = try await fetchFavoriteLookBookUseCase.fetchCoordinatePreview(coordinateId: coordinateId)
-                self.selectedCoordinateDetails = try await fetchFavoriteLookBookUseCase.fetchCoordinateDetail(coordinateId: coordinateId)
+                self.selectedCoordinatePreview = try await fetchMyFavoriteLookBookUseCase.fetchCoordinatePreview(coordinateId: coordinateId)
+                self.selectedCoordinateDetails = try await fetchMyFavoriteLookBookUseCase.fetchCoordinateDetail(coordinateId: coordinateId)
                 self.isShowingPopup = true
             } catch {
                 #if DEBUG

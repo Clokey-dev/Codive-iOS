@@ -5,7 +5,7 @@
 //  Created by 한금준 on 2/5/26.
 //
 
-final class FetchFavoriteLookBookUseCase {
+final class FetchMyFavoriteLookBookUseCase {
     // MARK: - Properties
     private let repository: ProfileRepository
 
@@ -13,8 +13,8 @@ final class FetchFavoriteLookBookUseCase {
         self.repository = repository
     }
     
-    func fetchFavoriteCoordinate(memberId: String?) async throws -> [MyFavoriteLookBookResponseDTO] {
-        try await repository.fetchMyFavoriteCoordinate(memberId: memberId)
+    func fetchMyFavoriteCoordinate() async throws -> [MyFavoriteLookBookResponseDTO] {
+        try await repository.fetchMyFavoriteCoordinate()
     }
 
     func fetchFavoriteCoordinate(memberId: Int) async throws -> [MyFavoriteLookBookResponseDTO] {

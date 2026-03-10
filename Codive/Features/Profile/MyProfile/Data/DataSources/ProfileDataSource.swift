@@ -51,8 +51,8 @@ final class ProfileDataSource: ProfileDataSourceProtocol {
         return try await apiService.uploadProfileImage(imageData)
     }
     
-    func fetchMyFavoriteCoordinate(memberId: String?) async throws -> [MyFavoriteLookBookResponseDTO] {
-        return try await apiService.fetchMyFavoriteCoordinate(memberId: memberId)
+    func fetchMyFavoriteCoordinate() async throws -> [MyFavoriteLookBookResponseDTO] {
+        return try await apiService.fetchMyFavoriteCoordinate()
     }
 
     func fetchFavoriteCoordinate(memberId: Int) async throws -> [MyFavoriteLookBookResponseDTO] {
