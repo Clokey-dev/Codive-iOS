@@ -112,8 +112,6 @@ final class OtherProfileViewModel: ObservableObject {
             self.errorMessage = TextLiteral.Profile.loadFailure
         }
         isLoading = false
-        
-        await loadFavoriteCoordinates()
     }
 
     func loadMonthlyHistories() async {
