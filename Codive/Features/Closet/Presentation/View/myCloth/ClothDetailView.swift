@@ -67,6 +67,12 @@ struct ClothDetailView: View {
                 }
             }
         }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if viewModel.isOverflowMenuExpanded {
+                viewModel.closeOverflowMenu()
+            }
+        }
         .task {
             await viewModel.fetchDetail()
         }

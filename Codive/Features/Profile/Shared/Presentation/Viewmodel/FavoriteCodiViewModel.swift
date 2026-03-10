@@ -21,12 +21,16 @@ final class FavoriteCodiViewModel: ObservableObject {
         self.fetchMyFavoriteLookBookUseCase = fetchMyFavoriteLookBookUseCase
     }
     
-    func loadFavoriteCoordinates() async {
+    func loadFavoriteCoordinates(memberId: Int?) async {
         isLoading = true
         errorMessage = nil
         
         do {
-            self.favoriteCoordinates = try await fetchMyFavoriteLookBookUseCase.fetchMyFavoriteCoordinate()
+            if let memberId {
+                self.favoriteCoordinates = try await fetchMyFavoriteLookBookUseCase.fetchFavoriteCoordinate(memberId: memberId)
+            } else {
+                self.favoriteCoordinates = try await fetchMyFavoriteLookBookUseCase.fetchMyFavoriteCoordinate()
+            }
         } catch {
             self.errorMessage = "데이터를 불러오는 데 실패했습니다."
             #if DEBUG

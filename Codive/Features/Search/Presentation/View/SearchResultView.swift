@@ -82,6 +82,7 @@ struct SearchResultView: View {
                     hideKeyboard()
                 }
         )
+        .enableSwipeBack()
         // MARK: - Data Loading Trigger
         .onAppear {
             viewModel.loadInitialData()

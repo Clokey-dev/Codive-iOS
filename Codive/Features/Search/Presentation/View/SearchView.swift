@@ -123,6 +123,7 @@ struct SearchView: View {
                 }
         )
         .padding(.horizontal, 20)
+        .enableSwipeBack()
         // MARK: - Data Loading Trigger
         .onAppear {
             viewModel.loadData()

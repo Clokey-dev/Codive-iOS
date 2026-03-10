@@ -16,13 +16,19 @@ struct SwipeBackModifier: ViewModifier {
 
 struct SwipeBackHelper: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIViewController {
-        return UIViewController()
+        Controller()
     }
 
-    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
-        guard let nav = uiViewController.navigationController else { return }
-        nav.interactivePopGestureRecognizer?.isEnabled = true
-        nav.interactivePopGestureRecognizer?.delegate = context.coordinator
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
+
+    final class Controller: UIViewController {
+
+        override func viewDidAppear(_ animated: Bool) {
+            super.viewDidAppear(animated)
+
+            navigationController?.interactivePopGestureRecognizer?.isEnabled = true
+            navigationController?.interactivePopGestureRecognizer?.delegate = nil
+        }
     }
 
     func makeCoordinator() -> Coordinator {

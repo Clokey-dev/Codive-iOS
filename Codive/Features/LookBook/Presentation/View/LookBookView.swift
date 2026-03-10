@@ -37,6 +37,7 @@ struct LookBookView: View {
             }
         }
         .background(Color.white)
+        .enableSwipeBack()
         .alert(
             TextLiteral.LookBook.alertDeleteTitle,
             isPresented: $viewModel.isShowingDeleteAlert

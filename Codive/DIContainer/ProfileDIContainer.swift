@@ -149,9 +149,10 @@ final class ProfileDIContainer {
         )
     }
     
-    func makeFavoriteCodiView(showHeart: Bool) -> FavoriteCodiView {
+    func makeFavoriteCodiView(showHeart: Bool, memberId: Int?) -> FavoriteCodiView {
         return FavoriteCodiView(
             showHeart: showHeart,
+            memberId: memberId,
             viewModel: makeFavoriteCodiViewModel(),
             navigationRouter: navigationRouter
         )

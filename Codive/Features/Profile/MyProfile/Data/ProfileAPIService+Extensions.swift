@@ -14,13 +14,13 @@ extension ProfileAPIService {
     func fetchMyFavoriteCoordinate() async throws -> [MyFavoriteLookBookResponseDTO] {
         let input = Operations.Coordinate_getFavoriteCoordinates.Input()
         let response = try await client.Coordinate_getFavoriteCoordinates(input)
-
+        
         switch response {
         case .ok(let okResponse):
             let decoded = try okResponse.body.json
-
+            
             let items = decoded.result ?? []
-
+            
             return items.map { item in
                 MyFavoriteLookBookResponseDTO(
                     coordinateId: item.coordinateId ?? 0,

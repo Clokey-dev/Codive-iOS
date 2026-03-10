@@ -42,7 +42,7 @@ enum AppDestination: Hashable, Identifiable {
     case codiDetail(codiId: Int)
     case feedDetail(feedId: Int)
     case comment(feedId: Int)
-    case favoriteCodiList(showHeart: Bool)
+    case favoriteCodiList(showHeart: Bool, memberId: Int?)
     case followList(mode: FollowListMode, memberId: Int, isMe: Bool)
     case otherProfile(userId: Int)
     case myProfile

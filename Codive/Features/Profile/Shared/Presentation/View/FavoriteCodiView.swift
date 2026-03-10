@@ -16,9 +16,16 @@ struct FavoriteCodiView: View {
         GridItem(.flexible(), spacing: 15)
     ]
     let showHeart: Bool
+    let memberId: Int?
     
-    init(showHeart: Bool, viewModel: FavoriteCodiViewModel, navigationRouter: NavigationRouter) {
+    init(
+        showHeart: Bool,
+        memberId: Int? = nil,
+        viewModel: FavoriteCodiViewModel,
+        navigationRouter: NavigationRouter
+    ) {
         self.showHeart = showHeart
+        self.memberId = memberId
         self._viewModel = ObservedObject(wrappedValue: viewModel)
         self._navigationRouter = ObservedObject(wrappedValue: navigationRouter)
     }
@@ -60,7 +67,7 @@ struct FavoriteCodiView: View {
         .navigationBarHidden(true)
         .enableSwipeBack()
         .task {
-            await viewModel.loadFavoriteCoordinates()
+            await viewModel.loadFavoriteCoordinates(memberId: memberId)
         }
     }
 }

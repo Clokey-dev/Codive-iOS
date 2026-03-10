@@ -50,6 +50,9 @@ public extension Font {
     /// bold 60
     static let codive_splash = customPretendard(size: 60, weight: .bold)
     
+    /// semibold 24
+    static let codive_onboarding_title = customPretendard(size: 24, weight: .semiBold)
+    
     /// Pretendard 폰트를 쉽게 사용하기 위한 private 함수
     private static func customPretendard(size: CGFloat, weight: PretendardWeight) -> Font {
         return .custom(weight.name, size: size)

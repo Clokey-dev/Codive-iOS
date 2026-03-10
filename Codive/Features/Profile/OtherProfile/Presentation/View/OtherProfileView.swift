@@ -68,6 +68,27 @@ struct OtherProfileView: View {
                 .padding(.trailing, 10)
                 .padding(.top, 50)
             }
+
+            if viewModel.isShowingPopup,
+               let preview = viewModel.selectedCoordinatePreview {
+
+                Color.black
+                    .opacity(0.3)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        viewModel.isShowingPopup = false
+                    }
+
+                FavoriteLookBookPopUp(
+                    imageUrl: preview.imageUrl,
+                    clothItems: viewModel.popupClothItems,
+                    payloads: viewModel.popupPayloads
+                ) {
+                    viewModel.isShowingPopup = false
+                }
+                .transition(.opacity.combined(with: .scale))
+                .zIndex(1)
+            }
         }
         .background(Color.white)
         .navigationBarBackButtonHidden(true)
@@ -211,39 +232,66 @@ struct OtherProfileView: View {
 
                 Spacer(minLength: 0)
 
-                Button {
-                    viewModel.onMoreFavoriteCodiTapped()
-                } label: {
-                    HStack(spacing: 6) {
-                        Text("더보기")
-                            .font(.codive_body2_regular)
-                            .foregroundStyle(Color.Codive.grayscale3)
-                        Image("go")
-                            .frame(width: 16, height: 16)
-                            .foregroundStyle(Color.Codive.grayscale3)
+                if !viewModel.favoriteCoordinates.isEmpty {
+                    Button {
+                        viewModel.onMoreFavoriteCodiTapped()
+                    } label: {
+                        HStack(spacing: 6) {
+                            Text("더보기")
+                                .font(.codive_body2_regular)
+                                .foregroundStyle(Color.Codive.grayscale3)
+                            Image("go")
+                                .frame(width: 16, height: 16)
+                                .foregroundStyle(Color.Codive.grayscale3)
+                        }
                     }
                 }
             }
             .padding(.horizontal, 20)
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 10) {
-                    ForEach(viewModel.favoriteCoordinates, id: \.coordinateId) { codi in
-                        CodiCard(
-                            imageURL: URL(string: codi.imageUrl),
-                            title: nil,
-                            icon: .none,
-                            cardWidth: 160,
-                            imageSize: 160,
-                            cornerRadius: 16,
-                            onCardTap: nil
-                        )
+            
+            if viewModel.favoriteCoordinates.isEmpty {
+                favoriteCodiEmptyCard
+                    .padding(.horizontal, 20)
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 10) {
+                        ForEach(viewModel.favoriteCoordinates, id: \.coordinateId) { codi in
+                            CodiCard(
+                                imageURL: URL(string: codi.imageUrl),
+                                title: nil,
+                                icon: .none,
+                                cardWidth: 160,
+                                imageSize: 160,
+                                cornerRadius: 16
+                            ) {
+                                viewModel.onCodiCardTapped(coordinateId: Int64(codi.coordinateId))
+                            }
+                        }
+                        .padding(.top, 12)
                     }
+                    .padding(.horizontal, 20)
                 }
-                .padding(.top, 12)
             }
-            .padding(.horizontal, 20)
         }
+    }
+    
+    private var favoriteCodiEmptyCard: some View {
+        VStack(spacing: 8) {
+            Text("최애 코디가 아직 없어요")
+                .font(.codive_title2)
+                .foregroundStyle(Color.Codive.grayscale1)
+        }
+        .padding(.vertical, 24)
+        .padding(.horizontal, 20)
+        .frame(maxWidth: .infinity)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.white)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.Codive.grayscale6, lineWidth: 1)
+                )
+        )
     }
 
     // MARK: - Calendar

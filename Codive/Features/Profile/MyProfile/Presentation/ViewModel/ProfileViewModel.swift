@@ -201,7 +201,7 @@ class ProfileViewModel: ObservableObject {
     }
     
     func onMoreFavoriteCodiTapped() {
-        navigationRouter.navigate(to: .favoriteCodiList(showHeart: true))
+        navigationRouter.navigate(to: .favoriteCodiList(showHeart: true, memberId: nil))
     }
     
     func loadFavoriteCoordinates() async {
