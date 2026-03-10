@@ -250,23 +250,30 @@ struct OtherProfileView: View {
                 }
             }
             .padding(.horizontal, 20)
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 10) {
-                    ForEach(viewModel.favoriteCoordinates, id: \.coordinateId) { codi in
-                        CodiCard(
-                            imageURL: URL(string: codi.imageUrl),
-                            title: nil,
-                            icon: .none,
-                            cardWidth: 160,
-                            imageSize: 160,
-                            cornerRadius: 16,
-                            onCardTap: nil
-                        )
+            
+            if viewModel.favoriteCoordinates.isEmpty {
+                favoriteCodiEmptyCard
+                    .padding(.horizontal, 20)
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 10) {
+                        ForEach(viewModel.favoriteCoordinates, id: \.coordinateId) { codi in
+                            CodiCard(
+                                imageURL: URL(string: codi.imageUrl),
+                                title: nil,
+                                icon: .none,
+                                cardWidth: 160,
+                                imageSize: 160,
+                                cornerRadius: 16,
+                                onCardTap: {
+                                    viewModel.onCodiCardTapped(coordinateId: Int64(codi.coordinateId))
+                                }
+                            )
+                        }
+                        .padding(.top, 12)
                     }
-                    .padding(.top, 12)
+                    .padding(.horizontal, 20)
                 }
-                .padding(.horizontal, 20)
             }
         }
     }
