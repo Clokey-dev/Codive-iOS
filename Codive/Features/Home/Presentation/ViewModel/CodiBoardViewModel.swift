@@ -77,18 +77,13 @@ final class CodiBoardViewModel: ObservableObject {
             let centerOffset = actualSize / 2
             
             let captureView = ZStack {
-                RoundedRectangle(cornerRadius: 15)
+                Rectangle()
                     .fill(Color.Codive.grayscale7)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 15)
-                            .stroke(Color.Codive.grayscale5, lineWidth: 1)
-                    )
-                
+
                 DraggableImageView(items: .constant(images)) { _ in }
             }
                 .frame(width: actualSize, height: actualSize)
-                .clipShape(RoundedRectangle(cornerRadius: 15))
-                .background(Color.white)
+                .clipped()
             
             let renderer = ImageRenderer(content: captureView)
             renderer.scale = UIScreen.main.scale

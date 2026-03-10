@@ -70,64 +70,64 @@ let projectSettings = Settings.settings(
 // MARK: - Project
 
 let project = Project(
-   name: "Codive",
-   settings: projectSettings,
-   targets: [
-       .target(
-           name: "Codive",
-           destinations: [.iPhone],
-           product: .app,
-           bundleId: "com.codive.app",
-           deploymentTargets: .iOS("16.0"),
-           infoPlist: .extendingDefault(
-               with: [
-                   "UIUserInterfaceStyle": "Light",
-                   "UILaunchScreen": [:],
-                   "UISupportedInterfaceOrientations": ["UIInterfaceOrientationPortrait"],
-                   "CFBundleDevelopmentRegion": "ko",
-                   "CFBundleLocalizations": ["ko", "en"],
-                   "UIAppFonts": [
-                       "Pretendard-Black.otf",
-                       "Pretendard-Bold.otf",
-                       "Pretendard-ExtraBold.otf",
-                       "Pretendard-ExtraLight.otf",
-                       "Pretendard-Light.otf",
-                       "Pretendard-Medium.otf",
-                       "Pretendard-Regular.otf",
-                       "Pretendard-SemiBold.otf",
-                       "Pretendard-Thin.otf"
-                   ],
-                   "CFBundleDisplayName": "$(PRODUCT_NAME)",
-                   "BASE_URL": "$(BASE_URL)",
-                   
-                   // 갤러리 & 카메라 권한 추가
-                   "NSPhotoLibraryUsageDescription": "기록 추가, 옷 등록, 프로필 설정을 위해 사진 접근 권한이 필요합니다.",
-                   "NSPhotoLibraryAddUsageDescription": "사진을 저장하기 위해 권한이 필요합니다.",
-                   "NSCameraUsageDescription": "사진을 촬영하기 위해 카메라 권한이 필요합니다.",
-                   
-                   // 위치 권한 추가
-                   "NSLocationWhenInUseUsageDescription": "위치한 지역의 날씨 정보를 통해 옷을 추천해드리기 위해 현재 위치를 확인합니다.",
-                   
-                   // 카카오 SDK 설정
-                   "KAKAO_APP_KEY": "$(KAKAO_APP_KEY)",
-                   "KAKAO_AUTH_URL": "$(KAKAO_AUTH_URL)",
-                   "APPLE_AUTH_URL": "$(APPLE_AUTH_URL)",
-                   "CFBundleURLTypes": [
-                       [
-                           "CFBundleURLName": "KAKAO",
-                           "CFBundleURLSchemes": ["kakao$(KAKAO_APP_KEY)"]
-                       ],
-                       [
-                           "CFBundleURLName": "CODIVE",
-                           "CFBundleURLSchemes": ["codive"]
-                       ]
-                   ],
-                   "LSApplicationQueriesSchemes": [
-                       "kakaokompassauth",
-                       "storykompassauth",
-                       "kakaolink",
-                       "kakaotalk-5.9.7"
-                   ],
+    name: "Codive",
+    settings: projectSettings,
+    targets: [
+        .target(
+            name: "Codive",
+            destinations: [.iPhone],
+            product: .app,
+            bundleId: "com.codive.app",
+            deploymentTargets: .iOS("16.0"),
+            infoPlist: .extendingDefault(
+                with: [
+                    "UIUserInterfaceStyle": "Light",
+                    "UILaunchScreen": [:],
+                    "UISupportedInterfaceOrientations": ["UIInterfaceOrientationPortrait"],
+                    "CFBundleDevelopmentRegion": "ko",
+                    "CFBundleLocalizations": ["ko", "en"],
+                    "UIAppFonts": [
+                        "Pretendard-Black.otf",
+                        "Pretendard-Bold.otf",
+                        "Pretendard-ExtraBold.otf",
+                        "Pretendard-ExtraLight.otf",
+                        "Pretendard-Light.otf",
+                        "Pretendard-Medium.otf",
+                        "Pretendard-Regular.otf",
+                        "Pretendard-SemiBold.otf",
+                        "Pretendard-Thin.otf"
+                    ],
+                    "CFBundleDisplayName": "$(PRODUCT_NAME)",
+                    "BASE_URL": "$(BASE_URL)",
+                    
+                    // 갤러리 & 카메라 권한 추가
+                    "NSPhotoLibraryUsageDescription": "기록 추가, 옷 등록, 프로필 설정을 위해 사진 접근 권한이 필요합니다.",
+                    "NSPhotoLibraryAddUsageDescription": "사진을 저장하기 위해 권한이 필요합니다.",
+                    "NSCameraUsageDescription": "사진을 촬영하기 위해 카메라 권한이 필요합니다.",
+                    
+                    // 위치 권한 추가
+                    "NSLocationWhenInUseUsageDescription": "위치한 지역의 날씨 정보를 통해 옷을 추천해드리기 위해 현재 위치를 확인합니다.",
+                    
+                    // 카카오 SDK 설정
+                    "KAKAO_APP_KEY": "$(KAKAO_APP_KEY)",
+                    "KAKAO_AUTH_URL": "$(KAKAO_AUTH_URL)",
+                    "APPLE_AUTH_URL": "$(APPLE_AUTH_URL)",
+                    "CFBundleURLTypes": [
+                        [
+                            "CFBundleURLName": "KAKAO",
+                            "CFBundleURLSchemes": ["kakao$(KAKAO_APP_KEY)"]
+                        ],
+                        [
+                            "CFBundleURLName": "CODIVE",
+                            "CFBundleURLSchemes": ["codive"]
+                        ]
+                    ],
+                    "LSApplicationQueriesSchemes": [
+                        "kakaokompassauth",
+                        "storykompassauth",
+                        "kakaolink",
+                        "kakaotalk-5.9.7"
+                    ],
 
                    // App Transport Security - HTTP 도메인 예외 추가
                    "NSAppTransportSecurity": [

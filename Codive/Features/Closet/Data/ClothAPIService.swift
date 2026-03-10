@@ -61,6 +61,7 @@ struct ClothListItem {
     let name: String?
     let parentCategory: String?
     let category: String?
+    let isTodayCoordinateCloth: Bool
 }
 
 struct ClothDetailResult {
@@ -99,7 +100,7 @@ final class ClothAPIService: ClothAPIServiceProtocol {
     let jsonDecoder: JSONDecoder
 
     init(tokenProvider: TokenProvider = KeychainTokenProvider()) {
-        self.client = CodiveAPIProvider.createClient(
+        self.client = CodiveAPIProvider.createConfiguredClient(
             middlewares: [CodiveAuthMiddleware(provider: tokenProvider)]
         )
         self.jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
@@ -126,8 +127,7 @@ extension ClothAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseClothImagesPresignedUrlResponse.self, from: data)
+            let decoded = try okResponse.body.json
 
             guard let urls = decoded.result?.urls, urls.count == images.count else {
                 throw ClothAPIError.presignedUrlMismatch
@@ -169,8 +169,7 @@ extension ClothAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseClothCreateResponse.self, from: data)
+            let decoded = try okResponse.body.json
 
             guard let clothIds = decoded.result?.clothIds else {
                 throw ClothAPIError.noClothIdsReturned
@@ -198,8 +197,7 @@ extension ClothAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseClothListResponse.self, from: data)
+            let decoded = try okResponse.body.json
 
             let clothes: [ClothListItem] = decoded.result?.content?.map { item -> ClothListItem in
                 return ClothListItem(
@@ -208,7 +206,8 @@ extension ClothAPIService {
                     brand: item.brand,
                     name: item.name,
                     parentCategory: item.parentCategory,
-                    category: item.category
+                    category: item.category,
+                    isTodayCoordinateCloth: item.isTodayCoordinateCloth ?? false
                 )
             } ?? []
 
@@ -230,8 +229,7 @@ extension ClothAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseClothListResponse.self, from: data)
+            let decoded = try okResponse.body.json
 
             let clothes: [ClothListItem] = decoded.result?.content?.map { item -> ClothListItem in
                 return ClothListItem(
@@ -240,7 +238,8 @@ extension ClothAPIService {
                     brand: item.brand,
                     name: item.name,
                     parentCategory: item.parentCategory,
-                    category: item.category
+                    category: item.category,
+                    isTodayCoordinateCloth: item.isTodayCoordinateCloth ?? false
                 )
             } ?? []
 
@@ -257,8 +256,7 @@ extension ClothAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseClothDetailsResponse.self, from: data)
+            let decoded = try okResponse.body.json
 
             guard let result = decoded.result else {
                 throw ClothAPIError.serverError(statusCode: 0, message: "result가 nil입니다")
@@ -337,9 +335,8 @@ extension ClothAPIService {
         
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseLookBookListResponse.self, from: data)
-            
+            let decoded = try okResponse.body.json
+
             let content: [LookBookListResponseItem] = decoded.result?.content?.compactMap { item -> LookBookListResponseItem? in
                 guard let lookBookId = item.lookBookId else { return nil }
                 return LookBookListResponseItem(lookBookId: lookBookId, lookBookName: item.lookBookName ?? "", imageUrl: item.imageUrl ?? "", count: item.count ?? 0)
@@ -365,11 +362,7 @@ extension ClothAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let decoded = try jsonDecoder.decode(
-                Components.Schemas.BaseResponseClothInfoExtractResponse.self,
-                from: data
-            )
+            let decoded = try okResponse.body.json
 
             let results: [ClothAIInfo] = decoded.result?.payloads?.map { payload -> ClothAIInfo in
                 let seasons: Set<Season> = Set(

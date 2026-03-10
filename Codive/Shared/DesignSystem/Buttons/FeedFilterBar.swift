@@ -18,29 +18,42 @@ struct FeedFilterBar: View {
     // MARK: - Body
     var body: some View {
         HStack(spacing: 0) {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    // 팔로우 버튼
-                    FollowingButton(isSelected: $isFollowingSelected)
-                    
-                    // 스타일 카테고리 버튼
-                    ForEach(categories, id: \.self) { category in
-                        let isSelected = selectedCategory.contains(category)
+            ScrollViewReader { proxy in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        Color.clear
+                            .frame(width: 0, height: 0)
+                            .id("scrollAnchor")
 
-                        FilterSelectionButton(
-                            title: category,
-                            isSelected: isSelected
-                        ) {
-                            if selectedCategory.contains(category) {
-                                selectedCategory.remove(category)
-                            } else {
-                                selectedCategory.insert(category)
+                        // 팔로우 버튼
+                        FollowingButton(isSelected: $isFollowingSelected)
+
+                        // 스타일 카테고리 버튼
+                        ForEach(categories, id: \.self) { category in
+                            let isSelected = selectedCategory.contains(category)
+
+                            FilterSelectionButton(
+                                title: category,
+                                isSelected: isSelected
+                            ) {
+                                if selectedCategory.contains(category) {
+                                    selectedCategory.remove(category)
+                                } else {
+                                    selectedCategory.insert(category)
+                                }
+                                // 팔로잉 버튼부터 보이도록 맨 앞으로 스크롤
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        proxy.scrollTo("scrollAnchor", anchor: .leading)
+                                    }
+                                }
                             }
+                            .id(category)
                         }
                     }
+                    .padding(.leading, 20)
+                    .padding(.trailing, 12)
                 }
-                .padding(.leading, 20)
-                .padding(.trailing, 12)
             }
             
             HStack(spacing: 12) {

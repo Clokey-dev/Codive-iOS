@@ -14,7 +14,7 @@ final class ClothDetailViewModel: ObservableObject {
 
     let cloth: Cloth
     @Published var showDeleteAlert: Bool = false
-    @Published var showActionSheet: Bool = false
+    @Published var isOverflowMenuExpanded: Bool = false
     @Published var isLoading: Bool = false
     @Published var detailData: ClothDetailResult?
     
@@ -111,8 +111,12 @@ final class ClothDetailViewModel: ObservableObject {
         navigationRouter.navigateBack()
     }
 
-    func handleMenuTap() {
-        showActionSheet = true
+    func toggleOverflowMenu() {
+        isOverflowMenuExpanded.toggle()
+    }
+
+    func closeOverflowMenu() {
+        isOverflowMenuExpanded = false
     }
 
     func handleEdit() {

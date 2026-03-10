@@ -84,6 +84,7 @@ final class DefaultClothDataSource: ClothDataSource {
             ProductItem(
                 id: Int(item.clothId),
                 imageUrl: item.imageUrl,
+                isTodayCloth: item.isTodayCoordinateCloth,
                 brand: item.brand,
                 name: item.name,
                 mainCategory: item.parentCategory,

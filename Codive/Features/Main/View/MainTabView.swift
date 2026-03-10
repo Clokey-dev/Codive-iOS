@@ -42,9 +42,13 @@ struct MainTabView: View {
         self.reportDIContainer = appDIContainer.makeReportDIContainer()
 
         self._navigationRouter = ObservedObject(wrappedValue: appDIContainer.navigationRouter)
+        let checkTodayRecordUseCase = CheckTodayRecordUseCase(
+            historyRepository: HistoryRepositoryImpl()
+        ) { TokenService().getCurrentUserId() }
         let viewModel = MainTabViewModel(
             navigationRouter: appDIContainer.navigationRouter,
-            notificationUsecase: notificationDIContainer.topNavigationNotificaionUsecase
+            notificationUsecase: notificationDIContainer.topNavigationNotificaionUsecase,
+            checkTodayRecordUseCase: checkTodayRecordUseCase
         )
         self._viewModel = StateObject(wrappedValue: viewModel)
         self.homeViewModel = homeDIContainer.makeHomeViewModel()
@@ -120,7 +124,17 @@ struct MainTabView: View {
                     if homeViewModel.showCompletePopUp {
                         CompletePopUp(
                             isPresented: $homeViewModel.showCompletePopUp,
-                            onRecordTapped: homeViewModel.handlePopupRecord,
+                            onRecordTapped: {
+                                Task {
+                                    let hasTodayRecord = await viewModel.checkTodayRecordExists()
+                                    if hasTodayRecord {
+                                        homeViewModel.handlePopupClose()
+                                        viewModel.isDuplicateRecordModalPresented = true
+                                    } else {
+                                        homeViewModel.handlePopupRecord()
+                                    }
+                                }
+                            },
                             onCloseTapped: homeViewModel.handlePopupClose,
                             selectedClothes: homeViewModel.selectedCodiClothes,
                             singleImageUrl: homeViewModel.capturedImageURL
@@ -157,6 +171,23 @@ struct MainTabView: View {
                     .transition(.opacity)
             }
 
+            // MARK: - Duplicate Record Modal Overlay
+            if viewModel.isDuplicateRecordModalPresented {
+                Color.black
+                    .opacity(0.3)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        viewModel.isDuplicateRecordModalPresented = false
+                    }
+                    .zIndex(300)
+
+                DuplicateRecordModalView {
+                    viewModel.isDuplicateRecordModalPresented = false
+                }
+                .padding(.horizontal, 55)
+                .zIndex(301)
+            }
+
             // MARK: - Empty History Modal Overlay
             if viewModel.isEmptyHistoryModalPresented {
                 Color.black
@@ -177,7 +208,7 @@ struct MainTabView: View {
                     onAddRecord: {
                         viewModel.isEmptyHistoryModalPresented = false
                         viewModel.emptyHistoryModalDate = nil
-                        navigationRouter.navigate(to: .recordAdd)
+                        viewModel.checkAndNavigateToRecordAdd()
                     }
                 )
                 .frame(height: 310, alignment: .center)
@@ -222,6 +253,7 @@ struct MainTabView: View {
         true
     }
     
+    // swiftlint:disable cyclomatic_complexity
     @ViewBuilder
     private func destinationView(for destination: AppDestination) -> some View {
         switch destination {
@@ -287,4 +319,5 @@ struct MainTabView: View {
             EmptyView()
         }
     }
+    // swiftlint:enable cyclomatic_complexity
 }

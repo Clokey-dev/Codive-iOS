@@ -131,11 +131,10 @@ final class AddDIContainer {
             originalImage: photo.croppedImage,
             photoIndex: photoIndex,
             navigationRouter: navigationRouter,
-            clothAddViewModel: viewModel,
-            onSaveImage: { [weak self] image in
-                self?.pendingErasedImage = image
-            }
-        )
+            clothAddViewModel: viewModel
+        ) { [weak self] image in
+            self?.pendingErasedImage = image
+        }
     }
 
     func makeEraserPreviewView(photoIndex: Int) -> EraserPreviewView? {

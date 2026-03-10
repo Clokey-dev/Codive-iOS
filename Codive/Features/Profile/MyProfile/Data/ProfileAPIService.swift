@@ -36,7 +36,7 @@ final class ProfileAPIService: ProfileAPIServiceProtocol {
     let jsonDecoder: JSONDecoder
 
     init(tokenProvider: TokenProvider = KeychainTokenProvider()) {
-        self.client = CodiveAPIProvider.createClient(
+        self.client = CodiveAPIProvider.createConfiguredClient(
             middlewares: [CodiveAuthMiddleware(provider: tokenProvider)]
         )
         self.jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
@@ -47,13 +47,7 @@ final class ProfileAPIService: ProfileAPIServiceProtocol {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-
-            // API 응답을 BaseResponseMyInfoResponse로 decode
-            let apiResponse = try jsonDecoder.decode(
-                Components.Schemas.BaseResponseMyInfoResponse.self,
-                from: data
-            )
+            let apiResponse = try okResponse.body.json
 
             guard let memberInfo = apiResponse.result else {
                 throw ProfileAPIError.invalidResponse
@@ -107,12 +101,7 @@ final class ProfileAPIService: ProfileAPIServiceProtocol {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-
-            let apiResponse = try jsonDecoder.decode(
-                Components.Schemas.BaseResponseSliceResponseFollowMemberResponse.self,
-                from: data
-            )
+            let apiResponse = try okResponse.body.json
 
             let members = apiResponse.result?.content ?? []
             let followers: [FollowMember] = members.compactMap { member -> FollowMember? in
@@ -173,12 +162,7 @@ final class ProfileAPIService: ProfileAPIServiceProtocol {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-
-            let apiResponse = try jsonDecoder.decode(
-                Components.Schemas.BaseResponseDuplicatedIdCheckResponse.self,
-                from: data
-            )
+            let apiResponse = try okResponse.body.json
 
             // result.duplicated가 true면 중복된 것 (사용 불가)
             return apiResponse.result?.duplicated ?? false
@@ -200,12 +184,7 @@ final class ProfileAPIService: ProfileAPIServiceProtocol {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-
-            let apiResponse = try jsonDecoder.decode(
-                Components.Schemas.BaseResponseClothImagesPresignedUrlResponse.self,
-                from: data
-            )
+            let apiResponse = try okResponse.body.json
 
             guard let urls = apiResponse.result?.urls, !urls.isEmpty else {
                 throw ProfileAPIError.invalidResponse
@@ -230,11 +209,7 @@ final class ProfileAPIService: ProfileAPIServiceProtocol {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let apiResponse = try jsonDecoder.decode(
-                Components.Schemas.BaseResponseMemberInfoResponse.self,
-                from: data
-            )
+            let apiResponse = try okResponse.body.json
 
             guard let result = apiResponse.result else {
                 throw ProfileAPIError.noData

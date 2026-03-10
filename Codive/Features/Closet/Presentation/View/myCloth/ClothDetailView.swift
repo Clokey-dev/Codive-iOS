@@ -17,24 +17,17 @@ struct ClothDetailView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // 상단 네비게이션 바 - "more" 에셋 적용
+            // 상단 네비게이션 바
             CustomNavigationBar(
                 title: "옷 상세",
                 onBack: {
                     viewModel.navigateBack()
                 },
-//                rightButton: .menu(
-//                    imageName: "more",
-//                    isSystemIcon: false,
-//                    isEnabled: true
-//                ) {
-//                    viewModel.handleMenuTap()
-//                }
                 rightButton: .overflow(
                     menuType: .closet,
                     menuActions: [
-                        viewModel.handleEdit,
-                        viewModel.handleDeleteRequest
+                        { viewModel.handleEdit() },
+                        { viewModel.handleDeleteRequest() }
                     ],
                     isExpanded: viewModel.isOverflowMenuExpanded,
                     onToggle: viewModel.toggleOverflowMenu,
@@ -65,6 +58,12 @@ struct ClothDetailView: View {
                     .padding(.horizontal, 20)
                     .padding(.top, 10)
                     .padding(.bottom, 30)
+                }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    if viewModel.isOverflowMenuExpanded {
+                        viewModel.closeOverflowMenu()
+                    }
                 }
             }
         }

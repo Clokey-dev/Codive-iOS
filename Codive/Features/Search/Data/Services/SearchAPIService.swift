@@ -39,7 +39,7 @@ final class SearchAPIService: SearchAPIServiceProtocol {
     private let jsonDecoder: JSONDecoder
 
     init(tokenProvider: TokenProvider = KeychainTokenProvider()) {
-        self.client = CodiveAPIProvider.createClient(
+        self.client = CodiveAPIProvider.createConfiguredClient(
             middlewares: [CodiveAuthMiddleware(provider: tokenProvider)]
         )
         self.jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
@@ -54,12 +54,7 @@ extension SearchAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let decoded: Components.Schemas.BaseResponseListSearchingRecommendResponse
-
-            switch okResponse.body {
-            case .json(let value):
-                decoded = value
-            }
+            let decoded = try okResponse.body.json
 
             let items = decoded.result ?? []
 
@@ -94,12 +89,7 @@ extension SearchAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let decoded: Components.Schemas.BaseResponseSliceResponseSearchedMemberResponse
-
-            switch okResponse.body {
-            case .json(let value):
-                decoded = value
-            }
+            let decoded = try okResponse.body.json
 
             let members = decoded.result?.content ?? []
             let users: [SimpleUser] = members.compactMap { member -> SimpleUser? in
@@ -140,13 +130,8 @@ extension SearchAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let decoded: Components.Schemas.BaseResponseSliceResponseSearchedHistoryResponse
-            
-            switch okResponse.body {
-            case .json(let value):
-                decoded = value
-            }
-            
+            let decoded = try okResponse.body.json
+
             let histories = decoded.result?.content ?? []
             let posts: [PostEntity] = histories.compactMap { history -> PostEntity? in
                 guard let historyId = history.historyId else { return nil }

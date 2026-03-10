@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 //
 //  CustomAIRecommendationView.swift
 //  Codive
@@ -46,6 +47,7 @@ struct ClothingItem: Identifiable {
 }
 
 // MARK: - CustomAIRecommendationView
+// swiftlint:disable:next type_body_length
 struct CustomAIRecommendationView: View {
 
     // MARK: - Properties

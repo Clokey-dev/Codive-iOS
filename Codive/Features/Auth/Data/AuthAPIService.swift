@@ -33,10 +33,10 @@ final class AuthAPIService: AuthAPIServiceProtocol {
     private let jsonDecoder: JSONDecoder
 
     init(tokenProvider: TokenProvider = KeychainTokenProvider()) {
-        self.client = CodiveAPIProvider.createClient(
+        self.client = CodiveAPIProvider.createConfiguredClient(
             middlewares: [CodiveAuthMiddleware(provider: tokenProvider)]
         )
-        self.unauthenticatedClient = CodiveAPIProvider.createClient()
+        self.unauthenticatedClient = CodiveAPIProvider.createConfiguredClient()
         self.jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
     }
 
@@ -47,13 +47,7 @@ final class AuthAPIService: AuthAPIServiceProtocol {
 
         switch response {
         case .ok(let okResponse):
-            let httpBody = try okResponse.body.any
-            let data = try await Data(collecting: httpBody, upTo: .max)
-
-            let apiResponse = try jsonDecoder.decode(
-                Components.Schemas.BaseResponseUserStatusResponse.self,
-                from: data
-            )
+            let apiResponse = try okResponse.body.json
 
             guard let result = apiResponse.result,
                   let registerStatus = result.registerStatus else {
@@ -81,10 +75,7 @@ final class AuthAPIService: AuthAPIServiceProtocol {
 
         switch response {
         case .ok(let okResponse):
-            let httpBody = try okResponse.body.any
-            let data = try await Data(collecting: httpBody, upTo: .max)
-
-            let apiResponse = try jsonDecoder.decode(TokenReissueResponse.self, from: data)
+            let apiResponse = try okResponse.body.json
 
             guard let result = apiResponse.result,
                   let accessToken = result.accessToken,

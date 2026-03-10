@@ -30,7 +30,7 @@ final class NotificationAPIService: NotificationAPIServiceProtocol {
     private let jsonDecoder: JSONDecoder
     
     init(tokenProvider: TokenProvider = KeychainTokenProvider()) {
-        self.client = CodiveAPIProvider.createClient(
+        self.client = CodiveAPIProvider.createConfiguredClient(
             middlewares: [CodiveAuthMiddleware(provider: tokenProvider)]
         )
         self.jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
@@ -80,16 +80,8 @@ extension NotificationAPIService {
         
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(
-                collecting: okResponse.body.any,
-                upTo: .max
-            )
-            
-            let decoded = try jsonDecoder.decode(
-                Components.Schemas.BaseResponseSliceResponseNotificationListResponse.self,
-                from: data
-            )
-            
+            let decoded = try okResponse.body.json
+
             guard let result = decoded.result else {
                 throw NotificationAPIError.invalidResponse
             }
@@ -116,10 +108,8 @@ extension NotificationAPIService {
         
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseReportedCheckResponse.self, from: data)
-            
+            let decoded = try okResponse.body.json
+
             guard let item = decoded.result else {
                 throw NotificationAPIError.invalidResponse
             }
@@ -144,9 +134,8 @@ extension NotificationAPIService {
         
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseUnreadNotificationResponse.self, from: data)
-            
+            let decoded = try okResponse.body.json
+
             guard let exists = decoded.result?.existsUnreadNotification else {
                 throw HomeAPIError.invalidResponse
             }

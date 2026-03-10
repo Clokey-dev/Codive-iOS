@@ -73,11 +73,10 @@ private extension HomeNoCodiView {
                         title: category.title,
                         items: items,
                         isEmptyState: items.isEmpty,
-                        currentIndex: selectedIdx,
-                        onEmptyTap: {
-                            viewModel.navigateToAddCloth()
-                        }
-                    )
+                        currentIndex: selectedIdx
+                    ) {
+                        viewModel.navigateToAddCloth()
+                    }
                     .id(category.id)
                     .background(Color.white)
                     .cornerRadius(15)

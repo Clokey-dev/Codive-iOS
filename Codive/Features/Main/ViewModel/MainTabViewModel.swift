@@ -16,16 +16,40 @@ final class MainTabViewModel: ObservableObject {
     @Published var isEmptyHistoryModalPresented: Bool = false
     @Published var emptyHistoryModalDate: Date?
 
-    private let navigationRouter: NavigationRouter
+    // MARK: - Duplicate Record Modal State
+    @Published var isDuplicateRecordModalPresented: Bool = false
 
+    private let navigationRouter: NavigationRouter
     private let notificationUsecase: TopNavigationNotificaionUsecase
-    
+    private let checkTodayRecordUseCase: CheckTodayRecordUseCase
+
     init(
         navigationRouter: NavigationRouter,
-        notificationUsecase: TopNavigationNotificaionUsecase
+        notificationUsecase: TopNavigationNotificaionUsecase,
+        checkTodayRecordUseCase: CheckTodayRecordUseCase
     ) {
         self.navigationRouter = navigationRouter
         self.notificationUsecase = notificationUsecase
+        self.checkTodayRecordUseCase = checkTodayRecordUseCase
+    }
+
+    // MARK: - Duplicate Record Check
+
+    /// 오늘 기록이 있는지 확인 후, 없으면 기록 추가 화면으로 이동, 있으면 모달 표시
+    func checkAndNavigateToRecordAdd() {
+        Task {
+            let hasTodayRecord = await checkTodayRecordUseCase.execute()
+            if hasTodayRecord {
+                isDuplicateRecordModalPresented = true
+            } else {
+                navigationRouter.navigate(to: .recordAdd)
+            }
+        }
+    }
+
+    /// 오늘 기록이 있는지만 확인 (외부에서 분기 처리용)
+    func checkTodayRecordExists() async -> Bool {
+        await checkTodayRecordUseCase.execute()
     }
     
     // MARK: - Actions

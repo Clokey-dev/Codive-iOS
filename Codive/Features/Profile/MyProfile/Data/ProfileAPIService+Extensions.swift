@@ -20,9 +20,7 @@ extension ProfileAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseListFavoriteCoordinateResponse.self, from: data)
+            let decoded = try okResponse.body.json
 
             let items = decoded.result ?? []
 
@@ -46,9 +44,7 @@ extension ProfileAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseListFavoriteCoordinateResponse.self, from: data)
+            let decoded = try okResponse.body.json
 
             let items = decoded.result ?? []
 
@@ -73,9 +69,7 @@ extension ProfileAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseCoordinatePreviewResponse.self, from: data)
+            let decoded = try okResponse.body.json
 
             guard let item = decoded.result else {
                 throw ProfileAPIError.invalidResponse
@@ -104,9 +98,7 @@ extension ProfileAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseListCoordinateDetailsListResponse.self, from: data)
+            let decoded = try okResponse.body.json
 
             let items = decoded.result ?? []
 

@@ -133,6 +133,7 @@ struct FeedDetailView: View {
                             viewModel.dismissMoreMenu()
                         }
 
+                    // swiftlint:disable trailing_closure
                     if feed.author.isMe ?? false {
                         // 내 피드: 수정하기, 삭제하기
                         CustomOverflowMenu(
@@ -142,8 +143,9 @@ struct FeedDetailView: View {
                                 { viewModel.onDeleteTapped() }
                             ],
                             isExpanded: viewModel.isMoreMenuPresented,
-                            showButton: false
-                        , onClose: { viewModel.dismissMoreMenu() })
+                            showButton: false,
+                            onClose: { viewModel.dismissMoreMenu() }
+                        )
                         .padding(.trailing, 20)
                         .padding(.top, 80)
                     } else {
@@ -156,10 +158,12 @@ struct FeedDetailView: View {
                             ],
                             isExpanded: viewModel.isMoreMenuPresented,
                             showButton: false,
-                            onClose: { viewModel.dismissMoreMenu() })
+                            onClose: { viewModel.dismissMoreMenu() }
+                        )
                         .padding(.trailing, 20)
                         .padding(.top, 80)
                     }
+                    // swiftlint:enable trailing_closure
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .zIndex(10)
@@ -187,19 +191,23 @@ struct FeedDetailView: View {
             FeedLikesListView(viewModel: viewModel)
                 .presentationDetents([.medium, .large])
         }
-        .sheet(isPresented: Binding(
-            get: { navigationRouter.sheetDestination != nil && isCommentSheet(navigationRouter.sheetDestination) },
-            set: { if !$0 { navigationRouter.dismissSheet() } }
-        ), onDismiss: {
-            Task {
-                await viewModel.loadFeedDetail()
+        .sheet(
+            isPresented: Binding(
+                get: { navigationRouter.sheetDestination != nil && isCommentSheet(navigationRouter.sheetDestination) },
+                set: { if !$0 { navigationRouter.dismissSheet() } }
+            ),
+            onDismiss: {
+                Task {
+                    await viewModel.loadFeedDetail()
+                }
+            },
+            content: {
+                if case .comment(let feedId) = navigationRouter.sheetDestination {
+                    commentDIContainer.commentViewFactory.makeView(for: .comment(feedId: feedId))
+                        .presentationDetents([.fraction(0.7), .large])
+                }
             }
-        }) {
-            if case .comment(let feedId) = navigationRouter.sheetDestination {
-                commentDIContainer.commentViewFactory.makeView(for: .comment(feedId: feedId))
-                    .presentationDetents([.fraction(0.7), .large])
-            }
-        }
+        )
         .alert("기록 삭제", isPresented: $viewModel.showDeleteAlert) {
             Button("취소", role: .cancel) { }
             Button("삭제", role: .destructive) {
