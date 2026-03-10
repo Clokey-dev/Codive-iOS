@@ -78,13 +78,11 @@ struct LikerDTO {
 final class FeedAPIService: FeedAPIServiceProtocol {
 
     private let client: Client
-    private let jsonDecoder: JSONDecoder
 
     init(tokenProvider: TokenProvider = KeychainTokenProvider()) {
-        self.client = CodiveAPIProvider.createClient(
+        self.client = CodiveAPIProvider.createConfiguredClient(
             middlewares: [CodiveAuthMiddleware(provider: tokenProvider)]
         )
-        self.jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
     }
 }
 
@@ -117,11 +115,7 @@ extension FeedAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let decoded = try jsonDecoder.decode(
-                Components.Schemas.BaseResponseFeedListResponse.self,
-                from: data
-            )
+            let decoded = try okResponse.body.json
 
             let items = decoded.result?.items ?? []
             let feeds: [FeedItemDTO] = items.map { item in
@@ -188,11 +182,7 @@ extension FeedAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let decoded = try jsonDecoder.decode(
-                Components.Schemas.BaseResponseSliceResponseLikedMemberPreview.self,
-                from: data
-            )
+            let decoded = try okResponse.body.json
 
             guard let result = decoded.result else {
                 throw FeedAPIError.serverError(statusCode: 200, message: "좋아요 유저 목록 없음")

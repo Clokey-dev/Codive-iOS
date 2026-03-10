@@ -39,7 +39,7 @@ final class SearchAPIService: SearchAPIServiceProtocol {
     private let jsonDecoder: JSONDecoder
 
     init(tokenProvider: TokenProvider = KeychainTokenProvider()) {
-        self.client = CodiveAPIProvider.createClient(
+        self.client = CodiveAPIProvider.createConfiguredClient(
             middlewares: [CodiveAuthMiddleware(provider: tokenProvider)]
         )
         self.jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
@@ -54,8 +54,7 @@ extension SearchAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseListSearchingRecommendResponse.self, from: data)
+            let decoded = try okResponse.body.json
 
             let items = decoded.result ?? []
 
@@ -90,11 +89,7 @@ extension SearchAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let decoded = try jsonDecoder.decode(
-                Components.Schemas.BaseResponseSliceResponseSearchedMemberResponse.self,
-                from: data
-            )
+            let decoded = try okResponse.body.json
 
             let members = decoded.result?.content ?? []
             let users: [SimpleUser] = members.compactMap { member -> SimpleUser? in
@@ -135,11 +130,7 @@ extension SearchAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let decoded = try jsonDecoder.decode(
-                Components.Schemas.BaseResponseSliceResponseSearchedHistoryResponse.self,
-                from: data
-            )
+            let decoded = try okResponse.body.json
 
             let histories = decoded.result?.content ?? []
             let posts: [PostEntity] = histories.compactMap { history -> PostEntity? in

@@ -31,7 +31,7 @@ final class SettingDIContainer {
         navigationRouter: NavigationRouter,
         profileDIContainer: ProfileDIContainer,
         authDIContainer: AuthDIContainer,
-        apiClient: Client = CodiveAPIProvider.createClient(
+        apiClient: Client = CodiveAPIProvider.createConfiguredClient(
             middlewares: [CodiveAuthMiddleware(provider: KeychainTokenProvider())]
         )
     ) {

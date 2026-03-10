@@ -8,9 +8,10 @@
 import SwiftUI
 
 struct AddView: View {
-    
+
     // MARK: - Properties
     @EnvironmentObject private var navigationRouter: NavigationRouter
+    @EnvironmentObject private var mainTabViewModel: MainTabViewModel
     private let addDIContainer: AddDIContainer
     
     // MARK: - Initializer
@@ -68,7 +69,7 @@ struct AddView: View {
                             title: TextLiteral.Add.recordTitle,
                             description: TextLiteral.Add.recordDescription
                         ) {
-                            navigationRouter.navigate(to: AppDestination.recordAdd)
+                            mainTabViewModel.checkAndNavigateToRecordAdd()
                         }
                         .padding(.horizontal, 20)
                     }

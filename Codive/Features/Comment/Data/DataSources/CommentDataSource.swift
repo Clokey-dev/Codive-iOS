@@ -24,7 +24,7 @@ final class DefaultCommentDataSource: CommentDataSource {
     private var currentUser: User
 
     init() {
-        self.apiClient = CodiveAPIProvider.createClient(
+        self.apiClient = CodiveAPIProvider.createConfiguredClient(
             middlewares: [CodiveAuthMiddleware(provider: KeychainTokenProvider())]
         )
         self.jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
@@ -71,13 +71,7 @@ final class DefaultCommentDataSource: CommentDataSource {
 
         switch response {
         case .ok(let okResponse):
-            let httpBody = try okResponse.body.any
-            let data = try await Data(collecting: httpBody, upTo: .max)
-
-            let apiResponse = try jsonDecoder.decode(
-                Components.Schemas.BaseResponseSliceResponseCommentListResponse.self,
-                from: data
-            )
+            let apiResponse = try okResponse.body.json
 
             let comments = (apiResponse.result?.content ?? []).map { Comment.from(apiResponse: $0) }
             let hasNext = !(apiResponse.result?.isLast ?? true)
@@ -110,13 +104,7 @@ final class DefaultCommentDataSource: CommentDataSource {
 
         switch response {
         case .ok(let okResponse):
-            let httpBody = try okResponse.body.any
-            let data = try await Data(collecting: httpBody, upTo: .max)
-
-            let apiResponse = try jsonDecoder.decode(
-                Components.Schemas.BaseResponseCommentCreateResponse.self,
-                from: data
-            )
+            let apiResponse = try okResponse.body.json
 
             guard let commentId = apiResponse.result?.commentId else {
                 throw NSError(domain: "CommentDataSource", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid response format"])
@@ -149,13 +137,7 @@ final class DefaultCommentDataSource: CommentDataSource {
 
         switch response {
         case .ok(let okResponse):
-            let httpBody = try okResponse.body.any
-            let data = try await Data(collecting: httpBody, upTo: .max)
-
-            let apiResponse = try jsonDecoder.decode(
-                Components.Schemas.BaseResponseSliceResponseReplyListResponse.self,
-                from: data
-            )
+            let apiResponse = try okResponse.body.json
 
             let replies = (apiResponse.result?.content ?? []).map { Comment.from(apiResponse: $0) }
             let hasNext = !(apiResponse.result?.isLast ?? true)
@@ -179,13 +161,7 @@ final class DefaultCommentDataSource: CommentDataSource {
 
         switch response {
         case .ok(let okResponse):
-            let httpBody = try okResponse.body.any
-            let data = try await Data(collecting: httpBody, upTo: .max)
-
-            let apiResponse = try jsonDecoder.decode(
-                Components.Schemas.BaseResponseCommentCreateResponse.self,
-                from: data
-            )
+            let apiResponse = try okResponse.body.json
 
             guard let replyId = apiResponse.result?.commentId else {
                 throw NSError(domain: "CommentDataSource", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid response format"])

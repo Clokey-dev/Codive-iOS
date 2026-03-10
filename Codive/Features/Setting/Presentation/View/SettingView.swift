@@ -55,7 +55,9 @@ struct SettingView: View {
                 .padding(.bottom, 16)
 
             HStack(spacing: 15) {
-                Image("kakao")
+                Image(AuthProvider.current?.settingIconName ?? "kakao")
+                    .resizable()
+                    .scaledToFit()
                     .frame(width: 40, height: 40)
 
                 Text(profileViewModel.email ?? "email@xxxx.com")

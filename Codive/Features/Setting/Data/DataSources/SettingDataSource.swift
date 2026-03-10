@@ -25,14 +25,13 @@ final class SettingsDataSource {
     ]
 
     // MARK: - Init
-    init(apiClient: Client = CodiveAPIProvider.createClient()) {
+    init(apiClient: Client = CodiveAPIProvider.createConfiguredClient()) {
         self.apiClient = apiClient
     }
 
     // MARK: - Liked Records
     func fetchLikedRecords(page: Int, pageSize: Int) async throws -> [LikedRecord] {
         let lastLikeId: Int64? = page > 1 ? Int64((page - 1) * pageSize) : nil
-        let jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
 
         let response = try await apiClient.Like_getLikedHistories(
             query: .init(lastLikeId: lastLikeId, size: Int32(pageSize))
@@ -40,35 +39,25 @@ final class SettingsDataSource {
 
         switch response {
         case .ok(let okResponse):
-            let httpBody = try okResponse.body.any
-            let data = try await Data(collecting: httpBody, upTo: .max)
+            let apiResponse = try okResponse.body.json
 
-            struct LikedRecordsResult: Decodable {
-                let content: [LikedHistoryDTO]
-                let isLast: Bool
-            }
-
-            struct LikedRecordsAPIResponse: Decodable {
-                let isSuccess: Bool
-                let code: String
-                let message: String
-                let timeStamp: String
-                let result: LikedRecordsResult
-            }
-
-            let apiResponse = try jsonDecoder.decode(LikedRecordsAPIResponse.self, from: data)
-
-            guard apiResponse.isSuccess else {
-                throw SettingError.apiError(message: apiResponse.message)
+            guard apiResponse.isSuccess == true else {
+                throw SettingError.apiError(message: apiResponse.message ?? "Unknown error")
             }
 
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd"
             dateFormatter.locale = Locale(identifier: "en_US_POSIX")
 
-            return apiResponse.result.content.map { dto in
-                SettingDTOMapper.mapLikedHistoryDTOToLikedRecord(dto, with: dateFormatter)
-            }
+            return apiResponse.result?.content?.map { item in
+                let dto = LikedHistoryDTO(
+                    id: item.id ?? 0,
+                    imageUrl: item.imageUrl ?? "",
+                    historyDate: item.historyDate ?? "",
+                    lastLikeId: item.lastLikeId
+                )
+                return SettingDTOMapper.mapLikedHistoryDTOToLikedRecord(dto, with: dateFormatter)
+            } ?? []
 
         default:
             if case .undocumented(let statusCode, let payload) = response {
@@ -88,7 +77,6 @@ final class SettingsDataSource {
     // MARK: - My Comments
     func fetchMyComments(page: Int, pageSize: Int) async throws -> [MyComment] {
         let lastHistoryId: Int64? = page > 1 ? Int64((page - 1) * pageSize) : nil
-        let jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
 
         let response = try await apiClient.Comment_getMyComments(
             query: .init(lastHistoryId: lastHistoryId, size: Int32(pageSize))
@@ -96,22 +84,33 @@ final class SettingsDataSource {
 
         switch response {
         case .ok(let okResponse):
-            let httpBody = try okResponse.body.any
-            let data = try await Data(collecting: httpBody, upTo: .max)
+            let apiResponse = try okResponse.body.json
 
-            let apiResponse = try jsonDecoder.decode(MyCommentsAPIResponse.self, from: data)
-
-            guard apiResponse.isSuccess else {
-                throw SettingError.apiError(message: apiResponse.message)
+            guard apiResponse.isSuccess == true else {
+                throw SettingError.apiError(message: apiResponse.message ?? "Unknown error")
             }
 
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd"
             dateFormatter.locale = Locale(identifier: "en_US_POSIX")
 
-            return apiResponse.result.content.map { historyDTO in
-                SettingDTOMapper.mapHistoryDTOToMyComment(historyDTO, with: dateFormatter)
-            }
+            return apiResponse.result?.content?.map { item in
+                let payloads = item.payloads?.map { payload in
+                    HistoryDTO.CommentPayloadDTO(
+                        commentId: payload.commentId ?? 0,
+                        content: payload.content
+                    )
+                } ?? []
+                let historyDTO = HistoryDTO(
+                    historyId: item.historyId ?? 0,
+                    imageUrl: item.imageUrl ?? "",
+                    nickname: item.nickname ?? "",
+                    historyDate: item.historyDate ?? "",
+                    content: item.content,
+                    payloads: payloads
+                )
+                return SettingDTOMapper.mapHistoryDTOToMyComment(historyDTO, with: dateFormatter)
+            } ?? []
 
         default:
             if case .undocumented(let statusCode, let payload) = response {
@@ -130,30 +129,31 @@ final class SettingsDataSource {
 
     // MARK: - Blocked Users
     func fetchBlockedUsers() async throws -> [BlockedUser] {
-        let jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
-
         let response = try await apiClient.Member_getBlockedMembers(
             query: .init(size: 500)
         )
 
         switch response {
         case .ok(let okResponse):
-            let httpBody = try okResponse.body.any
-            let data = try await Data(collecting: httpBody, upTo: .max)
+            let apiResponse = try okResponse.body.json
 
-            let apiResponse = try jsonDecoder.decode(BlockedMembersAPIResponse.self, from: data)
-
-            guard apiResponse.isSuccess else {
-                throw SettingError.apiError(message: apiResponse.message)
+            guard apiResponse.isSuccess == true else {
+                throw SettingError.apiError(message: apiResponse.message ?? "Unknown error")
             }
 
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd"
             dateFormatter.locale = Locale(identifier: "en_US_POSIX")
 
-            return apiResponse.result.content.map { dto in
-                SettingDTOMapper.mapBlockedMemberDTOToBlockedUser(dto, with: dateFormatter)
-            }
+            return apiResponse.result?.content?.map { item in
+                let dto = BlockedMemberDTO(
+                    blockId: item.blockId ?? 0,
+                    memberId: item.memberId ?? 0,
+                    nickname: item.nickname ?? "",
+                    profileImageUrl: item.profileImageUrl
+                )
+                return SettingDTOMapper.mapBlockedMemberDTOToBlockedUser(dto, with: dateFormatter)
+            } ?? []
 
         default:
             if case .undocumented(let statusCode, let payload) = response {

@@ -21,11 +21,10 @@ struct WardrobeReportDetailView: View {
     var body: some View {
         VStack(spacing: 0) {
             CustomNavigationBar(
-                title: "\(viewModel.currentMonth)월 옷장 리포트",
-                onBack: {
-                    viewModel.navigateBack()
-                }
-            )
+                title: "\(viewModel.currentMonth)월 옷장 리포트"
+            ) {
+                viewModel.navigateBack()
+            }
 
             if viewModel.isLoading {
                 Spacer()

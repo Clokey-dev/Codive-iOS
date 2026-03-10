@@ -29,7 +29,7 @@ final class ClothAIRepositoryImpl: ClothAIRepository {
 
         // 2. S3 업로드 (3장씩 청크 분할하여 동시 메모리 제한)
         let chunkSize = 3
-        var results = Array<String?>(repeating: nil, count: images.count)
+        var results = [String?](repeating: nil, count: images.count)
         let pairs = Array(zip(images, presignedInfos).enumerated())
 
         for chunkStart in stride(from: 0, to: pairs.count, by: chunkSize) {

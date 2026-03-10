@@ -23,7 +23,7 @@ final class StatisticsAPIService: StatisticsAPIServiceProtocol {
     private let jsonDecoder: JSONDecoder
 
     init(tokenProvider: TokenProvider = KeychainTokenProvider()) {
-        self.client = CodiveAPIProvider.createClient(
+        self.client = CodiveAPIProvider.createConfiguredClient(
             middlewares: [CodiveAuthMiddleware(provider: tokenProvider)]
         )
         self.jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
@@ -35,11 +35,7 @@ final class StatisticsAPIService: StatisticsAPIServiceProtocol {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let decoded = try jsonDecoder.decode(
-                Components.Schemas.BaseResponseStatisticsCheckConditionResponse.self,
-                from: data
-            )
+            let decoded = try okResponse.body.json
             return decoded.result?.canAggregate ?? false
 
         case .undocumented(statusCode: let code, _):

@@ -101,7 +101,7 @@ let project = Project(
                     "BASE_URL": "$(BASE_URL)",
                     
                     // 갤러리 & 카메라 권한 추가
-                    "NSPhotoLibraryUsageDescription": "기록을 추가하기 위해 사진 접근 권한이 필요합니다.",
+                    "NSPhotoLibraryUsageDescription": "기록 추가, 옷 등록, 프로필 설정을 위해 사진 접근 권한이 필요합니다.",
                     "NSPhotoLibraryAddUsageDescription": "사진을 저장하기 위해 권한이 필요합니다.",
                     "NSCameraUsageDescription": "사진을 촬영하기 위해 카메라 권한이 필요합니다.",
                     

@@ -53,8 +53,10 @@ struct HomeView: View {
                                 viewModel: viewModel,
                                 width: outerGeometry.size.width
                             )
+                            .transition(.opacity)
                         } else {
                             HomeNoCodiView(viewModel: viewModel)
+                                .transition(.opacity)
                         }
                     }
                     .padding(.bottom, 16)
@@ -68,8 +70,11 @@ struct HomeView: View {
                 }
             }
             .onAppear {
-                // 다른 탭에서 돌아올 때 옷 목록 갱신 (날씨가 이미 로드된 경우만)
+                // 다른 탭/화면에서 돌아올 때 오늘의 코디 및 옷 목록 갱신
                 if viewModel.weatherData != nil {
+                    if !viewModel.isEditingExistingCodi {
+                        viewModel.fetchTodayCodiData()
+                    }
                     Task {
                         await viewModel.loadRecommendCategoryClothList(seasons: viewModel.currentSeasons)
                     }

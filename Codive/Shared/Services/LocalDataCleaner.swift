@@ -16,6 +16,7 @@ enum LocalDataCleaner {
         UserDefaults.standard.removeObject(forKey: "SavedCategories")
         UserProfileStorage.clear()
         RecentSearchStorage.clear()
+        AuthProvider.clearCurrent()
         // Kingfisher 이미지 캐시 삭제
         let cache = ImageCache.default
         cache.clearMemoryCache()

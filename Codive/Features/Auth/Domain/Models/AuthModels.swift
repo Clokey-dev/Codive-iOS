@@ -25,7 +25,7 @@ struct AuthUser {
 enum AuthProvider: String {
     case kakao
     case apple
-    
+
     var displayName: String {
         switch self {
         case .kakao:
@@ -33,6 +33,32 @@ enum AuthProvider: String {
         case .apple:
             return "애플"
         }
+    }
+
+    /// 설정 화면에 표시할 아이콘 에셋 이름
+    var settingIconName: String {
+        switch self {
+        case .kakao:
+            return "kakao"
+        case .apple:
+            return "apple_login"
+        }
+    }
+
+    // MARK: - Persistence
+    private static let storageKey = "com.codive.authProvider"
+
+    static func saveCurrent(_ provider: AuthProvider) {
+        UserDefaults.standard.set(provider.rawValue, forKey: storageKey)
+    }
+
+    static var current: AuthProvider? {
+        guard let rawValue = UserDefaults.standard.string(forKey: storageKey) else { return nil }
+        return AuthProvider(rawValue: rawValue)
+    }
+
+    static func clearCurrent() {
+        UserDefaults.standard.removeObject(forKey: storageKey)
     }
 }
 

@@ -49,7 +49,7 @@ final class HomeAPIService: HomeAPIServiceProtocol {
     private let jsonDecoder: JSONDecoder
     
     init(tokenProvider: TokenProvider = KeychainTokenProvider()) {
-        self.client = CodiveAPIProvider.createClient(
+        self.client = CodiveAPIProvider.createConfiguredClient(
             middlewares: [CodiveAuthMiddleware(provider: tokenProvider)]
         )
         self.jsonDecoder = JSONDecoderFactory.makeAPIDecoder()
@@ -76,15 +76,7 @@ extension HomeAPIService {
 
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-
-            #if DEBUG
-            if let rawJSON = String(data: data, encoding: .utf8) {
-                print("[HomeAPI] 카테고리 옷 추천 응답 (categoryId: \(categoryId)) RAW: \(rawJSON)")
-            }
-            #endif
-
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseClothRecommendListResponse.self, from: data)
+            let decoded = try okResponse.body.json
 
             let content: [HomeCategoryResponseItem] = decoded.result?.content?.map { item -> HomeCategoryResponseItem in
                 #if DEBUG
@@ -114,9 +106,7 @@ extension HomeAPIService {
         
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseDailyCoordinatePreviewResponse.self, from: data)
+            let decoded = try okResponse.body.json
             
             guard let item = decoded.result else {
                 throw LookBookAPIError.invalidResponse
@@ -140,9 +130,7 @@ extension HomeAPIService {
         
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseListCoordinateDetailsListResponse.self, from: data)
+            let decoded = try okResponse.body.json
             
             let items = decoded.result ?? []
             
@@ -182,8 +170,7 @@ extension HomeAPIService {
         
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseSliceResponseLookBookListResponse.self, from: data)
+            let decoded = try okResponse.body.json
             
             let content: [LookBookListResponseItem] = decoded.result?.content?.map { item -> LookBookListResponseItem in
                 return LookBookListResponseItem(lookBookId: item.lookBookId ?? 0, lookBookName: item.lookBookName ?? "", imageUrl: item.imageUrl ?? "", count: item.count ?? 0)
@@ -236,12 +223,8 @@ extension HomeAPIService {
         
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let decoded = try jsonDecoder.decode(
-                Components.Schemas.BaseResponseCoordinateCreateResponse.self,
-                from: data
-            )
-            
+            let decoded = try okResponse.body.json
+
             guard let coordinateId = decoded.result?.coordinateId else {
                 throw HomeAPIError.invalidResponse
             }
@@ -268,8 +251,7 @@ extension HomeAPIService {
         
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let decoded = try jsonDecoder.decode(Components.Schemas.BaseResponseClothImagesPresignedUrlResponse.self, from: data)
+            let decoded = try okResponse.body.json
             
             guard let urls = decoded.result?.urls, urls.count == images.count else {
                 throw ClothAPIError.presignedUrlMismatch
@@ -327,12 +309,8 @@ extension HomeAPIService {
         
         switch response {
         case .ok(let okResponse):
-            let data = try await Data(collecting: okResponse.body.any, upTo: .max)
-            let decoded = try jsonDecoder.decode(
-                Components.Schemas.BaseResponseCoordinateCreateResponse.self,
-                from: data
-            )
-            
+            let decoded = try okResponse.body.json
+
             guard let coordinateId = decoded.result?.coordinateId else {
                 throw LookBookAPIError.invalidResponse
             }
