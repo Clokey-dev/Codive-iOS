@@ -32,6 +32,10 @@ final class HistoryRepositoryImpl: HistoryRepository {
         }
     }
 
+    func checkTodayHistoryExists() async throws -> Bool {
+        try await historyAPIService.checkTodayHistoryExistence()
+    }
+
     func deleteHistory(historyId: Int64) async throws {
         try await historyAPIService.deleteHistory(historyId: historyId)
     }

@@ -44,7 +44,7 @@ struct MainTabView: View {
         self._navigationRouter = ObservedObject(wrappedValue: appDIContainer.navigationRouter)
         let checkTodayRecordUseCase = CheckTodayRecordUseCase(
             historyRepository: HistoryRepositoryImpl()
-        ) { TokenService().getCurrentUserId() }
+        )
         let viewModel = MainTabViewModel(
             navigationRouter: appDIContainer.navigationRouter,
             notificationUsecase: notificationDIContainer.topNavigationNotificaionUsecase,
