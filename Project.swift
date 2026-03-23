@@ -6,7 +6,7 @@ import ProjectDescription
 let crashlyticsScript = TargetScript.post(
    script: """
    if [ "${CONFIGURATION}" = "Release" ]; then
-       ${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run
+       "${SRCROOT}/Tuist/.build/checkouts/firebase-ios-sdk/Crashlytics/run"
    fi
    """,
    name: "Firebase Crashlytics dSYM Upload",
