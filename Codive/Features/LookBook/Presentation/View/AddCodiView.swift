@@ -67,16 +67,19 @@ private extension AddCodiView {
     }
     
     var codiPreviewArea: some View {
-        ZStack {
-            if let capturedImage = viewModel.capturedImage {
-                selectedImagePreview(image: capturedImage)
-            } else if let imageURL = viewModel.selectedImageURL, !imageURL.isEmpty {
-                selectedImagePreview(url: imageURL)
-            } else {
-                emptyUploadPlaceholder
+        GeometryReader { geometry in
+            ZStack {
+                if let capturedImage = viewModel.capturedImage {
+                    selectedImagePreview(image: capturedImage)
+                } else if let imageURL = viewModel.selectedImageURL, !imageURL.isEmpty {
+                    selectedImagePreview(url: imageURL)
+                } else {
+                    emptyUploadPlaceholder
+                }
             }
+            .frame(width: geometry.size.width, height: geometry.size.width)
         }
-        .frame(height: 335)
+        .aspectRatio(1, contentMode: .fit)
     }
     
     var inputSection: some View {
@@ -118,7 +121,6 @@ private extension AddCodiView {
             EditCodiOverlayView()
                 .clipShape(RoundedRectangle(cornerRadius: 12))
         }
-        .frame(height: 335)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
     
@@ -142,7 +144,6 @@ private extension AddCodiView {
                     }
             }
         }
-        .frame(height: 335)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
     
