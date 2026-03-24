@@ -49,7 +49,9 @@ struct CommentView: View {
                                 onFetchRepliesTap: { viewModel.fetchReplies(for: $0) },
                                 onFetchAllRepliesTap: { viewModel.fetchAllReplies(for: $0) },
                                 onProfileImageTap: { viewModel.navigateToProfile(userId: $0, isMine: $1) },
-                                onMoreTap: { viewModel.toggleMenu(commentId: $0.id) }
+                                                onMoreTap: { comment, frame in
+                                    viewModel.toggleMenu(commentId: comment.id, buttonFrame: frame)
+                                }
                             )
                         }
                         if viewModel.isLoading {
@@ -77,6 +79,7 @@ struct CommentView: View {
                     }
                     viewModel.fetchFirstPage()
                 }
+                .coordinateSpace(name: "commentList")
 
                 // MARK: - Comment Input Area
                 VStack(spacing: 0) {
@@ -156,7 +159,7 @@ struct CommentView: View {
             // MARK: - 더보기 메뉴 오버레이
             if let menuCommentId = viewModel.expandedMenuCommentId,
                let menuComment = viewModel.findComment(by: menuCommentId) {
-                ZStack(alignment: .topTrailing) {
+                ZStack(alignment: .topLeading) {
                     Color.black
                         .opacity(0.001)
                         .contentShape(Rectangle())
@@ -172,6 +175,7 @@ struct CommentView: View {
                         )
 
                     // swiftlint:disable trailing_closure
+                    let menuY = viewModel.menuButtonFrame.midY + 40
                     if menuComment.isMine {
                         CustomOverflowMenu(
                             menuType: .commentDelete,
@@ -182,8 +186,9 @@ struct CommentView: View {
                             showButton: false,
                             onClose: { viewModel.dismissMenu() }
                         )
+                        .frame(maxWidth: .infinity, alignment: .trailing)
                         .padding(.trailing, 20)
-                        .padding(.top, 80)
+                        .offset(y: menuY)
                     } else {
                         CustomOverflowMenu(
                             menuType: .report,
@@ -195,8 +200,9 @@ struct CommentView: View {
                             showButton: false,
                             onClose: { viewModel.dismissMenu() }
                         )
+                        .frame(maxWidth: .infinity, alignment: .trailing)
                         .padding(.trailing, 20)
-                        .padding(.top, 80)
+                        .offset(y: menuY)
                     }
                     // swiftlint:enable trailing_closure
                 }
