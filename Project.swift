@@ -72,18 +72,6 @@ let projectSettings = Settings.settings(
 let project = Project(
     name: "Codive",
     settings: projectSettings,
-    schemes: [
-        .scheme(
-            name: "Codive",
-            buildAction: .buildAction(targets: ["Codive"]),
-            runAction: .runAction(
-                configuration: "Debug",
-                environmentVariables: [
-                    "OS_ACTIVITY_MODE": .environmentVariable(value: "disable", isEnabled: true)
-                ]
-            )
-        )
-    ],
     targets: [
         .target(
             name: "Codive",
@@ -210,6 +198,20 @@ let project = Project(
            dependencies: [
                .target(name: "Codive")
            ]
+       )
+   ],
+   schemes: [
+       .scheme(
+           name: "Codive",
+           buildAction: .buildAction(targets: ["Codive"]),
+           runAction: .runAction(
+               configuration: "Debug",
+               arguments: .arguments(
+                   environmentVariables: [
+                       "OS_ACTIVITY_MODE": .environmentVariable(value: "disable", isEnabled: true)
+                   ]
+               )
+           )
        )
    ]
 )
