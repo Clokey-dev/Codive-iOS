@@ -156,6 +156,7 @@ private extension AddCodiView {
                 ) {
                     viewModel.handleCodiUploadTap()
                 }
+                .fixedSize()
             }
     }
 }
