@@ -31,14 +31,24 @@ final class StatisticsAPIService: StatisticsAPIServiceProtocol {
 
     func checkStatisticsCondition() async throws -> Bool {
         let input = Operations.Statistics_checkStatisticsCondition.Input()
+        #if DEBUG
+        print("[StatisticsAPI] 통계 조건 확인 요청 시작")
+        #endif
         let response = try await client.Statistics_checkStatisticsCondition(input)
 
         switch response {
         case .ok(let okResponse):
             let decoded = try okResponse.body.json
+            #if DEBUG
+            print("[StatisticsAPI] 응답 성공 - isSuccess: \(decoded.isSuccess ?? false), code: \(decoded.code ?? "nil"), message: \(decoded.message ?? "nil")")
+            print("[StatisticsAPI] canAggregate: \(decoded.result?.canAggregate ?? false)")
+            #endif
             return decoded.result?.canAggregate ?? false
 
         case .undocumented(statusCode: let code, _):
+            #if DEBUG
+            print("[StatisticsAPI] 응답 실패 - statusCode: \(code)")
+            #endif
             throw StatisticsAPIError.serverError(statusCode: code, message: "통계 조건 확인 실패")
         }
     }

@@ -33,7 +33,10 @@ struct WardrobeReportDetailView: View {
             } else if !viewModel.canAggregate {
                 insufficientDataView
             } else {
-                // TODO: 통계 데이터 표시 (추후 구현)
+                Spacer()
+                Text("준비중입니다")
+                    .font(.codive_body1_medium)
+                    .foregroundStyle(Color.Codive.grayscale3)
                 Spacer()
             }
         }
