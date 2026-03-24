@@ -37,7 +37,8 @@ enum JSONDecoderFactory {
                 "yyyy-MM-dd'T'HH:mm:ss.SSSSSSS",    // 7자리
                 "yyyy-MM-dd'T'HH:mm:ss.SSSSSS",     // 6자리
                 "yyyy-MM-dd'T'HH:mm:ss.SSS",        // 3자리
-                "yyyy-MM-dd'T'HH:mm:ss"             // 소수점 없음
+                "yyyy-MM-dd'T'HH:mm:ss",            // 소수점 없음
+                "yyyy-MM-dd"                         // 날짜만
             ]
 
             for format in formats {
