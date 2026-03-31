@@ -67,7 +67,9 @@ struct PhotoGridCell: View {
     
     // MARK: - Methods
     private func loadImage() async {
-        image = await viewModel.loadThumbnail(for: asset, size: size)
+        let scale = UIScreen.main.scale
+        let thumbnailSize = CGSize(width: size.width * scale, height: size.height * scale)
+        image = await viewModel.loadThumbnail(for: asset, size: thumbnailSize)
         
         if image != nil {
             withAnimation(.easeOut(duration: 0.2)) {
