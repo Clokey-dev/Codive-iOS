@@ -46,18 +46,30 @@ struct CustomTextField1: View {
             }
             
             // TextField
-            TextField(placeholder, text: $text)
-                .font(.codive_body1_regular)
-                .foregroundStyle(Color.Codive.grayscale1)
-                .padding(.horizontal, 16)
-                .frame(height: 54)
-                .background(Color.white)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.Codive.grayscale5, lineWidth: 1)
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-                .tint(Color.Codive.main1)
+            HStack(spacing: 8) {
+                TextField(placeholder, text: $text)
+                    .font(.codive_body1_regular)
+                    .foregroundStyle(Color.Codive.grayscale1)
+                    .submitLabel(.done)
+
+                if !text.isEmpty {
+                    Button {
+                        text = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(Color.Codive.grayscale4)
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+            .frame(height: 54)
+            .background(Color.white)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color.Codive.grayscale5, lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .tint(Color.Codive.main1)
         }
     }
 }
