@@ -59,12 +59,6 @@ final class CodiBoardViewModel: ObservableObject {
     
     // MARK: - Navigation
     func handleBackTap() {
-        if let homeVM = homeViewModel {
-            if homeVM.todayCodiPreview != nil {
-                homeVM.hasCodi = true
-            }
-            homeVM.isEditingExistingCodi = false
-        }
         navigationRouter.navigateBack()
     }
     
