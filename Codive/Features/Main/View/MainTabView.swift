@@ -25,6 +25,7 @@ struct MainTabView: View {
     private let settingDIContainer: SettingDIContainer
     private let profileDIContainer: ProfileDIContainer
     private let reportDIContainer: ReportDIContainer
+    @ObservedObject private var profileViewModel: ProfileViewModel
 
     // MARK: - Initializer
     init(appDIContainer: AppDIContainer) {
@@ -52,6 +53,7 @@ struct MainTabView: View {
         )
         self._viewModel = StateObject(wrappedValue: viewModel)
         self.homeViewModel = homeDIContainer.makeHomeViewModel()
+        self._profileViewModel = ObservedObject(wrappedValue: profileDIContainer.makeProfileViewModel())
     }
     
     // MARK: - Body
@@ -199,6 +201,19 @@ struct MainTabView: View {
                 }
                 .padding(.horizontal, 55)
                 .zIndex(301)
+            }
+
+            // MARK: - Favorite Codi Popup Overlay
+            if profileViewModel.isShowingPopup, let preview = profileViewModel.selectedCoordinatePreview {
+                FavoriteLookBookPopUp(
+                    imageUrl: preview.imageUrl,
+                    clothItems: profileViewModel.popupClothItems,
+                    payloads: profileViewModel.popupPayloads
+                ) {
+                    profileViewModel.isShowingPopup = false
+                }
+                .ignoresSafeArea()
+                .zIndex(500)
             }
 
             // MARK: - Empty History Modal Overlay

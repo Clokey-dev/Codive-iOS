@@ -83,6 +83,8 @@ struct CodiItem: Identifiable {
     let brand: String
     let name: String
     let clothId: Int64
+    var category: String = ""
+    var parentCategory: String = ""
 }
 
 struct SelectedCodi: Hashable {
