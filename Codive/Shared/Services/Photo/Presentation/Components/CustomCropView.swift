@@ -12,14 +12,13 @@ struct CustomCropView: View {
     let aspectRatio: CGFloat
     var allowZoomOut: Bool = false
 
-    @Environment(\.dismiss) var dismiss
-
     // MARK: - Configuration
     private let minBoxWidth: CGFloat = 100
     private let boxPadding: CGFloat = 20
 
     // MARK: - Callbacks
     var onComplete: (UIImage) -> Void
+    var onCancel: () -> Void
 
     // MARK: - State
     @State private var imageScale: CGFloat = 1.0
@@ -85,21 +84,9 @@ struct CustomCropView: View {
                             )
                             .frame(width: geometry.size.width, height: geometry.size.height)
 
-                        // Mask & Crop Box
+                        // Dim overlay with crop hole (Path even-odd fill)
                         if isViewInitialized {
-                            Rectangle()
-                                .fill(Color.black.opacity(0.7))
-                                .mask(
-                                    ZStack {
-                                        Rectangle().fill(Color.white)
-                                        Rectangle()
-                                            .fill(Color.black)
-                                            .frame(width: currentCropSize.width, height: currentCropSize.height)
-                                            .offset(resizeOffset)
-                                            .blendMode(.destinationOut)
-                                    }
-                                    .compositingGroup()
-                                )
+                            dimOverlay(in: geometry.size)
                                 .allowsHitTesting(false)
 
                             ZStack {
@@ -117,16 +104,14 @@ struct CustomCropView: View {
                     .clipped()
                     .coordinateSpace(name: "CROP_AREA")
                     .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                            self.containerSize = geometry.size
-                            initializeLayout(viewSize: geometry.size)
-                        }
+                        self.containerSize = geometry.size
+                        initializeLayout(viewSize: geometry.size)
                     }
                 }
 
                 // Bottom Toolbar
                 HStack {
-                    Button("취소") { dismiss() }
+                    Button("취소") { onCancel() }
                         .foregroundColor(.white)
 
                     Spacer()
@@ -134,7 +119,6 @@ struct CustomCropView: View {
                     Button("완료") {
                         if let cropped = cropImage() {
                             onComplete(cropped)
-                            dismiss()
                         }
                     }
                     .foregroundColor(.yellow)
@@ -147,6 +131,18 @@ struct CustomCropView: View {
                 .padding(.bottom, 30)
             }
         }
+    }
+
+    // MARK: - Dim Overlay (Path even-odd fill, no compositingGroup)
+    private func dimOverlay(in size: CGSize) -> some View {
+        let cropX = (size.width - currentCropSize.width) / 2 + resizeOffset.width
+        let cropY = (size.height - currentCropSize.height) / 2 + resizeOffset.height
+
+        return Path { path in
+            path.addRect(CGRect(origin: .zero, size: size))
+            path.addRect(CGRect(x: cropX, y: cropY, width: currentCropSize.width, height: currentCropSize.height))
+        }
+        .fill(Color.black.opacity(0.7), style: FillStyle(eoFill: true))
     }
 
     // MARK: - Layout Initialization

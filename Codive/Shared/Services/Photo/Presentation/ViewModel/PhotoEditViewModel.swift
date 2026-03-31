@@ -126,8 +126,8 @@ final class PhotoEditViewModel: ObservableObject {
     // MARK: - Private Methods
 
     private func cleanupOriginalImages() {
-        for photo in selectedPhotos {
-            photo.cleanupOriginal()
+        for index in selectedPhotos.indices {
+            selectedPhotos[index].cleanupOriginal()
         }
     }
 }
