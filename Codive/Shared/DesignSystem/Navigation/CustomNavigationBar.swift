@@ -81,7 +81,7 @@ struct CustomNavigationBar: View {
                 Button(action: onBack) {
                     Image(systemName: "chevron.backward")
                         .font(.system(size: 20, weight: .bold))
-                        .foregroundStyle(Color.Codive.grayscale3)
+                        .foregroundStyle(Color.Codive.main0)
                 }
                 .frame(width: 44, height: 44)
 
