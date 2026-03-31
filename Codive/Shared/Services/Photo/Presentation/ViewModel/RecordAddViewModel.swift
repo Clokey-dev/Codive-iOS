@@ -18,7 +18,8 @@ final class RecordAddViewModel: ObservableObject {
     @Published var albums: [PhotoAlbum] = []
     @Published var selectedAlbum: PhotoAlbum?
     @Published var photos: [PhotoAsset] = []
-    @Published var selectedPhotos: [PhotoAsset] = []
+    @Published var selectedIds: Set<String> = []
+    @Published var selectionOrder: [String] = []  // 순서 유지용 배열
     @Published var isAlbumSheetPresented = false
     @Published var isCameraPresented = false
     @Published var authorizationStatus: PHAuthorizationStatus = .notDetermined
@@ -40,7 +41,14 @@ final class RecordAddViewModel: ObservableObject {
     }
 
     var isCompleteEnabled: Bool {
-        !selectedPhotos.isEmpty
+        !selectedIds.isEmpty
+    }
+
+    /// 선택된 PhotoAsset 목록 (순서 유지)
+    var selectedPhotos: [PhotoAsset] {
+        selectionOrder.compactMap { id in
+            photos.first { $0.id == id }
+        }
     }
 
     var selectedAlbumTitle: String {
@@ -110,35 +118,12 @@ final class RecordAddViewModel: ObservableObject {
     }
     
     func togglePhotoSelection(_ photo: PhotoAsset) {
-        if let index = photos.firstIndex(where: { $0.id == photo.id }) {
-            var updatedPhoto = photos[index]
-            updatedPhoto.isSelected.toggle()
-            
-            if updatedPhoto.isSelected {
-                let order = selectedPhotos.count + 1
-                updatedPhoto.selectionOrder = order
-                selectedPhotos.append(updatedPhoto)
-            } else {
-                selectedPhotos.removeAll { $0.id == photo.id }
-                updatedPhoto.selectionOrder = nil
-                reorderSelection()
-            }
-            
-            photos[index] = updatedPhoto
-        }
-    }
-    
-    private func reorderSelection() {
-        selectedPhotos = selectedPhotos.enumerated().map { index, photo in
-            var updatedPhoto = photo
-            updatedPhoto.selectionOrder = index + 1
-            return updatedPhoto
-        }
-        
-        for (index, photo) in selectedPhotos.enumerated() {
-            if let photoIndex = photos.firstIndex(where: { $0.id == photo.id }) {
-                photos[photoIndex].selectionOrder = index + 1
-            }
+        if selectedIds.contains(photo.id) {
+            selectedIds.remove(photo.id)
+            selectionOrder.removeAll { $0 == photo.id }
+        } else {
+            selectedIds.insert(photo.id)
+            selectionOrder.append(photo.id)
         }
     }
     
@@ -153,7 +138,8 @@ final class RecordAddViewModel: ObservableObject {
     func handleCameraCapture(image: UIImage) {
         Task {
             await saveImageToPhotoLibrary(image)
-            selectedPhotos.removeAll()
+            selectedIds.removeAll()
+            selectionOrder.removeAll()
             await loadAlbums()
         }
     }
@@ -171,55 +157,73 @@ final class RecordAddViewModel: ObservableObject {
     }
     
     func completeSelection() {
-        Task {
-            isCompletingSelection = true
-            
-            var selectedPhotoItems: [SelectedPhoto] = []
-            
-            let photosToProcess = selectedPhotos
-            let targetSize = CGSize(width: 1200, height: 1200)
-            
-            for (index, photo) in photosToProcess.enumerated() {
-                if let image = await fetchPhotosUseCase.loadThumbnail(
-                    for: photo.asset,
-                    size: targetSize
-                ) {
-                    let croppedImage: UIImage
-                    switch flowType {
-                    case .record:
-                        croppedImage = processImageUseCase.cropTo3_4Ratio(image)
-                    case .cloth:
-                        croppedImage = processImageUseCase.cropTo1_1Ratio(image)
-                    }
+        isCompletingSelection = true
 
-                    var selectedPhoto = SelectedPhoto(
-                        id: photo.id,
-                        croppedImage: croppedImage,
-                        order: index + 1
-                    )
-                    selectedPhoto.saveOriginalToDisk(image)
-                    selectedPhotoItems.append(selectedPhoto)
+        let photosToProcess = selectedPhotos
+        let targetSize = CGSize(width: 1080, height: 1080)
+        let currentFlowType = flowType
+        let cropUseCase = processImageUseCase
+        let fetchUseCase = fetchPhotosUseCase
+
+        Task.detached(priority: .userInitiated) {
+            let selectedPhotoItems: [SelectedPhoto] = await withTaskGroup(
+                of: (Int, SelectedPhoto?).self
+            ) { group in
+                for (index, photo) in photosToProcess.enumerated() {
+                    group.addTask {
+                        guard let image = await fetchUseCase.loadThumbnail(
+                            for: photo.asset,
+                            size: targetSize
+                        ) else {
+                            return (index, nil)
+                        }
+
+                        let croppedImage: UIImage
+                        switch currentFlowType {
+                        case .record:
+                            croppedImage = cropUseCase.cropTo3_4Ratio(image)
+                        case .cloth:
+                            croppedImage = cropUseCase.cropTo1_1Ratio(image)
+                        }
+
+                        let displayReady = await croppedImage.byPreparingForDisplay() ?? croppedImage
+                        let originalReady = await image.byPreparingForDisplay() ?? image
+
+                        var selectedPhoto = SelectedPhoto(
+                            id: photo.id,
+                            croppedImage: displayReady,
+                            order: index + 1
+                        )
+                        selectedPhoto.originalImage = originalReady
+                        return (index, selectedPhoto)
+                    }
+                }
+
+                var results: [(Int, SelectedPhoto?)] = []
+                for await result in group {
+                    results.append(result)
+                }
+                return results
+                    .sorted { $0.0 < $1.0 }
+                    .compactMap { $0.1 }
+            }
+
+            await MainActor.run {
+                self.isCompletingSelection = false
+
+                switch self.flowType {
+                case .record:
+                    self.navigationRouter.navigate(to: .photoEdit(photos: selectedPhotoItems))
+                case .cloth:
+                    self.navigationRouter.navigate(to: .photoEditForCloth(photos: selectedPhotoItems, isAIEnabled: self.isAIAddEnabled))
                 }
             }
-            
-            switch flowType {
-            case .record:
-                navigationRouter.navigate(to: .photoEdit(photos: selectedPhotoItems))
-            case .cloth:
-                navigationRouter.navigate(to: .photoEditForCloth(photos: selectedPhotoItems, isAIEnabled: isAIAddEnabled))
-            }
-                    
-            resetSelection()
-            isCompletingSelection = false
         }
     }
     
     func resetSelection() {
-        selectedPhotos.removeAll()
-        for index in photos.indices {
-            photos[index].isSelected = false
-            photos[index].selectionOrder = nil
-        }
+        selectedIds.removeAll()
+        selectionOrder.removeAll()
     }
     
     func dismissView() {
