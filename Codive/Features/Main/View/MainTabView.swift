@@ -76,7 +76,20 @@ struct MainTabView: View {
                         Group {
                             switch viewModel.selectedTab {
                             case .home:
-                                HomeView(homeDIContainer: homeDIContainer, viewModel: homeViewModel)
+                                HomeView(
+                                    homeDIContainer: homeDIContainer,
+                                    viewModel: homeViewModel,
+                                    onBannerTapped: {
+                                        Task {
+                                            let hasTodayRecord = await viewModel.checkTodayRecordExists()
+                                            if hasTodayRecord {
+                                                viewModel.isDuplicateRecordModalPresented = true
+                                            } else {
+                                                homeViewModel.handleBannerRecord()
+                                            }
+                                        }
+                                    }
+                                )
                                     .ignoresSafeArea(.all, edges: .bottom)
                             case .closet:
                                 ClosetView(closetDIContainer: closetDIContainer)

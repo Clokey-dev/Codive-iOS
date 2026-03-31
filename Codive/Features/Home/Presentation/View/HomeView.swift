@@ -13,11 +13,13 @@ struct HomeView: View {
     @ObservedObject var viewModel: HomeViewModel
     @ObservedObject private var navigationRouter: NavigationRouter
     @State private var scrollViewID = UUID()
-    
-    init(homeDIContainer: HomeDIContainer, viewModel: HomeViewModel) {
+    let onBannerTapped: () -> Void
+
+    init(homeDIContainer: HomeDIContainer, viewModel: HomeViewModel, onBannerTapped: @escaping () -> Void) {
         self.homeDIContainer = homeDIContainer
         self.viewModel = viewModel
         self._navigationRouter = ObservedObject(wrappedValue: homeDIContainer.navigationRouter)
+        self.onBannerTapped = onBannerTapped
     }
     
     var body: some View {
@@ -51,7 +53,8 @@ struct HomeView: View {
                         if viewModel.hasCodi {
                             HomeHasCodiView(
                                 viewModel: viewModel,
-                                width: outerGeometry.size.width
+                                width: outerGeometry.size.width,
+                                onBannerTapped: onBannerTapped
                             )
                             .transition(.opacity)
                         } else {
