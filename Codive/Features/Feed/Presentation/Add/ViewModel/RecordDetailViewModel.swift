@@ -188,11 +188,11 @@ final class RecordDetailViewModel: ObservableObject {
         Task {
             do {
                 let request = try buildRecordRequest()
-                try await saveRecord(request)
+                let feedId = try await saveRecord(request)
                 isLoading = false
                 NotificationCenter.default.post(name: .feedDidCreate, object: nil)
                 let message = isEditMode ? "기록이 수정되었습니다" : "기록이 저장되었습니다"
-                navigationRouter.showSuccessAndNavigate(message: message, to: .feed)
+                navigationRouter.showSuccessAndNavigate(message: message, to: .feed, destination: .feedDetail(feedId: feedId))
             } catch {
                 handleRecordError(error)
             }
@@ -242,13 +242,15 @@ final class RecordDetailViewModel: ObservableObject {
         )
     }
 
-    private func saveRecord(_ request: RecordCreateRequest) async throws {
+    @discardableResult
+    private func saveRecord(_ request: RecordCreateRequest) async throws -> Int {
         if isEditMode, let feedId = editingFeedId {
-            // API는 Int64를 요구하므로 변환
             let historyId = Int64(feedId)
             try await recordDataSource.updateRecord(historyId: historyId, request: request)
+            return feedId
         } else {
-            _ = try await recordDataSource.createRecord(request: request)
+            let historyId = try await recordDataSource.createRecord(request: request)
+            return Int(historyId)
         }
     }
 
