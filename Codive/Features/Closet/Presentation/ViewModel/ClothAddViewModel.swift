@@ -329,16 +329,16 @@ final class ClothAddViewModel: ObservableObject, ClothAddViewModelInput, ClothAd
             applyAIResults(uploadResults: uploadResults, aiInfos: aiInfos)
 
             // 4. 결과 메시지
-            let uploadSuccessCount = successUrls.count
+            let bgRemoveSuccessCount = aiInfos.filter { !$0.info.clothImageUrl.isEmpty }.count
             var messages: [String] = []
 
-            if uploadSuccessCount == totalCount {
-                messages.append("배경 제거: \(uploadSuccessCount)장 성공")
-            } else if uploadSuccessCount == 0 {
+            if bgRemoveSuccessCount == totalCount {
+                messages.append("배경 제거: \(bgRemoveSuccessCount)장 성공")
+            } else if bgRemoveSuccessCount == 0 {
                 messages.append("배경 제거: 실패")
             } else {
-                let failCount = totalCount - uploadSuccessCount
-                messages.append("배경 제거: \(uploadSuccessCount)장 성공, \(failCount)장 실패")
+                let failCount = totalCount - bgRemoveSuccessCount
+                messages.append("배경 제거: \(bgRemoveSuccessCount)장 성공, \(failCount)장 실패")
             }
 
             if aiInfos.isEmpty {
