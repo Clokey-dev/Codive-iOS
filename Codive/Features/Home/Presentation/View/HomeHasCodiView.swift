@@ -70,11 +70,8 @@ private extension HomeHasCodiView {
     
     /// 하단 배너
     var bottomBanner: some View {
-        Button(action: onBannerTapped) {
-            CustomBanner(text: TextLiteral.Home.bannerTitle) {}
-        }
-        .buttonStyle(.plain)
-        .padding()
+        CustomBanner(text: TextLiteral.Home.bannerTitle, onTap: onBannerTapped)
+            .padding()
     }
     
     /// 우측 상단 오버플로우 메뉴
