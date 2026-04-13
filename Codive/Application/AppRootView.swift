@@ -58,6 +58,9 @@ struct AppRootView: View {
                     .scaleEffect(1.5)
             }
         }
+        .onTapGesture {
+            hideKeyboard()
+        }
         .onOpenURL { url in
             handleDeepLink(url: url)
         }
