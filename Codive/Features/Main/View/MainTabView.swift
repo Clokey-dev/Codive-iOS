@@ -159,6 +159,16 @@ struct MainTabView: View {
                     }
                 }
                 .environmentObject(navigationRouter)
+                .onChange(of: viewModel.selectedTab) { newTab in
+                    if newTab == .home {
+                        homeViewModel.onAppear()
+                        if homeViewModel.weatherData != nil {
+                            Task {
+                                await homeViewModel.loadRecommendCategoryClothList(seasons: homeViewModel.currentSeasons)
+                            }
+                        }
+                    }
+                }
                 .onReceive(navigationRouter.$pendingTabSwitch) { tab in
                     if let tab = tab {
                         viewModel.selectedTab = tab
