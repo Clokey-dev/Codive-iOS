@@ -40,7 +40,7 @@ protocol LookBookRepository {
     ) async throws -> [CoordinateDetailEntity]
     
     /// 옷 리스트 조회
-    func fetchClothItems(category: String?) async throws -> [ProductItem]
+    func fetchClothItems(category: String?, searchText: String?) async throws -> [ProductItem]
     
     /// 룩북 생성
     func createLookBook(request: CreateLookBookAPIRequestDTO) async throws -> CreateLookBookResponseDTO

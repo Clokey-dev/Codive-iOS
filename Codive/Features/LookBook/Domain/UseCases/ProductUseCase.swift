@@ -18,8 +18,8 @@ final class ProductUseCase {
     }
 
     // MARK: - Methods
-    func execute(category: String? = nil) async throws -> [ProductItem] {
-        return try await repository.fetchClothItems(category: category)
+    func execute(category: String? = nil, searchText: String? = nil) async throws -> [ProductItem] {
+        return try await repository.fetchClothItems(category: category, searchText: searchText)
     }
     
     func execute(jpgData: Data) async throws -> String {

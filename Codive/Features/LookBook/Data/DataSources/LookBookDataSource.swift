@@ -40,8 +40,8 @@ protocol LookBookDataSourceProtocol {
     ) async throws -> [CoordinateDetailResponseDTO]
     
     /// 옷 리스트 조회
-    func fetchClothItems(category: String?) async throws -> [ProductItem]
-    
+    func fetchClothItems(category: String?, searchText: String?) async throws -> [ProductItem]
+
     /// 룩북 생성
     func createLookBook(request: CreateLookBookAPIRequestDTO) async throws -> CreateLookBookResponseDTO
     
@@ -131,23 +131,42 @@ final class LookBookDataSource: LookBookDataSourceProtocol {
     }
     
     /// 옷 리스트 조회
-    func fetchClothItems(category: String?) async throws -> [ProductItem] {
-        // 전체 옷 목록 조회 (페이지네이션 없이 전체)
+    func fetchClothItems(category: String?, searchText: String?) async throws -> [ProductItem] {
+        let categoryId: Int64? = {
+            guard let category, category != "전체",
+                  let found = CategoryConstants.category(byName: category) else {
+                return nil
+            }
+            return Int64(found.id)
+        }()
+
         let result = try await apiService.fetchClothes(
             lastClothId: nil,
             size: 100,
-            categoryId: nil,
+            categoryId: categoryId,
             seasons: []
         )
-        
-        return result.clothes.map { item in
+
+        var items = result.clothes.map { item in
             ProductItem(
                 id: Int(item.clothId),
                 imageUrl: item.imageUrl,
+                isTodayCloth: item.isTodayCoordinateCloth,
                 brand: item.brand,
-                name: item.name
+                name: item.name,
+                mainCategory: item.parentCategory,
+                subCategory: item.category
             )
         }
+
+        if let searchText, !searchText.isEmpty {
+            items = items.filter {
+                ($0.name ?? "").localizedCaseInsensitiveContains(searchText) ||
+                ($0.brand ?? "").localizedCaseInsensitiveContains(searchText)
+            }
+        }
+
+        return items
     }
     
     /// 룩북 생성

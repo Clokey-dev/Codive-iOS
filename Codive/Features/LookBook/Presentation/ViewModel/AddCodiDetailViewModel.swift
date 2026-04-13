@@ -63,12 +63,28 @@ final class AddCodiDetailViewModel: ObservableObject {
         self.productUseCase = productUseCase
         
         setupEditDataSubscription()
+        setupFilterObservers()
         Task { await fetchClothItems() }
     }
-    
+
+    private func setupFilterObservers() {
+        Publishers.CombineLatest(
+            $searchText.debounce(for: 0.5, scheduler: DispatchQueue.main),
+            $selectedCategory
+        )
+        .dropFirst()
+        .sink { [weak self] _ in
+            Task { await self?.fetchClothItems() }
+        }
+        .store(in: &cancellables)
+    }
+
     func fetchClothItems() async {
         do {
-            clothItems = try await productUseCase.execute(category: selectedCategory)
+            clothItems = try await productUseCase.execute(
+                category: selectedCategory,
+                searchText: searchText.isEmpty ? nil : searchText
+            )
         } catch {
             clothItems = []
         }
