@@ -28,7 +28,7 @@ final class LookBookViewModel: ObservableObject {
     
     @Published var isEditing: Bool = false
     @Published var isOverflowMenuExpanded: Bool = false
-    @Published var selectedLookBookId: Int64?
+    @Published var selectedLookBookIds: Set<Int64> = []
     
     // MARK: - Published State (Dialog / Alert)
     
@@ -86,16 +86,16 @@ final class LookBookViewModel: ObservableObject {
     func toggleDeleteMode() {
         isEditing.toggle()
         if !isEditing {
-            selectedLookBookId = nil
+            selectedLookBookIds.removeAll()
         }
     }
-    
+
     // MARK: - 삭제할 룩북 선택
     func toggleSelection(id: Int64) {
-        if selectedLookBookId == id {
-            selectedLookBookId = nil
+        if selectedLookBookIds.contains(id) {
+            selectedLookBookIds.remove(id)
         } else {
-            selectedLookBookId = id
+            selectedLookBookIds.insert(id)
         }
     }
     
@@ -107,7 +107,7 @@ final class LookBookViewModel: ObservableObject {
     
     // MARK: - alert 삭제 동작
     func handleCompleteAction() {
-        guard selectedLookBookId != nil else {
+        guard !selectedLookBookIds.isEmpty else {
             toggleDeleteMode()
             return
         }
@@ -127,7 +127,7 @@ final class LookBookViewModel: ObservableObject {
 
     // MARK: - 룩북 삭제 확정
     func confirmDelete() {
-        guard let idToDelete = selectedLookBookId else {
+        guard !selectedLookBookIds.isEmpty else {
             isLoading = false
             return
         }
@@ -137,7 +137,9 @@ final class LookBookViewModel: ObservableObject {
 
         Task {
             do {
-                try await listUseCase.deleteLookBook(lookBookId: idToDelete)
+                for id in selectedLookBookIds {
+                    try await listUseCase.deleteLookBook(lookBookId: id)
+                }
 
                 let updatedResult = try await listUseCase.fetchLookBookList(
                     lastLookBookId: nil,
