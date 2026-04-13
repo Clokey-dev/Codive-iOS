@@ -15,7 +15,13 @@ final class SpecificLookBookViewModel: ObservableObject {
     @Published var isOverflowMenuExpanded: Bool = false
     
     private let lookbookId: Int64
-    @Published var name: String
+    @Published var name: String {
+        didSet {
+            if name.count > 10 {
+                name = String(name.prefix(10))
+            }
+        }
+    }
     @Published var isEditingTitle = false
     private var previousTitle: String = ""
     

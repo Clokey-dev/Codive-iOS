@@ -30,7 +30,10 @@ struct LookBookDialog: View {
                 .padding(.top, 30)
                 
                 VStack(alignment: .center, spacing: 5) {
-                    TextField(hintText, text: $inputText)
+                    TextField(hintText, text: Binding(
+                        get: { inputText },
+                        set: { inputText = String($0.prefix(10)) }
+                    ))
                         .multilineTextAlignment(.center)
                         .font(Font.codive_body2_medium)
                         .foregroundStyle(.black)
