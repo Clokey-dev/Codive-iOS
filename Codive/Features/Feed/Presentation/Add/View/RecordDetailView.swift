@@ -189,6 +189,17 @@ private extension RecordDetailView {
                 RoundedRectangle(cornerRadius: 10)
                     .stroke(Color.Codive.grayscale5, lineWidth: 1)
             )
+
+            HStack {
+                Spacer()
+                Text("\(viewModel.captionText.count)/120")
+                    .font(.codive_body2_regular)
+                    .foregroundStyle(
+                        viewModel.captionText.count >= 120
+                        ? Color.Codive.point1
+                        : Color.Codive.grayscale4
+                    )
+            }
         }
         .padding(.horizontal, 20)
         .padding(.bottom, 40)
