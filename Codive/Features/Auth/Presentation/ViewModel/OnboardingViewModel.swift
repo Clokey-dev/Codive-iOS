@@ -14,7 +14,9 @@ final class OnboardingViewModel: ObservableObject {
     private let appRouter: AppRouter
     private let navigationRouter: NavigationRouter
     private let authRepository: AuthRepository
-    
+    private let authAPIService: AuthAPIServiceProtocol
+    private let profileAPIService: ProfileAPIServiceProtocol
+
     // MARK: - Published Properties
     @Published var isLoading = false
     @Published var errorMessage: String?
@@ -24,11 +26,15 @@ final class OnboardingViewModel: ObservableObject {
     init(
         appRouter: AppRouter,
         navigationRouter: NavigationRouter,
-        authRepository: AuthRepository
+        authRepository: AuthRepository,
+        authAPIService: AuthAPIServiceProtocol,
+        profileAPIService: ProfileAPIServiceProtocol = ProfileAPIService()
     ) {
         self.appRouter = appRouter
         self.navigationRouter = navigationRouter
         self.authRepository = authRepository
+        self.authAPIService = authAPIService
+        self.profileAPIService = profileAPIService
     }
     
     // MARK: - Actions
@@ -91,10 +97,35 @@ final class OnboardingViewModel: ObservableObject {
             case .notAgreed:
                 appRouter.navigateToTerms()
             case .registered:
+                await cacheMyProfile()
+                await sendFCMTokenToServer()
                 appRouter.navigateToMain()
             }
         } catch {
             errorMessage = "회원 상태 확인에 실패했습니다."
+        }
+    }
+
+    private func cacheMyProfile() async {
+        do {
+            let profile = try await profileAPIService.fetchMyProfile()
+            UserProfileStorage.save(profile)
+        } catch {
+            #if DEBUG
+            print("[Auth] 프로필 캐싱 실패: \(error)")
+            #endif
+        }
+    }
+
+    private func sendFCMTokenToServer() async {
+        guard let fcmToken = UserDefaults.standard.string(forKey: "fcmToken") else { return }
+
+        do {
+            try await authAPIService.renewDeviceToken(deviceToken: fcmToken)
+        } catch {
+            #if DEBUG
+            print("[Push] FCM 토큰 서버 전송 실패: \(error.localizedDescription)")
+            #endif
         }
     }
     

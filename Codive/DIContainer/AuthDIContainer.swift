@@ -37,7 +37,8 @@ final class AuthDIContainer {
         return OnboardingViewModel(
             appRouter: appRouter,
             navigationRouter: navigationRouter,
-            authRepository: authRepository
+            authRepository: authRepository,
+            authAPIService: authAPIService
         )
     }
     
