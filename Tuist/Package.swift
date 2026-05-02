@@ -14,7 +14,6 @@ import PackageDescription
             "KakaoSDKCommon": .framework,
             "Alamofire": .framework,
             "Kingfisher": .framework,
-            "FirebaseAnalytics": .framework,
         ]
     )
 #endif

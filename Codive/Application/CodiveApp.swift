@@ -11,6 +11,7 @@ import KakaoSDKAuth
 @main
 struct CodiveApp: App {
 
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     let appDIContainer = AppDIContainer()
 
     init() {

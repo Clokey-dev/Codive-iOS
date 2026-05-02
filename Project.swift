@@ -122,6 +122,9 @@ let project = Project(
                             "CFBundleURLSchemes": ["codive"]
                         ]
                     ],
+                    // Background Modes (원격 푸시 알림 수신)
+                    "UIBackgroundModes": ["remote-notification"],
+
                     "LSApplicationQueriesSchemes": [
                         "kakaokompassauth",
                         "storykompassauth",
@@ -168,12 +171,14 @@ let project = Project(
 
                // Firebase
                .external(name: "FirebaseAnalytics"),
-               .external(name: "FirebaseCrashlytics")
+               .external(name: "FirebaseCrashlytics"),
+               .external(name: "FirebaseMessaging")
            ],
            settings: .settings(
                base: [
                    "DEVELOPMENT_TEAM": "BBVZV8T99P",
-                   "CODE_SIGN_STYLE": "Manual"
+                   "CODE_SIGN_STYLE": "Manual",
+                   "OTHER_LDFLAGS": ["$(inherited)", "-ObjC"]
                ],
                configurations: [
                    .debug(name: "Debug", settings: [
