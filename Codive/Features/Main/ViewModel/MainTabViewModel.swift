@@ -36,13 +36,13 @@ final class MainTabViewModel: ObservableObject {
     // MARK: - Duplicate Record Check
 
     /// 오늘 기록이 있는지 확인 후, 없으면 기록 추가 화면으로 이동, 있으면 모달 표시
-    func checkAndNavigateToRecordAdd() {
+    func checkAndNavigateToRecordAdd(selectedDate: Date? = nil) {
         Task {
             let hasTodayRecord = await checkTodayRecordUseCase.execute()
             if hasTodayRecord {
                 isDuplicateRecordModalPresented = true
             } else {
-                navigationRouter.navigate(to: .recordAdd)
+                navigationRouter.navigate(to: .recordAdd(selectedDate: selectedDate))
             }
         }
     }

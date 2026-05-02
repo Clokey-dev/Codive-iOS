@@ -49,6 +49,7 @@ final class RecordDetailViewModel: ObservableObject {
 
     private let navigationRouter: NavigationRouter
     private let recordDataSource: RecordDataSource
+    private let selectedDate: Date?
     
     // MARK: - Options
     let styleOptions = [
@@ -90,12 +91,14 @@ final class RecordDetailViewModel: ObservableObject {
     init(
         selectedPhotos: [SelectedPhoto],
         navigationRouter: NavigationRouter,
-        recordDataSource: RecordDataSource = DefaultRecordDataSource()
+        recordDataSource: RecordDataSource = DefaultRecordDataSource(),
+        selectedDate: Date? = nil
     ) {
         self.selectedPhotos = selectedPhotos
         self.navigationRouter = navigationRouter
         self.recordDataSource = recordDataSource
         self.isEditMode = false
+        self.selectedDate = selectedDate
 
         // 태그 업데이트 구독
         setupPhotoTagSubscription()
@@ -112,6 +115,7 @@ final class RecordDetailViewModel: ObservableObject {
         self.isEditMode = true
         self.editingFeedId = feed.id
         self.editingFeedData = feed
+        self.selectedDate = nil
 
         // 이미지 데이터 로드
         self.selectedPhotos = []
@@ -158,9 +162,7 @@ final class RecordDetailViewModel: ObservableObject {
             }
         }
 
-        DispatchQueue.main.async {
-            self.selectedPhotos = loadedPhotos
-        }
+        self.selectedPhotos = loadedPhotos
     }
 
     /// URL에서 이미지를 다운로드
@@ -233,8 +235,11 @@ final class RecordDetailViewModel: ObservableObject {
         }
 
         // 5. 요청 생성
+        let historyDate = (selectedDate ?? Date()).toDateString()
+
         return RecordCreateRequest(
             content: captionText.isEmpty ? nil : captionText,
+            historyDate: historyDate,
             situationId: situationId,
             styleIds: styleIds,
             hashtags: hashtags,

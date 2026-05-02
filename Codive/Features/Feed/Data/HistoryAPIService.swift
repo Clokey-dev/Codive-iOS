@@ -65,6 +65,7 @@ struct ClothTagDTO {
 
 struct HistoryCreateAPIRequest {
     let content: String?
+    let historyDate: String
     let situationId: Int64
     let styleIds: [Int64]
     let hashtags: [String]
@@ -112,6 +113,7 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
 
         let requestBody = Components.Schemas.HistoryCreateRequest(
             content: request.content,
+            historyDate: request.historyDate,
             situationId: request.situationId,
             styleIds: request.styleIds,
             hashtags: hashtagContainers,

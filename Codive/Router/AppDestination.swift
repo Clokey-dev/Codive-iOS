@@ -12,12 +12,12 @@ enum AppDestination: Hashable, Identifiable {
     case signup
     case termsAgreement
     case main
-    case recordAdd
+    case recordAdd(selectedDate: Date? = nil)
     case clothPhotoSelect
     case clothAdd(photos: [SelectedPhoto], isAIEnabled: Bool = false)
     case photoEdit(photos: [SelectedPhoto])
     case photoEditForCloth(photos: [SelectedPhoto], isAIEnabled: Bool = false)
-    case recordDetail(photos: [SelectedPhoto])
+    case recordDetail(photos: [SelectedPhoto], selectedDate: Date? = nil)
     case recordEdit(feed: Feed)
     case photoTag(photo: SelectedPhoto, allPhotos: [SelectedPhoto])
     case settings

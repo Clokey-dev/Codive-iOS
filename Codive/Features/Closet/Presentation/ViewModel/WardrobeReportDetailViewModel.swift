@@ -56,6 +56,6 @@ final class WardrobeReportDetailViewModel: ObservableObject {
     }
 
     func navigateToRecordAdd() {
-        navigationRouter.navigate(to: .recordAdd)
+        navigationRouter.navigate(to: .recordAdd())
     }
 }
