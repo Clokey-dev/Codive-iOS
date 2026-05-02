@@ -244,9 +244,10 @@ struct MainTabView: View {
                         viewModel.emptyHistoryModalDate = nil
                     },
                     onAddRecord: {
+                        let selectedDate = viewModel.emptyHistoryModalDate
                         viewModel.isEmptyHistoryModalPresented = false
                         viewModel.emptyHistoryModalDate = nil
-                        viewModel.checkAndNavigateToRecordAdd()
+                        viewModel.checkAndNavigateToRecordAdd(selectedDate: selectedDate)
                     }
                 )
                 .frame(height: 310, alignment: .center)
@@ -256,6 +257,17 @@ struct MainTabView: View {
         }
         .onAppear {
             viewModel.loadNotificationExist()
+
+            // 앱이 죽어있을 때 푸시 탭으로 실행된 경우 처리
+            if let pendingUserInfo = AppDelegate.pendingPushUserInfo {
+                AppDelegate.pendingPushUserInfo = nil
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    handlePushNotificationTap(userInfo: pendingUserInfo)
+                }
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .pushNotificationTapped)) { notification in
+            handlePushNotificationTap(userInfo: notification.userInfo)
         }
         .environmentObject(viewModel)
     }
@@ -291,6 +303,33 @@ struct MainTabView: View {
         true
     }
     
+    // MARK: - Push Notification Redirect
+
+    private func handlePushNotificationTap(userInfo: [AnyHashable: Any]?) {
+        guard let userInfo else { return }
+
+        let destination: AppDestination?
+
+        if let historyId = userInfo["historyId"] as? Int {
+            destination = .feedDetail(feedId: historyId)
+        } else if let historyIdStr = userInfo["historyId"] as? String, let historyId = Int(historyIdStr) {
+            destination = .feedDetail(feedId: historyId)
+        } else if let memberId = userInfo["memberId"] as? Int {
+            destination = .otherProfile(userId: memberId)
+        } else if let memberIdStr = userInfo["memberId"] as? String, let memberId = Int(memberIdStr) {
+            destination = .otherProfile(userId: memberId)
+        } else {
+            destination = nil
+        }
+
+        guard let destination else { return }
+
+        navigationRouter.navigateToRoot()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            navigationRouter.navigate(to: destination)
+        }
+    }
+
     // swiftlint:disable cyclomatic_complexity
     @ViewBuilder
     private func destinationView(for destination: AppDestination) -> some View {

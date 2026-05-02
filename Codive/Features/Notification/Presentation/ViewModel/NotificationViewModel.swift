@@ -86,4 +86,17 @@ final class NotificationViewModel: ObservableObject {
     func handleBackTap() {
         navigationRouter.navigateBack()
     }
+
+    func handleNotificationTap(notification: NotificationListResponseItem) {
+        switch notification.action.redirectType {
+        case .historyRedirect:
+            guard let feedId = Int(notification.action.redirectInfo) else { return }
+            navigationRouter.navigate(to: .feedDetail(feedId: feedId))
+        case .memberRedirect:
+            guard let userId = Int(notification.action.redirectInfo) else { return }
+            navigationRouter.navigate(to: .otherProfile(userId: userId))
+        case .none:
+            break
+        }
+    }
 }

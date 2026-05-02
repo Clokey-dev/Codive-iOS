@@ -82,7 +82,7 @@ struct NotificationView: View {
                             if item.readStatus == .notRead {
                                 viewModel.markAsRead(notificationId: item.notificationId)
                             }
-                            // redirect 처리 위치
+                            viewModel.handleNotificationTap(notification: item)
                         }
                 }
             }
