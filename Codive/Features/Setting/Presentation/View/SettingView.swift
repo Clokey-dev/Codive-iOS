@@ -40,6 +40,11 @@ struct SettingView: View {
         .task {
             await vm.load()
         }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+            Task {
+                await vm.refreshPushPermissionStatus()
+            }
+        }
     }
 
     // MARK: - 섹션: 로그인 / 회원정보
@@ -126,11 +131,10 @@ struct SettingView: View {
 
                 Spacer()
 
-                // ViewModel 상태와 직접 바인딩 + 변경 시 저장
                 PillToggle(
                     isOn: Binding(
                         get: { vm.isPushOn },
-                        set: { vm.updatePush($0) }
+                        set: { _ in vm.openPushSettings() }
                     )
                 )
             }
