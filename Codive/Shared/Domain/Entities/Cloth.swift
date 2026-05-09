@@ -70,4 +70,15 @@ public enum Season: String, CaseIterable, Identifiable {
             return "겨울"
         }
     }
+
+    /// 현재 월 기준의 시즌 (3-5: 봄, 6-8: 여름, 9-11: 가을, 12-2: 겨울)
+    public static var current: Season {
+        let month = Calendar.current.component(.month, from: Date())
+        switch month {
+        case 3, 4, 5: return .spring
+        case 6, 7, 8: return .summer
+        case 9, 10, 11: return .fall
+        default: return .winter
+        }
+    }
 }
