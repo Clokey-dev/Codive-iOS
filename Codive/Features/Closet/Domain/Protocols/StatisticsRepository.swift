@@ -11,4 +11,7 @@ import Foundation
 
 protocol StatisticsRepository {
     func checkStatisticsCondition() async throws -> Bool
+    func getFavoriteItems() async throws -> [FavoriteItemPayload]
+    func getFavoriteCategoryItems(categoryId: Int64) async throws -> [FavoriteCategoryItemPayload]
+    func getClosetUtilization(season: String) async throws -> ClosetUtilizationPayload
 }
