@@ -51,6 +51,9 @@ enum AppDestination: Hashable, Identifiable {
     case clothDetail(cloth: Cloth)
     case clothEdit(cloth: Cloth)
     case wardrobeReport
+    case wardrobeFavoriteCategory(parentCategoryId: Int64)
+    case wardrobeItemStats
+    case wardrobeUsageCheck
     case eraserEditor(photo: SelectedPhoto, photoIndex: Int)
     case eraserPreview(photoIndex: Int)
     case profileSetting
@@ -89,7 +92,9 @@ enum AppDestination: Hashable, Identifiable {
             return true
 
         // Closet Flow - 전체 화면
-        case .myCloset, .clothDetail, .clothEdit, .wardrobeReport, .eraserEditor, .eraserPreview:
+        case .myCloset, .clothDetail, .clothEdit, .wardrobeReport,
+             .wardrobeFavoriteCategory, .wardrobeItemStats, .wardrobeUsageCheck,
+             .eraserEditor, .eraserPreview:
             return true
 
         // 다른 플로우 전체 화면은 여기에 추가
@@ -127,7 +132,9 @@ enum AppDestination: Hashable, Identifiable {
             return false
 
         // Closet Flow - 자체 네비게이션 바 있음
-        case .myCloset, .clothDetail, .clothEdit, .wardrobeReport, .eraserEditor, .eraserPreview:
+        case .myCloset, .clothDetail, .clothEdit, .wardrobeReport,
+             .wardrobeFavoriteCategory, .wardrobeItemStats, .wardrobeUsageCheck,
+             .eraserEditor, .eraserPreview:
             return false
 
         default:

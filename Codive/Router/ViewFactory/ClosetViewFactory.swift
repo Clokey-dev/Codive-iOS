@@ -30,6 +30,12 @@ final class ClosetViewFactory {
             closetDIContainer?.makeClothEditView(cloth: cloth)
         case .wardrobeReport:
             closetDIContainer?.makeWardrobeReportDetailView()
+        case .wardrobeFavoriteCategory(let parentCategoryId):
+            closetDIContainer?.makeFavoriteByCategoryView(parentCategoryId: parentCategoryId)
+        case .wardrobeItemStats:
+            closetDIContainer?.makeItemDataView()
+        case .wardrobeUsageCheck:
+            closetDIContainer?.makeWearingDataView()
         default:
             EmptyView()
         }
