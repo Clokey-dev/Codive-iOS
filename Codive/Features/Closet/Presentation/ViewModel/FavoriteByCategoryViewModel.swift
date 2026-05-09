@@ -49,13 +49,7 @@ final class FavoriteByCategoryViewModel: ObservableObject {
                 categoryId: Int(categoryId),
                 seasons: []
             )
-            let items = result.clothes.map {
-                ClothItem(
-                    imageUrl: $0.imageUrl,
-                    brand: $0.brand ?? "",
-                    name: $0.name ?? ""
-                )
-            }
+            let items = result.clothes.map { ClothItem(from: $0) }
             clothesBySegment[name] = items
             // 사용자가 그 사이 다른 segment를 선택했을 수 있으니 현재 선택 일치할 때만 업데이트
             if selectedBottomSheetTitle == name {

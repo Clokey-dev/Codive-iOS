@@ -71,10 +71,12 @@ struct DataBottomSheet: View {
                             .background(Color.Codive.grayscale6)
                             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
 
-                        Text(item.brand)
-                            .font(.codive_body3_medium)
-                            .foregroundStyle(Color.Codive.grayscale4)
-                            .lineLimit(1)
+                        if !item.brand.isEmpty {
+                            Text(item.brand)
+                                .font(.codive_body3_medium)
+                                .foregroundStyle(Color.Codive.grayscale4)
+                                .lineLimit(1)
+                        }
 
                         Text(item.name)
                             .font(.codive_body3_medium)

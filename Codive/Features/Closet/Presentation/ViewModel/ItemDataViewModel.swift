@@ -92,13 +92,7 @@ final class ItemDataViewModel: ObservableObject {
                 categoryId: Int(categoryId),
                 seasons: []
             )
-            let items = result.clothes.map {
-                ClothItem(
-                    imageUrl: $0.imageUrl,
-                    brand: $0.brand ?? "",
-                    name: $0.name ?? ""
-                )
-            }
+            let items = result.clothes.map { ClothItem(from: $0) }
             clothesByItem[name] = items
             if selectedBottomSheetTitle == name {
                 selectedBottomSheetItems = items
