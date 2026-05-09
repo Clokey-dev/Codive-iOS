@@ -30,7 +30,7 @@ struct UsageCheckSection: View {
             )
 
             ReportCardContainer {
-                HStack(alignment: .center, spacing: 32) {
+                HStack(alignment: .center, spacing: 0) {
                     VStack(spacing: 8) {
                         UsageDonutChart(stats: usage)
                             .frame(width: 130, height: 130)
@@ -40,14 +40,14 @@ struct UsageCheckSection: View {
                             .font(.codive_body3_medium)
                     }
 
+                    // 도넛 우측 영역의 가로 가운데에 텍스트 정렬
                     Text(infoText)
                         .font(.codive_body2_medium)
                         .foregroundStyle(Color.Codive.grayscale3)
                         .lineSpacing(4)
-                        .multilineTextAlignment(.leading)
+                        .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
-
-                    Spacer(minLength: 0)
+                        .frame(maxWidth: .infinity)
                 }
                 .padding(.vertical, 4)
             }
