@@ -230,6 +230,7 @@ struct RoundedTopRectangle: Shape {
 
 // MARK: - Preview
 
+#if DEBUG
 private final class PreviewItemRepo: StatisticsRepository {
     func checkStatisticsCondition() async throws -> Bool { true }
 
@@ -292,3 +293,4 @@ private func makePreviewVM(selectedIndex: Int = 1) -> ItemDataViewModel {
 #Preview("니트 강조") {
     ItemDataView(viewModel: makePreviewVM(selectedIndex: 2))
 }
+#endif

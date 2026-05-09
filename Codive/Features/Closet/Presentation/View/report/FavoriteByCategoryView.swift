@@ -228,6 +228,7 @@ private struct BubbleLabelView: View {
 
 // MARK: - Preview
 
+#if DEBUG
 private final class PreviewCategoryRepo: StatisticsRepository {
     func checkStatisticsCondition() async throws -> Bool { true }
     func getFavoriteItems() async throws -> [FavoriteItemPayload] { [] }
@@ -308,3 +309,4 @@ private func makePreviewVM() -> FavoriteByCategoryViewModel {
 #Preview {
     FavoriteByCategoryView(viewModel: makePreviewVM())
 }
+#endif
