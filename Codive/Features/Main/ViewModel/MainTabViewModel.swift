@@ -36,7 +36,15 @@ final class MainTabViewModel: ObservableObject {
     // MARK: - Duplicate Record Check
 
     /// 오늘 기록이 있는지 확인 후, 없으면 기록 추가 화면으로 이동, 있으면 모달 표시
+    /// - Note: 중복 체크는 "오늘" 기록을 작성하는 경우(selectedDate가 nil이거나 오늘)에만 수행한다.
+    ///   달력에서 과거 등 특정 날짜를 선택해 들어온 경우에는 해당 날짜에 기록이 없는 것이
+    ///   이미 보장되므로 오늘 기록 여부와 무관하게 바로 기록 추가 화면으로 이동한다.
     func checkAndNavigateToRecordAdd(selectedDate: Date? = nil) {
+        let isRecordingForToday = selectedDate.map { Calendar.current.isDateInToday($0) } ?? true
+        guard isRecordingForToday else {
+            navigationRouter.navigate(to: .recordAdd(selectedDate: selectedDate))
+            return
+        }
         Task {
             let hasTodayRecord = await checkTodayRecordUseCase.execute()
             if hasTodayRecord {
@@ -54,14 +62,10 @@ final class MainTabViewModel: ObservableObject {
     
     // MARK: - Actions
     func handleSearchTap() {
-        // 검색 버튼 탭 처리
-        // TODO: 검색 화면으로 이동하거나 검색 로직 처리
         navigationRouter.navigate(to: .search)
     }
-    
+
     func handleNotificationTap() {
-        // 알림 버튼 탭 처리
-        // TODO: 알림 화면으로 이동하거나 알림 로직 처리
         navigationRouter.navigate(to: .notification)
     }
     
