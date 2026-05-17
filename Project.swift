@@ -131,17 +131,6 @@ let project = Project(
                         "kakaolink",
                         "kakaotalk-5.9.7"
                     ],
-
-                   // App Transport Security - HTTP 도메인 예외 추가
-                   "NSAppTransportSecurity": [
-                       "NSExceptionDomains": [
-                           "prod.clokey.store": [
-                               "NSIncludesSubdomains": true,
-                               "NSTemporaryExceptionAllowsInsecureHTTPLoads": true
-                           ]
-                       ]
-                   ],
-
                ]
            ),
            sources: [
@@ -183,11 +172,13 @@ let project = Project(
                configurations: [
                    .debug(name: "Debug", settings: [
                        "PROVISIONING_PROFILE_SPECIFIER": "match Development com.codive.app",
-                       "CODE_SIGN_IDENTITY": "Apple Development"
+                       "CODE_SIGN_IDENTITY": "Apple Development",
+                       "CODE_SIGN_ENTITLEMENTS": "Codive/Codive.entitlements"
                    ]),
                    .release(name: "Release", settings: [
                        "PROVISIONING_PROFILE_SPECIFIER": "match AppStore com.codive.app",
-                       "CODE_SIGN_IDENTITY": "Apple Distribution"
+                       "CODE_SIGN_IDENTITY": "Apple Distribution",
+                       "CODE_SIGN_ENTITLEMENTS": "Codive/Codive.Release.entitlements"
                    ])
                ]
            )
