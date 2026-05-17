@@ -85,7 +85,7 @@ let project = Project(
                     "UILaunchScreen": [:],
                     "UISupportedInterfaceOrientations": ["UIInterfaceOrientationPortrait"],
                     "CFBundleDevelopmentRegion": "ko",
-                    "CFBundleLocalizations": ["ko", "en"],
+                    "CFBundleLocalizations": ["ko"],
                     "UIAppFonts": [
                         "Pretendard-Black.otf",
                         "Pretendard-Bold.otf",
