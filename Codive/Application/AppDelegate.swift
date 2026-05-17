@@ -112,7 +112,7 @@ extension AppDelegate: MessagingDelegate {
         guard let fcmToken else { return }
 
         #if DEBUG
-        print("[Push] FCM 토큰: \(fcmToken)")
+        AppLog.push.debug("FCM 토큰: \(fcmToken.masked(), privacy: .public)")
         #endif
 
         // UserDefaults에 저장 (로그인 후 서버 전송용)

@@ -59,8 +59,8 @@ final class AppRouter: ObservableObject {
     }
 
     func finishSplash() {
-        // 스플래시 종료 후 인증 화면으로 이동
-        // TODO: 로그인 상태 확인 로직 추가 (토큰 있으면 .main)
+        // 스플래시 종료 후 인증 화면으로 이동.
+        // 자동 로그인 분기는 SplashViewModel 에서 처리한다.
         currentAppState = .auth
     }
 
@@ -74,10 +74,7 @@ final class AppRouter: ObservableObject {
         currentAppState = .main
         #if DEBUG
         if let token = try? KeychainManager.shared.getAccessToken() {
-            print("----------------------------------------")
-            print("[App] Access Token:")
-            print(token)
-            print("----------------------------------------")
+            AppLog.app.debug("Access Token on main entry: \(token.masked(), privacy: .public)")
         }
         #endif
     }
