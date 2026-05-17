@@ -32,7 +32,7 @@ struct AddCodiView: View {
                 successOverlay
             }
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .enableSwipeBack()
         .background(Color.white)
         .animation(.easeInOut(duration: 0.2), value: viewModel.isShowingSuccessView)

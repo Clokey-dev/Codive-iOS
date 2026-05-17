@@ -152,7 +152,7 @@ struct EraserEditorView: View {
             }
             .padding(.bottom, 30)
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .background(Color.white)
         .alert("수정을 그만할까요?", isPresented: $showBackAlert) {
             Button("취소", role: .cancel) {}

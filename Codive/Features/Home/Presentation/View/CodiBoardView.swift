@@ -32,7 +32,7 @@ struct CodiBoardView: View {
                     }
             }
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .enableSwipeBack()
         .background(Color.white)
         .onChange(of: viewModel.isConfirmed) { confirmed in

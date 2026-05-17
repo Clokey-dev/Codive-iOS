@@ -74,7 +74,7 @@ struct SearchResultView: View {
                 hideKeyboard()
             }
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .background(
             Color.white
                 .ignoresSafeArea(.all)

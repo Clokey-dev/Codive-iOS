@@ -82,7 +82,7 @@ struct FavoriteByCategoryView: View {
                 .ignoresSafeArea(.all, edges: .bottom)
             }
             .background(Color.white)
-            .navigationBarHidden(true)
+            .toolbar(.hidden, for: .navigationBar)
             .task {
                 await viewModel.loadData()
             }

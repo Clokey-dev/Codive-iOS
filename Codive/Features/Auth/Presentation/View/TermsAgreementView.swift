@@ -124,7 +124,7 @@ struct TermsAgreementView: View {
             .padding(.horizontal, 20)
             .padding(.bottom, 10)
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .task {
             await loadTerms()
         }

@@ -170,7 +170,7 @@ struct FeedDetailView: View {
             }
         }
         .background(Color.white)
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .enableSwipeBack()
         .onAppear {
             Task {

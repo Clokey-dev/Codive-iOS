@@ -32,7 +32,7 @@ struct EditCategoryView: View {
                 bottomActionButtons
             }
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .background(Color.white)
         .enableSwipeBack()
         .alert(TextLiteral.Home.changeAlertTitle, isPresented: $viewModel.showExitAlert) {

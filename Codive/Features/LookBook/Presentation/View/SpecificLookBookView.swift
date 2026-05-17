@@ -102,7 +102,7 @@ struct SpecificLookBookView: View {
                 LoadingView(backgroundStyle: .white)
             }
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .enableSwipeBack()
         .background(Color.white)
         .alert(

@@ -35,7 +35,7 @@ struct SettingView: View {
                 .padding(.top, 24)
             }
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .enableSwipeBack()
         .task {
             await vm.load()

@@ -53,7 +53,7 @@ struct WardrobeReportDetailView: View {
             }
             .allowsHitTesting(false)
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .task {
             await viewModel.loadReport()
         }

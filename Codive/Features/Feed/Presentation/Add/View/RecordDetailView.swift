@@ -57,7 +57,7 @@ struct RecordDetailView: View {
                     }
                 }
             }
-            .navigationBarHidden(true)
+            .toolbar(.hidden, for: .navigationBar)
             .background(Color.white)
             .onTapGesture {
                 UIApplication.shared.hideKeyboard()

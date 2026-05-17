@@ -51,7 +51,7 @@ struct EraserPreviewView: View {
 
             Spacer()
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .background(Color.white)
     }
 }

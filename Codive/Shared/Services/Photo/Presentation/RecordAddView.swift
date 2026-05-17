@@ -101,7 +101,7 @@ struct RecordAddView: View {
                 LoadingView()
             }
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .enableSwipeBack()
         .background(Color.white)
         .sheet(isPresented: $viewModel.isAlbumSheetPresented) {

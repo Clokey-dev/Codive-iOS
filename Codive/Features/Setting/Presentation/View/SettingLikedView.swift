@@ -76,7 +76,7 @@ struct SettingLikedView: View {
                 .refreshable { await vm.refresh() }
             }
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .enableSwipeBack()
     }
 }

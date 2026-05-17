@@ -134,7 +134,7 @@ struct SettingCommentView: View {
             .task { await vm.refresh() }
             .refreshable { await vm.refresh() }
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .enableSwipeBack()
     }
 }

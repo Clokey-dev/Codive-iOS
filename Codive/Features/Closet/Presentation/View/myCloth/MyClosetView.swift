@@ -98,7 +98,7 @@ struct MyClosetView: View {
                 }
             }
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .enableSwipeBack()
         .background(Color.white)
         .ignoresSafeArea(.all, edges: .bottom)

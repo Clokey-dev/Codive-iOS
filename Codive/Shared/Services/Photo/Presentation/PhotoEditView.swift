@@ -126,7 +126,7 @@ struct PhotoEditView: View {
                 )
             }
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .background(Color.white)
         .alert(TextLiteral.Add.exitAlertTitle, isPresented: $viewModel.showExitAlert) {
             Button(TextLiteral.Add.exitAlertLeave, role: .destructive) {

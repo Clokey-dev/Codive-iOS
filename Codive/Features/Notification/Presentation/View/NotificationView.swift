@@ -49,7 +49,7 @@ struct NotificationView: View {
                 .padding(.horizontal, 20)
             }
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .enableSwipeBack()
         .background(Color.white.ignoresSafeArea(.all))
         // MARK: - Data Loading Trigger

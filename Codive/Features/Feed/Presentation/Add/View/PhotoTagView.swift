@@ -61,7 +61,7 @@ struct PhotoTagView: View {
                     .ignoresSafeArea(.all, edges: .bottom)
             }
             .background(Color.white)
-            .navigationBarHidden(true)
+            .toolbar(.hidden, for: .navigationBar)
             .enableSwipeBack()
         }
         .ignoresSafeArea(.all, edges: .bottom)
