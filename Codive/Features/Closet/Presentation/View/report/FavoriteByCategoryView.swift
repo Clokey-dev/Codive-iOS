@@ -270,7 +270,7 @@ private func makePreviewVM() -> FavoriteByCategoryViewModel {
     let vm = FavoriteByCategoryViewModel(
         navigationRouter: NavigationRouter(),
         fetchFavoriteCategoryItemsUseCase: FetchFavoriteCategoryItemsUseCase(repository: repo),
-        clothRepository: PreviewEmptyClothRepo(),
+        fetchClothListByCategoryUseCase: FetchClothListByCategoryUseCase(repository: PreviewEmptyClothRepo()),
         parentCategoryId: 1
     )
     // .task가 호출되기 전 첫 프레임부터 데이터 있도록 미리 채움

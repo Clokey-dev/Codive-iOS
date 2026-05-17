@@ -5,14 +5,7 @@
 //  Created by Codive on 12/23/25.
 //
 
-import SwiftUI
-
-struct CategoryFavoriteItem: Identifiable, Hashable {
-    let id = UUID()
-    let parentCategoryId: Int64
-    let categoryName: String
-    let items: [DonutSegment]
-}
+import Foundation
 
 struct ItemUsageStat: Identifiable, Hashable {
     let id = UUID()

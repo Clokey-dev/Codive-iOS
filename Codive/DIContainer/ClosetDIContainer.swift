@@ -92,6 +92,14 @@ final class ClosetDIContainer {
         return FetchClosetUtilizationUseCase(repository: statisticsRepository)
     }
 
+    func makeFetchClothListByCategoryUseCase() -> FetchClothListByCategoryUseCase {
+        return FetchClothListByCategoryUseCase(repository: clothRepository)
+    }
+
+    func makeFetchClothDetailUseCase() -> FetchClothDetailUseCase {
+        return FetchClothDetailUseCase(repository: clothRepository)
+    }
+
     // MARK: - ViewModels
     func makeMyClosetViewModel() -> MyClosetViewModel {
         return MyClosetViewModel(
@@ -120,7 +128,7 @@ final class ClosetDIContainer {
             cloth: cloth,
             navigationRouter: navigationRouter,
             deleteClothItemsUseCase: makeDeleteClothItemsUseCase(),
-            clothRepository: clothRepository
+            fetchClothDetailUseCase: makeFetchClothDetailUseCase()
         )
     }
 
@@ -146,7 +154,7 @@ final class ClosetDIContainer {
         return FavoriteByCategoryViewModel(
             navigationRouter: navigationRouter,
             fetchFavoriteCategoryItemsUseCase: makeFetchFavoriteCategoryItemsUseCase(),
-            clothRepository: clothRepository,
+            fetchClothListByCategoryUseCase: makeFetchClothListByCategoryUseCase(),
             parentCategoryId: parentCategoryId
         )
     }
@@ -155,7 +163,7 @@ final class ClosetDIContainer {
         return ItemDataViewModel(
             navigationRouter: navigationRouter,
             fetchFavoriteItemsUseCase: makeFetchFavoriteItemsUseCase(),
-            clothRepository: clothRepository
+            fetchClothListByCategoryUseCase: makeFetchClothListByCategoryUseCase()
         )
     }
 

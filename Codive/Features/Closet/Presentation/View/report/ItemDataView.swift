@@ -256,7 +256,7 @@ private func makePreviewVM(selectedIndex: Int = 1) -> ItemDataViewModel {
     let vm = ItemDataViewModel(
         navigationRouter: NavigationRouter(),
         fetchFavoriteItemsUseCase: FetchFavoriteItemsUseCase(repository: repo),
-        clothRepository: PreviewEmptyClothRepo()
+        fetchClothListByCategoryUseCase: FetchClothListByCategoryUseCase(repository: PreviewEmptyClothRepo())
     )
     vm.stats = [
         ItemUsageStat(itemName: "맨투맨", usageCount: 10),

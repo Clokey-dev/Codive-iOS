@@ -74,7 +74,7 @@ final class ClothDetailViewModel: ObservableObject {
 
     private let navigationRouter: NavigationRouter
     private let deleteClothItemsUseCase: DeleteClothItemsUseCase
-    private let clothRepository: ClothRepository
+    private let fetchClothDetailUseCase: FetchClothDetailUseCase
 
     // MARK: - Initializer
 
@@ -82,12 +82,12 @@ final class ClothDetailViewModel: ObservableObject {
         cloth: Cloth,
         navigationRouter: NavigationRouter,
         deleteClothItemsUseCase: DeleteClothItemsUseCase,
-        clothRepository: ClothRepository
+        fetchClothDetailUseCase: FetchClothDetailUseCase
     ) {
         self.cloth = cloth
         self.navigationRouter = navigationRouter
         self.deleteClothItemsUseCase = deleteClothItemsUseCase
-        self.clothRepository = clothRepository
+        self.fetchClothDetailUseCase = fetchClothDetailUseCase
     }
 
     // MARK: - Fetch Detail
@@ -95,7 +95,7 @@ final class ClothDetailViewModel: ObservableObject {
     func fetchDetail() async {
         isLoading = true
         do {
-            let result = try await clothRepository.fetchClothDetail(clothId: cloth.id)
+            let result = try await fetchClothDetailUseCase.execute(clothId: cloth.id)
             detailData = result
         } catch {
             // 에러는 무시 (UI에서 기존 데이터 사용)

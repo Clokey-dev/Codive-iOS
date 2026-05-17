@@ -26,17 +26,17 @@ final class ItemDataViewModel: ObservableObject {
     // MARK: - Private Properties
     private let navigationRouter: NavigationRouter
     private let fetchFavoriteItemsUseCase: FetchFavoriteItemsUseCase
-    private let clothRepository: ClothRepository
+    private let fetchClothListByCategoryUseCase: FetchClothListByCategoryUseCase
 
     // MARK: - Initializer
     init(
         navigationRouter: NavigationRouter,
         fetchFavoriteItemsUseCase: FetchFavoriteItemsUseCase,
-        clothRepository: ClothRepository
+        fetchClothListByCategoryUseCase: FetchClothListByCategoryUseCase
     ) {
         self.navigationRouter = navigationRouter
         self.fetchFavoriteItemsUseCase = fetchFavoriteItemsUseCase
-        self.clothRepository = clothRepository
+        self.fetchClothListByCategoryUseCase = fetchClothListByCategoryUseCase
     }
 
     // MARK: - Methods
@@ -86,13 +86,10 @@ final class ItemDataViewModel: ObservableObject {
 
     private func fetchClothes(name: String, categoryId: Int64) async {
         do {
-            let result = try await clothRepository.fetchClothList(
-                lastClothId: nil,
-                size: 50,
-                categoryId: Int(categoryId),
-                seasons: []
+            let clothes = try await fetchClothListByCategoryUseCase.execute(
+                categoryId: Int(categoryId)
             )
-            let items = result.clothes.map { ClothItem(from: $0) }
+            let items = clothes.map { ClothItem(from: $0) }
             clothesByItem[name] = items
             if selectedBottomSheetTitle == name {
                 selectedBottomSheetItems = items
