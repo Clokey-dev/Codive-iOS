@@ -111,8 +111,8 @@ final class SettingViewModel: ObservableObject {
     }
 
     func navigateToInquiry() {
-        // TODO: 문의하기 화면으로 이동
-        // 아직 구현되지 않은 화면입니다.
+        guard let url = URL(string: "https://pf.kakao.com/_amHbn") else { return }
+        UIApplication.shared.open(url)
     }
 
     func navigateToWithdraw() {
