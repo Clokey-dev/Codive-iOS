@@ -10,6 +10,28 @@ import SwiftUI
 struct WeatherCardView: View {
     let weatherData: WeatherData
 
+    // Apple WeatherKit 법적 의무: 데이터 출처 attribution 활성 링크 표기 필수
+    private static let attributionURL = URL(
+        string: "https://weatherkit.apple.com/legal-attribution.html"
+    )
+
+    @ViewBuilder
+    private var appleWeatherAttribution: some View {
+        let mark = HStack(spacing: 4) {
+            Image(systemName: "apple.logo")
+                .font(.system(size: 10))
+            Text("Weather")
+                .font(.system(size: 10))
+        }
+        .foregroundStyle(.black)
+
+        if let url = Self.attributionURL {
+            Link(destination: url) { mark }
+        } else {
+            mark
+        }
+    }
+
     var body: some View {
         HStack {
             HStack(spacing: 16) {
@@ -52,13 +74,7 @@ struct WeatherCardView: View {
             Spacer()
 
             VStack(alignment: .trailing, spacing: 4) {
-                HStack(spacing: 4) {
-                    Image(systemName: "apple.logo")
-                        .font(.system(size: 10))
-                    Text("Weather")
-                        .font(.system(size: 10))
-                }
-                .foregroundStyle(.black)
+                appleWeatherAttribution
 
                 HStack(spacing: 4) {
                     Text(weatherData.locationName)
