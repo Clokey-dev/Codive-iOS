@@ -114,7 +114,7 @@ struct SearchView: View {
                 }
             }
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .background(
             Color.white
                 .ignoresSafeArea(.all)

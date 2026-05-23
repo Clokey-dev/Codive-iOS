@@ -32,6 +32,7 @@ final class CommentViewModel: ObservableObject {
 
     // 더보기 메뉴 관련 상태
     @Published var expandedMenuCommentId: Int?
+    @Published var menuButtonFrame: CGRect = .zero
     @Published var showDeleteAlert: Bool = false
     @Published var pendingDeleteCommentId: Int?
     @Published var showBlockAlert: Bool = false
@@ -226,10 +227,11 @@ final class CommentViewModel: ObservableObject {
 
     // MARK: - Menu Methods
 
-    func toggleMenu(commentId: Int) {
+    func toggleMenu(commentId: Int, buttonFrame: CGRect = .zero) {
         if expandedMenuCommentId == commentId {
             expandedMenuCommentId = nil
         } else {
+            menuButtonFrame = buttonFrame
             expandedMenuCommentId = commentId
         }
     }

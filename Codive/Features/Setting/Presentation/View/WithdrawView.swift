@@ -57,7 +57,7 @@ struct WithdrawView: View {
                 .padding(.bottom, 20)
             }
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .enableSwipeBack()
         .alert(TextLiteral.Setting.withdrawConfirmTitle, isPresented: $vm.showConfirmAlert) {
             Button("취소", role: .cancel) { }

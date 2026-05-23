@@ -29,6 +29,7 @@ struct EraserEditorView: View {
     @State private var currentPath = Path()
     @State private var brushSize: CGFloat = 30.0
     @State private var canvasSize: CGSize = .zero
+    @State private var showBackAlert = false
 
     // MARK: - Body
     var body: some View {
@@ -36,7 +37,7 @@ struct EraserEditorView: View {
             CustomNavigationBar(
                 title: "직접 수정하기",
                 onBack: {
-                    navigationRouter.navigateBack()
+                    showBackAlert = true
                 },
                 rightButton: .text(
                     title: "완료",
@@ -151,8 +152,16 @@ struct EraserEditorView: View {
             }
             .padding(.bottom, 30)
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .background(Color.white)
+        .alert("수정을 그만할까요?", isPresented: $showBackAlert) {
+            Button("취소", role: .cancel) {}
+            Button("나가기", role: .destructive) {
+                navigationRouter.navigateBack()
+            }
+        } message: {
+            Text("지금 나가면 수정 내용이 사라져요.")
+        }
     }
 
     // MARK: - Save Image

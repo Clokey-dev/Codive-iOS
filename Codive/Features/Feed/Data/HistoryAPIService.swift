@@ -17,6 +17,7 @@ protocol HistoryAPIServiceProtocol {
     func fetchHistoryDetail(historyId: Int64) async throws -> HistoryDetailDTO
     func fetchClothTags(historyImageId: Int64) async throws -> [ClothTagDTO]
     func fetchMonthlyHistory(memberId: Int64, year: Int32, month: Int32) async throws -> [MonthlyHistoryItemDTO]
+    func checkTodayHistoryExistence() async throws -> Bool
     func deleteHistory(historyId: Int64) async throws
     func getPresignedUrls(for images: [Data]) async throws -> [PresignedUrlInfo]
     func uploadImageToS3(presignedUrl: String, imageData: Data, contentMD5: String, contentType: String) async throws
@@ -64,6 +65,7 @@ struct ClothTagDTO {
 
 struct HistoryCreateAPIRequest {
     let content: String?
+    let historyDate: String
     let situationId: Int64
     let styleIds: [Int64]
     let hashtags: [String]
@@ -111,6 +113,7 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
 
         let requestBody = Components.Schemas.HistoryCreateRequest(
             content: request.content,
+            historyDate: request.historyDate,
             situationId: request.situationId,
             styleIds: request.styleIds,
             hashtags: hashtagContainers,
@@ -296,6 +299,22 @@ final class HistoryAPIService: HistoryAPIServiceProtocol {
                     historyDate: payload.historyDate
                 )
             }
+
+        case .undocumented(statusCode: let code, _):
+            throw HistoryAPIError.serverError(statusCode: code)
+        }
+    }
+
+    // MARK: - Check Today History Existence
+
+    func checkTodayHistoryExistence() async throws -> Bool {
+        let input = Operations.History_checkTodayHistoryExistence.Input()
+        let response = try await client.History_checkTodayHistoryExistence(input)
+
+        switch response {
+        case .ok(let okResponse):
+            let decoded = try okResponse.body.json
+            return decoded.result?.exists ?? false
 
         case .undocumented(statusCode: let code, _):
             throw HistoryAPIError.serverError(statusCode: code)

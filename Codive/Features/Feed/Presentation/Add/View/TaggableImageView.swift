@@ -133,8 +133,10 @@ private struct DraggableTag: View {
         .gesture(
             isDraggable ? DragGesture(coordinateSpace: .named("imageZStack"))
                 .onChanged { value in
-                    let newX = value.location.x / imageSize.width
-                    let newY = value.location.y / imageSize.height
+                    let tagHalfW: CGFloat = 70 / max(imageSize.width, 1)
+                    let tagHalfH: CGFloat = 40 / max(imageSize.height, 1)
+                    let newX = min(max(value.location.x / imageSize.width, tagHalfW), 1 - tagHalfW)
+                    let newY = min(max(value.location.y / imageSize.height, tagHalfH), 1 - tagHalfH)
                     onDrag(newX, newY)
                 }
             : nil

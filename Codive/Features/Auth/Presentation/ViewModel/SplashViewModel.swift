@@ -153,6 +153,7 @@ final class SplashViewModel: ObservableObject {
                 appRouter.navigateToTerms()
             case .registered:
                 await cacheMyProfile()
+                await sendFCMTokenToServer()
                 appRouter.navigateToMain()
             }
         } catch {
@@ -167,6 +168,18 @@ final class SplashViewModel: ObservableObject {
         } catch {
             #if DEBUG
             print("[Splash] 프로필 캐싱 실패: \(error)")
+            #endif
+        }
+    }
+
+    private func sendFCMTokenToServer() async {
+        guard let fcmToken = UserDefaults.standard.string(forKey: "fcmToken") else { return }
+
+        do {
+            try await authAPIService.renewDeviceToken(deviceToken: fcmToken)
+        } catch {
+            #if DEBUG
+            print("[Push] FCM 토큰 서버 전송 실패: \(error.localizedDescription)")
             #endif
         }
     }

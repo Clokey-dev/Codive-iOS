@@ -75,10 +75,11 @@ struct RecordAddView: View {
                         } else {
                             // 실제 사진들
                             ForEach(viewModel.photos) { photo in
+                                let photoId = photo.id
                                 PhotoGridCell(
                                     asset: photo.asset,
-                                    isSelected: photo.isSelected,
-                                    selectionOrder: photo.selectionOrder,
+                                    isSelected: viewModel.selectedIds.contains(photoId),
+                                    selectionOrder: viewModel.selectionOrder.firstIndex(of: photoId).map { $0 + 1 },
                                     size: CGSize(width: cellSize, height: cellSize),
                                     viewModel: viewModel
                                 )
@@ -100,7 +101,7 @@ struct RecordAddView: View {
                 LoadingView()
             }
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .enableSwipeBack()
         .background(Color.white)
         .sheet(isPresented: $viewModel.isAlbumSheetPresented) {

@@ -91,8 +91,8 @@ final class LookBookRepositoryImpl: LookBookRepository {
     }
     
     /// 옷 리스트 조회
-    func fetchClothItems(category: String?) async throws -> [ProductItem] {
-        return try await datasource.fetchClothItems(category: category)
+    func fetchClothItems(category: String?, searchText: String?) async throws -> [ProductItem] {
+        return try await datasource.fetchClothItems(category: category, searchText: searchText)
     }
     
     /// 룩북 생성

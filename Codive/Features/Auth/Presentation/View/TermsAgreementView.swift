@@ -88,13 +88,15 @@ struct TermsAgreementView: View {
 
                     // 개별 항목들
                     ForEach(termsList, id: \.termId) { term in
+                        let wikiURL = termsWikiURL(for: term.title)
                         AgreementRow(
                             title: term.title,
                             isAgreed: binding(for: term.termId),
-                            isRequired: !term.isOptional
+                            isRequired: !term.isOptional,
+                            showChevron: wikiURL != nil
                         ) {
-                            if let url = termsWikiURL(for: term.title) {
-                                selectedTermsURL = TermsURL(url: url)
+                            if let wikiURL {
+                                selectedTermsURL = TermsURL(url: wikiURL)
                             }
                         }
                     }
@@ -124,7 +126,7 @@ struct TermsAgreementView: View {
             .padding(.horizontal, 20)
             .padding(.bottom, 10)
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .task {
             await loadTerms()
         }

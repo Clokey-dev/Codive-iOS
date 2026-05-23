@@ -161,18 +161,14 @@ private extension CustomOverflowMenu {
                         .renderingMode(.template)
                         .resizable()
                         .scaledToFit()
-                        .aspectRatio(1, contentMode: .fit)
-                        .frame(width: 15, height: 15)
 
                 case .asset(let name):
                     Image(name)
                         .resizable()
                         .scaledToFit()
-                        .aspectRatio(1, contentMode: .fit)
-                        .frame(width: 15, height: 15)
-                        .padding(1)
                 }
             }
+            .frame(width: 16, height: 16)
             .foregroundStyle(Color.Codive.main1)
 
             Text(item.text)

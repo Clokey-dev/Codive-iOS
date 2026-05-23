@@ -34,7 +34,7 @@ struct SpecificLookBookView: View {
                     rightButton: viewModel.isEditing
                     ? .text(
                         title: TextLiteral.Common.delete,
-                        isEnabled: viewModel.selectedCodiId != nil,
+                        isEnabled: !viewModel.selectedCodiIds.isEmpty,
                         action: viewModel.handleCompleteAction
                     )
                     : .overflow(
@@ -65,7 +65,7 @@ struct SpecificLookBookView: View {
                                 cardTitle: codi.coordinateName,
                                 iconType: viewModel.isEditing ? .checkmark : .heart,
                                 isSelected: viewModel.isEditing
-                                ? viewModel.selectedCodiId == codi.id
+                                ? viewModel.selectedCodiIds.contains(codi.id)
                                 : viewModel.likedCodiId == codi.id
                             ) {
                                 if viewModel.isEditing {
@@ -94,9 +94,7 @@ struct SpecificLookBookView: View {
                     }
                 }
                 .onAppear {
-                    if viewModel.specificLookBookCodiList.isEmpty {
-                        viewModel.fetchCodis()
-                    }
+                    viewModel.fetchCodis()
                 }
             }
             
@@ -104,7 +102,7 @@ struct SpecificLookBookView: View {
                 LoadingView(backgroundStyle: .white)
             }
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .enableSwipeBack()
         .background(Color.white)
         .alert(

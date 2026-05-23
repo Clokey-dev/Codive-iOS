@@ -35,7 +35,7 @@ struct EditCodiView: View {
             
             completeButton
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .enableSwipeBack()
         .background(Color.white)
     }

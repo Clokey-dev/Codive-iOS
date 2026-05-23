@@ -35,7 +35,8 @@ struct CodiveDateTranscoder: DateTranscoder {
             "yyyy-MM-dd'T'HH:mm:ss.SSSSSSS",
             "yyyy-MM-dd'T'HH:mm:ss.SSSSSS",
             "yyyy-MM-dd'T'HH:mm:ss.SSS",
-            "yyyy-MM-dd'T'HH:mm:ss"
+            "yyyy-MM-dd'T'HH:mm:ss",
+            "yyyy-MM-dd"
         ]
 
         for format in formats {

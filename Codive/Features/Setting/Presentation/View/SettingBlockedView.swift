@@ -35,7 +35,7 @@ struct SettingBlockedView: View {
                 }
             }
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .enableSwipeBack()
     }
 

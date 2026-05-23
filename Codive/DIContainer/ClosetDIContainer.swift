@@ -80,6 +80,26 @@ final class ClosetDIContainer {
         return CheckStatisticsConditionUseCase(repository: statisticsRepository)
     }
 
+    func makeFetchFavoriteItemsUseCase() -> FetchFavoriteItemsUseCase {
+        return FetchFavoriteItemsUseCase(repository: statisticsRepository)
+    }
+
+    func makeFetchFavoriteCategoryItemsUseCase() -> FetchFavoriteCategoryItemsUseCase {
+        return FetchFavoriteCategoryItemsUseCase(repository: statisticsRepository)
+    }
+
+    func makeFetchClosetUtilizationUseCase() -> FetchClosetUtilizationUseCase {
+        return FetchClosetUtilizationUseCase(repository: statisticsRepository)
+    }
+
+    func makeFetchClothListByCategoryUseCase() -> FetchClothListByCategoryUseCase {
+        return FetchClothListByCategoryUseCase(repository: clothRepository)
+    }
+
+    func makeFetchClothDetailUseCase() -> FetchClothDetailUseCase {
+        return FetchClothDetailUseCase(repository: clothRepository)
+    }
+
     // MARK: - ViewModels
     func makeMyClosetViewModel() -> MyClosetViewModel {
         return MyClosetViewModel(
@@ -108,7 +128,7 @@ final class ClosetDIContainer {
             cloth: cloth,
             navigationRouter: navigationRouter,
             deleteClothItemsUseCase: makeDeleteClothItemsUseCase(),
-            clothRepository: clothRepository
+            fetchClothDetailUseCase: makeFetchClothDetailUseCase()
         )
     }
 
@@ -123,7 +143,34 @@ final class ClosetDIContainer {
     func makeWardrobeReportDetailViewModel() -> WardrobeReportDetailViewModel {
         return WardrobeReportDetailViewModel(
             navigationRouter: navigationRouter,
-            checkStatisticsConditionUseCase: makeCheckStatisticsConditionUseCase()
+            checkStatisticsConditionUseCase: makeCheckStatisticsConditionUseCase(),
+            fetchFavoriteItemsUseCase: makeFetchFavoriteItemsUseCase(),
+            fetchFavoriteCategoryItemsUseCase: makeFetchFavoriteCategoryItemsUseCase(),
+            fetchClosetUtilizationUseCase: makeFetchClosetUtilizationUseCase()
+        )
+    }
+
+    func makeFavoriteByCategoryViewModel(parentCategoryId: Int64) -> FavoriteByCategoryViewModel {
+        return FavoriteByCategoryViewModel(
+            navigationRouter: navigationRouter,
+            fetchFavoriteCategoryItemsUseCase: makeFetchFavoriteCategoryItemsUseCase(),
+            fetchClothListByCategoryUseCase: makeFetchClothListByCategoryUseCase(),
+            parentCategoryId: parentCategoryId
+        )
+    }
+
+    func makeItemDataViewModel() -> ItemDataViewModel {
+        return ItemDataViewModel(
+            navigationRouter: navigationRouter,
+            fetchFavoriteItemsUseCase: makeFetchFavoriteItemsUseCase(),
+            fetchClothListByCategoryUseCase: makeFetchClothListByCategoryUseCase()
+        )
+    }
+
+    func makeWearingDataViewModel() -> WearingDataViewModel {
+        return WearingDataViewModel(
+            navigationRouter: navigationRouter,
+            fetchClosetUtilizationUseCase: makeFetchClosetUtilizationUseCase()
         )
     }
 
@@ -142,5 +189,17 @@ final class ClosetDIContainer {
 
     func makeWardrobeReportDetailView() -> some View {
         return WardrobeReportDetailView(viewModel: makeWardrobeReportDetailViewModel())
+    }
+
+    func makeFavoriteByCategoryView(parentCategoryId: Int64) -> some View {
+        return FavoriteByCategoryView(viewModel: makeFavoriteByCategoryViewModel(parentCategoryId: parentCategoryId))
+    }
+
+    func makeItemDataView() -> some View {
+        return ItemDataView(viewModel: makeItemDataViewModel())
+    }
+
+    func makeWearingDataView() -> some View {
+        return WearingDataView(viewModel: makeWearingDataViewModel())
     }
 }

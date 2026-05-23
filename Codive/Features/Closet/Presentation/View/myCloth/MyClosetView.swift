@@ -50,6 +50,7 @@ struct MyClosetView: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 10)
+                .padding(.bottom, 8)
 
                 mainCategoryTab
 
@@ -97,7 +98,7 @@ struct MyClosetView: View {
                 }
             }
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .enableSwipeBack()
         .background(Color.white)
         .ignoresSafeArea(.all, edges: .bottom)

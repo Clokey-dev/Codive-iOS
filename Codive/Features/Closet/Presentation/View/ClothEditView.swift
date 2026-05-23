@@ -64,7 +64,7 @@ struct ClothEditView: View {
         .task {
             await viewModel.fetchDetail()
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .enableSwipeBack()
         .background(Color.white)
         .sheet(isPresented: $viewModel.isCategorySheetPresented) {

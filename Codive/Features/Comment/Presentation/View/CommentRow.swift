@@ -17,7 +17,7 @@ struct CommentRow: View {
     let onFetchRepliesTap: (Int) -> Void
     let onFetchAllRepliesTap: (Int) -> Void
     let onProfileImageTap: (String, Bool) -> Void
-    let onMoreTap: (Comment) -> Void
+    let onMoreTap: (Comment, CGRect) -> Void
 
     @State private var isExpanded: Bool = false
 
@@ -97,13 +97,18 @@ struct CommentRow: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                Button(
-                    action: { onMoreTap(comment) },
-                    label: {
-                        Image("more")
-                            .font(.system(size: 12))
-                    }
-                )
+                GeometryReader { proxy in
+                    Button(
+                        action: {
+                            onMoreTap(comment, proxy.frame(in: .named("commentList")))
+                        },
+                        label: {
+                            Image("more")
+                                .font(.system(size: 12))
+                        }
+                    )
+                }
+                .frame(width: 20, height: 20)
             }
             .padding(.leading, isReply ? 40 : 0)
 
@@ -208,7 +213,7 @@ struct CommentRow_Previews: PreviewProvider {
             onFetchRepliesTap: { _ in },
             onFetchAllRepliesTap: { _ in },
             onProfileImageTap: { _, _ in },
-            onMoreTap: { _ in }
+            onMoreTap: { _, _ in }
         )
         .previewDisplayName("댓글 아이템")
     }

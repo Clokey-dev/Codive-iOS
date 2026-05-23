@@ -27,7 +27,7 @@ struct AddBeforeCodiView: View {
             
             contentScrollView
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .enableSwipeBack()
         .background(Color.white)
         .onAppear {

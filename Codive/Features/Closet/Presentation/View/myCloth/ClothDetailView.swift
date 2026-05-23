@@ -76,7 +76,7 @@ struct ClothDetailView: View {
         .task {
             await viewModel.fetchDetail()
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .enableSwipeBack()
         .background(Color.white)
         .alert("옷 삭제", isPresented: $viewModel.showDeleteAlert) {

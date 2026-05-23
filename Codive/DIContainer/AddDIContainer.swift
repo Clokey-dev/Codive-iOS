@@ -19,6 +19,9 @@ final class AddDIContainer {
     let navigationRouter: NavigationRouter
     lazy var addViewFactory = AddViewFactory(addDIContainer: self)
 
+    // 캘린더에서 선택한 날짜 (기록 생성 시 사용)
+    var selectedDate: Date?
+
     // 지우개 편집 시 공유 참조
     weak var activeClothAddViewModel: ClothAddViewModel?
     var pendingErasedImage: UIImage?
@@ -46,10 +49,11 @@ final class AddDIContainer {
         )
     }
     
-    func makeRecordDetailViewModel(selectedPhotos: [SelectedPhoto]) -> RecordDetailViewModel {
+    func makeRecordDetailViewModel(selectedPhotos: [SelectedPhoto], selectedDate: Date? = nil) -> RecordDetailViewModel {
         return RecordDetailViewModel(
             selectedPhotos: selectedPhotos,
-            navigationRouter: navigationRouter
+            navigationRouter: navigationRouter,
+            selectedDate: selectedDate
         )
     }
 
@@ -93,9 +97,9 @@ final class AddDIContainer {
         return RecordAddView(viewModel: makeRecordAddViewModel(flowType: flowType))
     }
     
-    func makeRecordDetailView(selectedPhotos: [SelectedPhoto]) -> RecordDetailView {
+    func makeRecordDetailView(selectedPhotos: [SelectedPhoto], selectedDate: Date? = nil) -> RecordDetailView {
         return RecordDetailView(
-            viewModel: makeRecordDetailViewModel(selectedPhotos: selectedPhotos)
+            viewModel: makeRecordDetailViewModel(selectedPhotos: selectedPhotos, selectedDate: selectedDate)
         )
     }
 

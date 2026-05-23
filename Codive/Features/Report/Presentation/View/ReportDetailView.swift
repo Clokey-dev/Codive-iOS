@@ -96,7 +96,7 @@ struct ReportDetailView: View {
                 }
             }
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .enableSwipeBack()
         .alert("신고 안내", isPresented: $vm.showDuplicateAlert) {
             Button("확인") {

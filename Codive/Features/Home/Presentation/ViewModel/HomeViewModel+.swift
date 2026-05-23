@@ -49,6 +49,25 @@ extension HomeViewModel {
         }
     }
     
+    /// 랜덤 코디: 각 카테고리별로 옷을 랜덤 선택
+    func randomizeCodi() {
+        Task {
+            if clothItemsByCategory.isEmpty {
+                await loadRecommendCategoryClothList(seasons: self.currentSeasons)
+            }
+
+            await MainActor.run {
+                var randomIndices: [Int: Int] = [:]
+                for category in activeCategories {
+                    if let items = clothItemsByCategory[category.id], !items.isEmpty {
+                        randomIndices[category.id] = Int.random(in: 0..<items.count)
+                    }
+                }
+                selectedIndicesByCategory = randomIndices
+            }
+        }
+    }
+
     /// 수정 취소 또는 뒤로가기 시 상태를 복구하고 싶을 때 사용 (선택 사항)
     func cancelEditCodi() {
         if todayCodiPreview != nil {

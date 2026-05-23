@@ -12,6 +12,7 @@ import UIKit
 
 struct RecordCreateRequest {
     let content: String?
+    let historyDate: String
     let situationId: Int64
     let styleIds: [Int64]
     let hashtags: [String]
@@ -63,6 +64,7 @@ final class DefaultRecordDataSource: RecordDataSource {
 
         let apiRequest = HistoryCreateAPIRequest(
             content: request.content,
+            historyDate: request.historyDate,
             situationId: request.situationId,
             styleIds: request.styleIds,
             hashtags: request.hashtags,
@@ -84,6 +86,7 @@ final class DefaultRecordDataSource: RecordDataSource {
 
         let apiRequest = HistoryCreateAPIRequest(
             content: request.content,
+            historyDate: request.historyDate,
             situationId: request.situationId,
             styleIds: request.styleIds,
             hashtags: request.hashtags,

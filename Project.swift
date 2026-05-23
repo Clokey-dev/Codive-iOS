@@ -6,7 +6,7 @@ import ProjectDescription
 let crashlyticsScript = TargetScript.post(
    script: """
    if [ "${CONFIGURATION}" = "Release" ]; then
-       ${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run
+       "${SRCROOT}/Tuist/.build/checkouts/firebase-ios-sdk/Crashlytics/run"
    fi
    """,
    name: "Firebase Crashlytics dSYM Upload",
@@ -85,7 +85,7 @@ let project = Project(
                     "UILaunchScreen": [:],
                     "UISupportedInterfaceOrientations": ["UIInterfaceOrientationPortrait"],
                     "CFBundleDevelopmentRegion": "ko",
-                    "CFBundleLocalizations": ["ko", "en"],
+                    "CFBundleLocalizations": ["ko"],
                     "UIAppFonts": [
                         "Pretendard-Black.otf",
                         "Pretendard-Bold.otf",
@@ -122,23 +122,15 @@ let project = Project(
                             "CFBundleURLSchemes": ["codive"]
                         ]
                     ],
+                    // Background Modes (원격 푸시 알림 수신)
+                    "UIBackgroundModes": ["remote-notification"],
+
                     "LSApplicationQueriesSchemes": [
                         "kakaokompassauth",
                         "storykompassauth",
                         "kakaolink",
                         "kakaotalk-5.9.7"
                     ],
-
-                   // App Transport Security - HTTP 도메인 예외 추가
-                   "NSAppTransportSecurity": [
-                       "NSExceptionDomains": [
-                           "prod.clokey.store": [
-                               "NSIncludesSubdomains": true,
-                               "NSTemporaryExceptionAllowsInsecureHTTPLoads": true
-                           ]
-                       ]
-                   ],
-
                ]
            ),
            sources: [
@@ -168,21 +160,25 @@ let project = Project(
 
                // Firebase
                .external(name: "FirebaseAnalytics"),
-               .external(name: "FirebaseCrashlytics")
+               .external(name: "FirebaseCrashlytics"),
+               .external(name: "FirebaseMessaging")
            ],
            settings: .settings(
                base: [
                    "DEVELOPMENT_TEAM": "BBVZV8T99P",
-                   "CODE_SIGN_STYLE": "Manual"
+                   "CODE_SIGN_STYLE": "Manual",
+                   "OTHER_LDFLAGS": ["$(inherited)", "-ObjC"]
                ],
                configurations: [
                    .debug(name: "Debug", settings: [
                        "PROVISIONING_PROFILE_SPECIFIER": "match Development com.codive.app",
-                       "CODE_SIGN_IDENTITY": "Apple Development"
+                       "CODE_SIGN_IDENTITY": "Apple Development",
+                       "CODE_SIGN_ENTITLEMENTS": "Codive/Codive.entitlements"
                    ]),
                    .release(name: "Release", settings: [
                        "PROVISIONING_PROFILE_SPECIFIER": "match AppStore com.codive.app",
-                       "CODE_SIGN_IDENTITY": "Apple Distribution"
+                       "CODE_SIGN_IDENTITY": "Apple Distribution",
+                       "CODE_SIGN_ENTITLEMENTS": "Codive/Codive.Release.entitlements"
                    ])
                ]
            )
@@ -198,6 +194,20 @@ let project = Project(
            dependencies: [
                .target(name: "Codive")
            ]
+       )
+   ],
+   schemes: [
+       .scheme(
+           name: "Codive",
+           buildAction: .buildAction(targets: ["Codive"]),
+           runAction: .runAction(
+               configuration: "Debug",
+               arguments: .arguments(
+                   environmentVariables: [
+                       "OS_ACTIVITY_MODE": .environmentVariable(value: "disable", isEnabled: true)
+                   ]
+               )
+           )
        )
    ]
 )

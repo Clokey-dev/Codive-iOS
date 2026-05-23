@@ -53,6 +53,26 @@ extension HomeViewModel {
         }
     }
 
+    /// 배너 탭 → 이미 저장된 코디 이미지를 사용하여 기록 플로우로 이동
+    func handleBannerRecord() {
+        Task {
+            guard let imageURL = self.todayCodiPreview?.imageUrl,
+                  let codiImage = await downloadUIImage(from: imageURL) else {
+                return
+            }
+
+            let recordImage = Self.convertToThreeByFour(codiImage)
+
+            let selectedPhoto = SelectedPhoto(
+                id: UUID().uuidString,
+                croppedImage: recordImage,
+                order: 1
+            )
+
+            self.navigationRouter.navigate(to: .recordDetail(photos: [selectedPhoto]))
+        }
+    }
+
     func handlePopupClose() {
         showCompletePopUp = false
         completedCodiImageURL = nil

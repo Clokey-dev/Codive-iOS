@@ -18,10 +18,16 @@ struct AddCodiDetailView: View {
                 .fill(Color(UIColor.systemGray6))
             
             DraggableImageView(
-                items: $viewModel.images
-            ) { id in
-                viewModel.bringImageToFront(id: id)
-            }
+                items: $viewModel.images,
+                selectedImageID: viewModel.selectedImageID,
+                onActivate: { id in
+                    viewModel.selectImage(id: id)
+                    viewModel.bringImageToFront(id: id)
+                },
+                onDeselect: {
+                    viewModel.selectImage(id: nil)
+                }
+            )
         }
         .frame(width: viewModel.boardSize, height: viewModel.boardSize)
         .clipped()
@@ -45,6 +51,7 @@ struct AddCodiDetailView: View {
                     isEnabled: !viewModel.selectedProductIds.isEmpty
                 ) {
                     Task {
+                        viewModel.selectImage(id: nil)
                         try? await Task.sleep(nanoseconds: 200_000_000)
                         await viewModel.captureBoard(view: codiBoardView)
                         await viewModel.handleComplete()
@@ -84,7 +91,7 @@ struct AddCodiDetailView: View {
                 }
             }
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .enableSwipeBack()
         .background(Color.white.ignoresSafeArea())
     }

@@ -22,8 +22,8 @@ final class AddViewFactory {
     @ViewBuilder
     func makeView(for destination: AppDestination) -> some View {
         switch destination {
-        case .recordAdd:
-            addDIContainer?.makeRecordAddView(flowType: .record)
+        case .recordAdd(let selectedDate):
+            makeRecordAddViewWithDate(selectedDate: selectedDate)
         case .clothPhotoSelect:
             addDIContainer?.makeRecordAddView(flowType: .cloth)
         case .clothAdd(let photos, let isAIEnabled):
@@ -32,8 +32,8 @@ final class AddViewFactory {
             addDIContainer?.makePhotoEditView(selectedPhotos: photos, flowType: .record)
         case .photoEditForCloth(let photos, let isAIEnabled):
             addDIContainer?.makePhotoEditView(selectedPhotos: photos, flowType: .cloth, isAIEnabled: isAIEnabled)
-        case .recordDetail(let photos):
-            addDIContainer?.makeRecordDetailView(selectedPhotos: photos)
+        case .recordDetail(let photos, let selectedDate):
+            addDIContainer?.makeRecordDetailView(selectedPhotos: photos, selectedDate: selectedDate ?? addDIContainer?.selectedDate)
         case .recordEdit(let feed):
             addDIContainer?.makeRecordDetailViewForEdit(feed: feed)
         case .photoTag(let photo, let allPhotos):
@@ -45,5 +45,10 @@ final class AddViewFactory {
         default:
             EmptyView()
         }
+    }
+
+    private func makeRecordAddViewWithDate(selectedDate: Date?) -> RecordAddView? {
+        addDIContainer?.selectedDate = selectedDate
+        return addDIContainer?.makeRecordAddView(flowType: .record)
     }
 }

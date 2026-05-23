@@ -23,4 +23,16 @@ final class StatisticsRepositoryImpl: StatisticsRepository {
     func checkStatisticsCondition() async throws -> Bool {
         return try await dataSource.checkStatisticsCondition()
     }
+
+    func getFavoriteItems() async throws -> [FavoriteItemPayload] {
+        return try await dataSource.getFavoriteItems()
+    }
+
+    func getFavoriteCategoryItems(categoryId: Int64) async throws -> [FavoriteCategoryItemPayload] {
+        return try await dataSource.getFavoriteCategoryItems(categoryId: categoryId)
+    }
+
+    func getClosetUtilization(season: String) async throws -> ClosetUtilizationPayload {
+        return try await dataSource.getClosetUtilization(season: season)
+    }
 }

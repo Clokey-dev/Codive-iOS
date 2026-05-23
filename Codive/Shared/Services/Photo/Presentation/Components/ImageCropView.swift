@@ -22,7 +22,8 @@ struct ImageCropView: View {
             image: image,
             aspectRatio: aspectRatio,
             allowZoomOut: allowZoomOut,
-            onComplete: onComplete
+            onComplete: onComplete,
+            onCancel: onCancel
         )
     }
 }

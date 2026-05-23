@@ -44,7 +44,7 @@ struct RecentlySearchResultView: View {
                 .padding(.horizontal, 15)
             }
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .enableSwipeBack()
         .background(Color.white.ignoresSafeArea(.all))
         .onAppear {

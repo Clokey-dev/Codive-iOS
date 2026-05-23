@@ -12,6 +12,7 @@ struct HomeHasCodiView: View {
     // MARK: - Properties
     @ObservedObject var viewModel: HomeViewModel
     let width: CGFloat
+    let onBannerTapped: () -> Void
     
     // MARK: - Body
     var body: some View {
@@ -44,12 +45,12 @@ struct HomeHasCodiView: View {
                 bottomBanner
             }
             .contentShape(Rectangle())
-            .onTapGesture {
-                // 2. 메뉴가 열려있을 때 바탕을 누르면 닫기
+            .simultaneousGesture(TapGesture().onEnded {
+                // 메뉴가 열려있을 때 바탕을 누르면 닫기
                 if viewModel.isOverflowMenuExpanded {
                     viewModel.closeOverflowMenu()
                 }
-            }
+            })
             
             overflowMenu
         }
@@ -69,7 +70,7 @@ private extension HomeHasCodiView {
     
     /// 하단 배너
     var bottomBanner: some View {
-        CustomBanner(text: TextLiteral.Home.bannerTitle) {}
+        CustomBanner(text: TextLiteral.Home.bannerTitle, onTap: onBannerTapped)
             .padding()
     }
     

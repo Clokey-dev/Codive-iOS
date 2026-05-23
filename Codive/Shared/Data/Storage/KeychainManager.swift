@@ -34,10 +34,7 @@ final class KeychainManager {
     func saveAccessToken(_ token: String) throws {
         try save(token, forKey: accessTokenKey)
         #if DEBUG
-        print("----------------------------------------")
-        print("[Keychain] Access Token Saved:")
-        print(token)
-        print("----------------------------------------")
+        AppLog.auth.debug("Access Token Saved: \(token.masked(), privacy: .public)")
         #endif
     }
 

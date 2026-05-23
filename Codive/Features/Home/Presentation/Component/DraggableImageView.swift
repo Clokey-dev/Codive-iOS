@@ -10,17 +10,25 @@ import Kingfisher
 
 struct DraggableImageView<T: DraggableImageProtocol>: View {
     @Binding var items: [T]
+    let selectedImageID: Int64?
     let onActivate: (Int64) -> Void
+    let onDeselect: () -> Void
 
     var body: some View {
         ZStack {
+            Color.clear
+                .contentShape(Rectangle())
+                .onTapGesture { onDeselect() }
+
             ForEach($items) { $item in
                 ZoomRotateDragView(
                     id: item.id,
                     position: $item.position,
                     scale: $item.scale,
                     rotation: $item.rotation,
+                    isSelected: item.id == selectedImageID,
                     onActivate: { onActivate(item.id) },
+                    onTap: { onActivate(item.id) },
                     content: {
                         KFImage(URL(string: item.imageUrl))
                             .placeholder {

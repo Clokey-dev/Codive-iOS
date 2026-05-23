@@ -49,6 +49,7 @@ final class RecordDetailViewModel: ObservableObject {
 
     private let navigationRouter: NavigationRouter
     private let recordDataSource: RecordDataSource
+    private let selectedDate: Date?
     
     // MARK: - Options
     let styleOptions = [
@@ -90,12 +91,14 @@ final class RecordDetailViewModel: ObservableObject {
     init(
         selectedPhotos: [SelectedPhoto],
         navigationRouter: NavigationRouter,
-        recordDataSource: RecordDataSource = DefaultRecordDataSource()
+        recordDataSource: RecordDataSource = DefaultRecordDataSource(),
+        selectedDate: Date? = nil
     ) {
         self.selectedPhotos = selectedPhotos
         self.navigationRouter = navigationRouter
         self.recordDataSource = recordDataSource
         self.isEditMode = false
+        self.selectedDate = selectedDate
 
         // 태그 업데이트 구독
         setupPhotoTagSubscription()
@@ -112,6 +115,7 @@ final class RecordDetailViewModel: ObservableObject {
         self.isEditMode = true
         self.editingFeedId = feed.id
         self.editingFeedData = feed
+        self.selectedDate = nil
 
         // 이미지 데이터 로드
         self.selectedPhotos = []
@@ -158,9 +162,7 @@ final class RecordDetailViewModel: ObservableObject {
             }
         }
 
-        DispatchQueue.main.async {
-            self.selectedPhotos = loadedPhotos
-        }
+        self.selectedPhotos = loadedPhotos
     }
 
     /// URL에서 이미지를 다운로드
@@ -188,11 +190,11 @@ final class RecordDetailViewModel: ObservableObject {
         Task {
             do {
                 let request = try buildRecordRequest()
-                try await saveRecord(request)
+                let feedId = try await saveRecord(request)
                 isLoading = false
                 NotificationCenter.default.post(name: .feedDidCreate, object: nil)
                 let message = isEditMode ? "기록이 수정되었습니다" : "기록이 저장되었습니다"
-                navigationRouter.showSuccessAndNavigate(message: message, to: .feed)
+                navigationRouter.showSuccessAndNavigate(message: message, to: .feed, destination: .feedDetail(feedId: feedId))
             } catch {
                 handleRecordError(error)
             }
@@ -233,8 +235,11 @@ final class RecordDetailViewModel: ObservableObject {
         }
 
         // 5. 요청 생성
+        let historyDate = (selectedDate ?? Date()).toDateString()
+
         return RecordCreateRequest(
             content: captionText.isEmpty ? nil : captionText,
+            historyDate: historyDate,
             situationId: situationId,
             styleIds: styleIds,
             hashtags: hashtags,
@@ -242,13 +247,15 @@ final class RecordDetailViewModel: ObservableObject {
         )
     }
 
-    private func saveRecord(_ request: RecordCreateRequest) async throws {
+    @discardableResult
+    private func saveRecord(_ request: RecordCreateRequest) async throws -> Int {
         if isEditMode, let feedId = editingFeedId {
-            // API는 Int64를 요구하므로 변환
             let historyId = Int64(feedId)
             try await recordDataSource.updateRecord(historyId: historyId, request: request)
+            return feedId
         } else {
-            _ = try await recordDataSource.createRecord(request: request)
+            let historyId = try await recordDataSource.createRecord(request: request)
+            return Int(historyId)
         }
     }
 

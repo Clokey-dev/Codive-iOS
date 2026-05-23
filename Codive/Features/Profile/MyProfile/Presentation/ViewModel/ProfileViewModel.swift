@@ -32,7 +32,9 @@ class ProfileViewModel: ObservableObject {
                 imageName: detail.imageUrl,
                 brand: detail.brand,
                 name: detail.name,
-                clothId: detail.clothId
+                clothId: detail.clothId,
+                category: detail.category,
+                parentCategory: detail.parentCategory
             )
         }
     }
@@ -202,6 +204,10 @@ class ProfileViewModel: ObservableObject {
     
     func onMoreFavoriteCodiTapped() {
         navigationRouter.navigate(to: .favoriteCodiList(showHeart: true, memberId: nil))
+    }
+
+    func navigateToCloset() {
+        navigationRouter.switchTabAndNavigate(to: .closet)
     }
     
     func loadFavoriteCoordinates() async {

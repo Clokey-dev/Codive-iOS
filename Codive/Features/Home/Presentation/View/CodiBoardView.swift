@@ -32,7 +32,7 @@ struct CodiBoardView: View {
                     }
             }
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .enableSwipeBack()
         .background(Color.white)
         .onChange(of: viewModel.isConfirmed) { confirmed in
@@ -85,10 +85,17 @@ private extension CodiBoardView {
         ZStack {
             boardBackground(size: size)
         
-            DraggableImageView(items: $viewModel.images) { id in
-                viewModel.selectImage(id: Int(id))
-                viewModel.bringImageToFront(id: Int(id))
-            }
+            DraggableImageView(
+                items: $viewModel.images,
+                selectedImageID: viewModel.selectedImageID.map { Int64($0) },
+                onActivate: { id in
+                    viewModel.selectImage(id: Int(id))
+                    viewModel.bringImageToFront(id: Int(id))
+                },
+                onDeselect: {
+                    viewModel.selectImage(id: nil)
+                }
+            )
         }
         .frame(width: size, height: size)
         .clipShape(RoundedRectangle(cornerRadius: 15))

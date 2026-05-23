@@ -11,11 +11,8 @@ final class SettingsDataSource {
     // MARK: - Properties
     private let apiClient: Client
 
-    // MARK: - In-memory stores
-    private var notificationPrefsStore: NotificationPrefs = .init(
-        pushEnabled: true,
-        marketingOptIn: false
-    )
+    // MARK: - UserDefaults Keys
+    private static let marketingOptInKey = "SettingMarketingOptIn"
 
     private let withdrawNoticesStore: [WithdrawNotice] = [
         .init(title: "데이터 삭제 안내",
@@ -202,11 +199,12 @@ final class SettingsDataSource {
 
     // MARK: - Notification Prefs
     func getNotificationPrefs() async throws -> NotificationPrefs {
-        notificationPrefsStore
+        let marketingOptIn = UserDefaults.standard.bool(forKey: Self.marketingOptInKey)
+        return NotificationPrefs(pushEnabled: false, marketingOptIn: marketingOptIn)
     }
 
     func updateNotificationPrefs(_ prefs: NotificationPrefs) async throws {
-        notificationPrefsStore = prefs
+        UserDefaults.standard.set(prefs.marketingOptIn, forKey: Self.marketingOptInKey)
     }
 
     // MARK: - Withdraw

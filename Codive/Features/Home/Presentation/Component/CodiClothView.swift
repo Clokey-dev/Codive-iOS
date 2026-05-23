@@ -161,6 +161,10 @@ struct CodiClothCarouselView: View {
                     )
                 }
                 .onChange(of: currentIndex) { newValue in
+                    if isEmptyState {
+                        currentIndex = 1
+                        return
+                    }
                     withAnimation(.spring()) {
                         proxy.scrollTo(newValue, anchor: .center)
                     }

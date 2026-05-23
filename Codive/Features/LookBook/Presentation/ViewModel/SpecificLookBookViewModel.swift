@@ -15,7 +15,13 @@ final class SpecificLookBookViewModel: ObservableObject {
     @Published var isOverflowMenuExpanded: Bool = false
     
     private let lookbookId: Int64
-    @Published var name: String
+    @Published var name: String {
+        didSet {
+            if name.count > 10 {
+                name = String(name.prefix(10))
+            }
+        }
+    }
     @Published var isEditingTitle = false
     private var previousTitle: String = ""
     
@@ -24,7 +30,7 @@ final class SpecificLookBookViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     @Published var isEditing: Bool = false
-    @Published var selectedCodiId: Int64?
+    @Published var selectedCodiIds: Set<Int64> = []
     @Published var isShowingDeleteAlert: Bool = false
     
     // MARK: - Initializer
@@ -94,18 +100,18 @@ final class SpecificLookBookViewModel: ObservableObject {
     }
     
     func toggleSelection(id: Int64) {
-        if selectedCodiId == id {
-            selectedCodiId = nil
+        if selectedCodiIds.contains(id) {
+            selectedCodiIds.remove(id)
         } else {
-            selectedCodiId = id
+            selectedCodiIds.insert(id)
         }
     }
-    
+
     // MARK: - 토글(편집하기)
     func toggleEditingMode() {
         isEditing.toggle()
         if !isEditing {
-            selectedCodiId = nil
+            selectedCodiIds.removeAll()
         }
     }
     
@@ -117,46 +123,48 @@ final class SpecificLookBookViewModel: ObservableObject {
     
     // MARK: - topBar 삭제 버튼 동작
     func handleCompleteAction() {
-        guard selectedCodiId != nil else {
+        guard !selectedCodiIds.isEmpty else {
             toggleEditingMode()
             return
         }
         isShowingDeleteAlert = true
     }
-    
+
     // MARK: - alert 삭제 버튼
     func beginDelete() {
         isShowingDeleteAlert = false
         isLoading = true
-        
+
         Task {
             try? await Task.sleep(nanoseconds: 150_000_000)
             self.confirmDelete()
         }
     }
-    
+
     // MARK: - 코디 삭제 확정
     func confirmDelete() {
-        guard let idToDelete = selectedCodiId else {
+        guard !selectedCodiIds.isEmpty else {
             isLoading = false
             isEditing = false
             return
         }
-        
+
         Task {
             do {
-                try await specificLookBookUseCase.deleteCoordinate(coordinateId: idToDelete)
-                
-                specificLookBookCodiList.removeAll { codi in
-                    codi.id == idToDelete
+                for id in selectedCodiIds {
+                    try await specificLookBookUseCase.deleteCoordinate(coordinateId: id)
                 }
-                
-                selectedCodiId = nil
+
+                specificLookBookCodiList.removeAll { codi in
+                    selectedCodiIds.contains(codi.id)
+                }
+
+                selectedCodiIds.removeAll()
                 isEditing = false
             } catch {
                 errorMessage = "코디 삭제에 실패했습니다."
             }
-            
+
             isLoading = false
         }
     }

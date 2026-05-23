@@ -35,7 +35,7 @@ struct ReportView: View {
                 }
             }
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .enableSwipeBack()
         .task { await vm.loadContext() }
     }

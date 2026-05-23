@@ -1,4 +1,6 @@
 import Foundation
+import UserNotifications
+import UIKit
 
 @MainActor
 final class SettingViewModel: ObservableObject {
@@ -43,8 +45,11 @@ final class SettingViewModel: ObservableObject {
             // 프로필 정보 로드
             await profileViewModel.loadMyProfile()
 
+            // 시스템 푸시 권한 상태 확인
+            await refreshPushPermissionStatus()
+
+            // 마케팅 동의 설정 로드
             let prefs = try await getPrefsUC.fetch()
-            isPushOn = prefs.pushEnabled
             isMarketingOn = prefs.marketingOptIn
             hasLoaded = true
         } catch {
@@ -54,19 +59,28 @@ final class SettingViewModel: ObservableObject {
         isLoading = false
     }
 
-    // 토글 핸들러
-    func updatePush(_ newValue: Bool) {
-        isPushOn = newValue
-        Task { await save() }
+    // MARK: - Push Notification
+
+    /// 시스템 알림 권한 상태를 확인하여 토글에 반영
+    func refreshPushPermissionStatus() async {
+        let settings = await UNUserNotificationCenter.current().notificationSettings()
+        isPushOn = settings.authorizationStatus == .authorized
     }
+
+    /// 푸시 토글 탭 시 iOS 설정 앱으로 이동
+    func openPushSettings() {
+        guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+        UIApplication.shared.open(url)
+    }
+
+    // MARK: - Marketing
 
     func updateMarketing(_ newValue: Bool) {
         isMarketingOn = newValue
-        Task { await save() }
+        Task { await saveMarketingPrefs() }
     }
 
-    // 서버 저장
-    private func save() async {
+    private func saveMarketingPrefs() async {
         let prefs = NotificationPrefs(
             pushEnabled: isPushOn,
             marketingOptIn: isMarketingOn
@@ -97,8 +111,8 @@ final class SettingViewModel: ObservableObject {
     }
 
     func navigateToInquiry() {
-        // TODO: 문의하기 화면으로 이동
-        // 아직 구현되지 않은 화면입니다.
+        guard let url = URL(string: "https://pf.kakao.com/_amHbn") else { return }
+        UIApplication.shared.open(url)
     }
 
     func navigateToWithdraw() {

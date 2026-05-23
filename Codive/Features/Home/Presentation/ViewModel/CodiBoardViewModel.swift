@@ -59,12 +59,6 @@ final class CodiBoardViewModel: ObservableObject {
     
     // MARK: - Navigation
     func handleBackTap() {
-        if let homeVM = homeViewModel {
-            if homeVM.todayCodiPreview != nil {
-                homeVM.hasCodi = true
-            }
-            homeVM.isEditingExistingCodi = false
-        }
         navigationRouter.navigateBack()
     }
     
@@ -80,7 +74,12 @@ final class CodiBoardViewModel: ObservableObject {
                 Rectangle()
                     .fill(Color.Codive.grayscale7)
 
-                DraggableImageView(items: .constant(images)) { _ in }
+                DraggableImageView(
+                    items: .constant(images),
+                    selectedImageID: nil,
+                    onActivate: { _ in },
+                    onDeselect: { }
+                )
             }
                 .frame(width: actualSize, height: actualSize)
                 .clipped()

@@ -86,7 +86,10 @@ private extension FavoriteLookBookPopUp {
                 
                 // MARK: - 태그 표시 조건 수정
                 if showClothSelector, let item = selectedItem, let pos = payload {
-                    CustomTagView(type: .basic(title: item.brand, content: item.name))
+                    CustomTagView(type: .basic(
+                        title: item.brand.isEmpty ? "No brand" : item.brand,
+                        content: item.name.isEmpty ? "\(item.parentCategory) > \(item.category)" : item.name
+                    ))
                         .position(
                             x: boardSize * CGFloat(pos.locationX),
                             y: boardSize * CGFloat(pos.locationY)
@@ -132,7 +135,7 @@ private extension FavoriteLookBookPopUp {
         .cornerRadius(8)
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(selectedIndex == index ? Color.blue : Color.clear, lineWidth: 2)
+                .stroke(selectedIndex == index ? Color.Codive.main0 : Color.clear, lineWidth: 2)
         )
         .onTapGesture {
             selectedIndex = index

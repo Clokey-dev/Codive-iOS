@@ -7,10 +7,11 @@
 
 import Photos
 import UIKit
+import ImageIO
 
 // MARK: - PhotoDataSource
 final class PhotoDataSource {
-    
+
     // MARK: - Properties
     private let imageManager = PHCachingImageManager()
     
@@ -78,21 +79,43 @@ final class PhotoDataSource {
     }
     
     // MARK: - Load Image
+
+    /// ImageIO 다운샘플링으로 이미지 로드 (원본 전체 디코딩 없이 타겟 크기만 생성)
     func loadImage(for asset: PHAsset, size: CGSize) async -> UIImage? {
+        guard let imageData = await loadImageData(for: asset) else { return nil }
+        return downsample(data: imageData, to: size)
+    }
+
+    private func loadImageData(for asset: PHAsset) async -> Data? {
         return await withCheckedContinuation { continuation in
             let options = PHImageRequestOptions()
-            options.deliveryMode = .highQualityFormat
             options.isNetworkAccessAllowed = true
             options.isSynchronous = false
-            
-            imageManager.requestImage(
+
+            imageManager.requestImageDataAndOrientation(
                 for: asset,
-                targetSize: size,
-                contentMode: .aspectFill,
                 options: options
-            ) { image, _ in
-                continuation.resume(returning: image)
+            ) { data, _, _, _ in
+                continuation.resume(returning: data)
             }
         }
+    }
+
+    private func downsample(data: Data, to size: CGSize) -> UIImage? {
+        let maxDimension = max(size.width, size.height)
+
+        let options: [CFString: Any] = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceShouldCacheImmediately: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceThumbnailMaxPixelSize: maxDimension
+        ]
+
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil),
+              let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
+            return nil
+        }
+
+        return UIImage(cgImage: cgImage)
     }
 }
